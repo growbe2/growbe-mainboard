@@ -9,7 +9,14 @@ Repository for the growbe-mainboard
 # Build the docker image
 ./scripts/docker.sh
 
+# Build the C driver library
+# Build for linux pc
+./scripts/rust_env.sh make -C ./drivers
+# Build for linux arm
+TARGET_NAME=armv7-unknown-linux-gnueabihf ./scripts/rust_env.sh make -C ./drivers
+
 # Build the app for local dev / test
+./scripts/rust_env.sh cargo vendors
 ./scripts/rust_env.sh cargo build 
 ./target/debug/growbe-mainboard
 

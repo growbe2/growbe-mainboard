@@ -1,0 +1,16 @@
+TARGET = gro
+#CC = arm-linux-gnueabihf-gcc
+CC = gcc
+CPPFLAGS = -I./include
+
+libmainboard_driver.a: i2c_comboard.o i2c.o
+	ar rcs $@ $^
+
+i2c_comboard.o: src/i2c_comboard.c include/i2c_comboard.h
+	$(CC) $(CPPFLAGS) -c -o $@ $<
+
+i2c.o: src/i2c.c include/i2c.h
+	$(CC) $(CPPFLAGS) -c -o $@ $<
+
+clean:
+	rm -f *.o *.a $(TARGET)
