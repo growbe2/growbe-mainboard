@@ -24,7 +24,13 @@ TARGET_NAME=armv7-unknown-linux-gnueabihf ./scripts/rust_env.sh make -C ./driver
 TARGET_NAME=armv7-unknown-linux-gnueabihf ./scripts/remote_debug.sh . 192.168.50.41 17777
 ```
 
-### Remote debug in VSCode
+### Configuring for VSCode
+
+#### Plugin 
+
+Use this plugin not the official one. https://rust-analyzer.github.io/manual.html#vs-code
+
+#### Debug
 
 `.vscode/launch.json`
 ```json
