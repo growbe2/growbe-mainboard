@@ -2,7 +2,11 @@
 #include "i2c.h"
 #include <stdio.h>
 
-void fun1 ( int x )
-{
-    printf("%i\n",x);
+rs_cb_module_state_changed callback_state_changed;
+
+int32_t register_callback(rs_cb_module_state_changed callback) {
+    callback_state_changed = callback;
+
+    callback_state_changed(50);
+    return 1;
 }
