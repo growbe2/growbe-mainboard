@@ -36,8 +36,8 @@ extern "C" {
 pub struct I2CLinuxComboardClient {}
 
 impl super::interface::ComboardClient for I2CLinuxComboardClient {
-    fn run(&self, config: super::interface::ComboardClientConfig) -> std::thread::JoinHandle<()> {
-        return std::thread::spawn(|| {
+    fn run(&self, config: super::interface::ComboardClientConfig) -> tokio::task::JoinHandle<()>  {
+        return tokio::spawn(async {
          unsafe {
              register_callback(callback_state_changed, callback_value_validation, callback_config);
          }

@@ -19,5 +19,5 @@ pub struct ComboardClientConfig {
 }
 
 pub trait ComboardClient {
-	fn run(&self,config: ComboardClientConfig) -> std::thread::JoinHandle<()>;
+	fn run(&self, config: ComboardClientConfig) -> tokio::task::JoinHandle<()>;
 }
