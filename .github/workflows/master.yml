@@ -23,4 +23,4 @@ jobs:
           prerelease: true
           title: "Development Build"
           files: |
-            ./target/debub/growbe-mainboard
+            ./target/debug/growbe-mainboard
