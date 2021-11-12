@@ -1,0 +1,26 @@
+name: master pipeline , developpment build
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  proxy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Login docker
+        run: docker login https://docker.pkg.github.com -u berlingoqc -p $GITHUB_ACCESS_TOKEN
+        env:
+          GITHUB_ACCESS_TOKEN: ${{ secrets.PAT }}
+      - name: Build x86
+        run: ./scripts/rust_env.sh make -C ./drivers && ./scripts/rust_env.sh cargo build
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "latest"
+          prerelease: true
+          title: "Development Build"
+          files: |
+            ./target/debub/growbe-mainboard
