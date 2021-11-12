@@ -389,6 +389,7 @@ dependencies = [
  "protobuf",
  "protoc-rust",
  "rumqtt",
+ "serde_json",
  "tokio 1.13.0",
 ]
 
