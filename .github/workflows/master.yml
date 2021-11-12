@@ -15,7 +15,7 @@ jobs:
         env:
           GITHUB_ACCESS_TOKEN: ${{ secrets.PAT }}
       - name: Build x86
-        run: ./scripts/rust_env.sh make -C ./drivers && ./scripts/rust_env.sh cargo build
+        run: ./scripts/rust_env.sh make -C ./drivers && ./scripts/rust_env.sh cargo vendor && ./scripts/rust_env.sh cargo build
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
