@@ -2,6 +2,10 @@
 use std::ffi::CStr;
 use std::str;
 
+use std::sync::{Mutex, Arc, mpsc::Sender};
+
+use crate::comboard::imple::interface::ModuleStateChangeEvent;
+
 
 extern fn callback_state_changed(port: i32, id: *const ::std::os::raw::c_char, state: bool) -> () {
     let c_str: &CStr = unsafe { CStr::from_ptr(id) };
@@ -36,7 +40,8 @@ extern "C" {
 pub struct I2CLinuxComboardClient {}
 
 impl super::interface::ComboardClient for I2CLinuxComboardClient {
-    fn run(&self, config: super::interface::ComboardClientConfig) -> tokio::task::JoinHandle<()>  {
+    fn run(&self,
+        config: super::interface::ComboardClientConfig) -> tokio::task::JoinHandle<()>  {
         return tokio::spawn(async {
          unsafe {
              register_callback(callback_state_changed, callback_value_validation, callback_config);

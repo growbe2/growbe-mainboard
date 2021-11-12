@@ -1,41 +1,31 @@
 mod protos;
 mod comboard;
+mod modulestate;
 
-use std::sync::mpsc::channel;
+use std::sync::{Mutex, Arc, mpsc::channel};
+use comboard::imple;
 
 #[tokio::main]
 async fn main() {
 
     let d = comboard::getComboardClient();
 
-    let (sender, receiver) = channel();
-    let (senderState, receiverState) = channel();
-    let (senderValue, receiverValue) = channel();
+    // channel for the communication between the comboard
+    // and the modulestate manager
+    let (sender, receiver) = channel::<imple::interface::Module_Config>();
+    let (senderState, receiverState) = channel::<imple::interface::ModuleStateChangeEvent>();
+    let (senderValue, receiverValue) = channel::<imple::interface::ModuleValueValidationEvent>();
 
     let comboardTask = d.run(
         comboard::imple::interface::ComboardClientConfig{
-        receiverConfig: receiver,
-        senderStateChange: senderState,
-        senderValueValidation: senderValue,
+        receiverConfig: Arc::new(Mutex::new(receiver)),
+        senderStateChange: Arc::new(Mutex::new(senderState)),
+        senderValueValidation: Arc::new(Mutex::new(senderValue)),
     });
 
-    tokio::join!(comboardTask);
+    let moduleStateTask = modulestate::moduleStateTask(
+        receiverState, receiverValue
+    );
+
+    tokio::join!(comboardTask, moduleStateTask);
 }
-/*
-fn main() {
-    println!("Hello, world!");
-
-    let d = comboard::getComboardClient();
-
-    let (sender, receiver) = channel();
-    let (senderState, receiverState) = channel();
-    let (senderValue, receiverValue) = channel();
-
-    let comboardHandler = d.run(
-        comboard::imple::interface::ComboardClientConfig{
-        receiverConfig: receiver,
-        senderStateChange: senderState,
-        senderValueValidation: senderValue,
-    }).join();
-}
-*/

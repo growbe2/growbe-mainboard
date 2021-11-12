@@ -1,3 +1,5 @@
+use std::sync::{Mutex, Arc, mpsc::Sender, mpsc::Receiver};
+
 #[repr(C)]
 pub struct Module_Config {
     pub port: cty::c_int,
@@ -5,17 +7,20 @@ pub struct Module_Config {
 }
 
 pub struct ModuleStateChangeEvent {
-
+    pub port: i32,
+    pub id: &'static str,
+    pub state: bool,
 }
 
 pub struct ModuleValueValidationEvent {
-
+    pub port: i32,
+    pub buffer: [u8; 512],
 }
 
 pub struct ComboardClientConfig {
-    pub receiverConfig: std::sync::mpsc::Receiver<Module_Config>,
-    pub senderStateChange: std::sync::mpsc::Sender<ModuleStateChangeEvent>,
-    pub senderValueValidation: std::sync::mpsc::Sender<ModuleValueValidationEvent>,
+    pub receiverConfig: Arc<Mutex<Receiver<Module_Config>>>,
+    pub senderStateChange: Arc<Mutex<Sender<ModuleStateChangeEvent>>>,
+    pub senderValueValidation: Arc<Mutex<Sender<ModuleValueValidationEvent>>>,
 }
 
 pub trait ComboardClient {

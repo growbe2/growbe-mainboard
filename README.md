@@ -3,6 +3,12 @@
 
 Repository for the growbe-mainboard
 
+## Migration from the C FreeRTOS app
+
+* Service for the RTC ( set date and get date )
+* Growbe Mainboard State ( manager of the state of the mainboard and the module connected )
+* Growbe Mainboard Module Validation ( layer that validate and translate the i2c buffer to mainboard value)
+
 ### Build the app
 
 ```
