@@ -12,7 +12,7 @@ async fn main() {
 
     // channel for the communication between the comboard
     // and the modulestate manager
-    let (sender, receiver) = channel::<imple::interface::Module_Config>();
+    let (_sender, receiver) = channel::<imple::interface::Module_Config>();
     let (senderState, receiverState) = channel::<imple::interface::ModuleStateChangeEvent>();
     let (senderValue, receiverValue) = channel::<imple::interface::ModuleValueValidationEvent>();
 
