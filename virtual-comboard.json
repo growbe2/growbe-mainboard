@@ -4,7 +4,21 @@
 			"eventType": "state",
 			"id": "AAP000004",
 			"state": true,
-			"buffer": [45, 34, 23, 52]
+			"port": 4
+		},
+		{
+			"eventType": "value",
+			"port": 4,
+			"buffer": [34, 23, 25, 63, 23, 23, 65, 43],
+			"timeout": 1000
+		},
+		{
+			"eventType": "value",
+			"port": 4,
+			"buffer": [24, 33, 35, 53, 43, 73, 85, 93],
+			"returnIndex": 1,
+			"timeout": 1000
 		}
+
 	]
 }
