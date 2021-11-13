@@ -1,5 +1,10 @@
 {
-	"eventType": 2,
-	"id": "AAP000004",
-	"state": true
+	"actions": [
+		{
+			"eventType": "state",
+			"id": "AAP000004",
+			"state": true,
+			"buffer": [45, 34, 23, 52]
+		}
+	]
 }

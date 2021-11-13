@@ -8,13 +8,13 @@ pub struct Module_Config {
 
 pub struct ModuleStateChangeEvent {
     pub port: i32,
-    pub id: &'static str,
+    pub id: String,
     pub state: bool,
 }
 
 pub struct ModuleValueValidationEvent {
     pub port: i32,
-    pub buffer: [u8; 512],
+    pub buffer: Vec<u8>,
 }
 
 pub struct ComboardClientConfig {
