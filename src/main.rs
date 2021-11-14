@@ -10,6 +10,7 @@ async fn main() {
 
     let d = comboard::getComboardClient();
 
+
     // channel for the communication between the comboard
     // and the modulestate manager
     let (_sender, receiver) = channel::<imple::interface::Module_Config>();
