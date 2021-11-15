@@ -1,6 +1,8 @@
 mod protos;
 mod comboard;
 mod socket;
+mod id;
+mod mainboardstate;
 mod modulestate;
 
 use std::sync::{Mutex, Arc, mpsc::channel};
@@ -17,6 +19,8 @@ async fn main() {
 
     let (sender_socket, receiver_socket) = channel::<(String, Box<dyn modulestate::interface::ModuleValueParsable>)>();
 
+    let sender_socket_hello = sender_socket.clone();
+
     let comboard_task = d.run(
         comboard::imple::interface::ComboardClientConfig{
         receiver_config: Arc::new(Mutex::new(receiver_config)),
@@ -32,5 +36,13 @@ async fn main() {
         Arc::new(Mutex::new(receiver_socket)),
     );
 
-    let (_,_,_) = tokio::join!(comboard_task, module_state_task, socket_task);
+    mainboardstate::hello_world::task_hello_world(
+        sender_socket_hello,
+    ).await;
+
+    let (_,_,_) = tokio::join!(
+        comboard_task,
+        module_state_task,
+        socket_task
+    );
 }

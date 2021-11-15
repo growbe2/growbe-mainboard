@@ -1,5 +1,5 @@
 
-pub mod aap;
+pub mod aaa;
 pub mod aas;
 pub mod interface;
 
@@ -30,8 +30,8 @@ impl MainboardModuleStateManager {
 
 fn get_module_validator(module_type: char, ) -> Box<dyn interface::ModuleValueValidator> {
     // TODO switch back to a match but i was having issue with match :(
-    if module_type == 'P' {
-        return Box::new(aap::AAPValidator{});
+    if module_type == 'A' {
+        return Box::new(aaa::AAAValidator{});
     } else if module_type == 'S' {
         return Box::new(aas::AASValidator{});
     } else {
