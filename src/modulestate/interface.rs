@@ -1,5 +1,10 @@
 
+pub trait ModuleValue {}
+pub trait ModuleValueParsable: ModuleValue + protobuf::Message {}
 
-pub trait ModuleValueValidator<T> {
-    fn convertToValue(valueEvent: crate::comboard::imple::interface::ModuleValueValidationEvent) -> T;
+impl ModuleValue for crate::protos::module::ModuleData {}
+impl ModuleValueParsable for crate::protos::module::ModuleData {}
+
+pub trait ModuleValueValidator {
+    fn convert_to_value(&self, value_event: &crate::comboard::imple::interface::ModuleValueValidationEvent) -> Box<dyn ModuleValueParsable>;
 }

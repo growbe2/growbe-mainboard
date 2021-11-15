@@ -4,3 +4,5 @@
 /drivers/*.o
 .vscode/launch.json
 .vscode/tasks.json
+release/
+.idea
