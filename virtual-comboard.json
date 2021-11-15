@@ -1,24 +1,30 @@
 {
 	"actions": [
 		{
-			"eventType": "state",
+			"event_type": "state",
 			"id": "AAP000004",
 			"state": true,
 			"port": 4
 		},
 		{
-			"eventType": "value",
+			"event_type": "value",
 			"port": 4,
 			"buffer": [34, 23, 25, 63, 23, 23, 65, 43],
 			"timeout": 1000
 		},
 		{
-			"eventType": "value",
+			"event_type": "value",
 			"port": 4,
 			"buffer": [24, 33, 35, 53, 43, 73, 85, 93],
-			"returnIndex": 1,
+			"timeout": 1000
+		},
+		{
+			"event_type": "state",
+			"id": "AAP000004",
+			"state": false,
+			"port": 4,
+			"return_index": 0,
 			"timeout": 1000
 		}
-
 	]
 }

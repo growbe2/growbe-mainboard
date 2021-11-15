@@ -6,13 +6,13 @@ use serde::{Deserialize, Serialize};
 use serde_json::Result;
 
 
-fn defaultIndex() -> i32 {
+fn default_index() -> i32 {
     return -1;
 }
 
 #[derive(Serialize, Deserialize)]
 struct VirtualScenarioItem {
-    pub eventType: String,
+    pub event_type: String,
     #[serde(default)] 
     pub port: i32,
     #[serde(default)] 
@@ -21,8 +21,8 @@ struct VirtualScenarioItem {
     pub state: bool,
     #[serde(default)] 
     pub buffer: Vec<u8>,
-    #[serde(default = "defaultIndex")] 
-    pub returnIndex: i32,
+    #[serde(default = "default_index")] 
+    pub return_index: i32,
     #[serde(default)] 
     pub timeout: u64, // in milliseconds
 }
@@ -33,7 +33,7 @@ struct VirtualScenario {
 }
 
 
-fn getConfig(config: &'static str) -> Result<VirtualScenario>  {
+fn get_config(config: &'static str) -> Result<VirtualScenario>  {
     let file = std::fs::File::open(config).expect("Error open file");
     let scenario: VirtualScenario = serde_json::from_reader(file)?;
     Ok(scenario)
@@ -44,30 +44,30 @@ pub struct VirtualComboardClient {}
 impl super::interface::ComboardClient for VirtualComboardClient {
 
     fn run(&self,
-        configComboard: super::interface::ComboardClientConfig) -> tokio::task::JoinHandle<()> {
+        config_comboard: super::interface::ComboardClientConfig) -> tokio::task::JoinHandle<()> {
         return tokio::spawn(async move {
-            let config = getConfig("./virtual-comboard.json").expect("Failed to load config for virtual comboard");
+            let config = get_config("./virtual-comboard.json").expect("Failed to load config for virtual comboard");
             // Read json config file
             let mut i: usize = 0;
             while i < config.actions.len() {
-                match config.actions[i].eventType.as_str() { 
+                match config.actions[i].event_type.as_str() { 
                     "state" => {
-                        configComboard.senderStateChange.lock().unwrap().send(
+                        config_comboard.sender_state_change.lock().unwrap().send(
                             ModuleStateChangeEvent{
                                 port: config.actions[i].port,
                                 id: config.actions[i].id.clone(),
                                 state: config.actions[i].state,
                             }
-                        );
+                        ).unwrap();
                     },
                     "value" => {
-                        let newBuffer = config.actions[i].buffer.clone();
-                        configComboard.senderValueValidation.lock().unwrap().send(
+                        let new_buffer = config.actions[i].buffer.clone();
+                        config_comboard.sender_value_validation.lock().unwrap().send(
                             ModuleValueValidationEvent{
                                 port: config.actions[i].port,
-                                buffer: newBuffer,
+                                buffer: new_buffer,
                             }
-                        );
+                        ).unwrap();
                     },
                     _ => {
                         println!("Invalid event type for action");
@@ -78,8 +78,8 @@ impl super::interface::ComboardClient for VirtualComboardClient {
                     tokio::time::sleep(tokio::time::Duration::from_millis(config.actions[i].timeout)).await;
                 }
 
-                if config.actions[i].returnIndex > -1 {
-                    i = config.actions[i].returnIndex as usize; 
+                if config.actions[i].return_index > -1 {
+                    i = config.actions[i].return_index as usize; 
                 } else {
                     i += 1;
                 }

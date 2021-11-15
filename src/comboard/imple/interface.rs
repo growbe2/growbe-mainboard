@@ -18,9 +18,9 @@ pub struct ModuleValueValidationEvent {
 }
 
 pub struct ComboardClientConfig {
-    pub receiverConfig: Arc<Mutex<Receiver<Module_Config>>>,
-    pub senderStateChange: Arc<Mutex<Sender<ModuleStateChangeEvent>>>,
-    pub senderValueValidation: Arc<Mutex<Sender<ModuleValueValidationEvent>>>,
+    pub receiver_config: Arc<Mutex<Receiver<Module_Config>>>,
+    pub sender_state_change: Arc<Mutex<Sender<ModuleStateChangeEvent>>>,
+    pub sender_value_validation: Arc<Mutex<Sender<ModuleValueValidationEvent>>>,
 }
 
 pub trait ComboardClient {

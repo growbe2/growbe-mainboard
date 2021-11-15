@@ -5,9 +5,11 @@ pub struct AAPValidator {}
 
 impl super::interface::ModuleValue for SOILModuleData {}
 
-impl super::interface::ModuleValueValidator<SOILModuleData> for AAPValidator {
+impl super::interface::ModuleValueParsable for SOILModuleData {}
 
-    fn convert_to_value(&self, value_event: &crate::comboard::imple::interface::ModuleValueValidationEvent) -> SOILModuleData {
+impl super::interface::ModuleValueValidator for AAPValidator {
+
+    fn convert_to_value(&self, value_event: &crate::comboard::imple::interface::ModuleValueValidationEvent) -> Box<dyn super::interface::ModuleValueParsable> {
         let mut data = SOILModuleData::new();
         data.p0 = value_event.buffer[0] as i32;
         data.p1 = value_event.buffer[1] as i32;
@@ -18,7 +20,7 @@ impl super::interface::ModuleValueValidator<SOILModuleData> for AAPValidator {
         data.p6 = value_event.buffer[6] as i32;
         data.p7 = value_event.buffer[7] as i32;
 
-        return data;
+        return Box::new(data);
     }
 
 }
