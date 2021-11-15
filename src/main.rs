@@ -1,6 +1,7 @@
 mod protos;
 mod comboard;
 mod socket;
+mod id;
 mod modulestate;
 
 use std::sync::{Mutex, Arc, mpsc::channel};
