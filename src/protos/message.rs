@@ -1170,7 +1170,7 @@ pub enum ActionCode {
     MODULE_CONFIG = 1,
     MAINBOARD_CONFIG = 2,
     RTC_SET = 3,
-    SYNC_REQUEST = 4,
+    SYNC_REQUEST = 11,
 }
 
 impl ::protobuf::ProtobufEnum for ActionCode {

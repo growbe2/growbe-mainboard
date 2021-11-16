@@ -4,8 +4,22 @@ pub mod aas;
 pub mod interface;
 
 use crate::{comboard::imple::interface::{ModuleStateChangeEvent, ModuleValueValidationEvent}};
+use lazy_static::lazy_static;
 use std::collections::HashMap;
-use std::sync::mpsc::{Receiver, Sender};
+use std::sync::Mutex;
+use std::sync::mpsc::{Receiver, Sender,};
+
+
+pub struct ModuleStateCmd {
+    pub cmd: &'static str,
+}
+
+lazy_static! {
+    pub static ref CHANNEL_MODULE_STATE_CMD: (Mutex<Sender<ModuleStateCmd>>, Mutex<Receiver<ModuleStateCmd>>) = {
+        let (sender, receiver) = std::sync::mpsc::channel::<ModuleStateCmd>();
+        return (Mutex::new(sender), Mutex::new(receiver));
+    };
+}
 
 struct MainboardConnectedModule {
     pub port: i32,
@@ -50,7 +64,7 @@ fn send_module_state(
     send_state.id = String::from(id);
     send_state.plug = state;
     send_state.atIndex = port;
-    sender_socket.send((String::from(format!("/{}/state", id)), Box::new(send_state))).unwrap();
+    sender_socket.send((String::from(format!("/m/{}/state", id)), Box::new(send_state))).unwrap();
 }
 
 fn handle_module_state(
@@ -97,8 +111,18 @@ fn handle_module_value(
     let sensor_value = validator.convert_to_value(value);
 
     sender_socket
-        .send((String::from(format!("/{}/data", reference_connected_module.id)), sensor_value))
+        .send((String::from(format!("/m/{}/data", reference_connected_module.id)), sensor_value))
         .expect("Failed to send !!!");
+}
+
+fn handle_sync_request(
+    manager: & mut MainboardModuleStateManager,
+    sender_socket: & Sender<(String, Box<dyn interface::ModuleValueParsable>)>,
+) -> () {
+    println!("Send sync request to the cloud");
+    for (k,v) in manager.connected_module.iter() {
+        send_module_state(k, v.port, false, sender_socket);
+    }
 }
 
 pub async fn module_state_task(
@@ -123,6 +147,16 @@ pub async fn module_state_task(
             if receive.is_ok() {
                 let value = receive.unwrap();
                 handle_module_value(& mut manager, &value, &sender_socket);
+            }
+        }
+        {
+            let receive = CHANNEL_MODULE_STATE_CMD.1.lock().unwrap().try_recv();
+            if receive.is_ok() {
+                let cmd = receive.unwrap();
+                match cmd.cmd {
+                    "sync" => handle_sync_request(& mut manager, &sender_socket),
+                    _ => println!("MODULE_STATE receive invalid cmd"),
+                }
             }
         }
     }

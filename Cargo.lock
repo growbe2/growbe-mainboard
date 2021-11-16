@@ -387,6 +387,7 @@ dependencies = [
  "cty",
  "futures 0.3.17",
  "hyper",
+ "lazy_static",
  "protobuf",
  "protoc-rust",
  "rumqtt",

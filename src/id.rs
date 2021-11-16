@@ -9,5 +9,5 @@ pub fn get_id() -> String {
 
 #[cfg(target_arch = "x86_64")]
 pub fn get_id() -> String {
-    return String::from(format!("V123456"));
+    return String::from(format!("1F54019"));
 }

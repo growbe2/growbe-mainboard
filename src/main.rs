@@ -1,3 +1,5 @@
+extern crate lazy_static;
+
 mod protos;
 mod comboard;
 mod socket;

@@ -1,6 +1,6 @@
 use chrono::prelude::*;
 
-const DATE_FORMAT_STR: &'static str = "%H:%M:%S %Y/%m/%d";
+const DATE_FORMAT_STR: &'static str = "%H:%M:%S %m/%d/%Y";
 
 pub fn get_rtc_format() -> String {
     return get_rtc().format(DATE_FORMAT_STR).to_string();    

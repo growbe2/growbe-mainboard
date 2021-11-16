@@ -2,7 +2,7 @@
 	"actions": [
 		{
 			"event_type": "state",
-			"id": "AAS000004",
+			"id": "AAS000000009",
 			"state": true,
 			"port": 4
 		},
@@ -20,7 +20,7 @@
 		},
 		{
 			"event_type": "state",
-			"id": "AAS000004",
+			"id": "AAS000000009",
 			"state": false,
 			"port": 4,
 			"return_index": 0,

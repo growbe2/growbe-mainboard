@@ -10,7 +10,7 @@ pub async fn task_hello_world(
     sender: Sender<(String, Box<dyn crate::modulestate::interface::ModuleValueParsable>)>,
 ) -> () {
     let mut hello = HelloWord::new();
-    hello.cloudVersion = String::from("UNKNOWN");
+    hello.cloudVersion = String::from("1.1.4");
     hello.version = String::from(VERSION);
     hello.RTC = super::rtc::get_rtc_format();
     sender.send((String::from("/hello"), Box::new(hello))).unwrap();

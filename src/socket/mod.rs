@@ -11,12 +11,20 @@ struct MqttHandler {
     pub handler: fn(topic_name: String, data: Arc<Vec<u8>>) -> (),
 }
 
+fn get_topic_prefix(subtopic: & str) -> String {
+    return format!("/growbe/{}{}",crate::id::get_id(), subtopic);
+}
 
-fn on_set_rtc(topic_name: String, data: Arc<Vec<u8>>) -> () {
+fn on_set_rtc(_topic_name: String, data: Arc<Vec<u8>>) -> () {
     let payload = crate::protos::message::RTCTime::parse_from_bytes(&data).unwrap();
     crate::mainboardstate::rtc::set_rtc(payload);
 }
 
+fn on_sync_request(_topic_name: String, _data: Arc<Vec<u8>>) -> () {
+    crate::modulestate::CHANNEL_MODULE_STATE_CMD.0.lock().unwrap().send(crate::modulestate::ModuleStateCmd{
+        cmd: "sync"
+    }).unwrap();
+}
 
 pub fn socket_task(
     receiver_socket: Arc<Mutex<Receiver<(String, Box<dyn crate::modulestate::interface::ModuleValueParsable>)>>>,
@@ -31,6 +39,12 @@ pub fn socket_task(
             regex: "setTime",
             action_code: crate::protos::message::ActionCode::RTC_SET,
             handler: on_set_rtc
+        },
+        MqttHandler{
+            subscription: String::from("/board/sync"),
+            regex: "sync",
+            action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
+            handler: on_sync_request,
         }
     );
 
@@ -43,9 +57,8 @@ pub fn socket_task(
 
         handlers.iter().for_each(|handler| client.subscribe(format!("/growbe/{}{}", crate::id::get_id(), handler.subscription),  QoS::ExactlyOnce).unwrap());
 
-        let mut send = |topic, payload, includeprefix| -> Instant {
-            let full_topic = format!("{}{}{}", if includeprefix { "/growbe/" } else { "" },crate::id::get_id() ,topic);
-            client.publish(full_topic, QoS::ExactlyOnce, false, payload).unwrap();
+        let mut send = |topic, payload| -> Instant {
+            client.publish(topic, QoS::ExactlyOnce, false, payload).unwrap();
             return Instant::now();
         };
 
@@ -55,7 +68,7 @@ pub fn socket_task(
                 if receive.is_ok() {
                     let message = receive.unwrap();
                     let payload = message.1.write_to_bytes().unwrap();
-                    last_send_instant = send(message.0, payload, true);
+                    last_send_instant = send(get_topic_prefix(message.0.as_str()), payload);
                 }
             }
             {
@@ -76,7 +89,7 @@ pub fn socket_task(
                             action_respose.action = item.action_code;
                             action_respose.status = 0;
                             action_respose.msg = String::from("");
-                            send(format!("{}{}", d.topic_name.as_str(), "/response"), action_respose.write_to_bytes().unwrap(), false);
+                            send(format!("{}{}", d.topic_name.as_str(), "/response"), action_respose.write_to_bytes().unwrap());
 
                         },
                         _ => println!("Oupsy"),
@@ -88,7 +101,7 @@ pub fn socket_task(
                 if last_send_instant.elapsed() > hearth_beath_rate {
                     let hearth_beath = crate::protos::message::HearthBeath::new();
                     let payload = hearth_beath.write_to_bytes().unwrap();
-                    last_send_instant = send(String::from("/hearthbeat"), payload, true);
+                    last_send_instant = send(get_topic_prefix("/hearthbeat"), payload);
                     println!("Sending hearthbeath");
                }
             }
