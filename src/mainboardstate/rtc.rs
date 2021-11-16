@@ -16,6 +16,6 @@ pub fn set_rtc(rtc: crate::protos::message::RTCTime) -> () {
 } 
 
 #[cfg(target_arch = "arm")]
-pub fn set_rtc(str: String) -> () {
+pub fn set_rtc(rtc: crate::protos::message::RTCTime) -> () {
     // change the time of the clock
 } 
