@@ -6,12 +6,15 @@ mod socket;
 mod id;
 mod mainboardstate;
 mod modulestate;
+mod store;
 
 use std::sync::{Mutex, Arc, mpsc::channel};
 use comboard::imple;
 
 #[tokio::main]
 async fn main() {
+
+    let conn_database = Arc::new(Mutex::new(store::database::init()));
 
     let d = comboard::get_comboard_client();
 
@@ -31,7 +34,10 @@ async fn main() {
     });
 
     let module_state_task = modulestate::module_state_task(
-        receiver_state, receiver_value, sender_socket
+        receiver_state,
+        receiver_value,
+        sender_socket,
+        conn_database.clone(),
     );
 
     let socket_task = socket::socket_task(

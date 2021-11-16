@@ -6,7 +6,7 @@ pub mod interface;
 use crate::{comboard::imple::interface::{ModuleStateChangeEvent, ModuleValueValidationEvent}};
 use lazy_static::lazy_static;
 use std::collections::HashMap;
-use std::sync::Mutex;
+use std::sync::{Mutex, Arc};
 use std::sync::mpsc::{Receiver, Sender,};
 
 
@@ -71,6 +71,7 @@ fn handle_module_state(
     manager: & mut MainboardModuleStateManager,
     state: & ModuleStateChangeEvent,
     sender_socket: & Sender<(String, Box<dyn interface::ModuleValueParsable>)>,
+    conn: &Mutex<rusqlite::Connection>,
 ) -> () {
     if !manager.connected_module.contains_key(state.id.as_str()) {
         if state.state == true {
@@ -129,6 +130,7 @@ pub async fn module_state_task(
     receiver_state_change: Receiver<ModuleStateChangeEvent>,
     receiver_value_validation: Receiver<ModuleValueValidationEvent>,
     sender_socket: Sender<(String, Box<dyn interface::ModuleValueParsable>)>,
+    conn: Arc<Mutex<rusqlite::Connection>>,
 ) {
     let mut manager = MainboardModuleStateManager{
         connected_module: HashMap::new(),
@@ -139,7 +141,7 @@ pub async fn module_state_task(
             let receive = receiver_state_change.try_recv();
             if receive.is_ok() {
                 let state = receive.unwrap();
-                handle_module_state(& mut manager, &state, &sender_socket);
+                handle_module_state(& mut manager, &state, &sender_socket, &conn);
             }
         }
         {

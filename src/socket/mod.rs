@@ -92,7 +92,7 @@ pub fn socket_task(
                             send(format!("{}{}", d.topic_name.as_str(), "/response"), action_respose.write_to_bytes().unwrap());
 
                         },
-                        _ => println!("Oupsy"),
+                        _ => println!("Oupsy, {:?}", message),
                     }
                     
                 }
