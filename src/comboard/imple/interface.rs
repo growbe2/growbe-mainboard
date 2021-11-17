@@ -3,7 +3,7 @@ use std::sync::{Mutex, Arc, mpsc::Sender, mpsc::Receiver};
 #[repr(C)]
 pub struct Module_Config {
     pub port: cty::c_int,
-    pub buffer: [cty::uint8_t; 512],
+    pub buffer: [cty::uint8_t; 8],
 }
 
 pub struct ModuleStateChangeEvent {

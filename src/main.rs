@@ -14,11 +14,13 @@ use comboard::imple;
 #[tokio::main]
 async fn main() {
 
+    // Initializing database
     let conn_database = Arc::new(Mutex::new(store::database::init()));
 
     let d = comboard::get_comboard_client();
 
-    let (_sender_config, receiver_config) = channel::<imple::interface::Module_Config>();
+    // Creating channel for comboard to modulestate communication
+    let (sender_config, receiver_config) = channel::<imple::interface::Module_Config>();
     let (sender_state, receiver_state) = channel::<imple::interface::ModuleStateChangeEvent>();
     let (sender_value, receiver_value) = channel::<imple::interface::ModuleValueValidationEvent>();
 
@@ -26,6 +28,7 @@ async fn main() {
 
     let sender_socket_hello = sender_socket.clone();
 
+    // Create the task to run the comboard
     let comboard_task = d.run(
         comboard::imple::interface::ComboardClientConfig{
         receiver_config: Arc::new(Mutex::new(receiver_config)),
@@ -33,21 +36,26 @@ async fn main() {
         sender_value_validation: Arc::new(Mutex::new(sender_value)),
     });
 
+   // Create the task to handle the modules state 
     let module_state_task = modulestate::module_state_task(
         receiver_state,
         receiver_value,
+        sender_config,
         sender_socket,
-        conn_database.clone(),
+        modulestate::store::ModuleStateStore::new(conn_database.clone()),
     );
 
+    // Create the task for the communication socket from outside the app
     let socket_task = socket::socket_task(
         Arc::new(Mutex::new(receiver_socket)),
     );
 
-    mainboardstate::hello_world::task_hello_world(
+    // Run the hello world task to start the application
+    /*mainboardstate::hello_world::task_hello_world(
         sender_socket_hello,
-    ).await;
+    ).await;*/
 
+    // Wait for all task to finish (they should never end)
     let (_,_,_) = tokio::join!(
         comboard_task,
         module_state_task,

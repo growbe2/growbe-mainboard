@@ -49,39 +49,62 @@ impl super::interface::ComboardClient for VirtualComboardClient {
             let config = get_config("./virtual-comboard.json").expect("Failed to load config for virtual comboard");
             // Read json config file
             let mut i: usize = 0;
+            let mut waiting: Option<std::time::Instant> = None;
             while i < config.actions.len() {
-                match config.actions[i].event_type.as_str() { 
-                    "state" => {
-                        config_comboard.sender_state_change.lock().unwrap().send(
-                            ModuleStateChangeEvent{
-                                port: config.actions[i].port,
-                                id: config.actions[i].id.clone(),
-                                state: config.actions[i].state,
+
+                // check if we have event to process config change
+                let config_request = config_comboard.receiver_config.lock().unwrap().try_recv();
+                if config_request.is_ok() {
+                    let config = config_request.unwrap();
+                    println!("Virtual comboard apply config {:?}", config.buffer);
+
+                    config_comboard.sender_value_validation.lock().unwrap().send(
+                        ModuleValueValidationEvent{
+                            port: config.port,
+                            buffer: Vec::from(config.buffer)
+                        }
+                    ).unwrap();
+                }
+
+                if waiting.is_none() {
+                    match config.actions[i].event_type.as_str() { 
+                        "state" => {
+                            config_comboard.sender_state_change.lock().unwrap().send(
+                                ModuleStateChangeEvent{
+                                    port: config.actions[i].port,
+                                    id: config.actions[i].id.clone(),
+                                    state: config.actions[i].state,
+                                }
+                            ).unwrap();
+                        },
+                        "value" => {
+                            let new_buffer = config.actions[i].buffer.clone();
+                            config_comboard.sender_value_validation.lock().unwrap().send(
+                                ModuleValueValidationEvent{
+                                    port: config.actions[i].port,
+                                    buffer: new_buffer,
                             }
-                        ).unwrap();
-                    },
-                    "value" => {
-                        let new_buffer = config.actions[i].buffer.clone();
-                        config_comboard.sender_value_validation.lock().unwrap().send(
-                            ModuleValueValidationEvent{
-                                port: config.actions[i].port,
-                                buffer: new_buffer,
-                            }
-                        ).unwrap();
-                    },
-                    _ => {
-                        println!("Invalid event type for action");
+                            ).unwrap();
+                        },
+                        _ => {
+                            println!("Invalid event type for action");
+                        }
                     }
-                }
 
-                if config.actions[i].timeout > 0 {
-                    tokio::time::sleep(tokio::time::Duration::from_millis(config.actions[i].timeout)).await;
-                }
+                    if config.actions[i].timeout > 0 {
+                        waiting = Some(std::time::Instant::now());
+                        //tokio::time::sleep(tokio::time::Duration::from_millis(config.actions[i].timeout)).await;
+                    }
 
-                if config.actions[i].return_index > -1 {
-                    i = config.actions[i].return_index as usize; 
+                    if config.actions[i].return_index > -1 {
+                        i = config.actions[i].return_index as usize; 
+                    } else {
+                        i += 1;
+                    }
                 } else {
-                    i += 1;
+                    if waiting.is_some() && waiting.unwrap().elapsed() > std::time::Duration::from_millis(config.actions[i].timeout) {
+                        waiting = None;
+                    }
                 }
             }
 

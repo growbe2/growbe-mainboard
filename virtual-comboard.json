@@ -2,6 +2,18 @@
 	"actions": [
 		{
 			"event_type": "state",
+			"id": "AAP000000009",
+			"state": true,
+			"port": 3
+		},
+		{
+			"event_type": "value",
+			"port": 3,
+			"buffer": [0, 0, 0, 0, 0, 0, 0, 0],
+			"timeout": 1000
+		},
+		{
+			"event_type": "state",
 			"id": "AAS000000009",
 			"state": true,
 			"port": 4
@@ -16,15 +28,8 @@
 			"event_type": "value",
 			"port": 4,
 			"buffer": [24, 33, 35, 53, 43, 73, 85, 93],
-			"timeout": 8000
-		},
-		{
-			"event_type": "state",
-			"id": "AAS000000009",
-			"state": false,
-			"port": 4,
-			"return_index": 0,
-			"timeout": 1000
+			"timeout": 8000,
+			"return_index": 3
 		}
 	]
 }

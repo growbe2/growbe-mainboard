@@ -20,11 +20,23 @@ fn on_set_rtc(_topic_name: String, data: Arc<Vec<u8>>) -> () {
     crate::mainboardstate::rtc::set_rtc(payload);
 }
 
-fn on_sync_request(_topic_name: String, _data: Arc<Vec<u8>>) -> () {
+fn on_sync_request(topic_name: String, data: Arc<Vec<u8>>) -> () {
     crate::modulestate::CHANNEL_MODULE_STATE_CMD.0.lock().unwrap().send(crate::modulestate::ModuleStateCmd{
-        cmd: "sync"
+        cmd: "sync",
+        data: data,
+        topic: topic_name,
     }).unwrap();
 }
+
+fn on_mconfig_request(topic_name: String, data: Arc<Vec<u8>>) -> () {
+    crate::modulestate::CHANNEL_MODULE_STATE_CMD.0.lock().unwrap().send(crate::modulestate::ModuleStateCmd{
+        cmd: "mconfig",
+        topic: topic_name,
+        data: data,
+    }).unwrap();
+}
+
+
 
 pub fn socket_task(
     receiver_socket: Arc<Mutex<Receiver<(String, Box<dyn crate::modulestate::interface::ModuleValueParsable>)>>>,
@@ -45,6 +57,12 @@ pub fn socket_task(
             regex: "sync",
             action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
             handler: on_sync_request,
+        },
+        MqttHandler{
+            subscription: "/board/mconfig/+".to_string(),
+            regex: "mconfig",
+            action_code: crate::protos::message::ActionCode::MODULE_CONFIG,
+            handler: on_mconfig_request,
         }
     );
 

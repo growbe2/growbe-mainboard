@@ -13,5 +13,10 @@ impl super::interface::ModuleValueValidator for AAAValidator {
         data.humidity = value_event.buffer[1] as f32;
         return Box::new(data);
     }
+    
+    fn apply_parse_config(&self, port: i32, t: char, data: std::sync::Arc<Vec<u8>>) -> (Box<dyn protobuf::Message>, crate::comboard::imple::interface::Module_Config) {
+        panic!("AAA has no config");
+    }
+
 
 }

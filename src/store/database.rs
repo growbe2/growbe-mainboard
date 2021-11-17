@@ -1,26 +1,46 @@
 use rusqlite::{params, Connection, Result, ToSql, Error};
+use std::sync::{Mutex, Arc};
 use rusqlite::types::{FromSqlResult, ToSqlOutput, ValueRef, FromSqlError, FromSql};
 
 
 use protobuf::Message;
 use crate::modulestate::interface::ModuleValueParsable;
 
+pub fn get_field_from_table<T>(
+	conn: &Arc<Mutex<Connection>>,
+	table_name: &'static str,
+	id: &String,
+	id2: for<'r> fn(&'r [u8]) -> std::result::Result<T, protobuf::ProtobufError>,
 
-impl ToSql for dyn ModuleValueParsable {
-	#[inline]
-    fn to_sql(&self) -> Result<ToSqlOutput<'_>> {
-        Ok(ToSqlOutput::from(self.write_to_bytes().unwrap()))
-    }
+) -> Result<T, rusqlite::Error> {
+	let v: Vec<u8> = conn.try_lock().unwrap().query_row(
+		(format!("SELECT config FROM {} WHERE id = ?", table_name)).as_str(),
+		[id],
+		|r| r.get(0)
+	)?;
+	return Ok(id2(&v).unwrap());
 }
 
-/*impl FromSql for dyn ModuleValueParsable {
-    #[inline]
-    fn column_result(value: ValueRef<'_>) -> FromSqlResult<Box<Self>> {
-        let bytes = value.as_bytes().unwrap();
-		let data = Box::new(crate::protos::module::SOILModuleData::parse_from_bytes(&bytes).unwrap());
-		Ok(data)
-    }
-}*/
+pub fn store_field_from_table(
+	conn: &Arc<Mutex<Connection>>,
+	table_name: &'static str,
+	id: &String,
+	data: Box<dyn protobuf::Message>,
+) -> () {
+	let payload = data.write_to_bytes().unwrap();
+	let update = conn.lock().unwrap().execute(
+		(format!("UPDATE {} SET config = ? WHERE id = ?", table_name)).as_str(),
+		params![payload, id],
+	).unwrap();
+
+	if update == 0 {
+		let update = conn.lock().unwrap().execute(
+			(format!("INSERT INTO {} (id, config) VALUES(?,?)", table_name)).as_str(),
+			params![id, payload]
+		).unwrap();
+		println!("UPDAET {}", update);
+	}
+}
 
 pub fn init() -> Connection {
 	let conn = Connection::open("./database.sqlite").unwrap();
@@ -32,23 +52,6 @@ pub fn init() -> Connection {
 		)",
 		[]
 	).unwrap();
-
-	/*
-	let mut data = crate::protos::module::SOILModuleData::new();
-	data.p0 = 50;
-
-	/*conn.execute(
-		"INSERT INTO module_config (id, config) VALUES ('AAAP',?)",
-		&[&data as &dyn ModuleValueParsable]
-	).unwrap();*/
-
-	let v: Vec<u8> = conn.query_row("SELECT config FROM module_config", [],
-	|r| r.get(0),
-	).unwrap();
-
-	let soil_data = crate::protos::module::SOILModuleData::parse_from_bytes(&v).unwrap();
-	println!("Read back butes {:?}", soil_data);
-	*/
 
 	return conn;
 }

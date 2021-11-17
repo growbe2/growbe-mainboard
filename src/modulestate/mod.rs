@@ -1,7 +1,10 @@
 
 pub mod aaa;
 pub mod aas;
+pub mod aap;
+pub mod store;
 pub mod interface;
+
 
 use crate::{comboard::imple::interface::{ModuleStateChangeEvent, ModuleValueValidationEvent}};
 use lazy_static::lazy_static;
@@ -12,6 +15,8 @@ use std::sync::mpsc::{Receiver, Sender,};
 
 pub struct ModuleStateCmd {
     pub cmd: &'static str,
+    pub topic: String,
+    pub data: Arc<Vec<u8>>,
 }
 
 lazy_static! {
@@ -40,6 +45,13 @@ impl MainboardModuleStateManager {
         }
         panic!("NOT FOUND");
     }
+
+    fn get_module(&self, key: &String) -> &MainboardConnectedModule {
+        match self.connected_module.get(key.as_str()) {
+            Some(m) => &m,
+            None => panic!("Module not found for cnfig"),
+        }
+    }
 }
 
 fn get_module_validator(module_type: char, ) -> Box<dyn interface::ModuleValueValidator> {
@@ -48,6 +60,8 @@ fn get_module_validator(module_type: char, ) -> Box<dyn interface::ModuleValueVa
         return Box::new(aaa::AAAValidator{});
     } else if module_type == 'S' {
         return Box::new(aas::AASValidator{});
+    } else if module_type == 'P' {
+        return Box::new(aap::AAPValidator{});
     } else {
         panic!("its a panic no validator found for type {}", module_type);
     }
@@ -70,8 +84,9 @@ fn send_module_state(
 fn handle_module_state(
     manager: & mut MainboardModuleStateManager,
     state: & ModuleStateChangeEvent,
+    sender_comboard_config: & Sender<crate::comboard::imple::interface::Module_Config>,
     sender_socket: & Sender<(String, Box<dyn interface::ModuleValueParsable>)>,
-    conn: &Mutex<rusqlite::Connection>,
+    store: &store::ModuleStateStore,
 ) -> () {
     if !manager.connected_module.contains_key(state.id.as_str()) {
         if state.state == true {
@@ -81,6 +96,20 @@ fn handle_module_state(
                 id: state.id.clone(),
             });
             send_module_state(state.id.as_str(), state.port, true, sender_socket);
+
+            let config = store.get_module_config(&state.id);
+            if config.is_some() {
+                println!("Retrieving config");
+                let t = state.id.chars().nth(2).unwrap();
+                let validator = get_module_validator(t);
+
+                // TODO implement fonction to handle not byte but structure directly
+                let bytes = Arc::new(config.unwrap().write_to_bytes().unwrap());
+                let (_config, config_comboard) = validator.apply_parse_config(state.port, t, bytes);
+                sender_comboard_config.send(config_comboard).unwrap();
+            } else {
+                println!("Cant retrieve a config");
+            }
         } else {
             // receive state disconnect for a module a didnt know was connected
             println!("Received disconnected event on not connected module {} at {}", state.id.as_str(), state.port)
@@ -122,15 +151,41 @@ fn handle_sync_request(
 ) -> () {
     println!("Send sync request to the cloud");
     for (k,v) in manager.connected_module.iter() {
-        send_module_state(k, v.port, false, sender_socket);
+        send_module_state(k, v.port, true, sender_socket);
     }
+}
+
+fn last_element_path(path: &str) -> String {
+    let topic_elements: Vec<&str> = path.split("/").collect();
+    return match topic_elements.len() {
+        0 => panic!("Failed to get module id from path"),
+        n => String::from(topic_elements[n - 1])
+    };
+}
+
+fn handle_mconfig(
+    manager: & mut MainboardModuleStateManager,
+    store: & store::ModuleStateStore,
+    sender_comboard_config: & Sender<crate::comboard::imple::interface::Module_Config>,
+    id: String,
+    data: Arc<Vec<u8>>
+) -> () {
+    let module_ref = manager.get_module(&id);
+    let t = module_ref.id.chars().nth(2).unwrap();
+    let validator = get_module_validator(t);
+
+    let (config, config_comboard) = validator.apply_parse_config(module_ref.port, t, data);
+
+    store.store_module_config(&id, config);
+    sender_comboard_config.send(config_comboard).unwrap();
 }
 
 pub async fn module_state_task(
     receiver_state_change: Receiver<ModuleStateChangeEvent>,
     receiver_value_validation: Receiver<ModuleValueValidationEvent>,
+    sender_comboard_config: Sender<crate::comboard::imple::interface::Module_Config>,
     sender_socket: Sender<(String, Box<dyn interface::ModuleValueParsable>)>,
-    conn: Arc<Mutex<rusqlite::Connection>>,
+    store: store::ModuleStateStore,
 ) {
     let mut manager = MainboardModuleStateManager{
         connected_module: HashMap::new(),
@@ -141,7 +196,7 @@ pub async fn module_state_task(
             let receive = receiver_state_change.try_recv();
             if receive.is_ok() {
                 let state = receive.unwrap();
-                handle_module_state(& mut manager, &state, &sender_socket, &conn);
+                handle_module_state(& mut manager, &state, &sender_comboard_config, &sender_socket, &store);
             }
         }
         {
@@ -157,6 +212,7 @@ pub async fn module_state_task(
                 let cmd = receive.unwrap();
                 match cmd.cmd {
                     "sync" => handle_sync_request(& mut manager, &sender_socket),
+                    "mconfig" => handle_mconfig(& mut manager, &store, &sender_comboard_config, last_element_path(&cmd.topic), cmd.data),
                     _ => println!("MODULE_STATE receive invalid cmd"),
                 }
             }
