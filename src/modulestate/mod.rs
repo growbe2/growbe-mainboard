@@ -90,7 +90,7 @@ fn handle_module_state(
 ) -> () {
     if !manager.connected_module.contains_key(state.id.as_str()) {
         if state.state == true {
-            println!("Module connected {} at {}", state.id.as_str(), state.port);
+            log::debug!("module connected {} at {}", state.id.as_str(), state.port);
             manager.connected_module.insert(state.id.clone(), MainboardConnectedModule{
                 port: state.port,
                 id: state.id.clone(),
@@ -99,7 +99,6 @@ fn handle_module_state(
 
             let config = store.get_module_config(&state.id);
             if config.is_some() {
-                println!("Retrieving config");
                 let t = state.id.chars().nth(2).unwrap();
                 let validator = get_module_validator(t);
 
@@ -108,20 +107,20 @@ fn handle_module_state(
                 let (_config, config_comboard) = validator.apply_parse_config(state.port, t, bytes);
                 sender_comboard_config.send(config_comboard).unwrap();
             } else {
-                println!("Cant retrieve a config");
+                log::error!("cannot retrieve a config for {}", state.id);
             }
         } else {
             // receive state disconnect for a module a didnt know was connected
-            println!("Received disconnected event on not connected module {} at {}", state.id.as_str(), state.port)
+            log::error!("received disconnected event on not connected module {} at {}", state.id.as_str(), state.port)
         }
     } else {
         if state.state == false {
-            println!("Module disconnected {} at {}", state.id.as_str(), state.port);
+            log::debug!("Module disconnected {} at {}", state.id.as_str(), state.port);
             manager.connected_module.remove(state.id.as_str());
             send_module_state(state.id.as_str(), state.port, false, sender_socket);
         } else {
             // state is true but was already connected , weird
-            println!("Received connected event on already connected module {} at {}", state.id.as_str(), state.port);
+            log::error!("received connected event on already connected module {} at {}", state.id.as_str(), state.port);
         }
     }
 
@@ -134,7 +133,7 @@ fn handle_module_value(
 ) -> () {
 
     let reference_connected_module = manager.get_module_at_index(value.port);
-    println!("Got value for {}", reference_connected_module.id);
+    log::debug!("got value for {}", reference_connected_module.id);
 
     let validator = get_module_validator(reference_connected_module.id.chars().nth(2).unwrap());
     
@@ -149,7 +148,7 @@ fn handle_sync_request(
     manager: & mut MainboardModuleStateManager,
     sender_socket: & Sender<(String, Box<dyn interface::ModuleValueParsable>)>,
 ) -> () {
-    println!("Send sync request to the cloud");
+    log::debug!("send sync request to the cloud");
     for (k,v) in manager.connected_module.iter() {
         send_module_state(k, v.port, true, sender_socket);
     }
@@ -213,7 +212,7 @@ pub async fn module_state_task(
                 match cmd.cmd {
                     "sync" => handle_sync_request(& mut manager, &sender_socket),
                     "mconfig" => handle_mconfig(& mut manager, &store, &sender_comboard_config, last_element_path(&cmd.topic), cmd.data),
-                    _ => println!("MODULE_STATE receive invalid cmd"),
+                    _ => log::error!("receive invalid cmd {}", cmd.cmd),
                 }
             }
         }

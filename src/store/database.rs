@@ -1,10 +1,6 @@
-use rusqlite::{params, Connection, Result, ToSql, Error};
+use rusqlite::{params, Connection, Result};
 use std::sync::{Mutex, Arc};
-use rusqlite::types::{FromSqlResult, ToSqlOutput, ValueRef, FromSqlError, FromSql};
 
-
-use protobuf::Message;
-use crate::modulestate::interface::ModuleValueParsable;
 
 pub fn get_field_from_table<T>(
 	conn: &Arc<Mutex<Connection>>,
@@ -34,11 +30,10 @@ pub fn store_field_from_table(
 	).unwrap();
 
 	if update == 0 {
-		let update = conn.lock().unwrap().execute(
+		conn.lock().unwrap().execute(
 			(format!("INSERT INTO {} (id, config) VALUES(?,?)", table_name)).as_str(),
 			params![id, payload]
 		).unwrap();
-		println!("UPDAET {}", update);
 	}
 }
 

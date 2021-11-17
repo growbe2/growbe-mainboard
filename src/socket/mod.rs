@@ -95,7 +95,7 @@ pub fn socket_task(
                     let message = incomming_message_result.unwrap();
                     match message {
                         Notification::Publish(d) => {
-                            println!("Receive message from cloud, {}", d.topic_name);
+                            log::debug!("receive message from cloud, {}", d.topic_name);
                             let item = handlers.iter().find(|&x| {
                                 return d.topic_name.contains(x.regex);
                             }).unwrap();
@@ -110,7 +110,7 @@ pub fn socket_task(
                             send(format!("{}{}", d.topic_name.as_str(), "/response"), action_respose.write_to_bytes().unwrap());
 
                         },
-                        _ => println!("Oupsy, {:?}", message),
+                        _ => log::error!("mqtt message not publish {:?}", message),
                     }
                     
                 }
@@ -120,7 +120,7 @@ pub fn socket_task(
                     let hearth_beath = crate::protos::message::HearthBeath::new();
                     let payload = hearth_beath.write_to_bytes().unwrap();
                     last_send_instant = send(get_topic_prefix("/hearthbeat"), payload);
-                    println!("Sending hearthbeath");
+                    log::debug!("sending hearthbeath");
                }
             }
         }    

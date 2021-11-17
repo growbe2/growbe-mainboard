@@ -12,7 +12,7 @@ pub fn get_rtc() -> chrono::DateTime<Local> {
 
 #[cfg(target_arch = "x86_64")]
 pub fn set_rtc(rtc: crate::protos::message::RTCTime) -> () {
-    println!("Calling set RTC does nothing {:?}", rtc);
+    log::debug!("Calling set RTC does nothing {:?}", rtc);
 } 
 
 #[cfg(target_arch = "arm")]

@@ -48,7 +48,7 @@ impl ModuleStateStore {
         id: &String,
         config: Box<dyn protobuf::Message>,
     ) -> () {
-        println!("store module config {}", id);
+        log::debug!("store module config {}", id);
         database::store_field_from_table(
             &self.conn,
             "module_config",

@@ -35,11 +35,9 @@ fn configure_relay(
                 }
 
                 if manual_config.duration > 0 {
-                    println!("Duration my dude");
                 }
             },
             RelayOutletMode::ALARM => {
-                println!("Alarm my man");
             }
         }
     }

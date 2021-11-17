@@ -3,6 +3,7 @@ extern crate lazy_static;
 mod protos;
 mod comboard;
 mod socket;
+mod logger;
 mod id;
 mod mainboardstate;
 mod modulestate;
@@ -13,6 +14,7 @@ use comboard::imple;
 
 #[tokio::main]
 async fn main() {
+    logger::setup_log();
 
     // Initializing database
     let conn_database = Arc::new(Mutex::new(store::database::init()));
