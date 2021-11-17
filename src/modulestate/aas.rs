@@ -24,7 +24,8 @@ impl super::interface::ModuleValueValidator for AASValidator {
     }
 
     
-    fn apply_parse_config(&self, port: i32, t: char, data: std::sync::Arc<Vec<u8>>) -> (Box<dyn protobuf::Message>, crate::comboard::imple::interface::Module_Config) {
+    fn apply_parse_config(&self, port: i32, t: char, data: std::sync::Arc<Vec<u8>>,        sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::interface::Module_Config>,
+    ) -> (Box<dyn protobuf::Message>, crate::comboard::imple::interface::Module_Config) {
         panic!("AAS has no config");
     }
 

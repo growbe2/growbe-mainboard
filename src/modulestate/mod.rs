@@ -104,7 +104,7 @@ fn handle_module_state(
 
                 // TODO implement fonction to handle not byte but structure directly
                 let bytes = Arc::new(config.unwrap().write_to_bytes().unwrap());
-                let (_config, config_comboard) = validator.apply_parse_config(state.port, t, bytes);
+                let (_config, config_comboard) = validator.apply_parse_config(state.port, t, bytes, sender_comboard_config);
                 sender_comboard_config.send(config_comboard).unwrap();
             } else {
                 log::error!("cannot retrieve a config for {}", state.id);
@@ -173,7 +173,7 @@ fn handle_mconfig(
     let t = module_ref.id.chars().nth(2).unwrap();
     let validator = get_module_validator(t);
 
-    let (config, config_comboard) = validator.apply_parse_config(module_ref.port, t, data);
+    let (config, config_comboard) = validator.apply_parse_config(module_ref.port, t, data, sender_comboard_config);
 
     store.store_module_config(&id, config);
     sender_comboard_config.send(config_comboard).unwrap();

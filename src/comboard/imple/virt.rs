@@ -56,7 +56,7 @@ impl super::interface::ComboardClient for VirtualComboardClient {
                 let config_request = config_comboard.receiver_config.lock().unwrap().try_recv();
                 if config_request.is_ok() {
                     let config = config_request.unwrap();
-                    log::debug!("virtual comboard apply config");
+                    log::debug!("virtual comboard apply config {:?}", config.buffer);
 
                     config_comboard.sender_value_validation.lock().unwrap().send(
                         ModuleValueValidationEvent{
