@@ -39,13 +39,13 @@ struct MainboardModuleStateManager {
 
 
 impl MainboardModuleStateManager {
-    fn get_module_at_index(&self, port: i32) -> &MainboardConnectedModule {
+    fn get_module_at_index(&self, port: i32) -> Option<&MainboardConnectedModule> {
         for (_, v) in self.connected_module.iter() {
             if v.port == port {
-                return &v;
+                return Some(&v);
             }
         }
-        panic!("NOT FOUND");
+        return None;
     }
 }
 
@@ -114,7 +114,8 @@ fn handle_module_state(
     } else {
         if state.state == false {
             log::debug!("Module disconnected {} at {}", state.id.as_str(), state.port);
-            manager.connected_module.remove(state.id.as_str());
+            let connected_module = manager.connected_module.remove(state.id.as_str()).unwrap();
+            connected_module.handler_map.iter().for_each(|module| module.1.abort());
             send_module_state(state.id.as_str(), state.port, false, sender_socket);
         } else {
             // state is true but was already connected , weird
@@ -130,7 +131,12 @@ fn handle_module_value(
     sender_socket: & Sender<(String, Box<dyn interface::ModuleValueParsable>)>,
 ) -> () {
 
-    let reference_connected_module = manager.get_module_at_index(value.port);
+    let reference_connected_module_option = manager.get_module_at_index(value.port);
+    if reference_connected_module_option.is_none() {
+        log::error!("receive value for port {} but module is not in the store", value.port);
+        return;
+    }
+    let reference_connected_module = reference_connected_module_option.unwrap();
     log::debug!("got value for {}", reference_connected_module.id);
 
     let validator = get_module_validator(reference_connected_module.id.chars().nth(2).unwrap());

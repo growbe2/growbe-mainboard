@@ -10,7 +10,7 @@
 			"event_type": "value",
 			"port": 3,
 			"buffer": [0, 0, 0, 0, 0, 0, 0, 0],
-			"timeout": 1000
+			"timeout": 4000
 		},
 		{
 			"event_type": "state",
@@ -28,8 +28,14 @@
 			"event_type": "value",
 			"port": 4,
 			"buffer": [24, 33, 35, 53, 43, 73, 85, 93],
-			"timeout": 8000,
-			"return_index": 3
+			"timeout": 20000
+		},
+		{
+			"event_type": "state",
+			"id": "AAP000000009",
+			"state": false,
+			"port": 3
 		}
+		
 	]
 }
