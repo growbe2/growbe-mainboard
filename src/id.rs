@@ -9,5 +9,6 @@ pub fn get_id() -> String {
 
 #[cfg(target_arch = "x86_64")]
 pub fn get_id() -> String {
-    return String::from(format!("1F54019"));
+    // for x86 use a id present in the config
+    return String::from(crate::mainboardstate::config::CONFIG.id.as_str());
 }

@@ -1,8 +1,13 @@
+
+pub mod mqtt;
+
+
 use std::sync::mpsc::{Receiver};
 use std::sync::{Mutex, Arc};
 use std::time::{Instant, Duration};
 use rumqtt::{MqttOptions, MqttClient, QoS, Notification};
 use protobuf::Message;
+
 
 struct MqttHandler {
     pub subscription: String,
@@ -40,6 +45,7 @@ fn on_mconfig_request(topic_name: String, data: Arc<Vec<u8>>) -> () {
 
 pub fn socket_task(
     receiver_socket: Arc<Mutex<Receiver<(String, Box<dyn crate::modulestate::interface::ModuleValueParsable>)>>>,
+    config_mqtt: & mqtt::CloudMQTTConfig,
 ) -> tokio::task::JoinHandle<()> {
     /*
     Handle pour les trucs mqtt, ca va s'executer dans une task async et faut je fasse le map
@@ -65,10 +71,11 @@ pub fn socket_task(
             handler: on_mconfig_request,
         }
     );
+    
+    let mqtt_options = MqttOptions::new("rumqtt-mainboard", config_mqtt.url.as_str(), config_mqtt.port);
 
    return tokio::spawn(async move {
         let hearth_beath_rate = Duration::from_secs(5);
-        let mqtt_options = MqttOptions::new("rumqtt-mainboard", "broker.dev.growbe.ca", 1883);
         let (mut client, notifications) = MqttClient::start(mqtt_options).unwrap();
 
         let mut last_send_instant = Instant::now();

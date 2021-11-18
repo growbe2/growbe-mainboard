@@ -24,10 +24,22 @@ TARGET_NAME=armv7-unknown-linux-gnueabihf ./scripts/rust_env.sh make -C ./driver
 # Build the app for local dev / test
 ./scripts/rust_env.sh cargo vendors
 ./scripts/rust_env.sh cargo build 
-./target/debug/growbe-mainboard
+./target/debug/growbe-mainboard ./mainboard_config.json
 
 # Start the debug app with gdb on a remote machine
 TARGET_NAME=armv7-unknown-linux-gnueabihf ./scripts/remote_debug.sh . 192.168.50.41 17777
+```
+
+
+### Run application
+
+```bash
+./target/debug/growbe-mainboard ./mainboard_config.json
+
+# With all logs
+RUST_LOG=growbe_mainboard ./target/debug/growbe-mainboard ./mainboard_config.json
+# Log from a module
+RUST_LOG=growbe_mainboard::socket=debug ./target/debug/growbe-mainboard ./mainboard_config.json
 ```
 
 ### Configuring for VSCode

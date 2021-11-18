@@ -1,0 +1,7 @@
+{
+	"id": "1F54019",
+	"mqtt": {
+		"url": "broker.dev.growbe.ca",
+		"port": 1883
+	}
+}

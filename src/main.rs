@@ -12,9 +12,14 @@ mod store;
 use std::sync::{Mutex, Arc, mpsc::channel};
 use comboard::imple;
 
+
 #[tokio::main]
 async fn main() {
+
+
     logger::setup_log();
+
+    log::info!("starting mainboard with id {}", mainboardstate::config::CONFIG.id);
 
     // Initializing database
     let conn_database = Arc::new(Mutex::new(store::database::init()));
@@ -50,6 +55,7 @@ async fn main() {
     // Create the task for the communication socket from outside the app
     let socket_task = socket::socket_task(
         Arc::new(Mutex::new(receiver_socket)),
+        &mainboardstate::config::CONFIG.mqtt,
     );
 
     // Run the hello world task to start the application
