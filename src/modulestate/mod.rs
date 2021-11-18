@@ -3,6 +3,7 @@ pub mod aaa;
 pub mod aas;
 pub mod aap;
 pub mod store;
+pub mod relay;
 pub mod interface;
 
 
@@ -29,6 +30,7 @@ lazy_static! {
 struct MainboardConnectedModule {
     pub port: i32,
     pub id: String,
+    pub handler_map: std::collections::HashMap<i32, tokio::task::JoinHandle<()>>,
 }
 
 struct MainboardModuleStateManager {
@@ -44,13 +46,6 @@ impl MainboardModuleStateManager {
             }
         }
         panic!("NOT FOUND");
-    }
-
-    fn get_module(&self, key: &String) -> &MainboardConnectedModule {
-        match self.connected_module.get(key.as_str()) {
-            Some(m) => &m,
-            None => panic!("Module not found for cnfig"),
-        }
     }
 }
 
@@ -94,6 +89,7 @@ fn handle_module_state(
             manager.connected_module.insert(state.id.clone(), MainboardConnectedModule{
                 port: state.port,
                 id: state.id.clone(),
+                handler_map: std::collections::HashMap::new(),
             });
             send_module_state(state.id.as_str(), state.port, true, sender_socket);
 
@@ -103,9 +99,11 @@ fn handle_module_state(
                 let validator = get_module_validator(t);
 
                 // TODO implement fonction to handle not byte but structure directly
+                let module_mut_ref = manager.connected_module.get_mut(state.id.as_str()).unwrap();
                 let bytes = Arc::new(config.unwrap().write_to_bytes().unwrap());
-                let (_config, config_comboard) = validator.apply_parse_config(state.port, t, bytes, sender_comboard_config);
+                let (_config, config_comboard) = validator.apply_parse_config(state.port, t, bytes, sender_comboard_config, &mut module_mut_ref.handler_map);
                 sender_comboard_config.send(config_comboard).unwrap();
+
             } else {
                 log::error!("cannot retrieve a config for {}", state.id);
             }
@@ -169,11 +167,12 @@ fn handle_mconfig(
     id: String,
     data: Arc<Vec<u8>>
 ) -> () {
-    let module_ref = manager.get_module(&id);
+    let module_ref = manager.connected_module.get_mut(id.as_str()).unwrap();
     let t = module_ref.id.chars().nth(2).unwrap();
     let validator = get_module_validator(t);
 
-    let (config, config_comboard) = validator.apply_parse_config(module_ref.port, t, data, sender_comboard_config);
+
+    let (config, config_comboard) = validator.apply_parse_config(module_ref.port, t, data, sender_comboard_config, &mut module_ref.handler_map);
 
     store.store_module_config(&id, config);
     sender_comboard_config.send(config_comboard).unwrap();

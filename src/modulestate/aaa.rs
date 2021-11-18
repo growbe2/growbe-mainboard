@@ -14,7 +14,9 @@ impl super::interface::ModuleValueValidator for AAAValidator {
         return Box::new(data);
     }
     
-    fn apply_parse_config(&self, port: i32, t: char, data: std::sync::Arc<Vec<u8>>,         sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::interface::Module_Config>,
+    fn apply_parse_config(&self, port: i32, t: char, data: std::sync::Arc<Vec<u8>>, 
+        sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::interface::Module_Config>,
+        map_handler: & mut std::collections::HashMap<i32, tokio::task::JoinHandle<()>>
     ) -> (Box<dyn protobuf::Message>, crate::comboard::imple::interface::Module_Config) {
         panic!("AAA has no config");
     }
