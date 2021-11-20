@@ -20,10 +20,12 @@ jobs:
         run: ./scripts/rust_env.sh cargo test
       - name: Build x86 for linux
         run: ./scripts/rust_env.sh cargo build
-      - name: Build ARM
+      - name: Build ARMv7
         run: ./scripts/rust_env.sh make -C ./drivers clean && ./scripts/rust_env.sh make -C ./drivers CC=arm-linux-gnueabihf-gcc && ./scripts/rust_env.sh cargo build --target armv7-unknown-linux-gnueabihf
+      - name: Build ARMv6
+        run: ./scripts/rust_env.sh cargo build --target arm-unknown-linux-gnueabihf
       - name: Create release folder
-        run: mkdir -p release && cp ./target/debug/growbe-mainboard ./release/growbe-mainboard-debug-x86_64-linux && cp ./target/armv7-unknown-linux-gnueabihf/debug/growbe-mainboard ./release/growbe-mainboard-debug-arm-linux
+        run: mkdir -p release && cp ./target/debug/growbe-mainboard ./release/growbe-mainboard-debug-x86_64-linux && cp ./target/armv7-unknown-linux-gnueabihf/debug/growbe-mainboard ./release/growbe-mainboard-debug-arm-linux && cp ./target/arm-unknown-linux-gnueabihf/debug/growbe-mainboard ./release/growbe-mainboard-debug-armv6-linux
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
