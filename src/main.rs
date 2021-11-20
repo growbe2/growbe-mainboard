@@ -8,6 +8,7 @@ mod id;
 mod mainboardstate;
 mod modulestate;
 mod store;
+mod server;
 
 use std::sync::{Mutex, Arc, mpsc::channel};
 use comboard::imple;
@@ -58,15 +59,21 @@ async fn main() {
         &mainboardstate::config::CONFIG.mqtt,
     );
 
+
     // Run the hello world task to start the application
     /*mainboardstate::hello_world::task_hello_world(
         sender_socket_hello,
     ).await;*/
 
+    let server_task = server::http::get_server();
+
+    
+
     // Wait for all task to finish (they should never end)
-    let (_,_,_) = tokio::join!(
+    let (_,_,_,_) = tokio::join!(
+        server_task,
         comboard_task,
         module_state_task,
-        socket_task
+        socket_task,
     );
 }
