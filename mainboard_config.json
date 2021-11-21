@@ -3,5 +3,9 @@
 	"mqtt": {
 		"url": "broker.dev.growbe.ca",
 		"port": 1883
+	},
+	"comboard": {
+		"config": "/dev/spi-1",
+		"imple": "i2c"
 	}
 }

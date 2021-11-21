@@ -8,6 +8,7 @@ pub mod interface;
 
 
 use crate::{comboard::imple::interface::{ModuleStateChangeEvent, ModuleValueValidationEvent}};
+use crate::comboard::imple::channel::*;
 use lazy_static::lazy_static;
 use std::collections::HashMap;
 use std::sync::{Mutex, Arc};
@@ -184,27 +185,29 @@ fn handle_mconfig(
     sender_comboard_config.send(config_comboard).unwrap();
 }
 
-pub async fn module_state_task(
-    receiver_state_change: Receiver<ModuleStateChangeEvent>,
-    receiver_value_validation: Receiver<ModuleValueValidationEvent>,
-    sender_comboard_config: Sender<crate::comboard::imple::interface::Module_Config>,
+pub fn module_state_task(
     sender_socket: Sender<(String, Box<dyn interface::ModuleValueParsable>)>,
     store: store::ModuleStateStore,
-) {
+) -> tokio::task::JoinHandle<()> {
     let mut manager = MainboardModuleStateManager{
         connected_module: HashMap::new(),
     };
+    
+    let sender_config = CHANNEL_CONFIG.0.lock().unwrap().clone();
 
+    return tokio::spawn(async move {
+        let receiver_state = CHANNEL_STATE.1.lock().unwrap();
+        let receiver_value = CHANNEL_VALUE.1.lock().unwrap();
     loop {
         {
-            let receive = receiver_state_change.try_recv();
+            let receive = receiver_state.try_recv();
             if receive.is_ok() {
                 let state = receive.unwrap();
-                handle_module_state(& mut manager, &state, &sender_comboard_config, &sender_socket, &store);
+                handle_module_state(& mut manager, &state, &sender_config, &sender_socket, &store);
             }
         }
         {
-            let receive = receiver_value_validation.try_recv();
+            let receive = receiver_value.try_recv();
             if receive.is_ok() {
                 let value = receive.unwrap();
                 handle_module_value(& mut manager, &value, &sender_socket);
@@ -216,11 +219,14 @@ pub async fn module_state_task(
                 let cmd = receive.unwrap();
                 match cmd.cmd {
                     "sync" => handle_sync_request(& mut manager, &sender_socket),
-                    "mconfig" => handle_mconfig(& mut manager, &store, &sender_comboard_config, last_element_path(&cmd.topic), cmd.data),
+                    "mconfig" => handle_mconfig(& mut manager, &store, &sender_config, last_element_path(&cmd.topic), cmd.data),
                     _ => log::error!("receive invalid cmd {}", cmd.cmd),
                 }
             }
         }
     }
+
+    });
+
 
 }

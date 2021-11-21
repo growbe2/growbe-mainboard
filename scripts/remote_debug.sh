@@ -32,4 +32,4 @@ if ! rsync -avz "${BUILD_BIN_FILE}" "${TARGET_USER}@${SSH_REMOTE}:${TARGET_BIN_F
 fi
 
 #ssh -f "${TARGET_USER}@${SSH_REMOTE}" "sh -c 'cd ${TARGET_CWD}; nohup gdbserver *:${GDBPORT} ${TARGET_BIN_FILE} > /dev/null 2>&1 &'"
-ssh "${TARGET_USER}@${SSH_REMOTE}" "sh -c 'cd ${TARGET_CWD};${TARGET_BIN_FILE} ./mainboard_config.json'"
+ssh "${TARGET_USER}@${SSH_REMOTE}" "sh -c 'cd ${TARGET_CWD};RUST_LOG=growbe_mainboard ${TARGET_BIN_FILE} ./mainboard_config.json'"

@@ -16,6 +16,7 @@ pub struct MainboardProcessConfig {
     #[serde(default)] 
 	pub id: String,
 	pub mqtt: crate::socket::mqtt::CloudMQTTConfig,
+	pub comboard: crate::comboard::config::ComboardConfig,
 }
 
 

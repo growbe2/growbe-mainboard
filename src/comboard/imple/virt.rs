@@ -1,6 +1,7 @@
 
 use crate::comboard::imple::interface::{ModuleStateChangeEvent, ModuleValueValidationEvent};
 
+use crate::comboard::imple::channel::*;
 
 use serde::{Deserialize, Serialize};
 use serde_json::Result;
@@ -45,20 +46,26 @@ impl super::interface::ComboardClient for VirtualComboardClient {
 
     fn run(&self,
         config_comboard: super::interface::ComboardClientConfig) -> tokio::task::JoinHandle<()> {
+
+        let sender_value = CHANNEL_VALUE.0.lock().unwrap().clone();
+        let sender_state = CHANNEL_STATE.0.lock().unwrap().clone();
+            
         return tokio::spawn(async move {
             let config = get_config("./virtual-comboard.json").expect("Failed to load config for virtual comboard");
             // Read json config file
             let mut i: usize = 0;
             let mut waiting: Option<std::time::Instant> = None;
+
+            let receiver_config = CHANNEL_CONFIG.1.lock().unwrap();
             while i < config.actions.len() {
 
                 // check if we have event to process config change
-                let config_request = config_comboard.receiver_config.lock().unwrap().try_recv();
+                let config_request = receiver_config.try_recv();
                 if config_request.is_ok() {
                     let config = config_request.unwrap();
                     log::debug!("virtual comboard apply config {:?}", config.buffer);
 
-                    config_comboard.sender_value_validation.lock().unwrap().send(
+                    sender_value.send(
                         ModuleValueValidationEvent{
                             port: config.port,
                             buffer: Vec::from(config.buffer)
@@ -69,7 +76,7 @@ impl super::interface::ComboardClient for VirtualComboardClient {
                 if waiting.is_none() {
                     match config.actions[i].event_type.as_str() { 
                         "state" => {
-                            config_comboard.sender_state_change.lock().unwrap().send(
+                            sender_state.send(
                                 ModuleStateChangeEvent{
                                     port: config.actions[i].port,
                                     id: config.actions[i].id.clone(),
@@ -79,7 +86,7 @@ impl super::interface::ComboardClient for VirtualComboardClient {
                         },
                         "value" => {
                             let new_buffer = config.actions[i].buffer.clone();
-                            config_comboard.sender_value_validation.lock().unwrap().send(
+                            sender_value.send(
                                 ModuleValueValidationEvent{
                                     port: config.actions[i].port,
                                     buffer: new_buffer,

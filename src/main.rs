@@ -28,9 +28,9 @@ async fn main() {
     let d = comboard::get_comboard_client();
 
     // Creating channel for comboard to modulestate communication
-    let (sender_config, receiver_config) = channel::<imple::interface::Module_Config>();
-    let (sender_state, receiver_state) = channel::<imple::interface::ModuleStateChangeEvent>();
-    let (sender_value, receiver_value) = channel::<imple::interface::ModuleValueValidationEvent>();
+    //let (sender_config, receiver_config) = channel::<imple::interface::Module_Config>();
+    //let (sender_state, receiver_state) = channel::<imple::interface::ModuleStateChangeEvent>();
+    //let (sender_value, receiver_value) = channel::<imple::interface::ModuleValueValidationEvent>();
 
     let (sender_socket, receiver_socket) = channel::<(String, Box<dyn modulestate::interface::ModuleValueParsable>)>();
 
@@ -39,16 +39,17 @@ async fn main() {
     // Create the task to run the comboard
     let comboard_task = d.run(
         comboard::imple::interface::ComboardClientConfig{
-        receiver_config: Arc::new(Mutex::new(receiver_config)),
-        sender_state_change: Arc::new(Mutex::new(sender_state)),
-        sender_value_validation: Arc::new(Mutex::new(sender_value)),
+        config: mainboardstate::config::CONFIG.comboard.config.clone(),
+        //receiver_config: Arc::new(Mutex::new(receiver_config)),
+        //sender_state_change: Arc::new(Mutex::new(sender_state)),
+        //sender_value_validation: Arc::new(Mutex::new(sender_value)),
     });
 
    // Create the task to handle the modules state 
     let module_state_task = modulestate::module_state_task(
-        receiver_state,
-        receiver_value,
-        sender_config,
+        //receiver_state,
+        //receiver_value,
+        //sender_config,
         sender_socket,
         modulestate::store::ModuleStateStore::new(conn_database.clone()),
     );

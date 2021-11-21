@@ -1,4 +1,5 @@
 pub mod imple;
+pub mod config;
 
 #[cfg(target_arch = "arm")]
 fn get_comboard_for_plateform() -> imple::i2c_linux::I2CLinuxComboardClient {
