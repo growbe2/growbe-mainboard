@@ -17,7 +17,7 @@ struct MqttHandler {
 }
 
 fn get_topic_prefix(subtopic: & str) -> String {
-    return format!("/growbe/{}{}",crate::id::get_id(), subtopic);
+    return format!("/growbe/{}{}",crate::id::get(), subtopic);
 }
 
 fn on_set_rtc(_topic_name: String, data: Arc<Vec<u8>>) -> () {
@@ -80,7 +80,7 @@ pub fn socket_task(
 
         let mut last_send_instant = Instant::now();
 
-        handlers.iter().for_each(|handler| client.subscribe(format!("/growbe/{}{}", crate::id::get_id(), handler.subscription),  QoS::ExactlyOnce).unwrap());
+        handlers.iter().for_each(|handler| client.subscribe(format!("/growbe/{}{}", crate::id::get(), handler.subscription),  QoS::ExactlyOnce).unwrap());
 
         let mut send = |topic, payload| -> Instant {
             client.publish(topic, QoS::ExactlyOnce, false, payload).unwrap();

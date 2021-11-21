@@ -20,7 +20,7 @@ async fn main() {
 
     logger::setup_log();
 
-    log::info!("starting mainboard with id {}", mainboardstate::config::CONFIG.id);
+    log::info!("starting mainboard with id {}", id::get());
 
     // Initializing database
     let conn_database = Arc::new(Mutex::new(store::database::init()));
