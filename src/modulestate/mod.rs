@@ -105,7 +105,7 @@ fn handle_module_state(
                 sender_comboard_config.send(config_comboard).unwrap();
 
             } else {
-                log::error!("cannot retrieve a config for {}", state.id);
+                log::warn!("cannot retrieve a config for {}", state.id);
             }
         } else {
             // receive state disconnect for a module a didnt know was connected
