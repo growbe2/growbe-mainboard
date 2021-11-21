@@ -5,7 +5,7 @@
 		"port": 1883
 	},
 	"comboard": {
-		"config": "/dev/spi-1",
+		"config": "/dev/i2c-1",
 		"imple": "i2c"
 	}
 }

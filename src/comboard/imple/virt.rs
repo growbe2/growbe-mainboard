@@ -34,7 +34,7 @@ struct VirtualScenario {
 }
 
 
-fn get_config(config: &'static str) -> Result<VirtualScenario>  {
+fn get_config(config: &String) -> Result<VirtualScenario>  {
     let file = std::fs::File::open(config).expect("Error open file");
     let scenario: VirtualScenario = serde_json::from_reader(file)?;
     Ok(scenario)
@@ -51,7 +51,7 @@ impl super::interface::ComboardClient for VirtualComboardClient {
         let sender_state = CHANNEL_STATE.0.lock().unwrap().clone();
             
         return tokio::spawn(async move {
-            let config = get_config("./virtual-comboard.json").expect("Failed to load config for virtual comboard");
+            let config = get_config(&config_comboard.config).expect("Failed to load config for virtual comboard");
             // Read json config file
             let mut i: usize = 0;
             let mut waiting: Option<std::time::Instant> = None;
