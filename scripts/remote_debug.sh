@@ -8,21 +8,20 @@ set -o nounset
 set -o pipefail
 set -o xtrace
 
-VSCODE_WS="$1"
-SSH_REMOTE="$2"
-GDBPORT="$3"
+VSCODE_WS=.
+SSH_REMOTE="$1"
+GDBPORT="17777"
 
 APP="growbe-mainboard"
-TARGET_ARCH="x86_64-unknown-linux-gnu"
-#TARGET_ARCH="armv7-unknown-linux-gnueabihf"
+TARGET_ARCH="armv7-unknown-linux-gnueabihf"
+TARGET_CC="arm-linux-gnueabihf-gcc"
 BUILD_BIN_FILE="${VSCODE_WS}/target/${TARGET_ARCH}/debug/${APP}"
-TARGET_USER="wq"
-TARGET_BIN_FILE="/home/wq/${APP}"
-TARGET_CWD="/home/wq"
-RUNNER="docker run --rm  -v $PWD:/usr/src/app -w /usr/src/app docker.pkg.github.com/growbe2/growbe-mainboard/dev"
+TARGET_USER="pi"
+TARGET_BIN_FILE="/home/pi/${APP}"
+TARGET_CWD="/home/pi"
+RUNNER="./scripts/rust_env.sh"
 
-#ssh "${TARGET_USER}@${SSH_REMOTE}" "killall gdbserver ${APP}"
-
+$RUNNER make -C ./drivers CC=${TARGET_CC}
 $RUNNER cargo build --target=${TARGET_ARCH}
 
 if ! rsync -avz "${BUILD_BIN_FILE}" "${TARGET_USER}@${SSH_REMOTE}:${TARGET_BIN_FILE}"; then
@@ -32,4 +31,5 @@ if ! rsync -avz "${BUILD_BIN_FILE}" "${TARGET_USER}@${SSH_REMOTE}:${TARGET_BIN_F
     fi
 fi
 
-ssh -f "${TARGET_USER}@${SSH_REMOTE}" "sh -c 'cd ${TARGET_CWD}; nohup gdbserver *:${GDBPORT} ${TARGET_BIN_FILE} > /dev/null 2>&1 &'"
+#ssh -f "${TARGET_USER}@${SSH_REMOTE}" "sh -c 'cd ${TARGET_CWD}; nohup gdbserver *:${GDBPORT} ${TARGET_BIN_FILE} > /dev/null 2>&1 &'"
+ssh "${TARGET_USER}@${SSH_REMOTE}" "sh -c 'cd ${TARGET_CWD};${TARGET_BIN_FILE} ./mainboard_config.json'"
