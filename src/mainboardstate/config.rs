@@ -1,6 +1,8 @@
 
 use serde::{Deserialize, Serialize};
 
+use crate::server::http::get_default_server_config;
+
 lazy_static::lazy_static! {
 	pub static ref CONFIG: MainboardProcessConfig = {
 		let args: Vec<String> = std::env::args().collect();
@@ -17,6 +19,8 @@ pub struct MainboardProcessConfig {
 	pub id: String,
 	pub mqtt: crate::socket::mqtt::CloudMQTTConfig,
 	pub comboard: crate::comboard::config::ComboardConfig,
+    #[serde(default = "get_default_server_config")] 
+	pub server: crate::server::http::HttpServerConfig,
 }
 
 

@@ -9,9 +9,9 @@ mod mainboardstate;
 mod modulestate;
 mod store;
 mod server;
+mod plateform;
 
 use std::sync::{Mutex, Arc, mpsc::channel};
-use comboard::imple;
 
 
 #[tokio::main]
@@ -27,11 +27,6 @@ async fn main() {
 
     let d = comboard::get_comboard_client();
 
-    // Creating channel for comboard to modulestate communication
-    //let (sender_config, receiver_config) = channel::<imple::interface::Module_Config>();
-    //let (sender_state, receiver_state) = channel::<imple::interface::ModuleStateChangeEvent>();
-    //let (sender_value, receiver_value) = channel::<imple::interface::ModuleValueValidationEvent>();
-
     let (sender_socket, receiver_socket) = channel::<(String, Box<dyn modulestate::interface::ModuleValueParsable>)>();
 
     let sender_socket_hello = sender_socket.clone();
@@ -40,16 +35,10 @@ async fn main() {
     let comboard_task = d.run(
         comboard::imple::interface::ComboardClientConfig{
         config: mainboardstate::config::CONFIG.comboard.config.clone(),
-        //receiver_config: Arc::new(Mutex::new(receiver_config)),
-        //sender_state_change: Arc::new(Mutex::new(sender_state)),
-        //sender_value_validation: Arc::new(Mutex::new(sender_value)),
     });
 
    // Create the task to handle the modules state 
     let module_state_task = modulestate::module_state_task(
-        //receiver_state,
-        //receiver_value,
-        //sender_config,
         sender_socket,
         modulestate::store::ModuleStateStore::new(conn_database.clone()),
     );
@@ -66,7 +55,7 @@ async fn main() {
         sender_socket_hello,
     ).await;*/
 
-    let server_task = server::http::get_server();
+    let server_task = server::http::get_server(&crate::mainboardstate::config::CONFIG.server);
 
     
 

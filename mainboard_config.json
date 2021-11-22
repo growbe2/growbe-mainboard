@@ -5,7 +5,11 @@
 		"port": 1883
 	},
 	"comboard": {
-		"config": "/dev/i2c-1",
-		"imple": "i2c"
+		"config": "./virtual-comboard.json",
+		"imple": "virt"
+	},
+	"server": {
+		"addr": "0.0.0.0",
+		"port": 3031
 	}
 }
