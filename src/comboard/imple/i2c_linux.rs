@@ -40,7 +40,7 @@ extern fn callback_config(config: *mut super::interface::Module_Config) {
 
 #[link(name="mainboard_driver")]
 extern "C" {
-    fn register_callback(
+    fn register_callback_comboard(
         cb: extern fn(i32,*const ::std::os::raw::c_char,bool) -> (),
         cb1: extern fn(i32, &[u8; 512]),
         cb2: extern fn( *mut super::interface::Module_Config)
@@ -58,7 +58,7 @@ impl super::interface::ComboardClient for I2CLinuxComboardClient {
         let c = std::ffi::CString::new(config.config.as_str()).unwrap();
         return tokio::spawn(async move {
          unsafe {
-            register_callback(callback_state_changed, callback_value_validation, callback_config);
+            register_callback_comboard(callback_state_changed, callback_value_validation, callback_config);
             init(c.as_ptr());
          }
          loop {

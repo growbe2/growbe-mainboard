@@ -60,7 +60,7 @@ async fn main() {
     
 
     // Wait for all task to finish (they should never end)
-    let (_,_,_,_) = tokio::join!(
+    let _ = tokio::join!(
         server_task,
         comboard_task,
         module_state_task,

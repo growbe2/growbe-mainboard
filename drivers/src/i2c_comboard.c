@@ -344,11 +344,11 @@ void I2cComLib_EnableSoloLed(char comPort,enum portstate PortState,enum overwrit
 void I2cComLib_SingleReadPortModuleInfo(char comPort) //PREMIERE FONCTION QUI VA CHERCHER LES INFOS DE LA MEMOIRE DES MODULEs
 {
 
-	bool result = false;
+	bool result = true;
 
-	I2cComLib_EnableComPort(comPort);
-	result = I2cComLib_ReadMemoryInfo(MEMORY_MODULE_ADD,64); // PEUT ALLER JUSQUA 128 de dump size
-	I2cComLib_CloseAllComPort();
+	//I2cComLib_EnableComPort(comPort);
+	//result = I2cComLib_ReadMemoryInfo(MEMORY_MODULE_ADD,64); // PEUT ALLER JUSQUA 128 de dump size
+	//I2cComLib_CloseAllComPort();
 
 	if(result == true)
 	{
@@ -369,7 +369,7 @@ void I2cComLib_SingleReadPortModuleInfo(char comPort) //PREMIERE FONCTION QUI VA
 
 
 
-int32_t register_callback(rs_cb_module_state_changed callback, rs_cb_module_value_validation c2, rs_cb_module_config_queue c3) {
+int32_t register_callback_comboard(rs_cb_module_state_changed callback, rs_cb_module_value_validation c2, rs_cb_module_config_queue c3) {
     callback_state_changed = callback;
     callback_value_validation = c2;
     callback_config_queue = c3;
@@ -392,6 +392,21 @@ int init(const char* device) {
     dev.iaddr_bytes = 0;
 
 
+	uint8_t da[3];
+
+	da[0] = 0x06;
+	da[1] = 0x00;
+	da[2] = 0x00;
+
+	I2cComLib_Write (COM_BOARD_LEDS, da,3);
+
+	da[0] = 0x02;
+	da[1] = 0xFF;
+	da[2] = 0xFF;
+	I2cComLib_Write (COM_BOARD_LEDS, da,3);
+
+
+
     return bus;
 }
 
@@ -402,9 +417,9 @@ void comboard_loop_body() {
 
     // Valide the state of all the port
 
+
     for (char comport = 0; comport < 8; ++comport)
     {
     	I2cComLib_SingleReadPortModuleInfo(comport);
-
     }
 }

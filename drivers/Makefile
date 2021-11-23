@@ -3,6 +3,13 @@ TARGET = gro
 CC = gcc
 CPPFLAGS = -I./include
 
+
+mainboard_driver: main.o i2c_comboard.o i2c.o
+	$(CC) $(CPPFLAGS) -o mainboard_driver main.o i2c_comboard.o i2c.o
+
+main.o: main.c
+	$(CC) $(CPPFLAGS) -c main.c
+
 libmainboard_driver.a: i2c_comboard.o i2c.o
 	ar rcs $@ $^
 
