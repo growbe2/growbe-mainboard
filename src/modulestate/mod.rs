@@ -4,6 +4,7 @@ pub mod aas;
 pub mod aap;
 pub mod store;
 pub mod relay;
+pub mod aab;
 pub mod interface;
 
 
@@ -58,6 +59,8 @@ fn get_module_validator(module_type: char, ) -> Box<dyn interface::ModuleValueVa
         return Box::new(aas::AASValidator{});
     } else if module_type == 'P' {
         return Box::new(aap::AAPValidator{});
+    } else if module_type == 'B' {
+        return Box::new(aab::AABValidator{});
     } else {
         panic!("its a panic no validator found for type {}", module_type);
     }

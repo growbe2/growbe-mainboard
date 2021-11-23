@@ -120,13 +120,8 @@ void I2cComLib_EnableComPort(char ComChannel)
 // missing the parameters to store the ID of the module
 int I2cComLib_ReadMemoryInfo(int deviseAddress, long dumpSize, char* id)
 {
-	//uint8_t rxMemoryDataInfo[dumpSize];
 	uint8_t rxMemoryDataInfo[64] = {0};
-	//char  rdata[16] = {0};
-	//long dSize = dumpSize;
 	long eepromAddr = 0;
-	//status_t status;
-	//struct _ModuleData ModuleInfo;
 
 	uint8_t wSeq[2];
 
@@ -135,18 +130,7 @@ int I2cComLib_ReadMemoryInfo(int deviseAddress, long dumpSize, char* id)
 
 	I2cComLib_Write(deviseAddress, wSeq , 2);
 
-    /*masterXfer.slaveAddress   = deviseAddress;
-    masterXfer.direction      = kI2C_Read;
-    masterXfer.subaddress     = 0;
-    masterXfer.subaddressSize = 0;
-    masterXfer.data           = rxMemoryDataInfo;
-    masterXfer.dataSize       = dumpSize;
-    masterXfer.flags          = kI2C_TransferDefaultFlag;
-    status = I2C_RTOS_Transfer(&master_rtos_handle, &masterXfer);
-    */
     int read = I2cComLib_Read(deviseAddress, rxMemoryDataInfo, dumpSize);
-
-    //console_print("Module info (No.Series) (Info): ");
 
 	char curInfo[20];
 
@@ -174,14 +158,6 @@ void I2cComLib_ClearAllYellowLed(void)	//PERMET DE CLEAR TOUT LES LED JAUNE SANS
 
 	I2cComLib_Write(COM_BOARD_LEDS, txData, 1);
 
-	/*masterXfer.slaveAddress   = COM_BOARD_LEDS;
-	masterXfer.direction      = kI2C_Read;
-	masterXfer.subaddress     = 0;
-	masterXfer.subaddressSize = 0;
-	masterXfer.data           = currentLedState;
-	masterXfer.dataSize       = 2;
-	masterXfer.flags          = kI2C_TransferDefaultFlag;
-	status = I2C_RTOS_Transfer(&master_rtos_handle, &masterXfer);*/
     I2cComLib_Read(COM_BOARD_LEDS, currentLedState, 2);
 
 	currentLedState[0] = (currentLedState[0] | 0X55);
@@ -203,16 +179,7 @@ void I2cComLib_ClearAllGreenLed(void)	//PERMET DE CLEAR TOUT LES LED VERTE SANS 
 
 	I2cComLib_Write(COM_BOARD_LEDS, txData, 1);
 
-	/*masterXfer.slaveAddress   = COM_BOARD_LEDS;
-	masterXfer.direction      = kI2C_Read;
-	masterXfer.subaddress     = 0;
-	masterXfer.subaddressSize = 0;
-	masterXfer.data           = currentLedState;
-	masterXfer.dataSize       = 2;
-	masterXfer.flags          = kI2C_TransferDefaultFlag;
-	status = I2C_RTOS_Transfer(&master_rtos_handle, &masterXfer);*/
     I2cComLib_Read(COM_BOARD_LEDS, currentLedState, 2);
-
 
 	currentLedState[0] = (currentLedState[0] | 0XAA);	//MASK DE TOUT LES LED JAUNE PORT 0
 	currentLedState[1] = (currentLedState[1] | 0XAA);	//MASK DE TOUT LES LED JAUNE PORT 1
@@ -238,14 +205,6 @@ void I2cComLib_EnableSoloLed(char comPort,enum portstate PortState,enum overwrit
 
     I2cComLib_Write(COM_BOARD_LEDS, txData, 1);
 
-    /*masterXfer.slaveAddress   = COM_BOARD_LEDS;
-    masterXfer.direction      = kI2C_Read;
-    masterXfer.subaddress     = 0;
-    masterXfer.subaddressSize = 0;
-    masterXfer.data           = currentLedState;
-    masterXfer.dataSize       = 2;
-    masterXfer.flags          = kI2C_TransferDefaultFlag;
-    status = I2C_RTOS_Transfer(&master_rtos_handle, &masterXfer);*/
     I2cComLib_Read(COM_BOARD_LEDS, currentLedState, 2);
 
     if (Color == YELLOW)
@@ -491,20 +450,34 @@ int init(const char* device) {
 	I2cComLib_Write (COM_BOARD_LEDS, da,3);
 
 
+	I2cComLib_ClearAllGreenLed();
+	I2cComLib_ClearAllGreenLed();
+
 
     return bus;
 }
 
 
 void comboard_loop_body() {
-    // valid is there is an action to accomplish (at the end)
-    // callback_config_queue(&config);
-
-    // Valide the state of all the port
-
+	static uint8_t da[512];
 
     for (char comport = 0; comport < 8; ++comport)
     {
     	I2cComLib_SingleReadPortModuleInfo(comport);
     }
+
+	for (int comport = 0; comport < 8; ++comport) {
+		if (module_ports[comport].connected == true) {
+			I2cComLib_EnableComPort(comport);
+			switch (module_ports[comport].id[2])
+			{
+				case 'A':
+				{
+					I2cComLib_Read (THL_BOARD_EMU_EEPROM_1, da, 512);
+					break;
+				}
+			}
+			callback_value_validation(comport, da);
+		}
+	}
 }
