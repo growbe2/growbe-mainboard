@@ -20,10 +20,10 @@ impl super::interface::ModuleValueValidator for AABValidator {
         data.pump1 = get_outlet_data(value_event.buffer[5]);
         data.pump2 = get_outlet_data(value_event.buffer[6]);
         data.pump3 = get_outlet_data(value_event.buffer[7]);
-		println!("{:?}", value_event.buffer);
+
         return Box::new(data);
     }
-	
+
     fn apply_parse_config(&self, port: i32, t: char, data: std::sync::Arc<Vec<u8>>,
         sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::interface::Module_Config>,
         map_handler: & mut std::collections::HashMap<i32, tokio::task::JoinHandle<()>>
@@ -38,11 +38,11 @@ impl super::interface::ModuleValueValidator for AABValidator {
         configure_relay(config.has_p0(),0, &port, config.get_p0(), & mut buffer[0], sender_comboard_config, map_handler);
         configure_relay(config.has_p1(),1, &port, config.get_p1(), & mut buffer[1], sender_comboard_config, map_handler);
         configure_relay(config.has_p2(),2, &port, config.get_p2(), & mut buffer[2], sender_comboard_config, map_handler);
-        //configure_relay(config.has_p3(),3, &port, config.get_p3(), & mut buffer[3], sender_comboard_config, map_handler);
-        //configure_relay(config.has_p4(),4, &port, config.get_p4(), & mut buffer[4], sender_comboard_config, map_handler);
-        //configure_relay(config.has_p5(),5, &port, config.get_p5(), & mut buffer[5], sender_comboard_config, map_handler);
-        //configure_relay(config.has_p6(),6, &port, config.get_p6(), & mut buffer[6], sender_comboard_config, map_handler);
-        //configure_relay(config.has_p7(),7, &port, config.get_p7(), & mut buffer[7], sender_comboard_config, map_handler);
+        configure_relay(config.has_drain(),3, &port, config.get_drain(), & mut buffer[3], sender_comboard_config, map_handler);
+        configure_relay(config.has_pump0(),4, &port, config.get_pump0(), & mut buffer[4], sender_comboard_config, map_handler);
+        configure_relay(config.has_pump1(),5, &port, config.get_pump1(), & mut buffer[5], sender_comboard_config, map_handler);
+        configure_relay(config.has_pump2(),6, &port, config.get_pump2(), & mut buffer[6], sender_comboard_config, map_handler);
+        configure_relay(config.has_pump3(),7, &port, config.get_pump3(), & mut buffer[7], sender_comboard_config, map_handler);
 
         return (
             config,

@@ -29,11 +29,20 @@ extern fn callback_value_validation(port: i32, buffer: &[u8; 512]) -> () {
 
 extern fn callback_config(config: *mut super::interface::Module_Config) {
     if !config.is_null() {
-        unsafe {
-            (*config).port = 50;
+        let value = CHANNEL_CONFIG.1.lock().unwrap().try_recv();
+        if value.is_ok() {
+            let v = value.unwrap();
+            unsafe {
+                (*config).port = v.port;
+                (*config).buffer = v.buffer;
+            }
+        } else {
+            unsafe {
+                (*config).port = -1;
+            }
         }
     } else {
-        unsafe { (*config).port = -1; }
+        // maybe print something
     }
 }
 

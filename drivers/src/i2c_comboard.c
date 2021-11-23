@@ -461,23 +461,65 @@ int init(const char* device) {
 void comboard_loop_body() {
 	static uint8_t da[512];
 
+	int data_read = -1;
+
     for (char comport = 0; comport < 8; ++comport)
     {
     	I2cComLib_SingleReadPortModuleInfo(comport);
     }
 
+	Module_Config config;
+
+	callback_config_queue(&config);
+
 	for (int comport = 0; comport < 8; ++comport) {
+		data_read = -1;
 		if (module_ports[comport].connected == true) {
 			I2cComLib_EnableComPort(comport);
 			switch (module_ports[comport].id[2])
 			{
 				case 'A':
 				{
-					I2cComLib_Read (THL_BOARD_EMU_EEPROM_1, da, 512);
+					data_read = I2cComLib_Read (THL_BOARD_EMU_EEPROM_1, da, 512);
 					break;
 				}
+
+				case 'B':
+				{
+					if (config.port == comport) {
+						data_read = I2cComLib_Read(0x40, da, 512);
+						for (int i = 0; i < 8; i++) {
+							if (config.buffer[i] != 0xFF) {
+								da[i] = config.buffer[i];
+							}
+						}
+						I2cComLib_Write(0x40, da, 512);
+					}
+					break;
+				}
+				case 'P':
+				{
+					if (config.port == comport) {
+						data_read = I2cComLib_Read(0x42, da, 512);
+						for (int i = 0; i < 8; i++) {
+							if (config.buffer[i] != 0xFF) {
+								da[i] = config.buffer[i];
+							}
+						}
+						I2cComLib_Write(0x42, da, 512);
+					}
+					break;
+				}
+				case 'S':
+				{
+					data_read = I2cComLib_Read(SOIL_BOARD_EEPROM, da, 512);
+				}
 			}
-			callback_value_validation(comport, da);
+			if (data_read > -1) {
+				callback_value_validation(comport, da);
+			}
+
+			I2cComLib_CloseAllComPort();
 		}
 	}
 }
