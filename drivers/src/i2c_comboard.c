@@ -499,8 +499,8 @@ void comboard_loop_body() {
 				}
 				case 'P':
 				{
+					data_read = I2cComLib_Read(0x42, da, 512);
 					if (config.port == comport) {
-						data_read = I2cComLib_Read(0x42, da, 512);
 						for (int i = 0; i < 8; i++) {
 							if (config.buffer[i] != 0xFF) {
 								da[i] = config.buffer[i];

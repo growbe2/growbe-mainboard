@@ -33,5 +33,9 @@ impl super::interface::ModuleValueValidator for AAAValidator {
         panic!("AAA has no config");
     }
 
+    fn have_data_change(&self, current: &Box<dyn crate::modulestate::interface::ModuleValueParsable>, last: &Box<dyn crate::modulestate::interface::ModuleValueParsable>) -> bool {
+        return true;
+    }
+
 
 }

@@ -1,4 +1,5 @@
 use tokio::task::JoinHandle;
+use core::any::Any;
 
 pub trait ModuleValue {}
 pub trait ModuleValueParsable: ModuleValue + protobuf::Message {}
@@ -9,6 +10,9 @@ impl ModuleValueParsable for crate::protos::module::ModuleData {}
 
 pub trait ModuleValueValidator {
     fn convert_to_value(&self, value_event: &crate::comboard::imple::interface::ModuleValueValidationEvent) -> Box<dyn ModuleValueParsable>;
+
+
+    fn have_data_change(&self, current: &Box<dyn ModuleValueParsable>, last: &Box<dyn ModuleValueParsable>) -> bool;
 
     fn apply_parse_config(&self, port: i32, t: char, data: std::sync::Arc<Vec<u8>>,
         sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::interface::Module_Config>,

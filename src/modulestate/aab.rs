@@ -2,6 +2,8 @@ use crate::protos::module::{WCModuleData, WCModuleConfig};
 use super::relay::{configure_relay, get_outlet_data};
 use protobuf::Message;
 
+use core::any::Any;
+
 pub struct AABValidator {}
 
 impl super::interface::ModuleValue for WCModuleData {}
@@ -51,6 +53,11 @@ impl super::interface::ModuleValueValidator for AABValidator {
                 buffer: buffer,
             },
         );
+    }
+
+    fn have_data_change(&self, current: &Box<dyn crate::modulestate::interface::ModuleValueParsable>, last: &Box<dyn crate::modulestate::interface::ModuleValueParsable>) -> bool {
+
+        return true;
     }
 
 }

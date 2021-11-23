@@ -30,4 +30,19 @@ impl super::interface::ModuleValueValidator for AASValidator {
         panic!("AAS has no config");
     }
 
+    fn have_data_change(&self, current: &Box<dyn crate::modulestate::interface::ModuleValueParsable>, last: &Box<dyn crate::modulestate::interface::ModuleValueParsable>) -> bool {
+        let it: &dyn std::any::Any = current.as_any();
+        let current = match it.downcast_ref::<SOILModuleData>() {
+            Some(i) => i,
+            None => panic!(),
+        };
+
+        let it: &dyn std::any::Any = last.as_any();
+        let current = match it.downcast_ref::<SOILModuleData>() {
+            Some(i) => i,
+            None => panic!(),
+        };
+
+        return true;
+    }
 }

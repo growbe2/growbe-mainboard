@@ -33,6 +33,7 @@ struct MainboardConnectedModule {
     pub port: i32,
     pub id: String,
     pub handler_map: std::collections::HashMap<i32, tokio::task::JoinHandle<()>>,
+    pub last_value: Option<Box<dyn interface::ModuleValueParsable>>,
 }
 
 struct MainboardModuleStateManager {
@@ -93,6 +94,7 @@ fn handle_module_state(
                 port: state.port,
                 id: state.id.clone(),
                 handler_map: std::collections::HashMap::new(),
+                last_value: None,
             });
             send_module_state(state.id.as_str(), state.port, true, sender_socket);
 
@@ -139,9 +141,28 @@ fn handle_module_value(
     
     let sensor_value = validator.convert_to_value(value);
 
-    sender_socket
-        .send((String::from(format!("/m/{}/data", reference_connected_module.id)), sensor_value))
-        .expect("Failed to send !!!");
+
+    let on_change = |value| {
+       sender_socket
+                .send((String::from(format!("/m/{}/data", reference_connected_module.id)), value))
+                .expect("Failed to send !!!");
+
+    };
+
+    if reference_connected_module.last_value.is_some() {
+        let have_change = validator.have_data_change(&sensor_value, reference_connected_module.last_value.as_ref().unwrap());
+        if have_change == true {
+            on_change(sensor_value);
+            let previous_value = validator.convert_to_value(value);
+            let module_ref = manager.connected_module.get_mut(reference_connected_module.id.clone().as_str()).unwrap();
+            module_ref.last_value = Some(previous_value);
+        }
+    } else {
+        on_change(sensor_value);
+        let previous_value = validator.convert_to_value(value);
+        let module_ref = manager.connected_module.get_mut(reference_connected_module.id.clone().as_str()).unwrap();
+        module_ref.last_value = Some(previous_value);
+    }
 }
 
 fn handle_sync_request(

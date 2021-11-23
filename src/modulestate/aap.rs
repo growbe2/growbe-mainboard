@@ -20,8 +20,10 @@ impl super::interface::ModuleValueValidator for AAPValidator {
         data.p5 = get_outlet_data(value_event.buffer[5]);
         data.p6 = get_outlet_data(value_event.buffer[6]);
         data.p7 = get_outlet_data(value_event.buffer[7]);
+
         return Box::new(data);
     }
+    
     fn apply_parse_config(&self, port: i32, t: char, data: std::sync::Arc<Vec<u8>>,
         sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::interface::Module_Config>,
         map_handler: & mut std::collections::HashMap<i32, tokio::task::JoinHandle<()>>
@@ -50,6 +52,10 @@ impl super::interface::ModuleValueValidator for AAPValidator {
         );
     }
 
+    fn have_data_change(&self, current: &Box<dyn crate::modulestate::interface::ModuleValueParsable>, last: &Box<dyn crate::modulestate::interface::ModuleValueParsable>) -> bool {
+        
+        return true;
+    }
 
 
 }
