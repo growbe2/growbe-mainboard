@@ -51,9 +51,9 @@ async fn main() {
 
 
     // Run the hello world task to start the application
-    /*mainboardstate::hello_world::task_hello_world(
+    mainboardstate::hello_world::task_hello_world(
         sender_socket_hello,
-    ).await;*/
+    ).await;
 
     let server_task = server::http::get_server(&crate::mainboardstate::config::CONFIG.server);
 

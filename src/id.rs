@@ -13,7 +13,7 @@ fn get_id() -> String {
 #[cfg(target_arch = "x86_64")]
 fn get_id() -> String {
     // for x86 use a id present in the config
-    return String::from(crate::mainboardstate::config::CONFIG.id.as_str());
+    return String::from(crate::mainboardstate::config::CONFIG.id.as_str()).to_uppercase();
 }
 
 

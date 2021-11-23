@@ -46,6 +46,14 @@ enum portstate {
 	OFFLINE = 1
 };
 
+typedef struct ModuleInfo {
+	char id[17];
+	int port;
+	int connected;
+} ModuleInfo;
+
+static ModuleInfo module_ports[8] = {0};
+
 rs_cb_module_state_changed callback_state_changed;
 rs_cb_module_value_validation callback_value_validation;
 rs_cb_module_config_queue callback_config_queue;
@@ -60,7 +68,7 @@ int I2cComLib_Write(char slaveAdd , uint8_t *data , int dataSize)
 int I2cComLib_Read(char slaveAdd, uint8_t *data, int dataSize)
 {
     dev.addr = slaveAdd;
-    return i2c_read(&dev, 0x0, data, dataSize);
+    return i2c_ioctl_read(&dev, 0x00, data, dataSize);
 }
 
 void I2cComLib_CloseAllComPort(void)
@@ -110,7 +118,7 @@ void I2cComLib_EnableComPort(char ComChannel)
 
 
 // missing the parameters to store the ID of the module
-int I2cComLib_ReadMemoryInfo(int deviseAddress, long dumpSize)
+int I2cComLib_ReadMemoryInfo(int deviseAddress, long dumpSize, char* id)
 {
 	//uint8_t rxMemoryDataInfo[dumpSize];
 	uint8_t rxMemoryDataInfo[64] = {0};
@@ -136,25 +144,84 @@ int I2cComLib_ReadMemoryInfo(int deviseAddress, long dumpSize)
     masterXfer.flags          = kI2C_TransferDefaultFlag;
     status = I2C_RTOS_Transfer(&master_rtos_handle, &masterXfer);
     */
-    I2cComLib_Read(deviseAddress, rxMemoryDataInfo, dumpSize);
+    int read = I2cComLib_Read(deviseAddress, rxMemoryDataInfo, dumpSize);
 
     //console_print("Module info (No.Series) (Info): ");
 
-    for (char i = 0; i < 16; ++i) {
+	char curInfo[20];
 
-    	//if (isprint(rxMemoryDataInfo[i]) != 0)
-    	//{
-            //curInfo->id[i] = rxMemoryDataInfo[i] ;
-    	//}
-    	//if (isprint(rxMemoryDataInfo[i+16]) != 0)
-    	//{
-            //curInfo->name[i] = rxMemoryDataInfo[i+16] ;
-    	//}
+	if ( read > -1) {
+
+		for (char i = 0; i < 16; ++i) {
+
+		   	if (isprint(rxMemoryDataInfo[i]) != 0)
+		    {
+		        id[i] = rxMemoryDataInfo[i] ;
+		    }
+		}
 	}
+	return read > -1;
+}
 
 
-    return true;
 
+void I2cComLib_ClearAllYellowLed(void)	//PERMET DE CLEAR TOUT LES LED JAUNE SANS CHANGER LE STATE DES VERTES
+{
+	uint8_t txDataYellowLed[3];
+	uint8_t currentLedState[2];
+
+	txData[0] = 0x00;	//REGISTRE POUR LIRE LES VALEUR DE OUTPUT DES LED JAUNE ET VERT
+
+	I2cComLib_Write(COM_BOARD_LEDS, txData, 1);
+
+	/*masterXfer.slaveAddress   = COM_BOARD_LEDS;
+	masterXfer.direction      = kI2C_Read;
+	masterXfer.subaddress     = 0;
+	masterXfer.subaddressSize = 0;
+	masterXfer.data           = currentLedState;
+	masterXfer.dataSize       = 2;
+	masterXfer.flags          = kI2C_TransferDefaultFlag;
+	status = I2C_RTOS_Transfer(&master_rtos_handle, &masterXfer);*/
+    I2cComLib_Read(COM_BOARD_LEDS, currentLedState, 2);
+
+	currentLedState[0] = (currentLedState[0] | 0X55);
+	currentLedState[1] = (currentLedState[1] | 0X55);
+
+	txDataYellowLed[0] = 0x02;	//REGISTRE POUR ÉCRIRE SUR LES LED OUTPUT
+	txDataYellowLed[1] = currentLedState[0];
+	txDataYellowLed[2] = currentLedState[1];
+
+	I2cComLib_Write(COM_BOARD_LEDS, txDataYellowLed, 3);
+}
+
+void I2cComLib_ClearAllGreenLed(void)	//PERMET DE CLEAR TOUT LES LED VERTE SANS CHANGER LE STATE DES JAUNES
+{
+	uint8_t txDataGreenLed[3];
+	uint8_t currentLedState[2];
+
+	txData[0] = 0x00;	//REGISTRE POUR LIRE LES VALEUR DE OUTPUT DES LED JAUNE ET VERT
+
+	I2cComLib_Write(COM_BOARD_LEDS, txData, 1);
+
+	/*masterXfer.slaveAddress   = COM_BOARD_LEDS;
+	masterXfer.direction      = kI2C_Read;
+	masterXfer.subaddress     = 0;
+	masterXfer.subaddressSize = 0;
+	masterXfer.data           = currentLedState;
+	masterXfer.dataSize       = 2;
+	masterXfer.flags          = kI2C_TransferDefaultFlag;
+	status = I2C_RTOS_Transfer(&master_rtos_handle, &masterXfer);*/
+    I2cComLib_Read(COM_BOARD_LEDS, currentLedState, 2);
+
+
+	currentLedState[0] = (currentLedState[0] | 0XAA);	//MASK DE TOUT LES LED JAUNE PORT 0
+	currentLedState[1] = (currentLedState[1] | 0XAA);	//MASK DE TOUT LES LED JAUNE PORT 1
+
+	txDataGreenLed[0] = 0x02;	//REGISTRE POUR ÉCRIRE SUR LES LED OUTPUT
+	txDataGreenLed[1] = currentLedState[0];
+	txDataGreenLed[2] = currentLedState[1];
+
+	I2cComLib_Write (COM_BOARD_LEDS, txDataGreenLed,3);
 }
 
 
@@ -340,27 +407,36 @@ void I2cComLib_EnableSoloLed(char comPort,enum portstate PortState,enum overwrit
     I2cComLib_Write (COM_BOARD_LEDS, txDataLed,3);
 }
 
+int i = 0;
 
 void I2cComLib_SingleReadPortModuleInfo(char comPort) //PREMIERE FONCTION QUI VA CHERCHER LES INFOS DE LA MEMOIRE DES MODULEs
 {
 
-	bool result = true;
+	bool result = false;
 
-	//I2cComLib_EnableComPort(comPort);
-	//result = I2cComLib_ReadMemoryInfo(MEMORY_MODULE_ADD,64); // PEUT ALLER JUSQUA 128 de dump size
-	//I2cComLib_CloseAllComPort();
 
-	if(result == true)
-	{
-		I2cComLib_EnableSoloLed(comPort,ONLINE,STAYACTIVEOTHER, GREEN);
-		//onModuleStateChange(comPort, true);
+	ModuleInfo* info = &module_ports[comPort];
+
+	info->id[16] = '\0';
+
+
+	I2cComLib_EnableComPort(comPort);
+	result = I2cComLib_ReadMemoryInfo(MEMORY_MODULE_ADD,64, info->id); // PEUT ALLER JUSQUA 128 de dump size
+	I2cComLib_CloseAllComPort();
+
+	if (result != info->connected || (info->connected == -1 && result == true)) {
+		info->connected = result;
+		if(result == true)
+		{
+			I2cComLib_EnableSoloLed(comPort,ONLINE,STAYACTIVEOTHER, GREEN);
+			callback_state_changed(comPort, info->id, true);
+		}
+		else
+		{
+			I2cComLib_EnableSoloLed(comPort,OFFLINE,STAYACTIVEOTHER, YELLOW);
+			callback_state_changed(comPort, info->id, false);
+		}
 	}
-	else
-	{
-		I2cComLib_EnableSoloLed(comPort,OFFLINE,STAYACTIVEOTHER, YELLOW);
-		//onModuleStateChange(comPort, false);
-	}
-
 }
 
 
@@ -390,6 +466,15 @@ int init(const char* device) {
     dev.flags = 0;
     dev.page_bytes = 8;
     dev.iaddr_bytes = 0;
+
+	module_ports[0].connected = -1;
+	module_ports[1].connected = -1;
+	module_ports[2].connected = -1;
+	module_ports[3].connected = -1;
+	module_ports[4].connected = -1;
+	module_ports[5].connected = -1;
+	module_ports[6].connected = -1;
+	module_ports[7].connected = -1;
 
 
 	uint8_t da[3];

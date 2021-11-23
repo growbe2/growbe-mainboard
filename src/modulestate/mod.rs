@@ -84,8 +84,7 @@ fn handle_module_state(
     sender_socket: & Sender<(String, Box<dyn interface::ModuleValueParsable>)>,
     store: &store::ModuleStateStore,
 ) -> () {
-    if !manager.connected_module.contains_key(state.id.as_str()) {
-        if state.state == true {
+    if state.state == true {
             log::debug!("module connected {} at {}", state.id.as_str(), state.port);
             manager.connected_module.insert(state.id.clone(), MainboardConnectedModule{
                 port: state.port,
@@ -108,22 +107,15 @@ fn handle_module_state(
             } else {
                 log::warn!("cannot retrieve a config for {}", state.id);
             }
-        } else {
-            // receive state disconnect for a module a didnt know was connected
-            log::error!("received disconnected event on not connected module {} at {}", state.id.as_str(), state.port)
-        }
-    } else {
-        if state.state == false {
-            log::debug!("Module disconnected {} at {}", state.id.as_str(), state.port);
-            let connected_module = manager.connected_module.remove(state.id.as_str()).unwrap();
-            connected_module.handler_map.iter().for_each(|module| module.1.abort());
-            send_module_state(state.id.as_str(), state.port, false, sender_socket);
-        } else {
-            // state is true but was already connected , weird
-            log::error!("received connected event on already connected module {} at {}", state.id.as_str(), state.port);
-        }
     }
-
+    if state.state == false {
+        log::debug!("Module disconnected {} at {}", state.id.as_str(), state.port);
+        let connected_module = manager.connected_module.remove(state.id.as_str());
+        if connected_module.is_some() {
+            connected_module.unwrap().handler_map.iter().for_each(|module| module.1.abort());
+            send_module_state(state.id.as_str(), state.port, false, sender_socket);
+        }
+   }
 }
 
 fn handle_module_value(

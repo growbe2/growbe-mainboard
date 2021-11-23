@@ -142,7 +142,7 @@ ssize_t i2c_ioctl_read(const I2CDevice *device, unsigned int iaddr, void *buf, s
     /* Using ioctl interface operation i2c device */
     if (ioctl(device->bus, I2C_RDWR, (unsigned long)&ioctl_data) == -1) {
 
-        perror("Ioctl read i2c error:");
+        //perror("Ioctl read i2c error:");
         return -1;
     }
 
@@ -187,7 +187,7 @@ ssize_t i2c_ioctl_write(const I2CDevice *device, unsigned int iaddr, const void 
 
         if (ioctl(device->bus, I2C_RDWR, (unsigned long)&ioctl_data) == -1) {
 
-            perror("Ioctl write i2c error:");
+            //perror("Ioctl write i2c error:");
             return -1;
         }
 
@@ -231,7 +231,7 @@ ssize_t i2c_read(const I2CDevice *device, unsigned int iaddr, void *buf, size_t 
     /* Write internal address to devide  */
     if (write(device->bus, addr, device->iaddr_bytes) != device->iaddr_bytes) {
 
-        perror("Write i2c internal address error");
+        //perror("Write i2c internal address error");
         return -1;
     }
 
@@ -241,7 +241,7 @@ ssize_t i2c_read(const I2CDevice *device, unsigned int iaddr, void *buf, size_t 
     /* Read count bytes data from int_addr specify address */
     if ((cnt = read(device->bus, buf, len)) == -1) {
 
-        perror("Read i2c data error");
+        //perror("Read i2c data error");
         return -1;
     }
 
@@ -289,7 +289,7 @@ ssize_t i2c_write(const I2CDevice *device, unsigned int iaddr, const void *buf, 
         ret = write(device->bus, tmp_buf, device->iaddr_bytes + size);
         if (ret == -1 || (size_t)ret != device->iaddr_bytes + size)
         {
-            perror("I2C write error:");
+            //perror("I2C write error:");
             return -1;
         }
 

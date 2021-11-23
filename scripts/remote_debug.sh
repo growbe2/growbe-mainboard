@@ -16,16 +16,16 @@ GDBPORT="17777"
 APP="growbe-mainboard"
 TARGET_ARCH="armv7-unknown-linux-gnueabihf"
 TARGET_CC="arm-linux-gnueabihf-gcc"
-#BUILD_BIN_FILE="${VSCODE_WS}/target/${TARGET_ARCH}/debug/${APP}"
-BUILD_BIN_FILE="./drivers/mainboard_driver"
+BUILD_BIN_FILE="${VSCODE_WS}/target/${TARGET_ARCH}/debug/${APP}"
+#BUILD_BIN_FILE="./drivers/mainboard_driver"
 TARGET_USER="pi"
-#TARGET_BIN_FILE="/home/pi/${APP}"
-TARGET_BIN_FILE="./mainboard_driver"
+TARGET_BIN_FILE="/home/pi/${APP}"
+#TARGET_BIN_FILE="./mainboard_driver"
 TARGET_CWD="/home/pi"
 RUNNER="./scripts/rust_env.sh"
 
 $RUNNER make -C ./drivers CC=${TARGET_CC}
-#$RUNNER cargo build --target=${TARGET_ARCH}
+$RUNNER cargo build --target=${TARGET_ARCH}
 
 if ! rsync -avz "${BUILD_BIN_FILE}" "./mainboard_config.json" "${TARGET_USER}@${SSH_REMOTE}:"; then
     # If rsync doesn't work, it may not be available on target. Fallback to trying SSH copy.

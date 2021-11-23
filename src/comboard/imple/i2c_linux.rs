@@ -1,6 +1,5 @@
  
 use std::ffi::CStr;
-use std::str;
 
 use crate::comboard::imple::channel::*;
 use crate::comboard::imple::interface::{ModuleStateChangeEvent, ModuleValueValidationEvent};
@@ -8,7 +7,7 @@ use crate::comboard::imple::interface::{ModuleStateChangeEvent, ModuleValueValid
 
 extern fn callback_state_changed(port: i32, id: *const ::std::os::raw::c_char, state: bool) -> () {
     let c_str: &CStr = unsafe { CStr::from_ptr(id) };
-    let str_slice: &str = c_str.to_str().unwrap();
+    let str_slice = c_str.to_str().unwrap();
 
     CHANNEL_STATE.0.lock().unwrap().send(
         ModuleStateChangeEvent{
