@@ -1,9 +1,21 @@
-use std::env;
-use std::io::Write;
-use chrono::Local;
-use env_logger::Builder;
+use serde::{Deserialize, Serialize};
+
+pub fn default_logger() -> LoggerConfig {
+	return LoggerConfig{
+		target: String::from("growbe_mainboard=warn"),
+		systemd: false,
+	}
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct LoggerConfig {
+	pub target: String,
+	pub systemd: bool,
+}
 
 
 pub fn setup_log() {
-	env_logger::init();
+	env_logger::Builder::from_env(
+		env_logger::Env::default().default_filter_or(crate::mainboardstate::config::CONFIG.logger.target.as_str())
+	).init();
 }

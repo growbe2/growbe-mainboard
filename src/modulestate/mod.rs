@@ -190,15 +190,20 @@ fn handle_mconfig(
     id: String,
     data: Arc<Vec<u8>>
 ) -> () {
-    let module_ref = manager.connected_module.get_mut(id.as_str()).unwrap();
-    let t = module_ref.id.chars().nth(2).unwrap();
-    let validator = get_module_validator(t);
+    let module_ref_option = manager.connected_module.get_mut(id.as_str());
 
+    if let Some(module_ref) = module_ref_option {
 
-    let (config, config_comboard) = validator.apply_parse_config(module_ref.port, t, data, sender_comboard_config, &mut module_ref.handler_map);
+        let t = module_ref.id.chars().nth(2).unwrap();
+        let validator = get_module_validator(t);
 
-    store.store_module_config(&id, config);
-    sender_comboard_config.send(config_comboard).unwrap();
+        let (config, config_comboard) = validator.apply_parse_config(module_ref.port, t, data, sender_comboard_config, &mut module_ref.handler_map);
+
+        store.store_module_config(&id, config);
+        sender_comboard_config.send(config_comboard).unwrap();
+    } else {
+        log::error!("Receive config for unplug module not supported {}", id.as_str());
+    }
 }
 
 pub fn module_state_task(

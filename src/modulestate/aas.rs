@@ -12,14 +12,16 @@ impl super::interface::ModuleValueValidator for AASValidator {
     fn convert_to_value(&self, value_event: &crate::comboard::imple::interface::ModuleValueValidationEvent) -> Box<dyn super::interface::ModuleValueParsable> {
         let mut data = SOILModuleData::new();
 
-        data.p0 = value_event.buffer[0] as i32;
-        data.p1 = value_event.buffer[50] as i32;
-        data.p2 = value_event.buffer[100] as i32;
-        data.p3 = value_event.buffer[150] as i32;
-        data.p4 = value_event.buffer[200] as i32;
-        data.p5 = value_event.buffer[250] as i32;
-        data.p6 = value_event.buffer[300] as i32;
-        data.p7 = value_event.buffer[350] as i32;
+        if value_event.buffer.len() > 350 {
+            data.p0 = value_event.buffer[0] as i32;
+            data.p1 = value_event.buffer[50] as i32;
+            data.p2 = value_event.buffer[100] as i32;
+            data.p3 = value_event.buffer[150] as i32;
+            data.p4 = value_event.buffer[200] as i32;
+            data.p5 = value_event.buffer[250] as i32;
+            data.p6 = value_event.buffer[300] as i32;
+            data.p7 = value_event.buffer[350] as i32;
+        }
 
         return Box::new(data);
     }

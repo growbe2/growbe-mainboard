@@ -17,7 +17,6 @@ use std::sync::{Mutex, Arc, mpsc::channel};
 #[tokio::main]
 async fn main() {
 
-
     logger::setup_log();
 
     log::info!("starting mainboard with id {}", id::get());

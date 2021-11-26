@@ -7,9 +7,10 @@ StartLimitIntervalSec=0
 Type=simple 
 Restart=always 
 RestartSec=1
+User=pi
 Environment="RUST_LOG=growbe_mainboard"
-WorkingDirectory=/opt/growbe/growbe-mainboard
-ExecStart=/opt/growbe/growbe-mainboard/growbe-mainboard ./mainboard_config.json
+WorkingDirectory=/home/pi
+ExecStart=/home/pi/growbe-mainboard ./mainboard_config.json
 
 [Install] 
 WantedBy=multi-user.target

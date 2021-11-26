@@ -2,6 +2,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::server::http::get_default_server_config;
+use crate::logger::{LoggerConfig, default_logger};
 
 lazy_static::lazy_static! {
 	pub static ref CONFIG: MainboardProcessConfig = {
@@ -21,6 +22,8 @@ pub struct MainboardProcessConfig {
 	pub comboard: crate::comboard::config::ComboardConfig,
     #[serde(default = "get_default_server_config")] 
 	pub server: crate::server::http::HttpServerConfig,
+	#[serde(default = "default_logger")]
+	pub logger: LoggerConfig,
 }
 
 
