@@ -106,9 +106,10 @@ fn handle_module_state(
                 // TODO implement fonction to handle not byte but structure directly
                 let module_mut_ref = manager.connected_module.get_mut(state.id.as_str()).unwrap();
                 let bytes = Arc::new(config.unwrap().write_to_bytes().unwrap());
-                let (_config, config_comboard) = validator.apply_parse_config(state.port, t, bytes, sender_comboard_config, &mut module_mut_ref.handler_map);
-                sender_comboard_config.send(config_comboard).unwrap();
-
+                match validator.apply_parse_config(state.port, t, bytes, sender_comboard_config, &mut module_mut_ref.handler_map) {
+                    Ok((_config, config_comboard)) => sender_comboard_config.send(config_comboard).unwrap(),
+                    Err(e) => log::error!("{}", e),
+                }
             } else {
                 log::warn!("cannot retrieve a config for {}", state.id);
             }
@@ -138,8 +139,6 @@ fn handle_module_value(
     log::debug!("got value for {}", reference_connected_module.id);
 
     let validator = get_module_validator(reference_connected_module.id.chars().nth(2).unwrap());
-    
-    let sensor_value = validator.convert_to_value(value);
 
 
     let on_change = |value| {
@@ -148,20 +147,28 @@ fn handle_module_value(
                 .expect("Failed to send !!!");
 
     };
+    
+    match validator.convert_to_value(value) {
 
-    if reference_connected_module.last_value.is_some() {
-        let have_change = validator.have_data_change(&sensor_value, reference_connected_module.last_value.as_ref().unwrap());
-        if have_change == true {
-            on_change(sensor_value);
-            let previous_value = validator.convert_to_value(value);
-            let module_ref = manager.connected_module.get_mut(reference_connected_module.id.clone().as_str()).unwrap();
-            module_ref.last_value = Some(previous_value);
-        }
-    } else {
-        on_change(sensor_value);
-        let previous_value = validator.convert_to_value(value);
-        let module_ref = manager.connected_module.get_mut(reference_connected_module.id.clone().as_str()).unwrap();
-        module_ref.last_value = Some(previous_value);
+        Ok(sensor_value) => {
+            if reference_connected_module.last_value.is_some() {
+                let have_change = validator.have_data_change(&sensor_value, reference_connected_module.last_value.as_ref().unwrap());
+                if have_change == true {
+                    on_change(sensor_value);
+                    if let Ok(previous_value) = validator.convert_to_value(value) {
+                        let module_ref = manager.connected_module.get_mut(reference_connected_module.id.clone().as_str()).unwrap();
+                        module_ref.last_value = Some(previous_value);
+                    }
+                }
+            } else {
+                on_change(sensor_value);
+                if let Ok(previous_value) = validator.convert_to_value(value) {
+                    let module_ref = manager.connected_module.get_mut(reference_connected_module.id.clone().as_str()).unwrap();
+                    module_ref.last_value = Some(previous_value);
+                }
+            }
+        },
+        Err(e) => log::error!("{}", e),
     }
 }
 
@@ -197,10 +204,13 @@ fn handle_mconfig(
         let t = module_ref.id.chars().nth(2).unwrap();
         let validator = get_module_validator(t);
 
-        let (config, config_comboard) = validator.apply_parse_config(module_ref.port, t, data, sender_comboard_config, &mut module_ref.handler_map);
-
-        store.store_module_config(&id, config);
-        sender_comboard_config.send(config_comboard).unwrap();
+        match validator.apply_parse_config(module_ref.port, t, data, sender_comboard_config, &mut module_ref.handler_map) {
+            Ok((config, config_comboard)) => {
+                store.store_module_config(&id, config);
+                sender_comboard_config.send(config_comboard).unwrap();
+            },
+            Err(e) => log::error!("{}", e)
+        }
     } else {
         log::error!("Receive config for unplug module not supported {}", id.as_str());
     }

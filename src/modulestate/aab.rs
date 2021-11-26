@@ -12,7 +12,7 @@ impl super::interface::ModuleValueParsable for WCModuleData {}
 
 impl super::interface::ModuleValueValidator for AABValidator {
 
-    fn convert_to_value(&self, value_event: &crate::comboard::imple::interface::ModuleValueValidationEvent) -> Box<dyn super::interface::ModuleValueParsable> {
+    fn convert_to_value(&self, value_event: &crate::comboard::imple::interface::ModuleValueValidationEvent) -> Result<Box<dyn super::interface::ModuleValueParsable>, super::interface::ModuleError> {
         let mut data = crate::protos::module::WCModuleData::new();
         data.p0 = get_outlet_data(value_event.buffer[0]);
         data.p1 = get_outlet_data(value_event.buffer[1]);
@@ -23,16 +23,16 @@ impl super::interface::ModuleValueValidator for AABValidator {
         data.pump2 = get_outlet_data(value_event.buffer[6]);
         data.pump3 = get_outlet_data(value_event.buffer[7]);
 
-        return Box::new(data);
+        return Ok(Box::new(data));
     }
 
-    fn apply_parse_config(&self, port: i32, t: char, data: std::sync::Arc<Vec<u8>>,
+    fn apply_parse_config(&self, port: i32, _t: char, data: std::sync::Arc<Vec<u8>>,
         sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::interface::Module_Config>,
         map_handler: & mut std::collections::HashMap<i32, tokio::task::JoinHandle<()>>
-    ) -> (Box<dyn protobuf::Message>, crate::comboard::imple::interface::Module_Config) {
+    ) -> Result<(Box<dyn protobuf::Message>, crate::comboard::imple::interface::Module_Config), super::interface::ModuleError> {
 
 		
-        let config: Box<WCModuleConfig> = Box::new(WCModuleConfig::parse_from_bytes(&data).unwrap());
+        let config: Box<WCModuleConfig> = Box::new(WCModuleConfig::parse_from_bytes(&data).map_err(|_e| super::interface::ModuleError{})?);
 
 
         let mut buffer = [255; 8];
@@ -46,16 +46,16 @@ impl super::interface::ModuleValueValidator for AABValidator {
         configure_relay(config.has_pump2(),6, &port, config.get_pump2(), & mut buffer[6], sender_comboard_config, map_handler);
         configure_relay(config.has_pump3(),7, &port, config.get_pump3(), & mut buffer[7], sender_comboard_config, map_handler);
 
-        return (
+        return Ok((
             config,
             crate::comboard::imple::interface::Module_Config{
                 port: port,
                 buffer: buffer,
             },
-        );
+        ));
     }
 
-    fn have_data_change(&self, current: &Box<dyn crate::modulestate::interface::ModuleValueParsable>, last: &Box<dyn crate::modulestate::interface::ModuleValueParsable>) -> bool {
+    fn have_data_change(&self, _current: &Box<dyn crate::modulestate::interface::ModuleValueParsable>, _last: &Box<dyn crate::modulestate::interface::ModuleValueParsable>) -> bool {
 
         return true;
     }
