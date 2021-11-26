@@ -24,31 +24,14 @@ jobs:
         run: ./scripts/rust_env.sh cargo build --target arm-unknown-linux-gnueabihf --release
       - name: Create release folder
         run: mkdir -p release && cp ./target/armv7-unknown-linux-gnueabihf/release/growbe-mainboard ./release/growbe-mainboard-arm-linux && cp ./target/arm-unknown-linux-gnueabihf/release/growbe-mainboard ./release/growbe-mainboard-armv6-linux
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+      - name: Release
+        uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          body: |
-            Changes in this Release
-            - First Change
-            - Second Change
+          files: ./release/*
           draft: true
-          prerelease: false
-      - uses: "marvinpinto/action-automatic-releases@latest"
-        with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "latest"
-          prerelease: true
-          title: "Release"
-          files: |
-            ./release/*
       - name: Notify
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         uses: Ilshidur/action-discord@master
         with:
-          args: 'The project {{ EVENT_PAYLOAD.repository.full_name }} has been release {{ github.ref }}'
+          args: 'The project {{ EVENT_PAYLOAD.repository.full_name }} has been release ${{ github.ref }}'
