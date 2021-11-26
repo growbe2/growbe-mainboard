@@ -67,7 +67,9 @@ impl super::interface::ComboardClient for I2CLinuxComboardClient {
         return tokio::spawn(async move {
          unsafe {
             register_callback_comboard(callback_state_changed, callback_value_validation, callback_config);
-            init(c.as_ptr());
+            if init(c.as_ptr()) == -1 {
+                panic!("cannot open comboard device");
+            }
          }
          loop {
             unsafe { comboard_loop_body(); }
