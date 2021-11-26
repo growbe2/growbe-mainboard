@@ -59,10 +59,23 @@ async fn main() {
     
 
     // Wait for all task to finish (they should never end)
-    let _ = tokio::join!(
+    let ret = tokio::try_join!(
         server_task,
         comboard_task,
         module_state_task,
         socket_task,
     );
+
+    let exit_code = if let Err(_) = ret {
+        1
+    } else {
+        0
+    };
+    std::process::exit(exit_code);
+    /*tokio::select! {
+        _ = comboard_task => {
+            println!("OUTOUTO");
+        } 
+    }*/
+
 }

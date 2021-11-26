@@ -1,4 +1,4 @@
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize,};
 
 pub fn default_logger() -> LoggerConfig {
 	return LoggerConfig{
@@ -10,6 +10,7 @@ pub fn default_logger() -> LoggerConfig {
 #[derive(Serialize, Deserialize)]
 pub struct LoggerConfig {
 	pub target: String,
+    #[serde(default)] 
 	pub systemd: bool,
 }
 
