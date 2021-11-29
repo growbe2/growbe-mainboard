@@ -71,8 +71,9 @@ pub fn socket_task(
             handler: on_mconfig_request,
         }
     );
-    
-    let mqtt_options = MqttOptions::new("rumqtt-mainboard", config_mqtt.url.as_str(), config_mqtt.port);
+
+    let id_client = format!("pi-{}", crate::id::get());
+    let mqtt_options = MqttOptions::new(id_client, config_mqtt.url.as_str(), config_mqtt.port);
 
    return tokio::spawn(async move {
         let hearth_beath_rate = Duration::from_secs(5);
