@@ -418,12 +418,453 @@ impl ::protobuf::reflect::ProtobufValue for HelloWord {
     }
 }
 
+#[derive(PartialEq,Clone,Default)]
+pub struct VersionRelease {
+    // message fields
+    pub version: ::std::string::String,
+    pub channel: ::std::string::String,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a VersionRelease {
+    fn default() -> &'a VersionRelease {
+        <VersionRelease as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl VersionRelease {
+    pub fn new() -> VersionRelease {
+        ::std::default::Default::default()
+    }
+
+    // string version = 1;
+
+
+    pub fn get_version(&self) -> &str {
+        &self.version
+    }
+    pub fn clear_version(&mut self) {
+        self.version.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_version(&mut self, v: ::std::string::String) {
+        self.version = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_version(&mut self) -> &mut ::std::string::String {
+        &mut self.version
+    }
+
+    // Take field
+    pub fn take_version(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.version, ::std::string::String::new())
+    }
+
+    // string channel = 2;
+
+
+    pub fn get_channel(&self) -> &str {
+        &self.channel
+    }
+    pub fn clear_channel(&mut self) {
+        self.channel.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_channel(&mut self, v: ::std::string::String) {
+        self.channel = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_channel(&mut self) -> &mut ::std::string::String {
+        &mut self.channel
+    }
+
+    // Take field
+    pub fn take_channel(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.channel, ::std::string::String::new())
+    }
+}
+
+impl ::protobuf::Message for VersionRelease {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.version)?;
+                },
+                2 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.channel)?;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if !self.version.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.version);
+        }
+        if !self.channel.is_empty() {
+            my_size += ::protobuf::rt::string_size(2, &self.channel);
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if !self.version.is_empty() {
+            os.write_string(1, &self.version)?;
+        }
+        if !self.channel.is_empty() {
+            os.write_string(2, &self.channel)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> VersionRelease {
+        VersionRelease::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "version",
+                |m: &VersionRelease| { &m.version },
+                |m: &mut VersionRelease| { &mut m.version },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "channel",
+                |m: &VersionRelease| { &m.channel },
+                |m: &mut VersionRelease| { &mut m.channel },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<VersionRelease>(
+                "VersionRelease",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static VersionRelease {
+        static instance: ::protobuf::rt::LazyV2<VersionRelease> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(VersionRelease::new)
+    }
+}
+
+impl ::protobuf::Clear for VersionRelease {
+    fn clear(&mut self) {
+        self.version.clear();
+        self.channel.clear();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for VersionRelease {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for VersionRelease {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
+pub struct LocalConnection {
+    // message fields
+    pub ssid: ::std::string::String,
+    pub signalLevel: i32,
+    pub ipAddr: ::std::string::String,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a LocalConnection {
+    fn default() -> &'a LocalConnection {
+        <LocalConnection as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl LocalConnection {
+    pub fn new() -> LocalConnection {
+        ::std::default::Default::default()
+    }
+
+    // string ssid = 1;
+
+
+    pub fn get_ssid(&self) -> &str {
+        &self.ssid
+    }
+    pub fn clear_ssid(&mut self) {
+        self.ssid.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_ssid(&mut self, v: ::std::string::String) {
+        self.ssid = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_ssid(&mut self) -> &mut ::std::string::String {
+        &mut self.ssid
+    }
+
+    // Take field
+    pub fn take_ssid(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.ssid, ::std::string::String::new())
+    }
+
+    // int32 signalLevel = 2;
+
+
+    pub fn get_signalLevel(&self) -> i32 {
+        self.signalLevel
+    }
+    pub fn clear_signalLevel(&mut self) {
+        self.signalLevel = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_signalLevel(&mut self, v: i32) {
+        self.signalLevel = v;
+    }
+
+    // string ipAddr = 3;
+
+
+    pub fn get_ipAddr(&self) -> &str {
+        &self.ipAddr
+    }
+    pub fn clear_ipAddr(&mut self) {
+        self.ipAddr.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_ipAddr(&mut self, v: ::std::string::String) {
+        self.ipAddr = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_ipAddr(&mut self) -> &mut ::std::string::String {
+        &mut self.ipAddr
+    }
+
+    // Take field
+    pub fn take_ipAddr(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.ipAddr, ::std::string::String::new())
+    }
+}
+
+impl ::protobuf::Message for LocalConnection {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.ssid)?;
+                },
+                2 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_int32()?;
+                    self.signalLevel = tmp;
+                },
+                3 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.ipAddr)?;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if !self.ssid.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.ssid);
+        }
+        if self.signalLevel != 0 {
+            my_size += ::protobuf::rt::value_size(2, self.signalLevel, ::protobuf::wire_format::WireTypeVarint);
+        }
+        if !self.ipAddr.is_empty() {
+            my_size += ::protobuf::rt::string_size(3, &self.ipAddr);
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if !self.ssid.is_empty() {
+            os.write_string(1, &self.ssid)?;
+        }
+        if self.signalLevel != 0 {
+            os.write_int32(2, self.signalLevel)?;
+        }
+        if !self.ipAddr.is_empty() {
+            os.write_string(3, &self.ipAddr)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> LocalConnection {
+        LocalConnection::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "ssid",
+                |m: &LocalConnection| { &m.ssid },
+                |m: &mut LocalConnection| { &mut m.ssid },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt32>(
+                "signalLevel",
+                |m: &LocalConnection| { &m.signalLevel },
+                |m: &mut LocalConnection| { &mut m.signalLevel },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "ipAddr",
+                |m: &LocalConnection| { &m.ipAddr },
+                |m: &mut LocalConnection| { &mut m.ipAddr },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<LocalConnection>(
+                "LocalConnection",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static LocalConnection {
+        static instance: ::protobuf::rt::LazyV2<LocalConnection> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(LocalConnection::new)
+    }
+}
+
+impl ::protobuf::Clear for LocalConnection {
+    fn clear(&mut self) {
+        self.ssid.clear();
+        self.signalLevel = 0;
+        self.ipAddr.clear();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for LocalConnection {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for LocalConnection {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
 static file_descriptor_proto_data: &'static [u8] = b"\
     \n\x0bboard.proto\"9\n\x15GrowbeMainboardConfig\x12\x20\n\x0bhearthBeath\
     \x18\x01\x20\x01(\x05R\x0bhearthBeath\"[\n\tHelloWord\x12\x18\n\x07versi\
     on\x18\x01\x20\x01(\tR\x07version\x12\"\n\x0ccloudVersion\x18\x02\x20\
-    \x01(\tR\x0ccloudVersion\x12\x10\n\x03RTC\x18\x03\x20\x01(\tR\x03RTCb\
-    \x06proto3\
+    \x01(\tR\x0ccloudVersion\x12\x10\n\x03RTC\x18\x03\x20\x01(\tR\x03RTC\"D\
+    \n\x0eVersionRelease\x12\x18\n\x07version\x18\x01\x20\x01(\tR\x07version\
+    \x12\x18\n\x07channel\x18\x02\x20\x01(\tR\x07channel\"_\n\x0fLocalConnec\
+    tion\x12\x12\n\x04ssid\x18\x01\x20\x01(\tR\x04ssid\x12\x20\n\x0bsignalLe\
+    vel\x18\x02\x20\x01(\x05R\x0bsignalLevel\x12\x16\n\x06ipAddr\x18\x03\x20\
+    \x01(\tR\x06ipAddrb\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

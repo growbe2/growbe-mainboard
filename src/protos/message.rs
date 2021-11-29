@@ -846,6 +846,7 @@ pub struct RTCTime {
     pub day: u32,
     pub month: u32,
     pub year: u32,
+    pub tz: ::std::string::String,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -951,6 +952,32 @@ impl RTCTime {
     pub fn set_year(&mut self, v: u32) {
         self.year = v;
     }
+
+    // string tz = 7;
+
+
+    pub fn get_tz(&self) -> &str {
+        &self.tz
+    }
+    pub fn clear_tz(&mut self) {
+        self.tz.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_tz(&mut self, v: ::std::string::String) {
+        self.tz = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_tz(&mut self) -> &mut ::std::string::String {
+        &mut self.tz
+    }
+
+    // Take field
+    pub fn take_tz(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.tz, ::std::string::String::new())
+    }
 }
 
 impl ::protobuf::Message for RTCTime {
@@ -1004,6 +1031,9 @@ impl ::protobuf::Message for RTCTime {
                     let tmp = is.read_uint32()?;
                     self.year = tmp;
                 },
+                7 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.tz)?;
+                },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
                 },
@@ -1034,6 +1064,9 @@ impl ::protobuf::Message for RTCTime {
         if self.year != 0 {
             my_size += ::protobuf::rt::value_size(6, self.year, ::protobuf::wire_format::WireTypeVarint);
         }
+        if !self.tz.is_empty() {
+            my_size += ::protobuf::rt::string_size(7, &self.tz);
+        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -1057,6 +1090,9 @@ impl ::protobuf::Message for RTCTime {
         }
         if self.year != 0 {
             os.write_uint32(6, self.year)?;
+        }
+        if !self.tz.is_empty() {
+            os.write_string(7, &self.tz)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -1126,6 +1162,11 @@ impl ::protobuf::Message for RTCTime {
                 |m: &RTCTime| { &m.year },
                 |m: &mut RTCTime| { &mut m.year },
             ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "tz",
+                |m: &RTCTime| { &m.tz },
+                |m: &mut RTCTime| { &mut m.tz },
+            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<RTCTime>(
                 "RTCTime",
                 fields,
@@ -1148,6 +1189,7 @@ impl ::protobuf::Clear for RTCTime {
         self.day = 0;
         self.month = 0;
         self.year = 0;
+        self.tz.clear();
         self.unknown_fields.clear();
     }
 }
@@ -1170,7 +1212,7 @@ pub enum ActionCode {
     MODULE_CONFIG = 1,
     MAINBOARD_CONFIG = 2,
     RTC_SET = 3,
-    SYNC_REQUEST = 11,
+    SYNC_REQUEST = 4,
 }
 
 impl ::protobuf::ProtobufEnum for ActionCode {
@@ -1231,14 +1273,15 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     mestamp\x18\x01\x20\x01(\x05R\ttimestamp\x12\x10\n\x03log\x18\x02\x20\
     \x01(\tR\x03log\"_\n\x0eActionResponse\x12#\n\x06action\x18\x01\x20\x01(\
     \x0e2\x0b.ActionCodeR\x06action\x12\x16\n\x06status\x18\x02\x20\x01(\rR\
-    \x06status\x12\x10\n\x03msg\x18\x03\x20\x01(\tR\x03msg\"\x89\x01\n\x07RT\
+    \x06status\x12\x10\n\x03msg\x18\x03\x20\x01(\tR\x03msg\"\x99\x01\n\x07RT\
     CTime\x12\x16\n\x06second\x18\x01\x20\x01(\rR\x06second\x12\x16\n\x06min\
     ute\x18\x02\x20\x01(\rR\x06minute\x12\x12\n\x04hour\x18\x03\x20\x01(\rR\
     \x04hour\x12\x10\n\x03day\x18\x04\x20\x01(\rR\x03day\x12\x14\n\x05month\
     \x18\x05\x20\x01(\rR\x05month\x12\x12\n\x04year\x18\x06\x20\x01(\rR\x04y\
-    ear*a\n\nActionCode\x12\x0b\n\x07PARSING\x10\0\x12\x11\n\rMODULE_CONFIG\
-    \x10\x01\x12\x14\n\x10MAINBOARD_CONFIG\x10\x02\x12\x0b\n\x07RTC_SET\x10\
-    \x03\x12\x10\n\x0cSYNC_REQUEST\x10\x04b\x06proto3\
+    ear\x12\x0e\n\x02tz\x18\x07\x20\x01(\tR\x02tz*a\n\nActionCode\x12\x0b\n\
+    \x07PARSING\x10\0\x12\x11\n\rMODULE_CONFIG\x10\x01\x12\x14\n\x10MAINBOAR\
+    D_CONFIG\x10\x02\x12\x0b\n\x07RTC_SET\x10\x03\x12\x10\n\x0cSYNC_REQUEST\
+    \x10\x04b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

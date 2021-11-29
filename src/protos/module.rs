@@ -4643,98 +4643,6 @@ impl ::protobuf::reflect::ProtobufValue for RelayOutletMode {
     }
 }
 
-#[derive(Clone,PartialEq,Eq,Debug,Hash)]
-pub enum MessageType {
-    MT_UNKNOW = 0,
-    MT_HEARTHBEATH = 1,
-    MT_MODULEDATA = 2,
-    MT_GROWBECONFIG = 3,
-    MT_LOG = 4,
-    MT_RTCTIME = 5,
-    MT_THLMODULEDATA = 6,
-    MT_SOILMODULEDATA = 7,
-    MT_WAMODULEDATA = 8,
-    MT_WCMODULEDATA = 9,
-    MT_WCMODULECONFIG = 10,
-    MT_RELAYMODULEDATA = 11,
-    MT_RELAYMODULECONFIG = 12,
-    MT_FIELDALARMEVENT = 40,
-    MT_FIELDALARM = 41,
-    MT_ACTIONRESPONSE = 50,
-}
-
-impl ::protobuf::ProtobufEnum for MessageType {
-    fn value(&self) -> i32 {
-        *self as i32
-    }
-
-    fn from_i32(value: i32) -> ::std::option::Option<MessageType> {
-        match value {
-            0 => ::std::option::Option::Some(MessageType::MT_UNKNOW),
-            1 => ::std::option::Option::Some(MessageType::MT_HEARTHBEATH),
-            2 => ::std::option::Option::Some(MessageType::MT_MODULEDATA),
-            3 => ::std::option::Option::Some(MessageType::MT_GROWBECONFIG),
-            4 => ::std::option::Option::Some(MessageType::MT_LOG),
-            5 => ::std::option::Option::Some(MessageType::MT_RTCTIME),
-            6 => ::std::option::Option::Some(MessageType::MT_THLMODULEDATA),
-            7 => ::std::option::Option::Some(MessageType::MT_SOILMODULEDATA),
-            8 => ::std::option::Option::Some(MessageType::MT_WAMODULEDATA),
-            9 => ::std::option::Option::Some(MessageType::MT_WCMODULEDATA),
-            10 => ::std::option::Option::Some(MessageType::MT_WCMODULECONFIG),
-            11 => ::std::option::Option::Some(MessageType::MT_RELAYMODULEDATA),
-            12 => ::std::option::Option::Some(MessageType::MT_RELAYMODULECONFIG),
-            40 => ::std::option::Option::Some(MessageType::MT_FIELDALARMEVENT),
-            41 => ::std::option::Option::Some(MessageType::MT_FIELDALARM),
-            50 => ::std::option::Option::Some(MessageType::MT_ACTIONRESPONSE),
-            _ => ::std::option::Option::None
-        }
-    }
-
-    fn values() -> &'static [Self] {
-        static values: &'static [MessageType] = &[
-            MessageType::MT_UNKNOW,
-            MessageType::MT_HEARTHBEATH,
-            MessageType::MT_MODULEDATA,
-            MessageType::MT_GROWBECONFIG,
-            MessageType::MT_LOG,
-            MessageType::MT_RTCTIME,
-            MessageType::MT_THLMODULEDATA,
-            MessageType::MT_SOILMODULEDATA,
-            MessageType::MT_WAMODULEDATA,
-            MessageType::MT_WCMODULEDATA,
-            MessageType::MT_WCMODULECONFIG,
-            MessageType::MT_RELAYMODULEDATA,
-            MessageType::MT_RELAYMODULECONFIG,
-            MessageType::MT_FIELDALARMEVENT,
-            MessageType::MT_FIELDALARM,
-            MessageType::MT_ACTIONRESPONSE,
-        ];
-        values
-    }
-
-    fn enum_descriptor_static() -> &'static ::protobuf::reflect::EnumDescriptor {
-        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::EnumDescriptor> = ::protobuf::rt::LazyV2::INIT;
-        descriptor.get(|| {
-            ::protobuf::reflect::EnumDescriptor::new_pb_name::<MessageType>("MessageType", file_descriptor_proto())
-        })
-    }
-}
-
-impl ::std::marker::Copy for MessageType {
-}
-
-impl ::std::default::Default for MessageType {
-    fn default() -> Self {
-        MessageType::MT_UNKNOW
-    }
-}
-
-impl ::protobuf::reflect::ProtobufValue for MessageType {
-    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
-        ::protobuf::reflect::ReflectValueRef::Enum(::protobuf::ProtobufEnum::descriptor(self))
-    }
-}
-
 static file_descriptor_proto_data: &'static [u8] = b"\
     \n\x0cmodule.proto\"\xa0\x01\n\nModuleData\x12\x0e\n\x02id\x18\x01\x20\
     \x01(\tR\x02id\x12\x12\n\x04name\x18\x02\x20\x01(\tR\x04name\x12\x1c\n\t\
@@ -4795,15 +4703,7 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x0b2\x12.RelayOutletConfigR\x05pump1\x12(\n\x05pump2\x18\x07\x20\x01(\
     \x0b2\x12.RelayOutletConfigR\x05pump2\x12(\n\x05pump3\x18\x08\x20\x01(\
     \x0b2\x12.RelayOutletConfigR\x05pump3*(\n\x0fRelayOutletMode\x12\n\n\x06\
-    MANUAL\x10\0\x12\t\n\x05ALARM\x10\x01*\xd6\x02\n\x0bMessageType\x12\r\n\
-    \tMT_UNKNOW\x10\0\x12\x12\n\x0eMT_HEARTHBEATH\x10\x01\x12\x11\n\rMT_MODU\
-    LEDATA\x10\x02\x12\x13\n\x0fMT_GROWBECONFIG\x10\x03\x12\n\n\x06MT_LOG\
-    \x10\x04\x12\x0e\n\nMT_RTCTIME\x10\x05\x12\x14\n\x10MT_THLMODULEDATA\x10\
-    \x06\x12\x15\n\x11MT_SOILMODULEDATA\x10\x07\x12\x13\n\x0fMT_WAMODULEDATA\
-    \x10\x08\x12\x13\n\x0fMT_WCMODULEDATA\x10\t\x12\x15\n\x11MT_WCMODULECONF\
-    IG\x10\n\x12\x16\n\x12MT_RELAYMODULEDATA\x10\x0b\x12\x18\n\x14MT_RELAYMO\
-    DULECONFIG\x10\x0c\x12\x16\n\x12MT_FIELDALARMEVENT\x10(\x12\x11\n\rMT_FI\
-    ELDALARM\x10)\x12\x15\n\x11MT_ACTIONRESPONSE\x102b\x06proto3\
+    MANUAL\x10\0\x12\t\n\x05ALARM\x10\x01b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;
