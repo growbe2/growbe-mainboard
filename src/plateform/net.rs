@@ -48,12 +48,12 @@ pub fn get_net_info() -> NetworkInfo {
           Some(address) => {
               match address.family() {
                   AddressFamily::Inet => {
-                      item.ip = address.to_string(); // remove the fucking :0
+                      item.ip = address.to_string().replace(":0", "");
                       if let Some(netmask) = ifaddr.netmask {
                           item.mask = netmask.to_string();
                       }
                       if let Some(broadcast) = ifaddr.broadcast {
-                          item.broadcast = broadcast.to_string();
+                          item.broadcast = broadcast.to_string().replace(":0", "");
                       }
                       if let Some(destination) = ifaddr.destination {
                           item.destination = destination.to_string();
