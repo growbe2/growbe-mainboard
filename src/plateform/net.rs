@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use nix::sys::socket::AddressFamily;
 
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct NetworkIterface {
     pub name: String,
     pub ip: String,
@@ -16,6 +16,15 @@ pub struct NetworkIterface {
 #[derive(Serialize, Deserialize)]
 pub struct NetworkInfo {
     interfaces: Vec<NetworkIterface>,
+}
+
+pub fn get_ip_addr() -> String {
+    let addr = get_net_info().interfaces.iter().find(|&x| x.name == "wlan0").unwrap().ip.clone();
+    return addr;
+}
+
+pub fn get_default_gateway() -> String {
+    return String::default();
 }
 
 pub fn get_net_info() -> NetworkInfo {
@@ -39,7 +48,7 @@ pub fn get_net_info() -> NetworkInfo {
           Some(address) => {
               match address.family() {
                   AddressFamily::Inet => {
-                      item.ip = address.to_string();
+                      item.ip = address.to_string(); // remove the fucking :0
                       if let Some(netmask) = ifaddr.netmask {
                           item.mask = netmask.to_string();
                       }

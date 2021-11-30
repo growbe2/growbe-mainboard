@@ -29,6 +29,7 @@ async fn main() {
     let (sender_socket, receiver_socket) = channel::<(String, Box<dyn modulestate::interface::ModuleValueParsable>)>();
 
     let sender_socket_hello = sender_socket.clone();
+    let sender_socket_localconnection = sender_socket.clone();
 
     // Create the task to run the comboard
     let comboard_task = d.run(
@@ -54,9 +55,11 @@ async fn main() {
         sender_socket_hello,
     ).await;
 
-    let server_task = server::http::get_server(&crate::mainboardstate::config::CONFIG.server);
+    mainboardstate::localconnection::task_local_connection(
+        sender_socket_localconnection,
+    ).await;
 
-    
+    let server_task = server::http::get_server(&crate::mainboardstate::config::CONFIG.server);
 
     // Wait for all task to finish (they should never end)
     let ret = tokio::try_join!(
@@ -72,10 +75,4 @@ async fn main() {
         0
     };
     std::process::exit(exit_code);
-    /*tokio::select! {
-        _ = comboard_task => {
-            println!("OUTOUTO");
-        } 
-    }*/
-
 }
