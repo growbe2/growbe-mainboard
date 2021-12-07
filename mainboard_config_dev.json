@@ -11,5 +11,8 @@
 	"server": {
 		"addr": "0.0.0.0",
 		"port": 3031
+	},
+	"logger": {
+		"target": "growbe_mainboard::modulestate::store=debug"
 	}
 }

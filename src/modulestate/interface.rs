@@ -5,15 +5,23 @@ impl ModuleValue for crate::protos::module::ModuleData {}
 impl ModuleValueParsable for crate::protos::module::ModuleData {}
 
 #[derive(Debug, Clone)]
-pub struct ModuleError {}
+pub struct ModuleError {
+    pub message: String,
+}
 
-impl std::fmt::Display for ModuleError {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "exception with module")
+impl ModuleError {
+    pub fn new() -> ModuleError {
+        return ModuleError{
+            message: String::from("")
+        };
     }
 }
 
-
+impl std::fmt::Display for ModuleError {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{}", self.message.as_str())
+    }
+}
 
 pub trait ModuleValueValidator {
     // need to be option result

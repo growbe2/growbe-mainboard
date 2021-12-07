@@ -23,7 +23,7 @@ impl super::interface::ModuleValueValidator for AAAValidator {
                 data.airTemperature = strtof(value_event.buffer.as_ptr(), &mut v);
                 data.humidity = strtof(value_event.buffer.as_ptr().offset(100), &mut v);
             } else {
-                return Err(super::interface::ModuleError{})
+                return Err(super::interface::ModuleError::new())
             }
         }
 
@@ -34,7 +34,7 @@ impl super::interface::ModuleValueValidator for AAAValidator {
         _sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::interface::Module_Config>,
         _map_handler: & mut std::collections::HashMap<i32, tokio::task::JoinHandle<()>>
     ) -> Result<(Box<dyn protobuf::Message>, crate::comboard::imple::interface::Module_Config), super::interface::ModuleError> {
-        Err(super::interface::ModuleError{})
+        Err(super::interface::ModuleError::new())
     }
 
     fn have_data_change(&self, _current: &Box<dyn crate::modulestate::interface::ModuleValueParsable>, _last: &Box<dyn crate::modulestate::interface::ModuleValueParsable>) -> bool {

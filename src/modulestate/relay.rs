@@ -12,7 +12,9 @@ fn set_duration_relay(
     duration: u64,
     clone_sender: std::sync::mpsc::Sender<crate::comboard::imple::interface::Module_Config>,
 ) -> tokio::task::JoinHandle<()> {
+    println!("Task duratiob");
     return tokio::spawn(async move {
+    println!("Startgin");
         log::debug!("Start duration timeout");
         tokio::time::sleep(tokio::time::Duration::from_secs(duration)).await;
         log::debug!("End duration timeout");
@@ -98,12 +100,15 @@ pub fn configure_relay(
     sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::interface::Module_Config>,
     map_handler: & mut std::collections::HashMap<i32, tokio::task::JoinHandle<()>>
 ) -> () {
+    log::debug!("PORT {} {:?}", port, map_handler);
     if has_field {
         let previous_handler = map_handler.get(&(action_port as i32));
         if previous_handler.is_some() {
             log::debug!("aborting previous handler for port {}", port);
             previous_handler.unwrap().abort();
         }
+
+        log::debug!("COnfiguring relay {:?}", config);
  
         match config.mode {
             RelayOutletMode::MANUAL => {
@@ -115,17 +120,19 @@ pub fn configure_relay(
                 }
 
                 if manual_config.duration > 0 {
+                    let duration_task = set_duration_relay(action_port, *port, manual_config.duration as u64, sender_comboard_config.clone());
                     map_handler.insert(
                         action_port as i32,
-                        set_duration_relay(action_port, *port, manual_config.duration as u64, sender_comboard_config.clone())
+                        duration_task
                     );
                 }
             },
             RelayOutletMode::ALARM => {
                 let config = config.alarm.as_ref().unwrap();
+                let alarm_task = set_alarm_relay(action_port, *port, config, sender_comboard_config.clone());
                 map_handler.insert(
                     action_port as i32,
-                    set_alarm_relay(action_port, *port, config, sender_comboard_config.clone()),
+                    alarm_task,
                 );
             }
         }

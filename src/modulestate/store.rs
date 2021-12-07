@@ -19,13 +19,27 @@ impl ModuleStateStore {
         id: &String,
     ) -> Option<Box<dyn Message>> {
         let item = match id.chars().nth(2).unwrap() {
-            'P' => self.get_module_config_inner(id, RelayModuleConfig::parse_from_bytes),
-            //'B' => self.get_module_config_inner(id, WCModuleConfig::parse_from_bytes),
-            _ => Result::Err(rusqlite::Error::InvalidQuery)
+            'P' => {
+                let result = self.get_module_config_inner(id, RelayModuleConfig::parse_from_bytes);
+                if let Ok(d) = result {
+                    Ok(Box::new(d) as Box<dyn Message>)
+                } else { Err(super::interface::ModuleError{
+                    message: String::from("")
+                }) }
+            },
+            'B' => {
+                let result = self.get_module_config_inner(id, WCModuleConfig::parse_from_bytes);
+                log::debug!("{:?}", result);
+                if let Ok(d) = result {
+                    Ok(Box::new(d) as Box<dyn Message>)
+                } else { Err(super::interface::ModuleError::new())}
+            },
+            _ => Err(super::interface::ModuleError::new())
         };
         if item.is_ok() {
-            return Some(Box::new(item.unwrap()));
+            return Some(item.unwrap());
         } else {
+            log::debug!("{}", item.unwrap_err());
             return None;
         }
     }

@@ -32,7 +32,7 @@ impl super::interface::ModuleValueValidator for AABValidator {
     ) -> Result<(Box<dyn protobuf::Message>, crate::comboard::imple::interface::Module_Config), super::interface::ModuleError> {
 
 		
-        let config: Box<WCModuleConfig> = Box::new(WCModuleConfig::parse_from_bytes(&data).map_err(|_e| super::interface::ModuleError{})?);
+        let config: Box<WCModuleConfig> = Box::new(WCModuleConfig::parse_from_bytes(&data).map_err(|_e| super::interface::ModuleError::new())?);
 
 
         let mut buffer = [255; 8];
