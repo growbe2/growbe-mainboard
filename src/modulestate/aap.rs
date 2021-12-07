@@ -23,7 +23,7 @@ impl super::interface::ModuleValueValidator for AAPValidator {
             data.p7 = get_outlet_data(value_event.buffer[7]);
             return Ok(Box::new(data));
         } else {
-            return Err(super::interface::ModuleError{});
+            return Err(super::interface::ModuleError::new());
         }
     }
     
@@ -32,7 +32,7 @@ impl super::interface::ModuleValueValidator for AAPValidator {
         map_handler: & mut std::collections::HashMap<i32, tokio::task::JoinHandle<()>>
     ) -> Result<(Box<dyn protobuf::Message>, crate::comboard::imple::interface::Module_Config), super::interface::ModuleError> {
 
-        let config: Box<RelayModuleConfig> = Box::new(RelayModuleConfig::parse_from_bytes(&data).map_err(|_e| super::interface::ModuleError{})?);
+        let config: Box<RelayModuleConfig> = Box::new(RelayModuleConfig::parse_from_bytes(&data).map_err(|_e| super::interface::ModuleError::new())?);
 
 
         let mut buffer = [255; 8];

@@ -29,12 +29,6 @@
 			"port": 4,
 			"buffer": [24, 33, 35, 53, 43, 73, 85, 93],
 			"timeout": 20000
-		},
-		{
-			"event_type": "state",
-			"id": "AAP000000009",
-			"state": false,
-			"port": 3
 		}
 		
 	]

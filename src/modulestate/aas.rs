@@ -29,7 +29,7 @@ impl super::interface::ModuleValueValidator for AASValidator {
     fn apply_parse_config(&self, _port: i32, _t: char, _data: std::sync::Arc<Vec<u8>>, _sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::interface::Module_Config>,
         _map_handler: & mut std::collections::HashMap<i32, tokio::task::JoinHandle<()>>
     ) -> Result<(Box<dyn protobuf::Message>, crate::comboard::imple::interface::Module_Config), super::interface::ModuleError> {
-        Err(super::interface::ModuleError{})
+        Err(super::interface::ModuleError::new())
     }
 
     fn have_data_change(&self, current: &Box<dyn crate::modulestate::interface::ModuleValueParsable>, last: &Box<dyn crate::modulestate::interface::ModuleValueParsable>) -> bool {
