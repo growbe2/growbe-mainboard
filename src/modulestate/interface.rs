@@ -7,19 +7,38 @@ impl ModuleValueParsable for crate::protos::module::ModuleData {}
 #[derive(Debug, Clone)]
 pub struct ModuleError {
     pub message: String,
+    pub module_id: String,
+    pub port: i32,
 }
 
 impl ModuleError {
     pub fn new() -> ModuleError {
         return ModuleError{
-            message: String::from("")
+            message: String::from(""),
+            module_id: String::from(""),
+            port: -1,
         };
+    }
+
+    pub fn message(mut self, message: String) -> ModuleError {
+       self.message = message;
+       self 
+    }
+
+    pub fn module_id(mut self, module_id: String) -> ModuleError {
+        self.module_id = module_id;
+        self
+    }
+
+    pub fn port(mut self, port: i32) -> ModuleError {
+        self.port = port;
+        self
     }
 }
 
 impl std::fmt::Display for ModuleError {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "{}", self.message.as_str())
+        write!(f, "[{}] at {} : {}", self.module_id, self.port, self.message.as_str())
     }
 }
 

@@ -23,9 +23,7 @@ impl ModuleStateStore {
                 let result = self.get_module_config_inner(id, RelayModuleConfig::parse_from_bytes);
                 if let Ok(d) = result {
                     Ok(Box::new(d) as Box<dyn Message>)
-                } else { Err(super::interface::ModuleError{
-                    message: String::from("")
-                }) }
+                } else { Err(super::interface::ModuleError::new()) }
             },
             'B' => {
                 let result = self.get_module_config_inner(id, WCModuleConfig::parse_from_bytes);

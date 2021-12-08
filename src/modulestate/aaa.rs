@@ -23,7 +23,7 @@ impl super::interface::ModuleValueValidator for AAAValidator {
                 data.airTemperature = strtof(value_event.buffer.as_ptr(), &mut v);
                 data.humidity = strtof(value_event.buffer.as_ptr().offset(100), &mut v);
             } else {
-                return Err(super::interface::ModuleError::new())
+                return Err(super::interface::ModuleError::new().message("could not parse value from buffer".to_string()))
             }
         }
 
