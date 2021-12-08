@@ -1,5 +1,6 @@
 
 use crate::protos::module::{SOILModuleData};
+use crate::utils::validation::difference_of;
 
 pub struct AASValidator {}
 
@@ -21,6 +22,7 @@ impl super::interface::ModuleValueValidator for AASValidator {
             data.p5 = value_event.buffer[250] as i32;
             data.p6 = value_event.buffer[300] as i32;
             data.p7 = value_event.buffer[350] as i32;
+            data.timestamp = std::time::SystemTime::now().duration_since(std::time::SystemTime::UNIX_EPOCH).unwrap().as_secs() as i32;
         }
 
         return Ok(Box::new(data));
@@ -33,18 +35,29 @@ impl super::interface::ModuleValueValidator for AASValidator {
     }
 
     fn have_data_change(&self, current: &Box<dyn crate::modulestate::interface::ModuleValueParsable>, last: &Box<dyn crate::modulestate::interface::ModuleValueParsable>) -> bool {
-        let it: &dyn std::any::Any = current.as_any();
-        let current = match it.downcast_ref::<SOILModuleData>() {
-            Some(i) => i,
-            None => panic!(),
-        };
+        let current = current.as_any().downcast_ref::<SOILModuleData>().unwrap();
+        let last = last.as_any().downcast_ref::<SOILModuleData>().unwrap();
 
-        let it: &dyn std::any::Any = last.as_any();
-        let current = match it.downcast_ref::<SOILModuleData>() {
-            Some(i) => i,
-            None => panic!(),
-        };
+        if difference_of(current.p0, last.p0, 2) {
+            return true;
+        } else if difference_of(current.p1, last.p1, 2) {
+            return true;
+        }else if difference_of(current.p2, last.p2, 2) {
+            return true;
+        }else if difference_of(current.p3, last.p3, 2) {
+            return true;
+        }else if difference_of(current.p4, last.p4, 2) {
+            return true;
+        }else if difference_of(current.p5, last.p5, 2) {
+            return true;
+        }else if difference_of(current.p6, last.p6, 2) {
+            return true;
+        }else if difference_of(current.p7, last.p7, 2) {
+            return true;
+        } else if difference_of(current.timestamp, last.timestamp, 60) {
+            return true;
+        }
 
-        return true;
+        return false;
     }
 }

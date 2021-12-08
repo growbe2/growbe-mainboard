@@ -22,6 +22,7 @@ impl super::interface::ModuleValueValidator for AABValidator {
         data.pump1 = get_outlet_data(value_event.buffer[5]);
         data.pump2 = get_outlet_data(value_event.buffer[6]);
         data.pump3 = get_outlet_data(value_event.buffer[7]);
+        data.timestamp = std::time::SystemTime::now().duration_since(std::time::SystemTime::UNIX_EPOCH).unwrap().as_secs() as i32;
 
         return Ok(Box::new(data));
     }
@@ -55,9 +56,29 @@ impl super::interface::ModuleValueValidator for AABValidator {
         ));
     }
 
-    fn have_data_change(&self, _current: &Box<dyn crate::modulestate::interface::ModuleValueParsable>, _last: &Box<dyn crate::modulestate::interface::ModuleValueParsable>) -> bool {
+    fn have_data_change(&self, current: &Box<dyn crate::modulestate::interface::ModuleValueParsable>, last: &Box<dyn crate::modulestate::interface::ModuleValueParsable>) -> bool {
+        let current = current.as_any().downcast_ref::<WCModuleData>().unwrap();
+        let last = last.as_any().downcast_ref::<WCModuleData>().unwrap();
 
-        return true;
+        if current.p0.as_ref().unwrap().state != last.p0.as_ref().unwrap().state {
+            return true;
+        } else if current.p1.as_ref().unwrap().state != last.p1.as_ref().unwrap().state {
+            return true;
+        }  else if current.p2.as_ref().unwrap().state != last.p2.as_ref().unwrap().state {
+            return true;
+        } else if current.drain.as_ref().unwrap().state != last.drain.as_ref().unwrap().state {
+            return true;
+        } else if current.pump1.as_ref().unwrap().state != last.pump0.as_ref().unwrap().state {
+            return true;
+        } else if current.pump2.as_ref().unwrap().state != last.pump2.as_ref().unwrap().state {
+            return true;
+        } else if current.pump3.as_ref().unwrap().state != last.pump3.as_ref().unwrap().state {
+            return true;
+        } else if current.pump0.as_ref().unwrap().state != last.pump0.as_ref().unwrap().state {
+            return true;
+        }
+
+        return false;
     }
 
 }

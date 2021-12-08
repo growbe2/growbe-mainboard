@@ -10,6 +10,7 @@ mod modulestate;
 mod store;
 mod server;
 mod plateform;
+mod utils;
 
 use std::sync::{Mutex, Arc, mpsc::channel};
 

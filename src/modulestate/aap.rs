@@ -21,6 +21,7 @@ impl super::interface::ModuleValueValidator for AAPValidator {
             data.p5 = get_outlet_data(value_event.buffer[5]);
             data.p6 = get_outlet_data(value_event.buffer[6]);
             data.p7 = get_outlet_data(value_event.buffer[7]);
+            data.timestamp = std::time::SystemTime::now().duration_since(std::time::SystemTime::UNIX_EPOCH).unwrap().as_secs() as i32;
             return Ok(Box::new(data));
         } else {
             return Err(super::interface::ModuleError::new());
@@ -56,8 +57,28 @@ impl super::interface::ModuleValueValidator for AAPValidator {
     }
 
     fn have_data_change(&self, current: &Box<dyn crate::modulestate::interface::ModuleValueParsable>, last: &Box<dyn crate::modulestate::interface::ModuleValueParsable>) -> bool {
-        
-        return true;
+        let current = current.as_any().downcast_ref::<RelayModuleData>().unwrap();
+        let last = last.as_any().downcast_ref::<RelayModuleData>().unwrap();
+
+        if current.p0.as_ref().unwrap().state != last.p0.as_ref().unwrap().state {
+            return true;
+        } else if current.p1.as_ref().unwrap().state != last.p1.as_ref().unwrap().state {
+            return true;
+        }  else if current.p2.as_ref().unwrap().state != last.p2.as_ref().unwrap().state {
+            return true;
+        } else if current.p3.as_ref().unwrap().state != last.p3.as_ref().unwrap().state {
+            return true;
+        } else if current.p4.as_ref().unwrap().state != last.p4.as_ref().unwrap().state {
+            return true;
+        } else if current.p5.as_ref().unwrap().state != last.p5.as_ref().unwrap().state {
+            return true;
+        } else if current.p6.as_ref().unwrap().state != last.p6.as_ref().unwrap().state {
+            return true;
+        } else if current.p7.as_ref().unwrap().state != last.p7.as_ref().unwrap().state {
+            return true;
+        }
+
+        return false;
     }
 
 

@@ -1,4 +1,5 @@
 use crate::protos::module::{THLModuleData};
+use crate::utils::validation::difference_of;
 
 use std::os::raw::{c_char, c_float};
 
@@ -22,6 +23,7 @@ impl super::interface::ModuleValueValidator for AAAValidator {
             if value_event.buffer.len() > 150 {
                 data.airTemperature = strtof(value_event.buffer.as_ptr(), &mut v);
                 data.humidity = strtof(value_event.buffer.as_ptr().offset(100), &mut v);
+                data.timestamp = std::time::SystemTime::now().duration_since(std::time::SystemTime::UNIX_EPOCH).unwrap().as_secs() as i32;
             } else {
                 return Err(super::interface::ModuleError::new().message("could not parse value from buffer".to_string()))
             }
@@ -37,8 +39,19 @@ impl super::interface::ModuleValueValidator for AAAValidator {
         Err(super::interface::ModuleError::new())
     }
 
-    fn have_data_change(&self, _current: &Box<dyn crate::modulestate::interface::ModuleValueParsable>, _last: &Box<dyn crate::modulestate::interface::ModuleValueParsable>) -> bool {
-        return true;
+    fn have_data_change(&self, current: &Box<dyn crate::modulestate::interface::ModuleValueParsable>, last: &Box<dyn crate::modulestate::interface::ModuleValueParsable>) -> bool {
+        let current = current.as_any().downcast_ref::<THLModuleData>().unwrap();
+        let last = last.as_any().downcast_ref::<THLModuleData>().unwrap();
+
+        if difference_of(current.airTemperature, last.airTemperature, 0.5) {
+            return true;
+        } else if difference_of(current.humidity, last.humidity, 0.5) {
+            return true;
+        } else if difference_of(current.timestamp, last.timestamp, 30) {
+            return true;
+        }
+
+        return false;
     }
 
 
