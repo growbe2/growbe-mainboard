@@ -12,9 +12,7 @@ fn set_duration_relay(
     duration: u64,
     clone_sender: std::sync::mpsc::Sender<crate::comboard::imple::interface::Module_Config>,
 ) -> tokio::task::JoinHandle<()> {
-    println!("Task duratiob");
     return tokio::spawn(async move {
-    println!("Startgin");
         log::debug!("Start duration timeout");
         tokio::time::sleep(tokio::time::Duration::from_secs(duration)).await;
         log::debug!("End duration timeout");
