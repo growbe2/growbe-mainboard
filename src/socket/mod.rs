@@ -83,18 +83,14 @@ pub fn socket_task(
 
         handlers.iter().for_each(|handler| client.subscribe(format!("/growbe/{}{}", crate::id::get(), handler.subscription),  QoS::ExactlyOnce).unwrap());
 
-        let mut send = |topic, payload| -> Instant {
-            client.publish(topic, QoS::ExactlyOnce, false, payload).unwrap();
-            return Instant::now();
-        };
-
         loop {
             {
                 let receive = receiver_socket.lock().unwrap().try_recv();
                 if receive.is_ok() {
                     let message = receive.unwrap();
                     let payload = message.1.write_to_bytes().unwrap();
-                    last_send_instant = send(get_topic_prefix(message.0.as_str()), payload);
+                    client.publish(get_topic_prefix(message.0.as_str()), QoS::ExactlyOnce, false, payload).unwrap();
+                    last_send_instant = Instant::now();
                 }
             }
             {
@@ -115,9 +111,14 @@ pub fn socket_task(
                             action_respose.action = item.action_code;
                             action_respose.status = 0;
                             action_respose.msg = String::from("");
-                            send(format!("{}{}", d.topic_name.as_str(), "/response"), action_respose.write_to_bytes().unwrap());
+                            client.publish(format!("{}{}", d.topic_name.as_str(), "/response"), QoS::ExactlyOnce, false, action_respose.write_to_bytes().unwrap()).unwrap();
+                            last_send_instant = Instant::now();
 
                         },
+                        Notification::Reconnection => {
+                            log::warn!("mqtt reconnection");
+                            handlers.iter().for_each(|handler| client.subscribe(format!("/growbe/{}{}", crate::id::get(), handler.subscription),  QoS::ExactlyOnce).unwrap());
+                        }
                         _ => log::error!("mqtt message not publish {:?}", message),
                     }
                     
@@ -127,7 +128,10 @@ pub fn socket_task(
                 if last_send_instant.elapsed() > hearth_beath_rate {
                     let hearth_beath = crate::protos::message::HearthBeath::new();
                     let payload = hearth_beath.write_to_bytes().unwrap();
-                    last_send_instant = send(get_topic_prefix("/hearthbeat"), payload);
+                    
+                    client.publish(get_topic_prefix("/hearthbeat"), QoS::ExactlyOnce, false, payload).unwrap();
+                    last_send_instant = Instant::now();
+
                     log::debug!("sending hearthbeath");
                }
             }
