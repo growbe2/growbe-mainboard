@@ -18,8 +18,6 @@ jobs:
         run: ./scripts/rust_env.sh cargo vendor && ./scripts/rust_env.sh make -C ./drivers
       - name: Run UT
         run: ./scripts/rust_env.sh cargo test
-      - name: Build x86 for linux
-        run: COMMIT=$(git rev-parse --short HEAD) ./scripts/rust_env.sh cargo build --release
       - name: Build ARMv7
         run: COMMIT=$(git rev-parse --short HEAD) ./scripts/rust_env.sh make -C ./drivers clean && ./scripts/rust_env.sh make -C ./drivers CC=arm-linux-gnueabihf-gcc && ./scripts/rust_env.sh cargo build --target armv7-unknown-linux-gnueabihf --release
       - name: Build ARMv6
