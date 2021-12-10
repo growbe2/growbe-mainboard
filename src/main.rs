@@ -42,6 +42,7 @@ async fn main() {
     let module_state_task = modulestate::module_state_task(
         sender_socket,
         modulestate::store::ModuleStateStore::new(conn_database.clone()),
+        modulestate::alarm::store::ModuleAlarmStore::new(conn_database.clone()),
     );
 
     // Create the task for the communication socket from outside the app

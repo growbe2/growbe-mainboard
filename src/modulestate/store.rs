@@ -13,7 +13,6 @@ impl ModuleStateStore {
         return ModuleStateStore{conn};
     }
 
-
     pub fn get_module_config(
         &self,
         id: &String,

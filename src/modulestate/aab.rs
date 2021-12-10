@@ -56,29 +56,29 @@ impl super::interface::ModuleValueValidator for AABValidator {
         ));
     }
 
-    fn have_data_change(&self, current: &Box<dyn crate::modulestate::interface::ModuleValueParsable>, last: &Box<dyn crate::modulestate::interface::ModuleValueParsable>) -> bool {
+    fn have_data_change(&self, current: &Box<dyn crate::modulestate::interface::ModuleValueParsable>, last: &Box<dyn crate::modulestate::interface::ModuleValueParsable>) -> (bool, Vec<super::alarm::model::ValueChange<i32>>) {
         let current = current.as_any().downcast_ref::<WCModuleData>().unwrap();
         let last = last.as_any().downcast_ref::<WCModuleData>().unwrap();
 
         if current.p0.as_ref().unwrap().state != last.p0.as_ref().unwrap().state {
-            return true;
+            return (true, vec![]);
         } else if current.p1.as_ref().unwrap().state != last.p1.as_ref().unwrap().state {
-            return true;
+            return (true, vec![]);
         }  else if current.p2.as_ref().unwrap().state != last.p2.as_ref().unwrap().state {
-            return true;
+            return (true, vec![]);
         } else if current.drain.as_ref().unwrap().state != last.drain.as_ref().unwrap().state {
-            return true;
+            return (true, vec![]);
         } else if current.pump1.as_ref().unwrap().state != last.pump0.as_ref().unwrap().state {
-            return true;
+            return (true, vec![]);
         } else if current.pump2.as_ref().unwrap().state != last.pump2.as_ref().unwrap().state {
-            return true;
+            return (true, vec![]);
         } else if current.pump3.as_ref().unwrap().state != last.pump3.as_ref().unwrap().state {
-            return true;
+            return (true, vec![]);
         } else if current.pump0.as_ref().unwrap().state != last.pump0.as_ref().unwrap().state {
-            return true;
+            return (true, vec![]);
         }
 
-        return false;
+        return (false, vec![]);
     }
 
 }

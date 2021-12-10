@@ -1213,6 +1213,7 @@ pub enum ActionCode {
     MAINBOARD_CONFIG = 2,
     RTC_SET = 3,
     SYNC_REQUEST = 4,
+    ALARM = 10,
 }
 
 impl ::protobuf::ProtobufEnum for ActionCode {
@@ -1227,6 +1228,7 @@ impl ::protobuf::ProtobufEnum for ActionCode {
             2 => ::std::option::Option::Some(ActionCode::MAINBOARD_CONFIG),
             3 => ::std::option::Option::Some(ActionCode::RTC_SET),
             4 => ::std::option::Option::Some(ActionCode::SYNC_REQUEST),
+            10 => ::std::option::Option::Some(ActionCode::ALARM),
             _ => ::std::option::Option::None
         }
     }
@@ -1238,6 +1240,7 @@ impl ::protobuf::ProtobufEnum for ActionCode {
             ActionCode::MAINBOARD_CONFIG,
             ActionCode::RTC_SET,
             ActionCode::SYNC_REQUEST,
+            ActionCode::ALARM,
         ];
         values
     }

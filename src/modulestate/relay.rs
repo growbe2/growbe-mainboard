@@ -98,7 +98,6 @@ pub fn configure_relay(
     sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::interface::Module_Config>,
     map_handler: & mut std::collections::HashMap<i32, tokio::task::JoinHandle<()>>
 ) -> () {
-    log::debug!("PORT {} {:?}", port, map_handler);
     if has_field {
         let previous_handler = map_handler.get(&(action_port as i32));
         if previous_handler.is_some() {
@@ -106,8 +105,6 @@ pub fn configure_relay(
             previous_handler.unwrap().abort();
         }
 
-        log::debug!("COnfiguring relay {:?}", config);
- 
         match config.mode {
             RelayOutletMode::MANUAL => {
                 let manual_config = config.manual.as_ref().unwrap();
