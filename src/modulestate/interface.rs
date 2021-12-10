@@ -46,8 +46,7 @@ pub trait ModuleValueValidator {
     // need to be option result
     fn convert_to_value(&self, value_event: &crate::comboard::imple::interface::ModuleValueValidationEvent) -> Result<Box<dyn ModuleValueParsable>, ModuleError>;
 
-
-    fn have_data_change(&self, current: &Box<dyn ModuleValueParsable>, last: &Box<dyn ModuleValueParsable>) -> bool;
+    fn have_data_change(&self, current: &Box<dyn ModuleValueParsable>, last: &Box<dyn ModuleValueParsable>) -> (bool, Vec<super::alarm::model::ValueChange<i32>>);
 
     // need to be option result
     fn apply_parse_config(&self, port: i32, t: char, data: std::sync::Arc<Vec<u8>>,

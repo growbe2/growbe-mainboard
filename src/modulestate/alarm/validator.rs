@@ -54,6 +54,14 @@ impl AlarmFieldValidator {
         return AlarmZone::UNKNOW;
     }
 
+    pub fn deregister_field_alarm(& mut self, alarm: FieldAlarm) -> Result<(), ModuleError> {
+        let id = self.get_id(&alarm.moduleId, &alarm.property);
+        match self.maps.remove(&id) {
+            Some(_v) => Ok(()),
+            None => Err(ModuleError::new())
+        }
+    }
+
     pub fn register_field_alarm(& mut self, alarm: FieldAlarm) -> Result<(), ModuleError> {
         let id = self.get_id(&alarm.moduleId, &alarm.property);
         if self.maps.contains_key(&id) {
@@ -85,7 +93,7 @@ impl AlarmFieldValidator {
                 let new_zone = AlarmFieldValidator::get_value_zone(value.current_value, item.field_alarm.get_low(), item.field_alarm.get_high(),item.state.zone);
 
                 if new_zone != AlarmZone::UNKNOW && new_zone != item.state.zone {
-
+                    log::debug!("transition from {:?} to {:?} {} {}", item.state.zone, new_zone, value.current_value, value.previous_value);
                     let mut event = FieldAlarmEvent::new();
                     event.property = value.property.clone();
                     event.previousValue = item.state.previous_value as u32;

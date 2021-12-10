@@ -56,29 +56,29 @@ impl super::interface::ModuleValueValidator for AAPValidator {
         ));
     }
 
-    fn have_data_change(&self, current: &Box<dyn crate::modulestate::interface::ModuleValueParsable>, last: &Box<dyn crate::modulestate::interface::ModuleValueParsable>) -> bool {
+    fn have_data_change(&self, current: &Box<dyn crate::modulestate::interface::ModuleValueParsable>, last: &Box<dyn crate::modulestate::interface::ModuleValueParsable>) -> (bool, Vec<super::alarm::model::ValueChange<i32>>) {
         let current = current.as_any().downcast_ref::<RelayModuleData>().unwrap();
         let last = last.as_any().downcast_ref::<RelayModuleData>().unwrap();
 
         if current.p0.as_ref().unwrap().state != last.p0.as_ref().unwrap().state {
-            return true;
+            return (true, vec![]);
         } else if current.p1.as_ref().unwrap().state != last.p1.as_ref().unwrap().state {
-            return true;
+            return (true, vec![]);
         }  else if current.p2.as_ref().unwrap().state != last.p2.as_ref().unwrap().state {
-            return true;
+            return (true, vec![]);
         } else if current.p3.as_ref().unwrap().state != last.p3.as_ref().unwrap().state {
-            return true;
+            return (true, vec![]);
         } else if current.p4.as_ref().unwrap().state != last.p4.as_ref().unwrap().state {
-            return true;
+            return (true, vec![]);
         } else if current.p5.as_ref().unwrap().state != last.p5.as_ref().unwrap().state {
-            return true;
+            return (true, vec![]);
         } else if current.p6.as_ref().unwrap().state != last.p6.as_ref().unwrap().state {
-            return true;
+            return (true, vec![]);
         } else if current.p7.as_ref().unwrap().state != last.p7.as_ref().unwrap().state {
-            return true;
+            return (true, vec![]);
         }
 
-        return false;
+        return (false, vec![]);
     }
 
 

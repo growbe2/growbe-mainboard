@@ -41,6 +41,21 @@ fn on_mconfig_request(topic_name: String, data: Arc<Vec<u8>>) -> () {
     }).unwrap();
 }
 
+fn on_add_alarm_request(topic_name: String, data: Arc<Vec<u8>>) -> () {
+    crate::modulestate::CHANNEL_MODULE_STATE_CMD.0.lock().unwrap().send(crate::modulestate::ModuleStateCmd {
+        cmd: "aAl",
+        topic: topic_name,
+        data: data
+    }).unwrap();
+}
+
+fn on_remove_alarm_request(topic_name: String, data: Arc<Vec<u8>>) -> () {
+    crate::modulestate::CHANNEL_MODULE_STATE_CMD.0.lock().unwrap().send(crate::modulestate::ModuleStateCmd {
+        cmd: "rAl",
+        topic: topic_name,
+        data: data
+    }).unwrap();
+}
 
 
 pub fn socket_task(
@@ -69,6 +84,18 @@ pub fn socket_task(
             regex: "mconfig",
             action_code: crate::protos::message::ActionCode::MODULE_CONFIG,
             handler: on_mconfig_request,
+        },
+        MqttHandler{
+            subscription: "/board/aAl".to_string(),
+            regex: "aAl",
+            action_code: crate::protos::message::ActionCode::ALARM,
+            handler: on_add_alarm_request
+        },
+        MqttHandler{
+            subscription: "/board/rAl".to_string(),
+            regex: "rAl",
+            action_code: crate::protos::message::ActionCode::ALARM,
+            handler: on_add_alarm_request
         }
     );
 

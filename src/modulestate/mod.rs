@@ -11,7 +11,9 @@ pub mod alarm;
 
 use crate::{comboard::imple::interface::{ModuleStateChangeEvent, ModuleValueValidationEvent}};
 use crate::comboard::imple::channel::*;
+use crate::protos::alarm::FieldAlarm;
 use lazy_static::lazy_static;
+use protobuf::Message;
 use std::collections::HashMap;
 use std::sync::{Mutex, Arc};
 use std::sync::mpsc::{Receiver, Sender,};
@@ -29,6 +31,7 @@ lazy_static! {
         return (Mutex::new(sender), Mutex::new(receiver));
     };
 }
+
 
 struct MainboardConnectedModule {
     pub port: i32,
@@ -88,6 +91,8 @@ fn handle_module_state(
     sender_comboard_config: & Sender<crate::comboard::imple::interface::Module_Config>,
     sender_socket: & Sender<(String, Box<dyn interface::ModuleValueParsable>)>,
     store: &store::ModuleStateStore,
+    alarm_validator: & mut alarm::validator::AlarmFieldValidator,
+    alarm_store: & alarm::store::ModuleAlarmStore,
 ) -> () {
     if state.state == true {
             log::debug!("module connected {} at {}", state.id.as_str(), state.port);
@@ -114,13 +119,33 @@ fn handle_module_state(
             } else {
                 log::warn!("cannot retrieve a config for {}", state.id);
             }
+
+            let alarms_result = alarm_store.get_alarm_for_module(&state.id.clone());
+            if let Ok(mut alarms) = alarms_result {
+                log::info!("loading {} alarms for {}", alarms.len(), state.id.as_str());
+                for _n in 0..alarms.len() {
+                    let alarm = alarms.pop().unwrap();
+                    alarm_validator.register_field_alarm(alarm).unwrap();
+                }
+            }
     }
     if state.state == false {
         log::debug!("Module disconnected {} at {}", state.id.as_str(), state.port);
+        // remove from module map
         let connected_module = manager.connected_module.remove(state.id.as_str());
+        // clear task  
         if connected_module.is_some() {
             connected_module.unwrap().handler_map.iter().for_each(|module| module.1.abort());
             send_module_state(state.id.as_str(), state.port, false, sender_socket);
+        }
+        // clear alarm
+        let alarms_result = alarm_store.get_alarm_for_module(&state.id.clone());
+        if let Ok(mut alarms) = alarms_result {
+            log::info!("removing {} alarms for {}", alarms.len(), state.id.as_str());
+            for _n in 0..alarms.len() {
+                let alarm = alarms.pop().unwrap();
+                alarm_validator.deregister_field_alarm(alarm).unwrap();
+            }
         }
    }
 }
@@ -130,8 +155,7 @@ fn handle_module_value(
     value: & ModuleValueValidationEvent,
     sender_socket: & Sender<(String, Box<dyn interface::ModuleValueParsable>)>,
     
-    alarm_validator: & alarm::validator::AlarmFieldValidator,
-    alarm_store: & alarm::store::ModuleAlarmStore,
+    alarm_validator: & mut alarm::validator::AlarmFieldValidator,
 ) -> () {
 
     let reference_connected_module_option = manager.get_module_at_index(value.port);
@@ -140,7 +164,6 @@ fn handle_module_value(
         return;
     }
     let reference_connected_module = reference_connected_module_option.unwrap();
-    log::debug!("got value for {}", reference_connected_module.id);
 
     let validator = get_module_validator(reference_connected_module.id.chars().nth(2).unwrap());
 
@@ -156,13 +179,24 @@ fn handle_module_value(
 
         Ok(sensor_value) => {
             if reference_connected_module.last_value.is_some() {
-                let have_change = validator.have_data_change(&sensor_value, reference_connected_module.last_value.as_ref().unwrap());
-                if have_change == true {
+                let change = validator.have_data_change(&sensor_value, reference_connected_module.last_value.as_ref().unwrap());
+                if change.0 == true {
                     on_change(sensor_value);
                     if let Ok(previous_value) = validator.convert_to_value(value) {
                         let module_ref = manager.connected_module.get_mut(reference_connected_module.id.clone().as_str()).unwrap();
                         module_ref.last_value = Some(previous_value);
 
+                        log::debug!("data have changed for {}", module_ref.id.as_str());
+
+                        if change.1.len() > 0 {
+                            let module_value_change = alarm::model::ModuleValueChange::<i32>{
+                                module_id: module_ref.id.clone(),
+                                changes: change.1
+                            };
+                            alarm_validator.on_module_value_change(&module_value_change).iter()
+                                .map(|event| Box::new(event))
+                                .for_each(|event| sender_socket.send((format!("/m/{}/alarm", event.moduleId), Box::new(event.clone_me()))).unwrap());
+                        }
                     }
                 }
             } else {
@@ -221,6 +255,26 @@ fn handle_mconfig(
     }
 }
 
+fn handle_add_alarm(
+    alarm_validator: & mut alarm::validator::AlarmFieldValidator,
+    alarm_store: & alarm::store::ModuleAlarmStore,
+    data: Arc<Vec<u8>>,
+) -> () {
+    let field_alarm = FieldAlarm::parse_from_bytes(&data).unwrap();
+    alarm_store.add_alarm_field(&field_alarm).unwrap();
+    alarm_validator.register_field_alarm(field_alarm).unwrap();
+}
+
+fn handle_remove_alarm(
+    alarm_validator: & mut alarm::validator::AlarmFieldValidator,
+    alarm_store: & alarm::store::ModuleAlarmStore,
+    data: Arc<Vec<u8>>,
+) -> () {
+    let field_alarm = FieldAlarm::parse_from_bytes(&data).unwrap();
+    alarm_store.remove_alarm_field(&field_alarm).unwrap();
+    alarm_validator.deregister_field_alarm(field_alarm).unwrap();
+}
+
 pub fn module_state_task(
     sender_socket: Sender<(String, Box<dyn interface::ModuleValueParsable>)>,
     store: store::ModuleStateStore,
@@ -237,21 +291,21 @@ pub fn module_state_task(
         let receiver_state = CHANNEL_STATE.1.lock().unwrap();
         let receiver_value = CHANNEL_VALUE.1.lock().unwrap();
 
-        let alarm_validator = alarm::validator::AlarmFieldValidator::new();
+        let mut alarm_validator = alarm::validator::AlarmFieldValidator::new();
 
         loop {
             {
                 let receive = receiver_state.try_recv();
                 if receive.is_ok() {
                     let state = receive.unwrap();
-                    handle_module_state(& mut manager, &state, &sender_config, &sender_socket, &store);
+                    handle_module_state(& mut manager, &state, &sender_config, &sender_socket, &store, & mut alarm_validator,&alarm_store);
                 }
             }
             {
                 let receive = receiver_value.try_recv();
                 if receive.is_ok() {
                     let value = receive.unwrap();
-                    handle_module_value(& mut manager, &value, &sender_socket, &alarm_validator, &alarm_store);
+                    handle_module_value(& mut manager, &value, &sender_socket, &mut alarm_validator);
                 }
             }
             {
@@ -261,6 +315,8 @@ pub fn module_state_task(
                     match cmd.cmd {
                         "sync" => handle_sync_request(& mut manager, &sender_socket),
                         "mconfig" => handle_mconfig(& mut manager, &store, &sender_config, last_element_path(&cmd.topic), cmd.data),
+                        "aAl" => handle_add_alarm(& mut alarm_validator, &alarm_store, cmd.data),
+                        "rAl" => handle_remove_alarm(& mut alarm_validator, &alarm_store, cmd.data),
                         _ => log::error!("receive invalid cmd {}", cmd.cmd),
                     }
                 }

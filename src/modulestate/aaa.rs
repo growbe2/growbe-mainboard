@@ -39,19 +39,23 @@ impl super::interface::ModuleValueValidator for AAAValidator {
         Err(super::interface::ModuleError::new())
     }
 
-    fn have_data_change(&self, current: &Box<dyn crate::modulestate::interface::ModuleValueParsable>, last: &Box<dyn crate::modulestate::interface::ModuleValueParsable>) -> bool {
+    fn have_data_change(&self, current: &Box<dyn crate::modulestate::interface::ModuleValueParsable>, last: &Box<dyn crate::modulestate::interface::ModuleValueParsable>) -> (bool, Vec<super::alarm::model::ValueChange<i32>>) {
         let current = current.as_any().downcast_ref::<THLModuleData>().unwrap();
         let last = last.as_any().downcast_ref::<THLModuleData>().unwrap();
 
+        let mut vec = Vec::new();
+
         if difference_of(current.airTemperature, last.airTemperature, 0.5) {
-            return true;
-        } else if difference_of(current.humidity, last.humidity, 0.5) {
-            return true;
-        } else if difference_of(current.timestamp, last.timestamp, 30) {
-            return true;
+            vec.push(super::alarm::model::ValueChange::<i32>{property: "airTemperature".to_string(), current_value: current.airTemperature as i32, previous_value: last.airTemperature as i32});
+        }
+        if difference_of(current.humidity, last.humidity, 0.5) {
+            vec.push(super::alarm::model::ValueChange::<i32>{property: "humidity".to_string(), current_value: current.humidity as i32, previous_value: last.humidity as i32});
+        }
+        if difference_of(current.timestamp, last.timestamp, 30) {
+            return (true, vec);
         }
 
-        return false;
+        return (vec.len() > 0, vec);
     }
 
 
