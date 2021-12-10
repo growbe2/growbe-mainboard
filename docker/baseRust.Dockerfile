@@ -11,6 +11,7 @@ RUN dpkg --add-architecture armhf &&  dpkg --add-architecture arm64 && \
 RUN DEBIAN_FRONTEND="noninteractive"  TZ="America/New_York" apt-get install -yq curl rsync openssh-client pkg-config cmake
 RUN apt-get install -yq protobuf-compiler
 RUN apt-get install -yq libsqlite3-dev libsqlite3-dev:armhf
+RUN apt-get install -yq libssl-dev libssl-dev:armhf
 
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | bash -s -- -y
 ENV PATH="/root/.cargo/bin:${PATH}"

@@ -13,6 +13,6 @@
 		"port": 3031
 	},
 	"logger": {
-		"target": "growbe_mainboard::modulestate::store=debug"
+		"target": "growbe_mainboard"
 	}
 }

@@ -1,6 +1,7 @@
 
 use serde::{Deserialize, Serialize};
 
+use super::update::{UpdateConfig, get_default_update_config};
 use crate::server::http::get_default_server_config;
 use crate::logger::{LoggerConfig, default_logger};
 
@@ -24,6 +25,8 @@ pub struct MainboardProcessConfig {
 	pub server: crate::server::http::HttpServerConfig,
 	#[serde(default = "default_logger")]
 	pub logger: LoggerConfig,
+	#[serde(default = "get_default_update_config")]
+	pub update: UpdateConfig,
 }
 
 

@@ -1213,7 +1213,9 @@ pub enum ActionCode {
     MAINBOARD_CONFIG = 2,
     RTC_SET = 3,
     SYNC_REQUEST = 4,
-    ALARM = 10,
+    ADD_ALARM = 10,
+    REMOVE_ALARM = 11,
+    RESTART = 12,
 }
 
 impl ::protobuf::ProtobufEnum for ActionCode {
@@ -1228,7 +1230,9 @@ impl ::protobuf::ProtobufEnum for ActionCode {
             2 => ::std::option::Option::Some(ActionCode::MAINBOARD_CONFIG),
             3 => ::std::option::Option::Some(ActionCode::RTC_SET),
             4 => ::std::option::Option::Some(ActionCode::SYNC_REQUEST),
-            10 => ::std::option::Option::Some(ActionCode::ALARM),
+            10 => ::std::option::Option::Some(ActionCode::ADD_ALARM),
+            11 => ::std::option::Option::Some(ActionCode::REMOVE_ALARM),
+            12 => ::std::option::Option::Some(ActionCode::RESTART),
             _ => ::std::option::Option::None
         }
     }
@@ -1240,7 +1244,9 @@ impl ::protobuf::ProtobufEnum for ActionCode {
             ActionCode::MAINBOARD_CONFIG,
             ActionCode::RTC_SET,
             ActionCode::SYNC_REQUEST,
-            ActionCode::ALARM,
+            ActionCode::ADD_ALARM,
+            ActionCode::REMOVE_ALARM,
+            ActionCode::RESTART,
         ];
         values
     }
@@ -1281,10 +1287,11 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     ute\x18\x02\x20\x01(\rR\x06minute\x12\x12\n\x04hour\x18\x03\x20\x01(\rR\
     \x04hour\x12\x10\n\x03day\x18\x04\x20\x01(\rR\x03day\x12\x14\n\x05month\
     \x18\x05\x20\x01(\rR\x05month\x12\x12\n\x04year\x18\x06\x20\x01(\rR\x04y\
-    ear\x12\x0e\n\x02tz\x18\x07\x20\x01(\tR\x02tz*a\n\nActionCode\x12\x0b\n\
-    \x07PARSING\x10\0\x12\x11\n\rMODULE_CONFIG\x10\x01\x12\x14\n\x10MAINBOAR\
-    D_CONFIG\x10\x02\x12\x0b\n\x07RTC_SET\x10\x03\x12\x10\n\x0cSYNC_REQUEST\
-    \x10\x04b\x06proto3\
+    ear\x12\x0e\n\x02tz\x18\x07\x20\x01(\tR\x02tz*\x8f\x01\n\nActionCode\x12\
+    \x0b\n\x07PARSING\x10\0\x12\x11\n\rMODULE_CONFIG\x10\x01\x12\x14\n\x10MA\
+    INBOARD_CONFIG\x10\x02\x12\x0b\n\x07RTC_SET\x10\x03\x12\x10\n\x0cSYNC_RE\
+    QUEST\x10\x04\x12\r\n\tADD_ALARM\x10\n\x12\x10\n\x0cREMOVE_ALARM\x10\x0b\
+    \x12\x0b\n\x07RESTART\x10\x0cb\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

@@ -620,6 +620,316 @@ impl ::protobuf::reflect::ProtobufValue for VersionRelease {
 }
 
 #[derive(PartialEq,Clone,Default)]
+pub struct UpdateExecute {
+    // message fields
+    pub version: ::std::string::String,
+    pub restarted: bool,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a UpdateExecute {
+    fn default() -> &'a UpdateExecute {
+        <UpdateExecute as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl UpdateExecute {
+    pub fn new() -> UpdateExecute {
+        ::std::default::Default::default()
+    }
+
+    // string version = 1;
+
+
+    pub fn get_version(&self) -> &str {
+        &self.version
+    }
+    pub fn clear_version(&mut self) {
+        self.version.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_version(&mut self, v: ::std::string::String) {
+        self.version = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_version(&mut self) -> &mut ::std::string::String {
+        &mut self.version
+    }
+
+    // Take field
+    pub fn take_version(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.version, ::std::string::String::new())
+    }
+
+    // bool restarted = 2;
+
+
+    pub fn get_restarted(&self) -> bool {
+        self.restarted
+    }
+    pub fn clear_restarted(&mut self) {
+        self.restarted = false;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_restarted(&mut self, v: bool) {
+        self.restarted = v;
+    }
+}
+
+impl ::protobuf::Message for UpdateExecute {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.version)?;
+                },
+                2 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_bool()?;
+                    self.restarted = tmp;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if !self.version.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.version);
+        }
+        if self.restarted != false {
+            my_size += 2;
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if !self.version.is_empty() {
+            os.write_string(1, &self.version)?;
+        }
+        if self.restarted != false {
+            os.write_bool(2, self.restarted)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> UpdateExecute {
+        UpdateExecute::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "version",
+                |m: &UpdateExecute| { &m.version },
+                |m: &mut UpdateExecute| { &mut m.version },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBool>(
+                "restarted",
+                |m: &UpdateExecute| { &m.restarted },
+                |m: &mut UpdateExecute| { &mut m.restarted },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<UpdateExecute>(
+                "UpdateExecute",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static UpdateExecute {
+        static instance: ::protobuf::rt::LazyV2<UpdateExecute> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(UpdateExecute::new)
+    }
+}
+
+impl ::protobuf::Clear for UpdateExecute {
+    fn clear(&mut self) {
+        self.version.clear();
+        self.restarted = false;
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for UpdateExecute {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for UpdateExecute {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
+pub struct RestartRequest {
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a RestartRequest {
+    fn default() -> &'a RestartRequest {
+        <RestartRequest as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl RestartRequest {
+    pub fn new() -> RestartRequest {
+        ::std::default::Default::default()
+    }
+}
+
+impl ::protobuf::Message for RestartRequest {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> RestartRequest {
+        RestartRequest::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let fields = ::std::vec::Vec::new();
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<RestartRequest>(
+                "RestartRequest",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static RestartRequest {
+        static instance: ::protobuf::rt::LazyV2<RestartRequest> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(RestartRequest::new)
+    }
+}
+
+impl ::protobuf::Clear for RestartRequest {
+    fn clear(&mut self) {
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for RestartRequest {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for RestartRequest {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
 pub struct LocalConnection {
     // message fields
     pub ssid: ::std::string::String,
@@ -861,10 +1171,12 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     on\x18\x01\x20\x01(\tR\x07version\x12\"\n\x0ccloudVersion\x18\x02\x20\
     \x01(\tR\x0ccloudVersion\x12\x10\n\x03RTC\x18\x03\x20\x01(\tR\x03RTC\"D\
     \n\x0eVersionRelease\x12\x18\n\x07version\x18\x01\x20\x01(\tR\x07version\
-    \x12\x18\n\x07channel\x18\x02\x20\x01(\tR\x07channel\"_\n\x0fLocalConnec\
-    tion\x12\x12\n\x04ssid\x18\x01\x20\x01(\tR\x04ssid\x12\x20\n\x0bsignalLe\
-    vel\x18\x02\x20\x01(\x05R\x0bsignalLevel\x12\x16\n\x06ipAddr\x18\x03\x20\
-    \x01(\tR\x06ipAddrb\x06proto3\
+    \x12\x18\n\x07channel\x18\x02\x20\x01(\tR\x07channel\"G\n\rUpdateExecute\
+    \x12\x18\n\x07version\x18\x01\x20\x01(\tR\x07version\x12\x1c\n\trestarte\
+    d\x18\x02\x20\x01(\x08R\trestarted\"\x10\n\x0eRestartRequest\"_\n\x0fLoc\
+    alConnection\x12\x12\n\x04ssid\x18\x01\x20\x01(\tR\x04ssid\x12\x20\n\x0b\
+    signalLevel\x18\x02\x20\x01(\x05R\x0bsignalLevel\x12\x16\n\x06ipAddr\x18\
+    \x03\x20\x01(\tR\x06ipAddrb\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

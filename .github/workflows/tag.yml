@@ -29,6 +29,15 @@ jobs:
         with:
           files: ./release/*
           draft: true
+      - name: Extract tag name
+        id: tag
+        uses: actions/github-script@0.2.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            return context.payload.ref.replace(/\/refs\/tags\//, '');
+      - name: Send notification to the growbe-cloud
+        run: docker run --env DB_URL=${{secrets.DB_URL}} MQTT_URL=${{secrets.MQTT_URL}} docker.pkg.github.com/growbe2/growbe-cloud/growbe-cloud node ./dist/growbe-version.js ${{ steps.tag.outputs.result }}
       - name: Notify
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
