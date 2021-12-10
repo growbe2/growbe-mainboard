@@ -35,7 +35,7 @@ jobs:
           files: |
             ./release/*
       - name: Send notification to the growbe-cloud
-        run: docker run --env DB_URL=${{secrets.DB_URL}} MQTT_URL=${{secrets.MQTT_URL}} docker.pkg.github.com/growbe2/growbe-cloud/growbe-cloud node ./dist/growbe-version.js latest
+        run: docker run --env DB_URL=${{secrets.DB_URL}} --env MQTT_URL=${{secrets.MQTT_URL}} docker.pkg.github.com/growbe2/growbe-cloud/growbe-cloud node ./dist/growbe-version.js latest
       - name: Notify
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
