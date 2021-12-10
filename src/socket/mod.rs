@@ -95,7 +95,7 @@ pub fn socket_task(
             subscription: "/board/rAl".to_string(),
             regex: "rAl",
             action_code: crate::protos::message::ActionCode::ALARM,
-            handler: on_add_alarm_request
+            handler: on_remove_alarm_request
         }
     );
 
