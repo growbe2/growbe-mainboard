@@ -6,6 +6,7 @@ pub mod store;
 pub mod relay;
 pub mod aab;
 pub mod interface;
+pub mod alarm;
 
 
 use crate::{comboard::imple::interface::{ModuleStateChangeEvent, ModuleValueValidationEvent}};
@@ -128,6 +129,9 @@ fn handle_module_value(
     manager: & mut MainboardModuleStateManager,
     value: & ModuleValueValidationEvent,
     sender_socket: & Sender<(String, Box<dyn interface::ModuleValueParsable>)>,
+    
+    alarm_validator: & alarm::validator::AlarmFieldValidator,
+    alarm_store: & alarm::store::ModuleAlarmStore,
 ) -> () {
 
     let reference_connected_module_option = manager.get_module_at_index(value.port);
@@ -158,6 +162,7 @@ fn handle_module_value(
                     if let Ok(previous_value) = validator.convert_to_value(value) {
                         let module_ref = manager.connected_module.get_mut(reference_connected_module.id.clone().as_str()).unwrap();
                         module_ref.last_value = Some(previous_value);
+
                     }
                 }
             } else {
@@ -219,6 +224,7 @@ fn handle_mconfig(
 pub fn module_state_task(
     sender_socket: Sender<(String, Box<dyn interface::ModuleValueParsable>)>,
     store: store::ModuleStateStore,
+    alarm_store: alarm::store::ModuleAlarmStore,
 ) -> tokio::task::JoinHandle<()> {
     let mut manager = MainboardModuleStateManager{
         connected_module: HashMap::new(),
@@ -227,36 +233,39 @@ pub fn module_state_task(
     let sender_config = CHANNEL_CONFIG.0.lock().unwrap().clone();
 
     return tokio::spawn(async move {
+        
         let receiver_state = CHANNEL_STATE.1.lock().unwrap();
         let receiver_value = CHANNEL_VALUE.1.lock().unwrap();
-    loop {
-        {
-            let receive = receiver_state.try_recv();
-            if receive.is_ok() {
-                let state = receive.unwrap();
-                handle_module_state(& mut manager, &state, &sender_config, &sender_socket, &store);
+
+        let alarm_validator = alarm::validator::AlarmFieldValidator::new();
+
+        loop {
+            {
+                let receive = receiver_state.try_recv();
+                if receive.is_ok() {
+                    let state = receive.unwrap();
+                    handle_module_state(& mut manager, &state, &sender_config, &sender_socket, &store);
+                }
             }
-        }
-        {
-            let receive = receiver_value.try_recv();
-            if receive.is_ok() {
-                let value = receive.unwrap();
-                handle_module_value(& mut manager, &value, &sender_socket);
+            {
+                let receive = receiver_value.try_recv();
+                if receive.is_ok() {
+                    let value = receive.unwrap();
+                    handle_module_value(& mut manager, &value, &sender_socket, &alarm_validator, &alarm_store);
+                }
             }
-        }
-        {
-            let receive = CHANNEL_MODULE_STATE_CMD.1.lock().unwrap().try_recv();
-            if receive.is_ok() {
-                let cmd = receive.unwrap();
-                match cmd.cmd {
-                    "sync" => handle_sync_request(& mut manager, &sender_socket),
-                    "mconfig" => handle_mconfig(& mut manager, &store, &sender_config, last_element_path(&cmd.topic), cmd.data),
-                    _ => log::error!("receive invalid cmd {}", cmd.cmd),
+            {
+                let receive = CHANNEL_MODULE_STATE_CMD.1.lock().unwrap().try_recv();
+                if receive.is_ok() {
+                    let cmd = receive.unwrap();
+                    match cmd.cmd {
+                        "sync" => handle_sync_request(& mut manager, &sender_socket),
+                        "mconfig" => handle_mconfig(& mut manager, &store, &sender_config, last_element_path(&cmd.topic), cmd.data),
+                        _ => log::error!("receive invalid cmd {}", cmd.cmd),
+                    }
                 }
             }
         }
-    }
-
     });
 
 
