@@ -23,7 +23,7 @@ jobs:
       - name: Build ARMv6
         run: COMMIT=$(git rev-parse --short HEAD) ./scripts/rust_env.sh cargo build --target arm-unknown-linux-gnueabihf --release
       - name: Create release folder
-        run: mkdir -p release && cp ./target/release/growbe-mainboard ./release/growbe-mainboard-x86_64-linux && cp ./target/armv7-unknown-linux-gnueabihf/release/growbe-mainboard ./release/growbe-mainboard-arm-linux && cp ./target/arm-unknown-linux-gnueabihf/release/growbe-mainboard ./release/growbe-mainboard-armv6-linux
+        run: mkdir -p release && cp ./target/armv7-unknown-linux-gnueabihf/release/growbe-mainboard ./release/growbe-mainboard-arm-linux && cp ./target/arm-unknown-linux-gnueabihf/release/growbe-mainboard ./release/growbe-mainboard-armv6-linux
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
