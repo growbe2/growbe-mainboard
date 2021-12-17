@@ -19,8 +19,13 @@ pub struct NetworkInfo {
 }
 
 pub fn get_ip_addr() -> String {
-    let addr = get_net_info().interfaces.iter().find(|&x| x.name == "wlan0").unwrap().ip.clone();
-    return addr;
+    let net_info = get_net_info();
+    let interface_wlan0_response = net_info.interfaces.iter().find(|&x| x.name == "wlan0");
+    if let Some(interface_wlan0) = interface_wlan0_response {
+        let addr = interface_wlan0.ip.clone();
+        return addr;
+    }
+    return String::from("")
 }
 
 pub fn get_default_gateway() -> String {

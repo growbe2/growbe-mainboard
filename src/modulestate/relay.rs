@@ -1,6 +1,7 @@
 use crate::protos::module::{RelayModuleData, RelayModuleConfig, AlarmConfig, RelayOutletConfig, RelayOutletData, RelayOutletMode};
 use protobuf::SingularPtrField;
 use chrono::Timelike;
+use tokio::task::spawn_blocking;
 
 fn f(i: &usize, x: &mut [u8], value: u8) {
     x[*i] = value;
@@ -12,7 +13,8 @@ fn set_duration_relay(
     duration: u64,
     clone_sender: std::sync::mpsc::Sender<crate::comboard::imple::interface::Module_Config>,
 ) -> tokio::task::JoinHandle<()> {
-    return tokio::spawn(async move {
+    log::debug!("Creating duration task");
+    return tokio::task::spawn(async move {
         log::debug!("Start duration timeout");
         tokio::time::sleep(tokio::time::Duration::from_secs(duration)).await;
         log::debug!("End duration timeout");
