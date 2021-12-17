@@ -36,7 +36,7 @@ lazy_static! {
 struct MainboardConnectedModule {
     pub port: i32,
     pub id: String,
-    pub handler_map: std::collections::HashMap<i32, tokio::task::JoinHandle<()>>,
+    pub handler_map: std::collections::HashMap<i32, tokio_util::sync::CancellationToken>,
     pub last_value: Option<Box<dyn interface::ModuleValueParsable>>,
 }
 
@@ -86,6 +86,7 @@ fn send_module_state(
     sender_socket.send((String::from(format!("/m/{}/state", id)), Box::new(send_state))).unwrap();
 }
 
+#[inline]
 fn handle_module_state(
     manager: & mut MainboardModuleStateManager,
     state: & ModuleStateChangeEvent,
@@ -117,6 +118,7 @@ fn handle_module_state(
                     Ok((_config, config_comboard)) => sender_comboard_config.send(config_comboard).unwrap(),
                     Err(e) => log::error!("{}", e),
                 }
+                tokio::task::spawn(async {});
             } else {
                 log::warn!("cannot retrieve a config for {}", state.id);
             }
@@ -136,7 +138,7 @@ fn handle_module_state(
         let connected_module = manager.connected_module.remove(state.id.as_str());
         // clear task  
         if connected_module.is_some() {
-            connected_module.unwrap().handler_map.iter().for_each(|module| module.1.abort());
+            connected_module.unwrap().handler_map.iter().for_each(|module| module.1.cancel());
             send_module_state(state.id.as_str(), state.port, false, sender_socket);
         }
         // clear alarm
@@ -299,7 +301,6 @@ pub fn module_state_task(
 
                                         let t = module_ref.id.chars().nth(2).unwrap();
                                         let validator = get_module_validator(t);
-                                        
 
                                         match validator.apply_parse_config(module_ref.port, t, cmd.data, &sender_config, &mut module_ref.handler_map) {
                                             Ok((config, config_comboard)) => {
@@ -308,6 +309,7 @@ pub fn module_state_task(
                                             },
                                             Err(e) => log::error!("{}", e)
                                         }
+                                        tokio::task::spawn(async {});
                                 } else {
                                     log::error!("Receive config for unplug module not supported {}", id.as_str());
                         }
