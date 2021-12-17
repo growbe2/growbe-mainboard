@@ -36,7 +36,7 @@ lazy_static! {
 struct MainboardConnectedModule {
     pub port: i32,
     pub id: String,
-    pub handler_map: std::collections::HashMap<i32, tokio::task::JoinHandle<()>>,
+    pub handler_map: std::collections::HashMap<i32, tokio_util::sync::CancellationToken>,
     pub last_value: Option<Box<dyn interface::ModuleValueParsable>>,
 }
 
@@ -82,9 +82,11 @@ fn send_module_state(
     send_state.id = String::from(id);
     send_state.plug = state;
     send_state.atIndex = port;
+    // error ici parfois
     sender_socket.send((String::from(format!("/m/{}/state", id)), Box::new(send_state))).unwrap();
 }
 
+#[inline]
 fn handle_module_state(
     manager: & mut MainboardModuleStateManager,
     state: & ModuleStateChangeEvent,
@@ -116,6 +118,7 @@ fn handle_module_state(
                     Ok((_config, config_comboard)) => sender_comboard_config.send(config_comboard).unwrap(),
                     Err(e) => log::error!("{}", e),
                 }
+                tokio::task::spawn(async {});
             } else {
                 log::warn!("cannot retrieve a config for {}", state.id);
             }
@@ -135,7 +138,7 @@ fn handle_module_state(
         let connected_module = manager.connected_module.remove(state.id.as_str());
         // clear task  
         if connected_module.is_some() {
-            connected_module.unwrap().handler_map.iter().for_each(|module| module.1.abort());
+            connected_module.unwrap().handler_map.iter().for_each(|module| module.1.cancel());
             send_module_state(state.id.as_str(), state.port, false, sender_socket);
         }
         // clear alarm
@@ -229,31 +232,6 @@ fn last_element_path(path: &str) -> String {
     };
 }
 
-fn handle_mconfig(
-    manager: & mut MainboardModuleStateManager,
-    store: & store::ModuleStateStore,
-    sender_comboard_config: & Sender<crate::comboard::imple::interface::Module_Config>,
-    id: String,
-    data: Arc<Vec<u8>>
-) -> () {
-    let module_ref_option = manager.connected_module.get_mut(id.as_str());
-
-    if let Some(module_ref) = module_ref_option {
-
-        let t = module_ref.id.chars().nth(2).unwrap();
-        let validator = get_module_validator(t);
-
-        match validator.apply_parse_config(module_ref.port, t, data, sender_comboard_config, &mut module_ref.handler_map) {
-            Ok((config, config_comboard)) => {
-                store.store_module_config(&id, config);
-                sender_comboard_config.send(config_comboard).unwrap();
-            },
-            Err(e) => log::error!("{}", e)
-        }
-    } else {
-        log::error!("Receive config for unplug module not supported {}", id.as_str());
-    }
-}
 
 fn handle_add_alarm(
     alarm_validator: & mut alarm::validator::AlarmFieldValidator,
@@ -285,13 +263,14 @@ pub fn module_state_task(
     };
     
     let sender_config = CHANNEL_CONFIG.0.lock().unwrap().clone();
+        
 
     return tokio::spawn(async move {
-        
+        let mut alarm_validator = alarm::validator::AlarmFieldValidator::new();
+
         let receiver_state = CHANNEL_STATE.1.lock().unwrap();
         let receiver_value = CHANNEL_VALUE.1.lock().unwrap();
 
-        let mut alarm_validator = alarm::validator::AlarmFieldValidator::new();
 
         loop {
             {
@@ -314,7 +293,28 @@ pub fn module_state_task(
                     let cmd = receive.unwrap();
                     match cmd.cmd {
                         "sync" => handle_sync_request(& mut manager, &sender_socket),
-                        "mconfig" => handle_mconfig(& mut manager, &store, &sender_config, last_element_path(&cmd.topic), cmd.data),
+                        "mconfig" => {
+                                let id = last_element_path(&cmd.topic);
+                                let module_ref_option = manager.connected_module.get_mut(id.as_str());
+
+                                if let Some(module_ref) = module_ref_option {
+
+                                        let t = module_ref.id.chars().nth(2).unwrap();
+                                        let validator = get_module_validator(t);
+
+                                        match validator.apply_parse_config(module_ref.port, t, cmd.data, &sender_config, &mut module_ref.handler_map) {
+                                            Ok((config, config_comboard)) => {
+                                                store.store_module_config(&id, config);
+                                                sender_config.send(config_comboard).unwrap();
+                                            },
+                                            Err(e) => log::error!("{}", e)
+                                        }
+                                        tokio::task::spawn(async {});
+                                } else {
+                                    log::error!("Receive config for unplug module not supported {}", id.as_str());
+                        }
+                            //handle_mconfig(& mut manager, &store,  last_element_path(&cmd.topic), cmd.data).await
+                    },
                         "aAl" => handle_add_alarm(& mut alarm_validator, &alarm_store, cmd.data),
                         "rAl" => handle_remove_alarm(& mut alarm_validator, &alarm_store, cmd.data),
                         _ => log::error!("receive invalid cmd {}", cmd.cmd),

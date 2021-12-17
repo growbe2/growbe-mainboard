@@ -1,6 +1,8 @@
-use crate::protos::module::{RelayModuleData, RelayModuleConfig, AlarmConfig, RelayOutletConfig, RelayOutletData, RelayOutletMode};
+use crate::protos::module::{AlarmConfig, RelayOutletConfig, RelayOutletData, RelayOutletMode};
 use protobuf::SingularPtrField;
 use chrono::Timelike;
+use tokio::select;
+use tokio_util::sync::CancellationToken;
 
 fn f(i: &usize, x: &mut [u8], value: u8) {
     x[*i] = value;
@@ -11,17 +13,25 @@ fn set_duration_relay(
     port: i32,
     duration: u64,
     clone_sender: std::sync::mpsc::Sender<crate::comboard::imple::interface::Module_Config>,
+    cancellation_token: CancellationToken,
 ) -> tokio::task::JoinHandle<()> {
-    return tokio::spawn(async move {
+    log::debug!("Creating duration task");
+    return tokio::task::spawn(async move {
         log::debug!("Start duration timeout");
-        tokio::time::sleep(tokio::time::Duration::from_secs(duration)).await;
-        log::debug!("End duration timeout");
-        let mut buffer = [255; 8];
-        f(&action_port, &mut buffer, 0);
-        clone_sender.send(crate::comboard::imple::interface::Module_Config{
-            port: port,
-            buffer: buffer
-        }).unwrap();
+        select! {
+            _ = cancellation_token.cancelled() => {
+                log::debug!("cancellation of duration timeout");
+            },
+            _ = tokio::time::sleep(tokio::time::Duration::from_secs(duration)) => {
+                log::debug!("End duration timeout");
+                let mut buffer = [255; 8];
+                f(&action_port, &mut buffer, 0);
+                clone_sender.send(crate::comboard::imple::interface::Module_Config{
+                    port: port,
+                    buffer: buffer
+                }).unwrap();
+            }
+        }
     });
 }
 
@@ -30,6 +40,7 @@ fn set_alarm_relay(
     port: i32,
     config: &AlarmConfig,
     clone_sender: std::sync::mpsc::Sender<crate::comboard::imple::interface::Module_Config>,
+    cancellation_token: CancellationToken,
 ) -> tokio::task::JoinHandle<()> {
 
     let beginning = config.begining.as_ref().unwrap();
@@ -73,8 +84,16 @@ fn set_alarm_relay(
             }).unwrap();
 
             log::debug!("have to sleep for {} minute(s) from {}", timeout, current_minute);
-            tokio::time::sleep(tokio::time::Duration::from_secs((timeout * 60) as u64)).await;
 
+            select! {
+                _ = cancellation_token.cancelled() => {
+                    log::debug!("cancellation of alarm");
+                    return;
+                },
+                _ = tokio::time::sleep(tokio::time::Duration::from_secs((timeout * 60) as u64)) => {
+                    log::debug!("End of timeout of alarm");
+                }
+            }
         }
     });
 }
@@ -96,13 +115,14 @@ pub fn configure_relay(
     config: &RelayOutletConfig,
     buffer: & mut u8,
     sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::interface::Module_Config>,
-    map_handler: & mut std::collections::HashMap<i32, tokio::task::JoinHandle<()>>
+    map_handler: & mut std::collections::HashMap<i32, CancellationToken>
 ) -> () {
+
     if has_field {
         let previous_handler = map_handler.get(&(action_port as i32));
         if previous_handler.is_some() {
             log::debug!("aborting previous handler for port {}", port);
-            previous_handler.unwrap().abort();
+            previous_handler.unwrap().cancel();
         }
 
         match config.mode {
@@ -115,19 +135,21 @@ pub fn configure_relay(
                 }
 
                 if manual_config.duration > 0 {
-                    let duration_task = set_duration_relay(action_port, *port, manual_config.duration as u64, sender_comboard_config.clone());
+                    let token = CancellationToken::new();
+                    set_duration_relay(action_port, *port, manual_config.duration as u64, sender_comboard_config.clone(), token.clone());
                     map_handler.insert(
-                        action_port as i32,
-                        duration_task
+                       action_port as i32,
+                       token
                     );
                 }
             },
             RelayOutletMode::ALARM => {
+                let token = CancellationToken::new();
                 let config = config.alarm.as_ref().unwrap();
-                let alarm_task = set_alarm_relay(action_port, *port, config, sender_comboard_config.clone());
+                set_alarm_relay(action_port, *port, config, sender_comboard_config.clone(), token.clone());
                 map_handler.insert(
                     action_port as i32,
-                    alarm_task,
+                    token
                 );
             }
         }

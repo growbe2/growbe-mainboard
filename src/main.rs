@@ -15,7 +15,7 @@ mod utils;
 use std::sync::{Mutex, Arc, mpsc::channel};
 
 
-#[tokio::main]
+#[tokio::main(flavor = "multi_thread")]
 async fn main() {
 
     logger::setup_log();
@@ -61,20 +61,22 @@ async fn main() {
         sender_socket_localconnection,
     ).await;
 
-    let server_task = server::http::get_server(&crate::mainboardstate::config::CONFIG.server);
+
+
+    //let server_task = server::http::get_server(&crate::mainboardstate::config::CONFIG.server);
 
     // Wait for all task to finish (they should never end)
-    let ret = tokio::try_join!(
-        server_task,
+    let ret = tokio::join!(
+        //server_task,
         comboard_task,
         module_state_task,
         socket_task,
     );
 
-    let exit_code = if let Err(_) = ret {
-        1
-    } else {
-        0
-    };
-    std::process::exit(exit_code);
+    //let exit_code = if let Err(_) = ret {
+    //    1
+    //} else {
+    //    0
+    //};
+    //std::process::exit(exit_code);
 }
