@@ -142,7 +142,7 @@ pub fn socket_task(
     let mqtt_options = MqttOptions::new(id_client, config_mqtt.url.as_str(), config_mqtt.port);
 
    return tokio::spawn(async move {
-        let hearth_beath_rate = Duration::from_secs(5);
+        let hearth_beath_rate = Duration::from_secs(15);
         let (mut client, notifications) = MqttClient::start(mqtt_options).unwrap();
 
         let mut last_send_instant = Instant::now();
@@ -199,10 +199,14 @@ pub fn socket_task(
             }
             {
                 if last_send_instant.elapsed() > hearth_beath_rate {
-                    let hearth_beath = crate::protos::message::HearthBeath::new();
+
+                    let mut hearth_beath = crate::protos::message::HearthBeath::new();
+                    let now = chrono::Utc::now();
+                    hearth_beath.set_rtc(String::from(now.timestamp_nanos().to_string()));
                     let payload = hearth_beath.write_to_bytes().unwrap();
                     
-                    client.publish(get_topic_prefix("/hearthbeat"), QoS::ExactlyOnce, false, payload).unwrap();
+                    client.publish(get_topic_prefix("/heartbeath"), QoS::ExactlyOnce, false, payload).unwrap();
+
                     last_send_instant = Instant::now();
 
                     log::debug!("sending hearthbeath");
