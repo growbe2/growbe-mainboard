@@ -199,7 +199,8 @@ pub fn socket_task(
             }
             {
                 if last_send_instant.elapsed() > hearth_beath_rate {
-                    let hearth_beath = crate::protos::message::HearthBeath::new();
+                    let mut hearth_beath = crate::protos::message::HearthBeath::new();
+                    hearth_beath.set_rtc(String::from("hearthbeath"));
                     let payload = hearth_beath.write_to_bytes().unwrap();
                     
                     client.publish(get_topic_prefix("/hearthbeat"), QoS::ExactlyOnce, false, payload).unwrap();
