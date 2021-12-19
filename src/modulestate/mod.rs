@@ -7,6 +7,7 @@ pub mod relay;
 pub mod aab;
 pub mod interface;
 pub mod alarm;
+pub mod actor;
 
 
 use crate::{comboard::imple::interface::{ModuleStateChangeEvent, ModuleValueValidationEvent}};
@@ -17,6 +18,7 @@ use protobuf::Message;
 use std::collections::HashMap;
 use std::sync::{Mutex, Arc};
 use std::sync::mpsc::{Receiver, Sender,};
+use aab::AABValidator;
 
 
 pub struct ModuleStateCmd {
@@ -38,6 +40,7 @@ struct MainboardConnectedModule {
     pub id: String,
     pub handler_map: std::collections::HashMap<i32, tokio_util::sync::CancellationToken>,
     pub last_value: Option<Box<dyn interface::ModuleValueParsable>>,
+    pub validator: Box<dyn interface::ModuleValueValidator>,
 }
 
 struct MainboardModuleStateManager {
@@ -65,7 +68,7 @@ fn get_module_validator(module_type: char, ) -> Box<dyn interface::ModuleValueVa
     } else if module_type == 'P' {
         return Box::new(aap::AAPValidator{});
     } else if module_type == 'B' {
-        return Box::new(aab::AABValidator{});
+        return Box::new(AABValidator::new());
     } else {
         panic!("its a panic no validator found for type {}", module_type);
     }
@@ -98,23 +101,26 @@ fn handle_module_state(
 ) -> () {
     if state.state == true {
             log::debug!("module connected {} at {}", state.id.as_str(), state.port);
+            let t = state.id.chars().nth(2).unwrap();
+            let validator = get_module_validator(t);
             manager.connected_module.insert(state.id.clone(), MainboardConnectedModule{
                 port: state.port,
                 id: state.id.clone(),
                 handler_map: std::collections::HashMap::new(),
                 last_value: None,
+                validator: validator,
             });
+
             send_module_state(state.id.as_str(), state.port, true, sender_socket);
+
 
             let config = store.get_module_config(&state.id);
             if config.is_some() {
-                let t = state.id.chars().nth(2).unwrap();
-                let validator = get_module_validator(t);
 
                 // TODO implement fonction to handle not byte but structure directly
                 let module_mut_ref = manager.connected_module.get_mut(state.id.as_str()).unwrap();
                 let bytes = Arc::new(config.unwrap().write_to_bytes().unwrap());
-                match validator.apply_parse_config(state.port, t, bytes, sender_comboard_config, &mut module_mut_ref.handler_map) {
+                match module_mut_ref.validator.apply_parse_config(state.port, t, bytes, sender_comboard_config, &mut module_mut_ref.handler_map) {
                     Ok((_config, config_comboard)) => sender_comboard_config.send(config_comboard).unwrap(),
                     Err(e) => log::error!("{}", e),
                 }
@@ -168,8 +174,6 @@ fn handle_module_value(
     }
     let reference_connected_module = reference_connected_module_option.unwrap();
 
-    let validator = get_module_validator(reference_connected_module.id.chars().nth(2).unwrap());
-
 
     let on_change = |value| {
        sender_socket
@@ -178,14 +182,14 @@ fn handle_module_value(
 
     };
     
-    match validator.convert_to_value(value) {
+    match reference_connected_module.validator.convert_to_value(value) {
 
         Ok(sensor_value) => {
             if reference_connected_module.last_value.is_some() {
-                let change = validator.have_data_change(&sensor_value, reference_connected_module.last_value.as_ref().unwrap());
+                let change = reference_connected_module.validator.have_data_change(&sensor_value, reference_connected_module.last_value.as_ref().unwrap());
                 if change.0 == true {
                     on_change(sensor_value);
-                    if let Ok(previous_value) = validator.convert_to_value(value) {
+                    if let Ok(previous_value) = reference_connected_module.validator.convert_to_value(value) {
                         let module_ref = manager.connected_module.get_mut(reference_connected_module.id.clone().as_str()).unwrap();
                         module_ref.last_value = Some(previous_value);
 
@@ -204,7 +208,7 @@ fn handle_module_value(
                 }
             } else {
                 on_change(sensor_value);
-                if let Ok(previous_value) = validator.convert_to_value(value) {
+                if let Ok(previous_value) = reference_connected_module.validator.convert_to_value(value) {
                     let module_ref = manager.connected_module.get_mut(reference_connected_module.id.clone().as_str()).unwrap();
                     module_ref.last_value = Some(previous_value);
                 }
@@ -258,14 +262,15 @@ pub fn module_state_task(
     store: store::ModuleStateStore,
     alarm_store: alarm::store::ModuleAlarmStore,
 ) -> tokio::task::JoinHandle<()> {
-    let mut manager = MainboardModuleStateManager{
-        connected_module: HashMap::new(),
-    };
-    
+
     let sender_config = CHANNEL_CONFIG.0.lock().unwrap().clone();
         
 
     return tokio::spawn(async move {
+        let mut manager = MainboardModuleStateManager{
+            connected_module: HashMap::new(),
+        };
+    
         let mut alarm_validator = alarm::validator::AlarmFieldValidator::new();
 
         let receiver_state = CHANNEL_STATE.1.lock().unwrap();
@@ -300,9 +305,8 @@ pub fn module_state_task(
                                 if let Some(module_ref) = module_ref_option {
 
                                         let t = module_ref.id.chars().nth(2).unwrap();
-                                        let validator = get_module_validator(t);
 
-                                        match validator.apply_parse_config(module_ref.port, t, cmd.data, &sender_config, &mut module_ref.handler_map) {
+                                        match module_ref.validator.apply_parse_config(module_ref.port, t, cmd.data, &sender_config, &mut module_ref.handler_map) {
                                             Ok((config, config_comboard)) => {
                                                 store.store_module_config(&id, config);
                                                 sender_config.send(config_comboard).unwrap();
@@ -313,7 +317,6 @@ pub fn module_state_task(
                                 } else {
                                     log::error!("Receive config for unplug module not supported {}", id.as_str());
                         }
-                            //handle_mconfig(& mut manager, &store,  last_element_path(&cmd.topic), cmd.data).await
                     },
                         "aAl" => handle_add_alarm(& mut alarm_validator, &alarm_store, cmd.data),
                         "rAl" => handle_remove_alarm(& mut alarm_validator, &alarm_store, cmd.data),
