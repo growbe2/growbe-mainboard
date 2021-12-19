@@ -49,7 +49,7 @@ pub trait ModuleValueValidator {
     fn have_data_change(&self, current: &Box<dyn ModuleValueParsable>, last: &Box<dyn ModuleValueParsable>) -> (bool, Vec<super::alarm::model::ValueChange<i32>>);
 
     // need to be option result
-    fn apply_parse_config(&self, port: i32, t: char, data: std::sync::Arc<Vec<u8>>,
+    fn apply_parse_config(&mut self, port: i32, t: char, data: std::sync::Arc<Vec<u8>>,
         sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::interface::Module_Config>,
         map_handler: & mut std::collections::HashMap<i32, tokio_util::sync::CancellationToken>,
     ) -> Result<(Box<dyn protobuf::Message>, crate::comboard::imple::interface::Module_Config), ModuleError>;

@@ -1,10 +1,19 @@
-use crate::protos::module::{WCModuleData, WCModuleConfig};
-use super::relay::{configure_relay, get_outlet_data};
+use crate::protos::module::{WCModuleData, WCModuleConfig, ActorWithOwnership, Actor};
+use super::{relay::{configure_relay, get_outlet_data}};
+use super::actor::{ActorStore, get_owner, validate_new_owner};
 use protobuf::Message;
 
-use core::any::Any;
+pub struct AABValidator {
+    pub actors_property: HashMap<String, Actor>,
+}
 
-pub struct AABValidator {}
+impl AABValidator {
+    pub fn new() -> AABValidator {
+        return AABValidator {
+            actors_property: HashMap::new(),
+        };
+    }
+}
 
 impl super::interface::ModuleValue for WCModuleData {}
 
@@ -27,7 +36,7 @@ impl super::interface::ModuleValueValidator for AABValidator {
         return Ok(Box::new(data));
     }
 
-    fn apply_parse_config(&self, port: i32, _t: char, data: std::sync::Arc<Vec<u8>>,
+    fn apply_parse_config(&mut self, port: i32, _t: char, data: std::sync::Arc<Vec<u8>>,
         sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::interface::Module_Config>,
         map_handler: & mut std::collections::HashMap<i32, tokio_util::sync::CancellationToken>
     ) -> Result<(Box<dyn protobuf::Message>, crate::comboard::imple::interface::Module_Config), super::interface::ModuleError> {
@@ -35,17 +44,26 @@ impl super::interface::ModuleValueValidator for AABValidator {
 		
         let config: Box<WCModuleConfig> = Box::new(WCModuleConfig::parse_from_bytes(&data).map_err(|_e| super::interface::ModuleError::new())?);
 
-
         let mut buffer = [255; 8];
 
-        configure_relay(config.has_p0(),0, &port, config.get_p0(), & mut buffer[0], sender_comboard_config, map_handler);
-        configure_relay(config.has_p1(),1, &port, config.get_p1(), & mut buffer[1], sender_comboard_config, map_handler);
-        configure_relay(config.has_p2(),2, &port, config.get_p2(), & mut buffer[2], sender_comboard_config, map_handler);
-        configure_relay(config.has_drain(),3, &port, config.get_drain(), & mut buffer[3], sender_comboard_config, map_handler);
-        configure_relay(config.has_pump0(),4, &port, config.get_pump0(), & mut buffer[4], sender_comboard_config, map_handler);
-        configure_relay(config.has_pump1(),5, &port, config.get_pump1(), & mut buffer[5], sender_comboard_config, map_handler);
-        configure_relay(config.has_pump2(),6, &port, config.get_pump2(), & mut buffer[6], sender_comboard_config, map_handler);
-        configure_relay(config.has_pump3(),7, &port, config.get_pump3(), & mut buffer[7], sender_comboard_config, map_handler);
+        let previous_owner: Option<&Actor> = get_owner(&self.actors_property, "p0");
+        let new_owner = configure_relay(config.has_p0(),0, &port, config.get_p0(), & mut buffer[0], sender_comboard_config, map_handler, previous_owner);
+        validate_new_owner(&mut self.actors_property, "p0", previous_owner, new_owner);
+
+        let new_owner = configure_relay(config.has_p1(),1, &port, config.get_p1(), & mut buffer[1], sender_comboard_config, map_handler, previous_owner);
+
+        let new_owner = configure_relay(config.has_p2(),2, &port, config.get_p2(), & mut buffer[2], sender_comboard_config, map_handler, previous_owner);
+
+        let new_owner = configure_relay(config.has_drain(),3, &port, config.get_drain(), & mut buffer[3], sender_comboard_config, map_handler, previous_owner);
+
+        let new_owner = configure_relay(config.has_pump0(),4, &port, config.get_pump0(), & mut buffer[4], sender_comboard_config, map_handler, previous_owner);
+
+        let new_owner = configure_relay(config.has_pump1(),5, &port, config.get_pump1(), & mut buffer[5], sender_comboard_config, map_handler, previous_owner);
+
+        let new_owner = configure_relay(config.has_pump2(),6, &port, config.get_pump2(), & mut buffer[6], sender_comboard_config, map_handler, previous_owner);
+
+        let new_owner = configure_relay(config.has_pump3(),7, &port, config.get_pump3(), & mut buffer[7], sender_comboard_config, map_handler, previous_owner);
+
 
         return Ok((
             config,

@@ -1,4 +1,4 @@
-use crate::protos::module::{AlarmConfig, RelayOutletConfig, RelayOutletData, RelayOutletMode};
+use crate::protos::module::{AlarmConfig, RelayOutletConfig, RelayOutletData, RelayOutletMode, Actor};
 use protobuf::SingularPtrField;
 use chrono::Timelike;
 use tokio::select;
@@ -115,8 +115,9 @@ pub fn configure_relay(
     config: &RelayOutletConfig,
     buffer: & mut u8,
     sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::interface::Module_Config>,
-    map_handler: & mut std::collections::HashMap<i32, CancellationToken>
-) -> () {
+    map_handler: & mut std::collections::HashMap<i32, CancellationToken>,
+    previous_owner: std::option::Option<&Actor>
+) -> std::option::Option<Actor> {
 
     if has_field {
         let previous_handler = map_handler.get(&(action_port as i32));
@@ -142,6 +143,7 @@ pub fn configure_relay(
                        token
                     );
                 }
+                return None;
             },
             RelayOutletMode::ALARM => {
                 let token = CancellationToken::new();
@@ -151,7 +153,9 @@ pub fn configure_relay(
                     action_port as i32,
                     token
                 );
+                return None;
             }
         }
     }
+    return None;
 }
