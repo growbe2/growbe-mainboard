@@ -46,9 +46,7 @@ impl super::interface::ModuleValueValidator for AABValidator {
 
         let mut buffer = [255; 8];
 
-        let previous_owner: Option<&Actor> = get_owner(&self.actors_property, "p0");
         let new_owner = configure_relay(config.has_p0(),0, &port, config.get_p0(), & mut buffer[0], sender_comboard_config, map_handler, previous_owner);
-        validate_new_owner(&mut self.actors_property, "p0", previous_owner, new_owner);
 
         let new_owner = configure_relay(config.has_p1(),1, &port, config.get_p1(), & mut buffer[1], sender_comboard_config, map_handler, previous_owner);
 
