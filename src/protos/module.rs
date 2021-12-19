@@ -24,6 +24,662 @@
 // const _PROTOBUF_VERSION_CHECK: () = ::protobuf::VERSION_2_25_2;
 
 #[derive(PartialEq,Clone,Default)]
+pub struct Actor {
+    // message fields
+    pub field_type: ActorType,
+    pub id: ::std::string::String,
+    pub name: ::std::string::String,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a Actor {
+    fn default() -> &'a Actor {
+        <Actor as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl Actor {
+    pub fn new() -> Actor {
+        ::std::default::Default::default()
+    }
+
+    // .ActorType type = 1;
+
+
+    pub fn get_field_type(&self) -> ActorType {
+        self.field_type
+    }
+    pub fn clear_field_type(&mut self) {
+        self.field_type = ActorType::MANUAL_USER_ACTOR;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_field_type(&mut self, v: ActorType) {
+        self.field_type = v;
+    }
+
+    // string id = 2;
+
+
+    pub fn get_id(&self) -> &str {
+        &self.id
+    }
+    pub fn clear_id(&mut self) {
+        self.id.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_id(&mut self, v: ::std::string::String) {
+        self.id = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_id(&mut self) -> &mut ::std::string::String {
+        &mut self.id
+    }
+
+    // Take field
+    pub fn take_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.id, ::std::string::String::new())
+    }
+
+    // string name = 3;
+
+
+    pub fn get_name(&self) -> &str {
+        &self.name
+    }
+    pub fn clear_name(&mut self) {
+        self.name.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_name(&mut self, v: ::std::string::String) {
+        self.name = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_name(&mut self) -> &mut ::std::string::String {
+        &mut self.name
+    }
+
+    // Take field
+    pub fn take_name(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.name, ::std::string::String::new())
+    }
+}
+
+impl ::protobuf::Message for Actor {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.field_type, 1, &mut self.unknown_fields)?
+                },
+                2 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.id)?;
+                },
+                3 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.name)?;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if self.field_type != ActorType::MANUAL_USER_ACTOR {
+            my_size += ::protobuf::rt::enum_size(1, self.field_type);
+        }
+        if !self.id.is_empty() {
+            my_size += ::protobuf::rt::string_size(2, &self.id);
+        }
+        if !self.name.is_empty() {
+            my_size += ::protobuf::rt::string_size(3, &self.name);
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if self.field_type != ActorType::MANUAL_USER_ACTOR {
+            os.write_enum(1, ::protobuf::ProtobufEnum::value(&self.field_type))?;
+        }
+        if !self.id.is_empty() {
+            os.write_string(2, &self.id)?;
+        }
+        if !self.name.is_empty() {
+            os.write_string(3, &self.name)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> Actor {
+        Actor::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<ActorType>>(
+                "type",
+                |m: &Actor| { &m.field_type },
+                |m: &mut Actor| { &mut m.field_type },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "id",
+                |m: &Actor| { &m.id },
+                |m: &mut Actor| { &mut m.id },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "name",
+                |m: &Actor| { &m.name },
+                |m: &mut Actor| { &mut m.name },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<Actor>(
+                "Actor",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static Actor {
+        static instance: ::protobuf::rt::LazyV2<Actor> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(Actor::new)
+    }
+}
+
+impl ::protobuf::Clear for Actor {
+    fn clear(&mut self) {
+        self.field_type = ActorType::MANUAL_USER_ACTOR;
+        self.id.clear();
+        self.name.clear();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for Actor {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for Actor {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
+pub struct ActorOwnership {
+    // message fields
+    pub moduleId: ::std::string::String,
+    pub property: ::std::string::String,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a ActorOwnership {
+    fn default() -> &'a ActorOwnership {
+        <ActorOwnership as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl ActorOwnership {
+    pub fn new() -> ActorOwnership {
+        ::std::default::Default::default()
+    }
+
+    // string moduleId = 1;
+
+
+    pub fn get_moduleId(&self) -> &str {
+        &self.moduleId
+    }
+    pub fn clear_moduleId(&mut self) {
+        self.moduleId.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_moduleId(&mut self, v: ::std::string::String) {
+        self.moduleId = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_moduleId(&mut self) -> &mut ::std::string::String {
+        &mut self.moduleId
+    }
+
+    // Take field
+    pub fn take_moduleId(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.moduleId, ::std::string::String::new())
+    }
+
+    // string property = 2;
+
+
+    pub fn get_property(&self) -> &str {
+        &self.property
+    }
+    pub fn clear_property(&mut self) {
+        self.property.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_property(&mut self, v: ::std::string::String) {
+        self.property = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_property(&mut self) -> &mut ::std::string::String {
+        &mut self.property
+    }
+
+    // Take field
+    pub fn take_property(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.property, ::std::string::String::new())
+    }
+}
+
+impl ::protobuf::Message for ActorOwnership {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.moduleId)?;
+                },
+                2 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.property)?;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if !self.moduleId.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.moduleId);
+        }
+        if !self.property.is_empty() {
+            my_size += ::protobuf::rt::string_size(2, &self.property);
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if !self.moduleId.is_empty() {
+            os.write_string(1, &self.moduleId)?;
+        }
+        if !self.property.is_empty() {
+            os.write_string(2, &self.property)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> ActorOwnership {
+        ActorOwnership::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "moduleId",
+                |m: &ActorOwnership| { &m.moduleId },
+                |m: &mut ActorOwnership| { &mut m.moduleId },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "property",
+                |m: &ActorOwnership| { &m.property },
+                |m: &mut ActorOwnership| { &mut m.property },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<ActorOwnership>(
+                "ActorOwnership",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static ActorOwnership {
+        static instance: ::protobuf::rt::LazyV2<ActorOwnership> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(ActorOwnership::new)
+    }
+}
+
+impl ::protobuf::Clear for ActorOwnership {
+    fn clear(&mut self) {
+        self.moduleId.clear();
+        self.property.clear();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for ActorOwnership {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for ActorOwnership {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
+pub struct ActorWithOwnership {
+    // message fields
+    pub actor: ::protobuf::SingularPtrField<Actor>,
+    pub ownerships: ::protobuf::RepeatedField<ActorOwnership>,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a ActorWithOwnership {
+    fn default() -> &'a ActorWithOwnership {
+        <ActorWithOwnership as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl ActorWithOwnership {
+    pub fn new() -> ActorWithOwnership {
+        ::std::default::Default::default()
+    }
+
+    // .Actor actor = 1;
+
+
+    pub fn get_actor(&self) -> &Actor {
+        self.actor.as_ref().unwrap_or_else(|| <Actor as ::protobuf::Message>::default_instance())
+    }
+    pub fn clear_actor(&mut self) {
+        self.actor.clear();
+    }
+
+    pub fn has_actor(&self) -> bool {
+        self.actor.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_actor(&mut self, v: Actor) {
+        self.actor = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_actor(&mut self) -> &mut Actor {
+        if self.actor.is_none() {
+            self.actor.set_default();
+        }
+        self.actor.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_actor(&mut self) -> Actor {
+        self.actor.take().unwrap_or_else(|| Actor::new())
+    }
+
+    // repeated .ActorOwnership ownerships = 2;
+
+
+    pub fn get_ownerships(&self) -> &[ActorOwnership] {
+        &self.ownerships
+    }
+    pub fn clear_ownerships(&mut self) {
+        self.ownerships.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_ownerships(&mut self, v: ::protobuf::RepeatedField<ActorOwnership>) {
+        self.ownerships = v;
+    }
+
+    // Mutable pointer to the field.
+    pub fn mut_ownerships(&mut self) -> &mut ::protobuf::RepeatedField<ActorOwnership> {
+        &mut self.ownerships
+    }
+
+    // Take field
+    pub fn take_ownerships(&mut self) -> ::protobuf::RepeatedField<ActorOwnership> {
+        ::std::mem::replace(&mut self.ownerships, ::protobuf::RepeatedField::new())
+    }
+}
+
+impl ::protobuf::Message for ActorWithOwnership {
+    fn is_initialized(&self) -> bool {
+        for v in &self.actor {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        for v in &self.ownerships {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.actor)?;
+                },
+                2 => {
+                    ::protobuf::rt::read_repeated_message_into(wire_type, is, &mut self.ownerships)?;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if let Some(ref v) = self.actor.as_ref() {
+            let len = v.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        }
+        for value in &self.ownerships {
+            let len = value.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        };
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if let Some(ref v) = self.actor.as_ref() {
+            os.write_tag(1, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        }
+        for v in &self.ownerships {
+            os.write_tag(2, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        };
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> ActorWithOwnership {
+        ActorWithOwnership::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<Actor>>(
+                "actor",
+                |m: &ActorWithOwnership| { &m.actor },
+                |m: &mut ActorWithOwnership| { &mut m.actor },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_repeated_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<ActorOwnership>>(
+                "ownerships",
+                |m: &ActorWithOwnership| { &m.ownerships },
+                |m: &mut ActorWithOwnership| { &mut m.ownerships },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<ActorWithOwnership>(
+                "ActorWithOwnership",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static ActorWithOwnership {
+        static instance: ::protobuf::rt::LazyV2<ActorWithOwnership> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(ActorWithOwnership::new)
+    }
+}
+
+impl ::protobuf::Clear for ActorWithOwnership {
+    fn clear(&mut self) {
+        self.actor.clear();
+        self.ownerships.clear();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for ActorWithOwnership {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for ActorWithOwnership {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
 pub struct ModuleData {
     // message fields
     pub id: ::std::string::String,
@@ -2418,6 +3074,7 @@ pub struct RelayModuleData {
     pub p6: ::protobuf::SingularPtrField<RelayOutletData>,
     pub p7: ::protobuf::SingularPtrField<RelayOutletData>,
     pub timestamp: i32,
+    pub actor: ::protobuf::SingularPtrField<Actor>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -2712,6 +3369,39 @@ impl RelayModuleData {
     pub fn set_timestamp(&mut self, v: i32) {
         self.timestamp = v;
     }
+
+    // .Actor actor = 10;
+
+
+    pub fn get_actor(&self) -> &Actor {
+        self.actor.as_ref().unwrap_or_else(|| <Actor as ::protobuf::Message>::default_instance())
+    }
+    pub fn clear_actor(&mut self) {
+        self.actor.clear();
+    }
+
+    pub fn has_actor(&self) -> bool {
+        self.actor.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_actor(&mut self, v: Actor) {
+        self.actor = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_actor(&mut self) -> &mut Actor {
+        if self.actor.is_none() {
+            self.actor.set_default();
+        }
+        self.actor.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_actor(&mut self) -> Actor {
+        self.actor.take().unwrap_or_else(|| Actor::new())
+    }
 }
 
 impl ::protobuf::Message for RelayModuleData {
@@ -2756,6 +3446,11 @@ impl ::protobuf::Message for RelayModuleData {
                 return false;
             }
         };
+        for v in &self.actor {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
         true
     }
 
@@ -2793,6 +3488,9 @@ impl ::protobuf::Message for RelayModuleData {
                     }
                     let tmp = is.read_int32()?;
                     self.timestamp = tmp;
+                },
+                10 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.actor)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -2840,6 +3538,10 @@ impl ::protobuf::Message for RelayModuleData {
         }
         if self.timestamp != 0 {
             my_size += ::protobuf::rt::value_size(9, self.timestamp, ::protobuf::wire_format::WireTypeVarint);
+        }
+        if let Some(ref v) = self.actor.as_ref() {
+            let len = v.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -2889,6 +3591,11 @@ impl ::protobuf::Message for RelayModuleData {
         }
         if self.timestamp != 0 {
             os.write_int32(9, self.timestamp)?;
+        }
+        if let Some(ref v) = self.actor.as_ref() {
+            os.write_tag(10, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -2973,6 +3680,11 @@ impl ::protobuf::Message for RelayModuleData {
                 |m: &RelayModuleData| { &m.timestamp },
                 |m: &mut RelayModuleData| { &mut m.timestamp },
             ));
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<Actor>>(
+                "actor",
+                |m: &RelayModuleData| { &m.actor },
+                |m: &mut RelayModuleData| { &mut m.actor },
+            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<RelayModuleData>(
                 "RelayModuleData",
                 fields,
@@ -2998,6 +3710,7 @@ impl ::protobuf::Clear for RelayModuleData {
         self.p6.clear();
         self.p7.clear();
         self.timestamp = 0;
+        self.actor.clear();
         self.unknown_fields.clear();
     }
 }
@@ -3634,6 +4347,7 @@ pub struct WCModuleData {
     pub pump2: ::protobuf::SingularPtrField<RelayOutletData>,
     pub pump3: ::protobuf::SingularPtrField<RelayOutletData>,
     pub timestamp: i32,
+    pub actor: ::protobuf::SingularPtrField<Actor>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -3928,6 +4642,39 @@ impl WCModuleData {
     pub fn set_timestamp(&mut self, v: i32) {
         self.timestamp = v;
     }
+
+    // .Actor actor = 10;
+
+
+    pub fn get_actor(&self) -> &Actor {
+        self.actor.as_ref().unwrap_or_else(|| <Actor as ::protobuf::Message>::default_instance())
+    }
+    pub fn clear_actor(&mut self) {
+        self.actor.clear();
+    }
+
+    pub fn has_actor(&self) -> bool {
+        self.actor.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_actor(&mut self, v: Actor) {
+        self.actor = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_actor(&mut self) -> &mut Actor {
+        if self.actor.is_none() {
+            self.actor.set_default();
+        }
+        self.actor.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_actor(&mut self) -> Actor {
+        self.actor.take().unwrap_or_else(|| Actor::new())
+    }
 }
 
 impl ::protobuf::Message for WCModuleData {
@@ -3972,6 +4719,11 @@ impl ::protobuf::Message for WCModuleData {
                 return false;
             }
         };
+        for v in &self.actor {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
         true
     }
 
@@ -4009,6 +4761,9 @@ impl ::protobuf::Message for WCModuleData {
                     }
                     let tmp = is.read_int32()?;
                     self.timestamp = tmp;
+                },
+                10 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.actor)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -4056,6 +4811,10 @@ impl ::protobuf::Message for WCModuleData {
         }
         if self.timestamp != 0 {
             my_size += ::protobuf::rt::value_size(9, self.timestamp, ::protobuf::wire_format::WireTypeVarint);
+        }
+        if let Some(ref v) = self.actor.as_ref() {
+            let len = v.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -4105,6 +4864,11 @@ impl ::protobuf::Message for WCModuleData {
         }
         if self.timestamp != 0 {
             os.write_int32(9, self.timestamp)?;
+        }
+        if let Some(ref v) = self.actor.as_ref() {
+            os.write_tag(10, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -4189,6 +4953,11 @@ impl ::protobuf::Message for WCModuleData {
                 |m: &WCModuleData| { &m.timestamp },
                 |m: &mut WCModuleData| { &mut m.timestamp },
             ));
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<Actor>>(
+                "actor",
+                |m: &WCModuleData| { &m.actor },
+                |m: &mut WCModuleData| { &mut m.actor },
+            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<WCModuleData>(
                 "WCModuleData",
                 fields,
@@ -4214,6 +4983,7 @@ impl ::protobuf::Clear for WCModuleData {
         self.pump2.clear();
         self.pump3.clear();
         self.timestamp = 0;
+        self.actor.clear();
         self.unknown_fields.clear();
     }
 }
@@ -4804,6 +5574,62 @@ impl ::protobuf::reflect::ProtobufValue for WCModuleConfig {
 }
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
+pub enum ActorType {
+    MANUAL_USER_ACTOR = 0,
+    DURATION_ACTOR = 1,
+    ALARM_ACTOR = 2,
+    VIRTUAL_ACTOR = 3,
+}
+
+impl ::protobuf::ProtobufEnum for ActorType {
+    fn value(&self) -> i32 {
+        *self as i32
+    }
+
+    fn from_i32(value: i32) -> ::std::option::Option<ActorType> {
+        match value {
+            0 => ::std::option::Option::Some(ActorType::MANUAL_USER_ACTOR),
+            1 => ::std::option::Option::Some(ActorType::DURATION_ACTOR),
+            2 => ::std::option::Option::Some(ActorType::ALARM_ACTOR),
+            3 => ::std::option::Option::Some(ActorType::VIRTUAL_ACTOR),
+            _ => ::std::option::Option::None
+        }
+    }
+
+    fn values() -> &'static [Self] {
+        static values: &'static [ActorType] = &[
+            ActorType::MANUAL_USER_ACTOR,
+            ActorType::DURATION_ACTOR,
+            ActorType::ALARM_ACTOR,
+            ActorType::VIRTUAL_ACTOR,
+        ];
+        values
+    }
+
+    fn enum_descriptor_static() -> &'static ::protobuf::reflect::EnumDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::EnumDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            ::protobuf::reflect::EnumDescriptor::new_pb_name::<ActorType>("ActorType", file_descriptor_proto())
+        })
+    }
+}
+
+impl ::std::marker::Copy for ActorType {
+}
+
+impl ::std::default::Default for ActorType {
+    fn default() -> Self {
+        ActorType::MANUAL_USER_ACTOR
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for ActorType {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Enum(::protobuf::ProtobufEnum::descriptor(self))
+    }
+}
+
+#[derive(Clone,PartialEq,Eq,Debug,Hash)]
 pub enum RelayOutletMode {
     MANUAL = 0,
     ALARM = 1,
@@ -4854,61 +5680,69 @@ impl ::protobuf::reflect::ProtobufValue for RelayOutletMode {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x0cmodule.proto\"\xa0\x01\n\nModuleData\x12\x0e\n\x02id\x18\x01\x20\
-    \x01(\tR\x02id\x12\x12\n\x04name\x18\x02\x20\x01(\tR\x04name\x12\x1c\n\t\
-    readCount\x18\x04\x20\x01(\x05R\treadCount\x12\"\n\x0cboardVersion\x18\
-    \x05\x20\x01(\tR\x0cboardVersion\x12\x12\n\x04plug\x18\x06\x20\x01(\x08R\
-    \x04plug\x12\x18\n\x07atIndex\x18\x07\x20\x01(\x05R\x07atIndex\"q\n\rTHL\
-    ModuleData\x12\x1a\n\x08humidity\x18\x02\x20\x01(\x02R\x08humidity\x12&\
-    \n\x0eairTemperature\x18\x03\x20\x01(\x02R\x0eairTemperature\x12\x1c\n\t\
-    timestamp\x18\t\x20\x01(\x05R\ttimestamp\"\xae\x01\n\x0eSOILModuleData\
-    \x12\x0e\n\x02p0\x18\x01\x20\x01(\x05R\x02p0\x12\x0e\n\x02p1\x18\x02\x20\
-    \x01(\x05R\x02p1\x12\x0e\n\x02p2\x18\x03\x20\x01(\x05R\x02p2\x12\x0e\n\
-    \x02p3\x18\x04\x20\x01(\x05R\x02p3\x12\x0e\n\x02p4\x18\x05\x20\x01(\x05R\
-    \x02p4\x12\x0e\n\x02p5\x18\x06\x20\x01(\x05R\x02p5\x12\x0e\n\x02p6\x18\
-    \x07\x20\x01(\x05R\x02p6\x12\x0e\n\x02p7\x18\x08\x20\x01(\x05R\x02p7\x12\
-    \x1c\n\ttimestamp\x18\t\x20\x01(\x05R\ttimestamp\"n\n\x0cWAModuleData\
-    \x12\x0e\n\x02PH\x18\x02\x20\x01(\x05R\x02PH\x12\x0e\n\x02EC\x18\x03\x20\
-    \x01(\x05R\x02EC\x12\x20\n\x0btemperature\x18\x04\x20\x01(\x05R\x0btempe\
-    rature\x12\x1c\n\ttimestamp\x18\t\x20\x01(\x05R\ttimestamp\"\x82\x01\n\
-    \x08CronItem\x12\x16\n\x06minute\x18\x01\x20\x01(\x05R\x06minute\x12\x12\
-    \n\x04hour\x18\x02\x20\x01(\x05R\x04hour\x12\x1a\n\x08dayMonth\x18\x03\
-    \x20\x01(\x05R\x08dayMonth\x12\x14\n\x05month\x18\x04\x20\x01(\x05R\x05m\
-    onth\x12\x18\n\x07dayWeek\x18\x05\x20\x01(\x05R\x07dayWeek\"Q\n\x0bAlarm\
-    Config\x12%\n\x08begining\x18\x01\x20\x01(\x0b2\t.CronItemR\x08begining\
-    \x12\x1b\n\x03end\x18\x02\x20\x01(\x0b2\t.CronItemR\x03end\"@\n\x0cManua\
-    lConfig\x12\x14\n\x05state\x18\x01\x20\x01(\x08R\x05state\x12\x1a\n\x08d\
-    uration\x18\x02\x20\x01(\x05R\x08duration\"'\n\x0fRelayOutletData\x12\
-    \x14\n\x05state\x18\x01\x20\x01(\x08R\x05state\"\x84\x01\n\x11RelayOutle\
-    tConfig\x12$\n\x04mode\x18\x01\x20\x01(\x0e2\x10.RelayOutletModeR\x04mod\
-    e\x12\"\n\x05alarm\x18\x02\x20\x01(\x0b2\x0c.AlarmConfigR\x05alarm\x12%\
-    \n\x06manual\x18\x03\x20\x01(\x0b2\r.ManualConfigR\x06manual\"\xbf\x02\n\
-    \x0fRelayModuleData\x12\x20\n\x02p0\x18\x01\x20\x01(\x0b2\x10.RelayOutle\
-    tDataR\x02p0\x12\x20\n\x02p1\x18\x02\x20\x01(\x0b2\x10.RelayOutletDataR\
-    \x02p1\x12\x20\n\x02p2\x18\x03\x20\x01(\x0b2\x10.RelayOutletDataR\x02p2\
-    \x12\x20\n\x02p3\x18\x04\x20\x01(\x0b2\x10.RelayOutletDataR\x02p3\x12\
-    \x20\n\x02p4\x18\x05\x20\x01(\x0b2\x10.RelayOutletDataR\x02p4\x12\x20\n\
-    \x02p5\x18\x06\x20\x01(\x0b2\x10.RelayOutletDataR\x02p5\x12\x20\n\x02p6\
-    \x18\x07\x20\x01(\x0b2\x10.RelayOutletDataR\x02p6\x12\x20\n\x02p7\x18\
-    \x08\x20\x01(\x0b2\x10.RelayOutletDataR\x02p7\x12\x1c\n\ttimestamp\x18\t\
-    \x20\x01(\x05R\ttimestamp\"\xd1\x02\n\x11RelayModuleConfig\x12\"\n\x02p0\
-    \x18\x01\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p0\x12\"\n\x02p1\x18\
-    \x02\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p1\x12\"\n\x02p2\x18\x03\
-    \x20\x01(\x0b2\x12.RelayOutletConfigR\x02p2\x12\"\n\x02p3\x18\x04\x20\
-    \x01(\x0b2\x12.RelayOutletConfigR\x02p3\x12\"\n\x02p4\x18\x05\x20\x01(\
-    \x0b2\x12.RelayOutletConfigR\x02p4\x12\"\n\x02p5\x18\x06\x20\x01(\x0b2\
-    \x12.RelayOutletConfigR\x02p5\x12\"\n\x02p6\x18\x07\x20\x01(\x0b2\x12.Re\
-    layOutletConfigR\x02p6\x12\"\n\x02p7\x18\x08\x20\x01(\x0b2\x12.RelayOutl\
-    etConfigR\x02p7\x12\x1c\n\ttimestamp\x18\t\x20\x01(\x05R\ttimestamp\"\
-    \xda\x02\n\x0cWCModuleData\x12\x20\n\x02p0\x18\x01\x20\x01(\x0b2\x10.Rel\
-    ayOutletDataR\x02p0\x12\x20\n\x02p1\x18\x02\x20\x01(\x0b2\x10.RelayOutle\
-    tDataR\x02p1\x12\x20\n\x02p2\x18\x03\x20\x01(\x0b2\x10.RelayOutletDataR\
-    \x02p2\x12&\n\x05drain\x18\x04\x20\x01(\x0b2\x10.RelayOutletDataR\x05dra\
-    in\x12&\n\x05pump0\x18\x05\x20\x01(\x0b2\x10.RelayOutletDataR\x05pump0\
-    \x12&\n\x05pump1\x18\x06\x20\x01(\x0b2\x10.RelayOutletDataR\x05pump1\x12\
-    &\n\x05pump2\x18\x07\x20\x01(\x0b2\x10.RelayOutletDataR\x05pump2\x12&\n\
-    \x05pump3\x18\x08\x20\x01(\x0b2\x10.RelayOutletDataR\x05pump3\x12\x1c\n\
-    \ttimestamp\x18\t\x20\x01(\x05R\ttimestamp\"\xce\x02\n\x0eWCModuleConfig\
+    \n\x0cmodule.proto\"K\n\x05Actor\x12\x1e\n\x04type\x18\x01\x20\x01(\x0e2\
+    \n.ActorTypeR\x04type\x12\x0e\n\x02id\x18\x02\x20\x01(\tR\x02id\x12\x12\
+    \n\x04name\x18\x03\x20\x01(\tR\x04name\"H\n\x0eActorOwnership\x12\x1a\n\
+    \x08moduleId\x18\x01\x20\x01(\tR\x08moduleId\x12\x1a\n\x08property\x18\
+    \x02\x20\x01(\tR\x08property\"c\n\x12ActorWithOwnership\x12\x1c\n\x05act\
+    or\x18\x01\x20\x01(\x0b2\x06.ActorR\x05actor\x12/\n\nownerships\x18\x02\
+    \x20\x03(\x0b2\x0f.ActorOwnershipR\nownerships\"\xa0\x01\n\nModuleData\
+    \x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\x12\n\x04name\x18\x02\x20\
+    \x01(\tR\x04name\x12\x1c\n\treadCount\x18\x04\x20\x01(\x05R\treadCount\
+    \x12\"\n\x0cboardVersion\x18\x05\x20\x01(\tR\x0cboardVersion\x12\x12\n\
+    \x04plug\x18\x06\x20\x01(\x08R\x04plug\x12\x18\n\x07atIndex\x18\x07\x20\
+    \x01(\x05R\x07atIndex\"q\n\rTHLModuleData\x12\x1a\n\x08humidity\x18\x02\
+    \x20\x01(\x02R\x08humidity\x12&\n\x0eairTemperature\x18\x03\x20\x01(\x02\
+    R\x0eairTemperature\x12\x1c\n\ttimestamp\x18\t\x20\x01(\x05R\ttimestamp\
+    \"\xae\x01\n\x0eSOILModuleData\x12\x0e\n\x02p0\x18\x01\x20\x01(\x05R\x02\
+    p0\x12\x0e\n\x02p1\x18\x02\x20\x01(\x05R\x02p1\x12\x0e\n\x02p2\x18\x03\
+    \x20\x01(\x05R\x02p2\x12\x0e\n\x02p3\x18\x04\x20\x01(\x05R\x02p3\x12\x0e\
+    \n\x02p4\x18\x05\x20\x01(\x05R\x02p4\x12\x0e\n\x02p5\x18\x06\x20\x01(\
+    \x05R\x02p5\x12\x0e\n\x02p6\x18\x07\x20\x01(\x05R\x02p6\x12\x0e\n\x02p7\
+    \x18\x08\x20\x01(\x05R\x02p7\x12\x1c\n\ttimestamp\x18\t\x20\x01(\x05R\tt\
+    imestamp\"n\n\x0cWAModuleData\x12\x0e\n\x02PH\x18\x02\x20\x01(\x05R\x02P\
+    H\x12\x0e\n\x02EC\x18\x03\x20\x01(\x05R\x02EC\x12\x20\n\x0btemperature\
+    \x18\x04\x20\x01(\x05R\x0btemperature\x12\x1c\n\ttimestamp\x18\t\x20\x01\
+    (\x05R\ttimestamp\"\x82\x01\n\x08CronItem\x12\x16\n\x06minute\x18\x01\
+    \x20\x01(\x05R\x06minute\x12\x12\n\x04hour\x18\x02\x20\x01(\x05R\x04hour\
+    \x12\x1a\n\x08dayMonth\x18\x03\x20\x01(\x05R\x08dayMonth\x12\x14\n\x05mo\
+    nth\x18\x04\x20\x01(\x05R\x05month\x12\x18\n\x07dayWeek\x18\x05\x20\x01(\
+    \x05R\x07dayWeek\"Q\n\x0bAlarmConfig\x12%\n\x08begining\x18\x01\x20\x01(\
+    \x0b2\t.CronItemR\x08begining\x12\x1b\n\x03end\x18\x02\x20\x01(\x0b2\t.C\
+    ronItemR\x03end\"@\n\x0cManualConfig\x12\x14\n\x05state\x18\x01\x20\x01(\
+    \x08R\x05state\x12\x1a\n\x08duration\x18\x02\x20\x01(\x05R\x08duration\"\
+    '\n\x0fRelayOutletData\x12\x14\n\x05state\x18\x01\x20\x01(\x08R\x05state\
+    \"\x84\x01\n\x11RelayOutletConfig\x12$\n\x04mode\x18\x01\x20\x01(\x0e2\
+    \x10.RelayOutletModeR\x04mode\x12\"\n\x05alarm\x18\x02\x20\x01(\x0b2\x0c\
+    .AlarmConfigR\x05alarm\x12%\n\x06manual\x18\x03\x20\x01(\x0b2\r.ManualCo\
+    nfigR\x06manual\"\xdd\x02\n\x0fRelayModuleData\x12\x20\n\x02p0\x18\x01\
+    \x20\x01(\x0b2\x10.RelayOutletDataR\x02p0\x12\x20\n\x02p1\x18\x02\x20\
+    \x01(\x0b2\x10.RelayOutletDataR\x02p1\x12\x20\n\x02p2\x18\x03\x20\x01(\
+    \x0b2\x10.RelayOutletDataR\x02p2\x12\x20\n\x02p3\x18\x04\x20\x01(\x0b2\
+    \x10.RelayOutletDataR\x02p3\x12\x20\n\x02p4\x18\x05\x20\x01(\x0b2\x10.Re\
+    layOutletDataR\x02p4\x12\x20\n\x02p5\x18\x06\x20\x01(\x0b2\x10.RelayOutl\
+    etDataR\x02p5\x12\x20\n\x02p6\x18\x07\x20\x01(\x0b2\x10.RelayOutletDataR\
+    \x02p6\x12\x20\n\x02p7\x18\x08\x20\x01(\x0b2\x10.RelayOutletDataR\x02p7\
+    \x12\x1c\n\ttimestamp\x18\t\x20\x01(\x05R\ttimestamp\x12\x1c\n\x05actor\
+    \x18\n\x20\x01(\x0b2\x06.ActorR\x05actor\"\xd1\x02\n\x11RelayModuleConfi\
+    g\x12\"\n\x02p0\x18\x01\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p0\x12\"\
+    \n\x02p1\x18\x02\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p1\x12\"\n\x02p\
+    2\x18\x03\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p2\x12\"\n\x02p3\x18\
+    \x04\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p3\x12\"\n\x02p4\x18\x05\
+    \x20\x01(\x0b2\x12.RelayOutletConfigR\x02p4\x12\"\n\x02p5\x18\x06\x20\
+    \x01(\x0b2\x12.RelayOutletConfigR\x02p5\x12\"\n\x02p6\x18\x07\x20\x01(\
+    \x0b2\x12.RelayOutletConfigR\x02p6\x12\"\n\x02p7\x18\x08\x20\x01(\x0b2\
+    \x12.RelayOutletConfigR\x02p7\x12\x1c\n\ttimestamp\x18\t\x20\x01(\x05R\t\
+    timestamp\"\xf8\x02\n\x0cWCModuleData\x12\x20\n\x02p0\x18\x01\x20\x01(\
+    \x0b2\x10.RelayOutletDataR\x02p0\x12\x20\n\x02p1\x18\x02\x20\x01(\x0b2\
+    \x10.RelayOutletDataR\x02p1\x12\x20\n\x02p2\x18\x03\x20\x01(\x0b2\x10.Re\
+    layOutletDataR\x02p2\x12&\n\x05drain\x18\x04\x20\x01(\x0b2\x10.RelayOutl\
+    etDataR\x05drain\x12&\n\x05pump0\x18\x05\x20\x01(\x0b2\x10.RelayOutletDa\
+    taR\x05pump0\x12&\n\x05pump1\x18\x06\x20\x01(\x0b2\x10.RelayOutletDataR\
+    \x05pump1\x12&\n\x05pump2\x18\x07\x20\x01(\x0b2\x10.RelayOutletDataR\x05\
+    pump2\x12&\n\x05pump3\x18\x08\x20\x01(\x0b2\x10.RelayOutletDataR\x05pump\
+    3\x12\x1c\n\ttimestamp\x18\t\x20\x01(\x05R\ttimestamp\x12\x1c\n\x05actor\
+    \x18\n\x20\x01(\x0b2\x06.ActorR\x05actor\"\xce\x02\n\x0eWCModuleConfig\
     \x12\"\n\x02p0\x18\x01\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p0\x12\"\
     \n\x02p1\x18\x02\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p1\x12\"\n\x02p\
     2\x18\x03\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p2\x12(\n\x05drain\x18\
@@ -4916,8 +5750,11 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x05\x20\x01(\x0b2\x12.RelayOutletConfigR\x05pump0\x12(\n\x05pump1\x18\
     \x06\x20\x01(\x0b2\x12.RelayOutletConfigR\x05pump1\x12(\n\x05pump2\x18\
     \x07\x20\x01(\x0b2\x12.RelayOutletConfigR\x05pump2\x12(\n\x05pump3\x18\
-    \x08\x20\x01(\x0b2\x12.RelayOutletConfigR\x05pump3*(\n\x0fRelayOutletMod\
-    e\x12\n\n\x06MANUAL\x10\0\x12\t\n\x05ALARM\x10\x01b\x06proto3\
+    \x08\x20\x01(\x0b2\x12.RelayOutletConfigR\x05pump3*Z\n\tActorType\x12\
+    \x15\n\x11MANUAL_USER_ACTOR\x10\0\x12\x12\n\x0eDURATION_ACTOR\x10\x01\
+    \x12\x0f\n\x0bALARM_ACTOR\x10\x02\x12\x11\n\rVIRTUAL_ACTOR\x10\x03*(\n\
+    \x0fRelayOutletMode\x12\n\n\x06MANUAL\x10\0\x12\t\n\x05ALARM\x10\x01b\
+    \x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;
