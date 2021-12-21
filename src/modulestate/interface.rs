@@ -1,4 +1,3 @@
-use downcast_rs::impl_downcast;
 pub trait ModuleValue {}
 pub trait ModuleValueParsable: ModuleValue + protobuf::Message {}
 
