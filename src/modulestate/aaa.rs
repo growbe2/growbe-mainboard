@@ -1,5 +1,5 @@
 use crate::protos::module::{THLModuleData};
-use crate::utils::validation::difference_of;
+use crate::utils::validation::{difference_of, round_decimal};
 
 use std::os::raw::{c_char, c_float};
 
@@ -9,20 +9,27 @@ extern "C" {
 
 pub struct AAAValidator {}
 
+impl AAAValidator {
+    pub fn new() -> AAAValidator {
+        return AAAValidator {
+        };
+    } 
+}
+
 impl super::interface::ModuleValue for THLModuleData {}
 
 impl super::interface::ModuleValueParsable for THLModuleData {}
 
 impl super::interface::ModuleValueValidator for AAAValidator {
-    fn convert_to_value(&self, value_event: &crate::comboard::imple::interface::ModuleValueValidationEvent) -> Result<Box<dyn super::interface::ModuleValueParsable>, super::interface::ModuleError> {
+    fn convert_to_value(&mut self, value_event: &crate::comboard::imple::interface::ModuleValueValidationEvent) -> Result<Box<dyn super::interface::ModuleValueParsable>, super::interface::ModuleError> {
         let mut data = THLModuleData::new();
 
         let mut v = std::ptr::null_mut();
 
         unsafe {
             if value_event.buffer.len() > 150 {
-                data.airTemperature = strtof(value_event.buffer.as_ptr(), &mut v);
-                data.humidity = strtof(value_event.buffer.as_ptr().offset(100), &mut v);
+                data.airTemperature = round_decimal(strtof(value_event.buffer.as_ptr(), &mut v));
+                data.humidity = round_decimal(strtof(value_event.buffer.as_ptr().offset(100), &mut v));
                 data.timestamp = std::time::SystemTime::now().duration_since(std::time::SystemTime::UNIX_EPOCH).unwrap().as_secs() as i32;
             } else {
                 return Err(super::interface::ModuleError::new().message("could not parse value from buffer".to_string()))
@@ -58,5 +65,13 @@ impl super::interface::ModuleValueValidator for AAAValidator {
         return (vec.len() > 0, vec);
     }
 
-
+    fn handle_command_validator(
+        &mut self,
+        cmd: &str,
+        module_id: &String,
+        data: std::sync::Arc<Vec<u8>>,
+        sender_socket: & std::sync::mpsc::Sender<(String, Box<dyn super::interface::ModuleValueParsable>)>,
+    ) -> Result<(Option<Vec<super::interface::ModuleStateCmd>>), ()> {
+        return Err(());
+    }
 }

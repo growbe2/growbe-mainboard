@@ -28,7 +28,32 @@
 			"event_type": "value",
 			"port": 4,
 			"buffer": [24, 33, 35, 53, 43, 73, 85, 93],
-			"timeout": 20000
+			"timeout": 2000
+		},
+		{
+			"event_type": "value",
+			"port": 4,
+			"buffer": [34, 23, 25, 63, 23, 23, 65, 43],
+			"timeout": 1000
+		},
+		{
+			"event_type": "value",
+			"port": 4,
+			"buffer": [24, 33, 35, 53, 43, 73, 85, 93],
+			"timeout": 2000
+		},
+		{
+			"event_type": "value",
+			"port": 4,
+			"buffer": [34, 23, 25, 63, 23, 23, 65, 43],
+			"timeout": 1000
+		},
+		{
+			"event_type": "value",
+			"port": 4,
+			"buffer": [24, 33, 35, 53, 43, 73, 85, 93],
+			"return_index": 5,
+			"timeout": 2000
 		}
 		
 	]
