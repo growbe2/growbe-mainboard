@@ -1,12 +1,17 @@
 use crate::protos::module::{RelayModuleData, RelayModuleConfig, Actor};
 use super::relay::{configure_relay, get_outlet_data};
+use super::actor::{get_owner};
 use protobuf::Message;
 
-pub struct AAPValidator {}
+pub struct AAPValidator {
+    pub actors_property: std::collections::HashMap<String, Actor>,
+}
 
 impl AAPValidator {
-    fn new() -> AAPValidator {
-        return AAPValidator {  };
+    pub fn new() -> AAPValidator {
+        return AAPValidator {
+            actors_property: std::collections::HashMap::new(),
+        };
     } 
 }
 
@@ -16,7 +21,7 @@ impl super::interface::ModuleValueParsable for RelayModuleData {}
 
 impl super::interface::ModuleValueValidator for AAPValidator {
 
-    fn convert_to_value(&self, value_event: &crate::comboard::imple::interface::ModuleValueValidationEvent) -> Result<Box<dyn super::interface::ModuleValueParsable>, super::interface::ModuleError> {
+    fn convert_to_value(&mut self, value_event: &crate::comboard::imple::interface::ModuleValueValidationEvent) -> Result<Box<dyn super::interface::ModuleValueParsable>, super::interface::ModuleError> {
         if value_event.buffer.len() >= 8 {
             let mut data = crate::protos::module::RelayModuleData::new();
             data.p0 = get_outlet_data(value_event.buffer[0]);
@@ -42,17 +47,16 @@ impl super::interface::ModuleValueValidator for AAPValidator {
         let config: Box<RelayModuleConfig> = Box::new(RelayModuleConfig::parse_from_bytes(&data).map_err(|_e| super::interface::ModuleError::new())?);
 
         let mut buffer = [255; 8];
-        /*let previous_owner: Option<Actor> = None;
-        
-        let new_owner_options = configure_relay(config.has_p0(),0, &port, config.get_p0(), & mut buffer[0], sender_comboard_config, map_handler, &previous_owner);
-        configure_relay(config.has_p1(),1, &port, config.get_p1(), & mut buffer[1], sender_comboard_config, map_handler, &previous_owner);
-        configure_relay(config.has_p2(),2, &port, config.get_p2(), & mut buffer[2], sender_comboard_config, map_handler, &previous_owner);
-        configure_relay(config.has_p3(),3, &port, config.get_p3(), & mut buffer[3], sender_comboard_config, map_handler, &previous_owner);
-        configure_relay(config.has_p4(),4, &port, config.get_p4(), & mut buffer[4], sender_comboard_config, map_handler, &previous_owner);
-        configure_relay(config.has_p5(),5, &port, config.get_p5(), & mut buffer[5], sender_comboard_config, map_handler, &previous_owner);
-        configure_relay(config.has_p6(),6, &port, config.get_p6(), & mut buffer[6], sender_comboard_config, map_handler, &previous_owner);
-        configure_relay(config.has_p7(),7, &port, config.get_p7(), & mut buffer[7], sender_comboard_config, map_handler, &previous_owner);
-    */
+        let previous_owner: Option<&Actor> = get_owner(&self.actors_property, "p0");
+        configure_relay(config.has_p0(),0, &port, config.get_p0(), & mut buffer[0], sender_comboard_config, map_handler, previous_owner);
+        configure_relay(config.has_p1(),1, &port, config.get_p1(), & mut buffer[1], sender_comboard_config, map_handler, previous_owner);
+        configure_relay(config.has_p2(),2, &port, config.get_p2(), & mut buffer[2], sender_comboard_config, map_handler, previous_owner);
+        configure_relay(config.has_p3(),3, &port, config.get_p3(), & mut buffer[3], sender_comboard_config, map_handler, previous_owner);
+        configure_relay(config.has_p4(),4, &port, config.get_p4(), & mut buffer[4], sender_comboard_config, map_handler, previous_owner);
+        configure_relay(config.has_p5(),5, &port, config.get_p5(), & mut buffer[5], sender_comboard_config, map_handler, previous_owner);
+        configure_relay(config.has_p6(),6, &port, config.get_p6(), & mut buffer[6], sender_comboard_config, map_handler, previous_owner);
+        configure_relay(config.has_p7(),7, &port, config.get_p7(), & mut buffer[7], sender_comboard_config, map_handler, previous_owner);
+
         return Ok((
             config,
             crate::comboard::imple::interface::Module_Config{
@@ -85,6 +89,16 @@ impl super::interface::ModuleValueValidator for AAPValidator {
         }
 
         return (false, vec![]);
+    }
+
+    fn handle_command_validator(
+        &mut self,
+        cmd: &str,
+        module_id: &String,
+        data: std::sync::Arc<Vec<u8>>,
+        sender_socket: & std::sync::mpsc::Sender<(String, Box<dyn super::interface::ModuleValueParsable>)>,
+    ) -> Result<(Option<Vec<super::interface::ModuleStateCmd>>), ()> {
+        return Err(());
     }
 
 

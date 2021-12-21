@@ -1682,6 +1682,1380 @@ impl ::protobuf::reflect::ProtobufValue for SOILModuleData {
 }
 
 #[derive(PartialEq,Clone,Default)]
+pub struct SOILProbeConfig {
+    // message fields
+    pub low: i32,
+    pub high: i32,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a SOILProbeConfig {
+    fn default() -> &'a SOILProbeConfig {
+        <SOILProbeConfig as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl SOILProbeConfig {
+    pub fn new() -> SOILProbeConfig {
+        ::std::default::Default::default()
+    }
+
+    // int32 low = 1;
+
+
+    pub fn get_low(&self) -> i32 {
+        self.low
+    }
+    pub fn clear_low(&mut self) {
+        self.low = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_low(&mut self, v: i32) {
+        self.low = v;
+    }
+
+    // int32 high = 2;
+
+
+    pub fn get_high(&self) -> i32 {
+        self.high
+    }
+    pub fn clear_high(&mut self) {
+        self.high = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_high(&mut self, v: i32) {
+        self.high = v;
+    }
+}
+
+impl ::protobuf::Message for SOILProbeConfig {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_int32()?;
+                    self.low = tmp;
+                },
+                2 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_int32()?;
+                    self.high = tmp;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if self.low != 0 {
+            my_size += ::protobuf::rt::value_size(1, self.low, ::protobuf::wire_format::WireTypeVarint);
+        }
+        if self.high != 0 {
+            my_size += ::protobuf::rt::value_size(2, self.high, ::protobuf::wire_format::WireTypeVarint);
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if self.low != 0 {
+            os.write_int32(1, self.low)?;
+        }
+        if self.high != 0 {
+            os.write_int32(2, self.high)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> SOILProbeConfig {
+        SOILProbeConfig::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt32>(
+                "low",
+                |m: &SOILProbeConfig| { &m.low },
+                |m: &mut SOILProbeConfig| { &mut m.low },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt32>(
+                "high",
+                |m: &SOILProbeConfig| { &m.high },
+                |m: &mut SOILProbeConfig| { &mut m.high },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<SOILProbeConfig>(
+                "SOILProbeConfig",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static SOILProbeConfig {
+        static instance: ::protobuf::rt::LazyV2<SOILProbeConfig> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(SOILProbeConfig::new)
+    }
+}
+
+impl ::protobuf::Clear for SOILProbeConfig {
+    fn clear(&mut self) {
+        self.low = 0;
+        self.high = 0;
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for SOILProbeConfig {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for SOILProbeConfig {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
+pub struct SOILModuleConfig {
+    // message fields
+    pub p0: ::protobuf::SingularPtrField<SOILProbeConfig>,
+    pub p1: ::protobuf::SingularPtrField<SOILProbeConfig>,
+    pub p2: ::protobuf::SingularPtrField<SOILProbeConfig>,
+    pub p3: ::protobuf::SingularPtrField<SOILProbeConfig>,
+    pub p4: ::protobuf::SingularPtrField<SOILProbeConfig>,
+    pub p5: ::protobuf::SingularPtrField<SOILProbeConfig>,
+    pub p6: ::protobuf::SingularPtrField<SOILProbeConfig>,
+    pub p7: ::protobuf::SingularPtrField<SOILProbeConfig>,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a SOILModuleConfig {
+    fn default() -> &'a SOILModuleConfig {
+        <SOILModuleConfig as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl SOILModuleConfig {
+    pub fn new() -> SOILModuleConfig {
+        ::std::default::Default::default()
+    }
+
+    // .SOILProbeConfig p0 = 1;
+
+
+    pub fn get_p0(&self) -> &SOILProbeConfig {
+        self.p0.as_ref().unwrap_or_else(|| <SOILProbeConfig as ::protobuf::Message>::default_instance())
+    }
+    pub fn clear_p0(&mut self) {
+        self.p0.clear();
+    }
+
+    pub fn has_p0(&self) -> bool {
+        self.p0.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_p0(&mut self, v: SOILProbeConfig) {
+        self.p0 = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_p0(&mut self) -> &mut SOILProbeConfig {
+        if self.p0.is_none() {
+            self.p0.set_default();
+        }
+        self.p0.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_p0(&mut self) -> SOILProbeConfig {
+        self.p0.take().unwrap_or_else(|| SOILProbeConfig::new())
+    }
+
+    // .SOILProbeConfig p1 = 2;
+
+
+    pub fn get_p1(&self) -> &SOILProbeConfig {
+        self.p1.as_ref().unwrap_or_else(|| <SOILProbeConfig as ::protobuf::Message>::default_instance())
+    }
+    pub fn clear_p1(&mut self) {
+        self.p1.clear();
+    }
+
+    pub fn has_p1(&self) -> bool {
+        self.p1.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_p1(&mut self, v: SOILProbeConfig) {
+        self.p1 = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_p1(&mut self) -> &mut SOILProbeConfig {
+        if self.p1.is_none() {
+            self.p1.set_default();
+        }
+        self.p1.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_p1(&mut self) -> SOILProbeConfig {
+        self.p1.take().unwrap_or_else(|| SOILProbeConfig::new())
+    }
+
+    // .SOILProbeConfig p2 = 3;
+
+
+    pub fn get_p2(&self) -> &SOILProbeConfig {
+        self.p2.as_ref().unwrap_or_else(|| <SOILProbeConfig as ::protobuf::Message>::default_instance())
+    }
+    pub fn clear_p2(&mut self) {
+        self.p2.clear();
+    }
+
+    pub fn has_p2(&self) -> bool {
+        self.p2.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_p2(&mut self, v: SOILProbeConfig) {
+        self.p2 = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_p2(&mut self) -> &mut SOILProbeConfig {
+        if self.p2.is_none() {
+            self.p2.set_default();
+        }
+        self.p2.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_p2(&mut self) -> SOILProbeConfig {
+        self.p2.take().unwrap_or_else(|| SOILProbeConfig::new())
+    }
+
+    // .SOILProbeConfig p3 = 4;
+
+
+    pub fn get_p3(&self) -> &SOILProbeConfig {
+        self.p3.as_ref().unwrap_or_else(|| <SOILProbeConfig as ::protobuf::Message>::default_instance())
+    }
+    pub fn clear_p3(&mut self) {
+        self.p3.clear();
+    }
+
+    pub fn has_p3(&self) -> bool {
+        self.p3.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_p3(&mut self, v: SOILProbeConfig) {
+        self.p3 = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_p3(&mut self) -> &mut SOILProbeConfig {
+        if self.p3.is_none() {
+            self.p3.set_default();
+        }
+        self.p3.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_p3(&mut self) -> SOILProbeConfig {
+        self.p3.take().unwrap_or_else(|| SOILProbeConfig::new())
+    }
+
+    // .SOILProbeConfig p4 = 5;
+
+
+    pub fn get_p4(&self) -> &SOILProbeConfig {
+        self.p4.as_ref().unwrap_or_else(|| <SOILProbeConfig as ::protobuf::Message>::default_instance())
+    }
+    pub fn clear_p4(&mut self) {
+        self.p4.clear();
+    }
+
+    pub fn has_p4(&self) -> bool {
+        self.p4.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_p4(&mut self, v: SOILProbeConfig) {
+        self.p4 = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_p4(&mut self) -> &mut SOILProbeConfig {
+        if self.p4.is_none() {
+            self.p4.set_default();
+        }
+        self.p4.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_p4(&mut self) -> SOILProbeConfig {
+        self.p4.take().unwrap_or_else(|| SOILProbeConfig::new())
+    }
+
+    // .SOILProbeConfig p5 = 6;
+
+
+    pub fn get_p5(&self) -> &SOILProbeConfig {
+        self.p5.as_ref().unwrap_or_else(|| <SOILProbeConfig as ::protobuf::Message>::default_instance())
+    }
+    pub fn clear_p5(&mut self) {
+        self.p5.clear();
+    }
+
+    pub fn has_p5(&self) -> bool {
+        self.p5.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_p5(&mut self, v: SOILProbeConfig) {
+        self.p5 = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_p5(&mut self) -> &mut SOILProbeConfig {
+        if self.p5.is_none() {
+            self.p5.set_default();
+        }
+        self.p5.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_p5(&mut self) -> SOILProbeConfig {
+        self.p5.take().unwrap_or_else(|| SOILProbeConfig::new())
+    }
+
+    // .SOILProbeConfig p6 = 7;
+
+
+    pub fn get_p6(&self) -> &SOILProbeConfig {
+        self.p6.as_ref().unwrap_or_else(|| <SOILProbeConfig as ::protobuf::Message>::default_instance())
+    }
+    pub fn clear_p6(&mut self) {
+        self.p6.clear();
+    }
+
+    pub fn has_p6(&self) -> bool {
+        self.p6.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_p6(&mut self, v: SOILProbeConfig) {
+        self.p6 = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_p6(&mut self) -> &mut SOILProbeConfig {
+        if self.p6.is_none() {
+            self.p6.set_default();
+        }
+        self.p6.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_p6(&mut self) -> SOILProbeConfig {
+        self.p6.take().unwrap_or_else(|| SOILProbeConfig::new())
+    }
+
+    // .SOILProbeConfig p7 = 8;
+
+
+    pub fn get_p7(&self) -> &SOILProbeConfig {
+        self.p7.as_ref().unwrap_or_else(|| <SOILProbeConfig as ::protobuf::Message>::default_instance())
+    }
+    pub fn clear_p7(&mut self) {
+        self.p7.clear();
+    }
+
+    pub fn has_p7(&self) -> bool {
+        self.p7.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_p7(&mut self, v: SOILProbeConfig) {
+        self.p7 = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_p7(&mut self) -> &mut SOILProbeConfig {
+        if self.p7.is_none() {
+            self.p7.set_default();
+        }
+        self.p7.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_p7(&mut self) -> SOILProbeConfig {
+        self.p7.take().unwrap_or_else(|| SOILProbeConfig::new())
+    }
+}
+
+impl ::protobuf::Message for SOILModuleConfig {
+    fn is_initialized(&self) -> bool {
+        for v in &self.p0 {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        for v in &self.p1 {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        for v in &self.p2 {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        for v in &self.p3 {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        for v in &self.p4 {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        for v in &self.p5 {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        for v in &self.p6 {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        for v in &self.p7 {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.p0)?;
+                },
+                2 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.p1)?;
+                },
+                3 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.p2)?;
+                },
+                4 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.p3)?;
+                },
+                5 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.p4)?;
+                },
+                6 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.p5)?;
+                },
+                7 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.p6)?;
+                },
+                8 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.p7)?;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if let Some(ref v) = self.p0.as_ref() {
+            let len = v.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        }
+        if let Some(ref v) = self.p1.as_ref() {
+            let len = v.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        }
+        if let Some(ref v) = self.p2.as_ref() {
+            let len = v.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        }
+        if let Some(ref v) = self.p3.as_ref() {
+            let len = v.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        }
+        if let Some(ref v) = self.p4.as_ref() {
+            let len = v.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        }
+        if let Some(ref v) = self.p5.as_ref() {
+            let len = v.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        }
+        if let Some(ref v) = self.p6.as_ref() {
+            let len = v.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        }
+        if let Some(ref v) = self.p7.as_ref() {
+            let len = v.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if let Some(ref v) = self.p0.as_ref() {
+            os.write_tag(1, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        }
+        if let Some(ref v) = self.p1.as_ref() {
+            os.write_tag(2, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        }
+        if let Some(ref v) = self.p2.as_ref() {
+            os.write_tag(3, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        }
+        if let Some(ref v) = self.p3.as_ref() {
+            os.write_tag(4, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        }
+        if let Some(ref v) = self.p4.as_ref() {
+            os.write_tag(5, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        }
+        if let Some(ref v) = self.p5.as_ref() {
+            os.write_tag(6, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        }
+        if let Some(ref v) = self.p6.as_ref() {
+            os.write_tag(7, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        }
+        if let Some(ref v) = self.p7.as_ref() {
+            os.write_tag(8, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> SOILModuleConfig {
+        SOILModuleConfig::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<SOILProbeConfig>>(
+                "p0",
+                |m: &SOILModuleConfig| { &m.p0 },
+                |m: &mut SOILModuleConfig| { &mut m.p0 },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<SOILProbeConfig>>(
+                "p1",
+                |m: &SOILModuleConfig| { &m.p1 },
+                |m: &mut SOILModuleConfig| { &mut m.p1 },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<SOILProbeConfig>>(
+                "p2",
+                |m: &SOILModuleConfig| { &m.p2 },
+                |m: &mut SOILModuleConfig| { &mut m.p2 },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<SOILProbeConfig>>(
+                "p3",
+                |m: &SOILModuleConfig| { &m.p3 },
+                |m: &mut SOILModuleConfig| { &mut m.p3 },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<SOILProbeConfig>>(
+                "p4",
+                |m: &SOILModuleConfig| { &m.p4 },
+                |m: &mut SOILModuleConfig| { &mut m.p4 },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<SOILProbeConfig>>(
+                "p5",
+                |m: &SOILModuleConfig| { &m.p5 },
+                |m: &mut SOILModuleConfig| { &mut m.p5 },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<SOILProbeConfig>>(
+                "p6",
+                |m: &SOILModuleConfig| { &m.p6 },
+                |m: &mut SOILModuleConfig| { &mut m.p6 },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<SOILProbeConfig>>(
+                "p7",
+                |m: &SOILModuleConfig| { &m.p7 },
+                |m: &mut SOILModuleConfig| { &mut m.p7 },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<SOILModuleConfig>(
+                "SOILModuleConfig",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static SOILModuleConfig {
+        static instance: ::protobuf::rt::LazyV2<SOILModuleConfig> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(SOILModuleConfig::new)
+    }
+}
+
+impl ::protobuf::Clear for SOILModuleConfig {
+    fn clear(&mut self) {
+        self.p0.clear();
+        self.p1.clear();
+        self.p2.clear();
+        self.p3.clear();
+        self.p4.clear();
+        self.p5.clear();
+        self.p6.clear();
+        self.p7.clear();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for SOILModuleConfig {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for SOILModuleConfig {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
+pub struct SOILCalibrationStart {
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a SOILCalibrationStart {
+    fn default() -> &'a SOILCalibrationStart {
+        <SOILCalibrationStart as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl SOILCalibrationStart {
+    pub fn new() -> SOILCalibrationStart {
+        ::std::default::Default::default()
+    }
+}
+
+impl ::protobuf::Message for SOILCalibrationStart {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> SOILCalibrationStart {
+        SOILCalibrationStart::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let fields = ::std::vec::Vec::new();
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<SOILCalibrationStart>(
+                "SOILCalibrationStart",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static SOILCalibrationStart {
+        static instance: ::protobuf::rt::LazyV2<SOILCalibrationStart> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(SOILCalibrationStart::new)
+    }
+}
+
+impl ::protobuf::Clear for SOILCalibrationStart {
+    fn clear(&mut self) {
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for SOILCalibrationStart {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for SOILCalibrationStart {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
+pub struct SOILCalibrationStep {
+    // message fields
+    pub requested_step: CalibrationStep,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a SOILCalibrationStep {
+    fn default() -> &'a SOILCalibrationStep {
+        <SOILCalibrationStep as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl SOILCalibrationStep {
+    pub fn new() -> SOILCalibrationStep {
+        ::std::default::Default::default()
+    }
+
+    // .CalibrationStep requested_step = 1;
+
+
+    pub fn get_requested_step(&self) -> CalibrationStep {
+        self.requested_step
+    }
+    pub fn clear_requested_step(&mut self) {
+        self.requested_step = CalibrationStep::READY_CALIBRATION;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_requested_step(&mut self, v: CalibrationStep) {
+        self.requested_step = v;
+    }
+}
+
+impl ::protobuf::Message for SOILCalibrationStep {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.requested_step, 1, &mut self.unknown_fields)?
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if self.requested_step != CalibrationStep::READY_CALIBRATION {
+            my_size += ::protobuf::rt::enum_size(1, self.requested_step);
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if self.requested_step != CalibrationStep::READY_CALIBRATION {
+            os.write_enum(1, ::protobuf::ProtobufEnum::value(&self.requested_step))?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> SOILCalibrationStep {
+        SOILCalibrationStep::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<CalibrationStep>>(
+                "requested_step",
+                |m: &SOILCalibrationStep| { &m.requested_step },
+                |m: &mut SOILCalibrationStep| { &mut m.requested_step },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<SOILCalibrationStep>(
+                "SOILCalibrationStep",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static SOILCalibrationStep {
+        static instance: ::protobuf::rt::LazyV2<SOILCalibrationStep> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(SOILCalibrationStep::new)
+    }
+}
+
+impl ::protobuf::Clear for SOILCalibrationStep {
+    fn clear(&mut self) {
+        self.requested_step = CalibrationStep::READY_CALIBRATION;
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for SOILCalibrationStep {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for SOILCalibrationStep {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
+pub struct SOILCalibrationStepEvent {
+    // message fields
+    pub step: CalibrationStep,
+    pub status: CalibrationStepStatus,
+    pub erro: CalibrationError,
+    pub messag: ::std::string::String,
+    pub low: ::protobuf::RepeatedField<SOILModuleData>,
+    pub high: ::protobuf::RepeatedField<SOILModuleData>,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a SOILCalibrationStepEvent {
+    fn default() -> &'a SOILCalibrationStepEvent {
+        <SOILCalibrationStepEvent as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl SOILCalibrationStepEvent {
+    pub fn new() -> SOILCalibrationStepEvent {
+        ::std::default::Default::default()
+    }
+
+    // .CalibrationStep step = 1;
+
+
+    pub fn get_step(&self) -> CalibrationStep {
+        self.step
+    }
+    pub fn clear_step(&mut self) {
+        self.step = CalibrationStep::READY_CALIBRATION;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_step(&mut self, v: CalibrationStep) {
+        self.step = v;
+    }
+
+    // .CalibrationStepStatus status = 2;
+
+
+    pub fn get_status(&self) -> CalibrationStepStatus {
+        self.status
+    }
+    pub fn clear_status(&mut self) {
+        self.status = CalibrationStepStatus::INSUFFISANT_DATA_STATUS;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_status(&mut self, v: CalibrationStepStatus) {
+        self.status = v;
+    }
+
+    // .CalibrationError erro = 3;
+
+
+    pub fn get_erro(&self) -> CalibrationError {
+        self.erro
+    }
+    pub fn clear_erro(&mut self) {
+        self.erro = CalibrationError::NONE_ERROR;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_erro(&mut self, v: CalibrationError) {
+        self.erro = v;
+    }
+
+    // string messag = 4;
+
+
+    pub fn get_messag(&self) -> &str {
+        &self.messag
+    }
+    pub fn clear_messag(&mut self) {
+        self.messag.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_messag(&mut self, v: ::std::string::String) {
+        self.messag = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_messag(&mut self) -> &mut ::std::string::String {
+        &mut self.messag
+    }
+
+    // Take field
+    pub fn take_messag(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.messag, ::std::string::String::new())
+    }
+
+    // repeated .SOILModuleData low = 5;
+
+
+    pub fn get_low(&self) -> &[SOILModuleData] {
+        &self.low
+    }
+    pub fn clear_low(&mut self) {
+        self.low.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_low(&mut self, v: ::protobuf::RepeatedField<SOILModuleData>) {
+        self.low = v;
+    }
+
+    // Mutable pointer to the field.
+    pub fn mut_low(&mut self) -> &mut ::protobuf::RepeatedField<SOILModuleData> {
+        &mut self.low
+    }
+
+    // Take field
+    pub fn take_low(&mut self) -> ::protobuf::RepeatedField<SOILModuleData> {
+        ::std::mem::replace(&mut self.low, ::protobuf::RepeatedField::new())
+    }
+
+    // repeated .SOILModuleData high = 6;
+
+
+    pub fn get_high(&self) -> &[SOILModuleData] {
+        &self.high
+    }
+    pub fn clear_high(&mut self) {
+        self.high.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_high(&mut self, v: ::protobuf::RepeatedField<SOILModuleData>) {
+        self.high = v;
+    }
+
+    // Mutable pointer to the field.
+    pub fn mut_high(&mut self) -> &mut ::protobuf::RepeatedField<SOILModuleData> {
+        &mut self.high
+    }
+
+    // Take field
+    pub fn take_high(&mut self) -> ::protobuf::RepeatedField<SOILModuleData> {
+        ::std::mem::replace(&mut self.high, ::protobuf::RepeatedField::new())
+    }
+}
+
+impl ::protobuf::Message for SOILCalibrationStepEvent {
+    fn is_initialized(&self) -> bool {
+        for v in &self.low {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        for v in &self.high {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.step, 1, &mut self.unknown_fields)?
+                },
+                2 => {
+                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.status, 2, &mut self.unknown_fields)?
+                },
+                3 => {
+                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.erro, 3, &mut self.unknown_fields)?
+                },
+                4 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.messag)?;
+                },
+                5 => {
+                    ::protobuf::rt::read_repeated_message_into(wire_type, is, &mut self.low)?;
+                },
+                6 => {
+                    ::protobuf::rt::read_repeated_message_into(wire_type, is, &mut self.high)?;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if self.step != CalibrationStep::READY_CALIBRATION {
+            my_size += ::protobuf::rt::enum_size(1, self.step);
+        }
+        if self.status != CalibrationStepStatus::INSUFFISANT_DATA_STATUS {
+            my_size += ::protobuf::rt::enum_size(2, self.status);
+        }
+        if self.erro != CalibrationError::NONE_ERROR {
+            my_size += ::protobuf::rt::enum_size(3, self.erro);
+        }
+        if !self.messag.is_empty() {
+            my_size += ::protobuf::rt::string_size(4, &self.messag);
+        }
+        for value in &self.low {
+            let len = value.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        };
+        for value in &self.high {
+            let len = value.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        };
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if self.step != CalibrationStep::READY_CALIBRATION {
+            os.write_enum(1, ::protobuf::ProtobufEnum::value(&self.step))?;
+        }
+        if self.status != CalibrationStepStatus::INSUFFISANT_DATA_STATUS {
+            os.write_enum(2, ::protobuf::ProtobufEnum::value(&self.status))?;
+        }
+        if self.erro != CalibrationError::NONE_ERROR {
+            os.write_enum(3, ::protobuf::ProtobufEnum::value(&self.erro))?;
+        }
+        if !self.messag.is_empty() {
+            os.write_string(4, &self.messag)?;
+        }
+        for v in &self.low {
+            os.write_tag(5, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        };
+        for v in &self.high {
+            os.write_tag(6, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        };
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> SOILCalibrationStepEvent {
+        SOILCalibrationStepEvent::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<CalibrationStep>>(
+                "step",
+                |m: &SOILCalibrationStepEvent| { &m.step },
+                |m: &mut SOILCalibrationStepEvent| { &mut m.step },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<CalibrationStepStatus>>(
+                "status",
+                |m: &SOILCalibrationStepEvent| { &m.status },
+                |m: &mut SOILCalibrationStepEvent| { &mut m.status },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<CalibrationError>>(
+                "erro",
+                |m: &SOILCalibrationStepEvent| { &m.erro },
+                |m: &mut SOILCalibrationStepEvent| { &mut m.erro },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "messag",
+                |m: &SOILCalibrationStepEvent| { &m.messag },
+                |m: &mut SOILCalibrationStepEvent| { &mut m.messag },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_repeated_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<SOILModuleData>>(
+                "low",
+                |m: &SOILCalibrationStepEvent| { &m.low },
+                |m: &mut SOILCalibrationStepEvent| { &mut m.low },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_repeated_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<SOILModuleData>>(
+                "high",
+                |m: &SOILCalibrationStepEvent| { &m.high },
+                |m: &mut SOILCalibrationStepEvent| { &mut m.high },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<SOILCalibrationStepEvent>(
+                "SOILCalibrationStepEvent",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static SOILCalibrationStepEvent {
+        static instance: ::protobuf::rt::LazyV2<SOILCalibrationStepEvent> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(SOILCalibrationStepEvent::new)
+    }
+}
+
+impl ::protobuf::Clear for SOILCalibrationStepEvent {
+    fn clear(&mut self) {
+        self.step = CalibrationStep::READY_CALIBRATION;
+        self.status = CalibrationStepStatus::INSUFFISANT_DATA_STATUS;
+        self.erro = CalibrationError::NONE_ERROR;
+        self.messag.clear();
+        self.low.clear();
+        self.high.clear();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for SOILCalibrationStepEvent {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for SOILCalibrationStepEvent {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
 pub struct WAModuleData {
     // message fields
     pub PH: i32,
@@ -5630,6 +7004,177 @@ impl ::protobuf::reflect::ProtobufValue for ActorType {
 }
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
+pub enum CalibrationStep {
+    READY_CALIBRATION = 0,
+    LOW_CALIBRATION = 1,
+    HIGH_CALIBRATION = 2,
+    ERROR_CALIBRATION = 3,
+    WAITING_CONFIRMATION_CALIBRATION = 4,
+}
+
+impl ::protobuf::ProtobufEnum for CalibrationStep {
+    fn value(&self) -> i32 {
+        *self as i32
+    }
+
+    fn from_i32(value: i32) -> ::std::option::Option<CalibrationStep> {
+        match value {
+            0 => ::std::option::Option::Some(CalibrationStep::READY_CALIBRATION),
+            1 => ::std::option::Option::Some(CalibrationStep::LOW_CALIBRATION),
+            2 => ::std::option::Option::Some(CalibrationStep::HIGH_CALIBRATION),
+            3 => ::std::option::Option::Some(CalibrationStep::ERROR_CALIBRATION),
+            4 => ::std::option::Option::Some(CalibrationStep::WAITING_CONFIRMATION_CALIBRATION),
+            _ => ::std::option::Option::None
+        }
+    }
+
+    fn values() -> &'static [Self] {
+        static values: &'static [CalibrationStep] = &[
+            CalibrationStep::READY_CALIBRATION,
+            CalibrationStep::LOW_CALIBRATION,
+            CalibrationStep::HIGH_CALIBRATION,
+            CalibrationStep::ERROR_CALIBRATION,
+            CalibrationStep::WAITING_CONFIRMATION_CALIBRATION,
+        ];
+        values
+    }
+
+    fn enum_descriptor_static() -> &'static ::protobuf::reflect::EnumDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::EnumDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            ::protobuf::reflect::EnumDescriptor::new_pb_name::<CalibrationStep>("CalibrationStep", file_descriptor_proto())
+        })
+    }
+}
+
+impl ::std::marker::Copy for CalibrationStep {
+}
+
+impl ::std::default::Default for CalibrationStep {
+    fn default() -> Self {
+        CalibrationStep::READY_CALIBRATION
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for CalibrationStep {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Enum(::protobuf::ProtobufEnum::descriptor(self))
+    }
+}
+
+#[derive(Clone,PartialEq,Eq,Debug,Hash)]
+pub enum CalibrationStepStatus {
+    INSUFFISANT_DATA_STATUS = 0,
+    ENOUGHT_DATA_STATUS = 1,
+    ERROR_STATUS = 2,
+    AWAITING_STEP_STATUS = 3,
+}
+
+impl ::protobuf::ProtobufEnum for CalibrationStepStatus {
+    fn value(&self) -> i32 {
+        *self as i32
+    }
+
+    fn from_i32(value: i32) -> ::std::option::Option<CalibrationStepStatus> {
+        match value {
+            0 => ::std::option::Option::Some(CalibrationStepStatus::INSUFFISANT_DATA_STATUS),
+            1 => ::std::option::Option::Some(CalibrationStepStatus::ENOUGHT_DATA_STATUS),
+            2 => ::std::option::Option::Some(CalibrationStepStatus::ERROR_STATUS),
+            3 => ::std::option::Option::Some(CalibrationStepStatus::AWAITING_STEP_STATUS),
+            _ => ::std::option::Option::None
+        }
+    }
+
+    fn values() -> &'static [Self] {
+        static values: &'static [CalibrationStepStatus] = &[
+            CalibrationStepStatus::INSUFFISANT_DATA_STATUS,
+            CalibrationStepStatus::ENOUGHT_DATA_STATUS,
+            CalibrationStepStatus::ERROR_STATUS,
+            CalibrationStepStatus::AWAITING_STEP_STATUS,
+        ];
+        values
+    }
+
+    fn enum_descriptor_static() -> &'static ::protobuf::reflect::EnumDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::EnumDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            ::protobuf::reflect::EnumDescriptor::new_pb_name::<CalibrationStepStatus>("CalibrationStepStatus", file_descriptor_proto())
+        })
+    }
+}
+
+impl ::std::marker::Copy for CalibrationStepStatus {
+}
+
+impl ::std::default::Default for CalibrationStepStatus {
+    fn default() -> Self {
+        CalibrationStepStatus::INSUFFISANT_DATA_STATUS
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for CalibrationStepStatus {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Enum(::protobuf::ProtobufEnum::descriptor(self))
+    }
+}
+
+#[derive(Clone,PartialEq,Eq,Debug,Hash)]
+pub enum CalibrationError {
+    NONE_ERROR = 0,
+    ALREADY_STARTED_ERROR = 1,
+    INSTABLE_DATA_ERROR = 2,
+    NOT_ENOUGHT_DATA_ERROR = 3,
+}
+
+impl ::protobuf::ProtobufEnum for CalibrationError {
+    fn value(&self) -> i32 {
+        *self as i32
+    }
+
+    fn from_i32(value: i32) -> ::std::option::Option<CalibrationError> {
+        match value {
+            0 => ::std::option::Option::Some(CalibrationError::NONE_ERROR),
+            1 => ::std::option::Option::Some(CalibrationError::ALREADY_STARTED_ERROR),
+            2 => ::std::option::Option::Some(CalibrationError::INSTABLE_DATA_ERROR),
+            3 => ::std::option::Option::Some(CalibrationError::NOT_ENOUGHT_DATA_ERROR),
+            _ => ::std::option::Option::None
+        }
+    }
+
+    fn values() -> &'static [Self] {
+        static values: &'static [CalibrationError] = &[
+            CalibrationError::NONE_ERROR,
+            CalibrationError::ALREADY_STARTED_ERROR,
+            CalibrationError::INSTABLE_DATA_ERROR,
+            CalibrationError::NOT_ENOUGHT_DATA_ERROR,
+        ];
+        values
+    }
+
+    fn enum_descriptor_static() -> &'static ::protobuf::reflect::EnumDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::EnumDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            ::protobuf::reflect::EnumDescriptor::new_pb_name::<CalibrationError>("CalibrationError", file_descriptor_proto())
+        })
+    }
+}
+
+impl ::std::marker::Copy for CalibrationError {
+}
+
+impl ::std::default::Default for CalibrationError {
+    fn default() -> Self {
+        CalibrationError::NONE_ERROR
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for CalibrationError {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Enum(::protobuf::ProtobufEnum::descriptor(self))
+    }
+}
+
+#[derive(Clone,PartialEq,Eq,Debug,Hash)]
 pub enum RelayOutletMode {
     MANUAL = 0,
     ALARM = 1,
@@ -5700,61 +7245,86 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \n\x02p4\x18\x05\x20\x01(\x05R\x02p4\x12\x0e\n\x02p5\x18\x06\x20\x01(\
     \x05R\x02p5\x12\x0e\n\x02p6\x18\x07\x20\x01(\x05R\x02p6\x12\x0e\n\x02p7\
     \x18\x08\x20\x01(\x05R\x02p7\x12\x1c\n\ttimestamp\x18\t\x20\x01(\x05R\tt\
-    imestamp\"n\n\x0cWAModuleData\x12\x0e\n\x02PH\x18\x02\x20\x01(\x05R\x02P\
-    H\x12\x0e\n\x02EC\x18\x03\x20\x01(\x05R\x02EC\x12\x20\n\x0btemperature\
-    \x18\x04\x20\x01(\x05R\x0btemperature\x12\x1c\n\ttimestamp\x18\t\x20\x01\
-    (\x05R\ttimestamp\"\x82\x01\n\x08CronItem\x12\x16\n\x06minute\x18\x01\
-    \x20\x01(\x05R\x06minute\x12\x12\n\x04hour\x18\x02\x20\x01(\x05R\x04hour\
-    \x12\x1a\n\x08dayMonth\x18\x03\x20\x01(\x05R\x08dayMonth\x12\x14\n\x05mo\
-    nth\x18\x04\x20\x01(\x05R\x05month\x12\x18\n\x07dayWeek\x18\x05\x20\x01(\
-    \x05R\x07dayWeek\"Q\n\x0bAlarmConfig\x12%\n\x08begining\x18\x01\x20\x01(\
-    \x0b2\t.CronItemR\x08begining\x12\x1b\n\x03end\x18\x02\x20\x01(\x0b2\t.C\
-    ronItemR\x03end\"@\n\x0cManualConfig\x12\x14\n\x05state\x18\x01\x20\x01(\
-    \x08R\x05state\x12\x1a\n\x08duration\x18\x02\x20\x01(\x05R\x08duration\"\
-    '\n\x0fRelayOutletData\x12\x14\n\x05state\x18\x01\x20\x01(\x08R\x05state\
-    \"\x84\x01\n\x11RelayOutletConfig\x12$\n\x04mode\x18\x01\x20\x01(\x0e2\
-    \x10.RelayOutletModeR\x04mode\x12\"\n\x05alarm\x18\x02\x20\x01(\x0b2\x0c\
-    .AlarmConfigR\x05alarm\x12%\n\x06manual\x18\x03\x20\x01(\x0b2\r.ManualCo\
-    nfigR\x06manual\"\xdd\x02\n\x0fRelayModuleData\x12\x20\n\x02p0\x18\x01\
-    \x20\x01(\x0b2\x10.RelayOutletDataR\x02p0\x12\x20\n\x02p1\x18\x02\x20\
-    \x01(\x0b2\x10.RelayOutletDataR\x02p1\x12\x20\n\x02p2\x18\x03\x20\x01(\
-    \x0b2\x10.RelayOutletDataR\x02p2\x12\x20\n\x02p3\x18\x04\x20\x01(\x0b2\
-    \x10.RelayOutletDataR\x02p3\x12\x20\n\x02p4\x18\x05\x20\x01(\x0b2\x10.Re\
-    layOutletDataR\x02p4\x12\x20\n\x02p5\x18\x06\x20\x01(\x0b2\x10.RelayOutl\
-    etDataR\x02p5\x12\x20\n\x02p6\x18\x07\x20\x01(\x0b2\x10.RelayOutletDataR\
-    \x02p6\x12\x20\n\x02p7\x18\x08\x20\x01(\x0b2\x10.RelayOutletDataR\x02p7\
-    \x12\x1c\n\ttimestamp\x18\t\x20\x01(\x05R\ttimestamp\x12\x1c\n\x05actor\
-    \x18\n\x20\x01(\x0b2\x06.ActorR\x05actor\"\xd1\x02\n\x11RelayModuleConfi\
-    g\x12\"\n\x02p0\x18\x01\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p0\x12\"\
-    \n\x02p1\x18\x02\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p1\x12\"\n\x02p\
-    2\x18\x03\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p2\x12\"\n\x02p3\x18\
-    \x04\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p3\x12\"\n\x02p4\x18\x05\
-    \x20\x01(\x0b2\x12.RelayOutletConfigR\x02p4\x12\"\n\x02p5\x18\x06\x20\
-    \x01(\x0b2\x12.RelayOutletConfigR\x02p5\x12\"\n\x02p6\x18\x07\x20\x01(\
-    \x0b2\x12.RelayOutletConfigR\x02p6\x12\"\n\x02p7\x18\x08\x20\x01(\x0b2\
-    \x12.RelayOutletConfigR\x02p7\x12\x1c\n\ttimestamp\x18\t\x20\x01(\x05R\t\
-    timestamp\"\xf8\x02\n\x0cWCModuleData\x12\x20\n\x02p0\x18\x01\x20\x01(\
-    \x0b2\x10.RelayOutletDataR\x02p0\x12\x20\n\x02p1\x18\x02\x20\x01(\x0b2\
-    \x10.RelayOutletDataR\x02p1\x12\x20\n\x02p2\x18\x03\x20\x01(\x0b2\x10.Re\
-    layOutletDataR\x02p2\x12&\n\x05drain\x18\x04\x20\x01(\x0b2\x10.RelayOutl\
-    etDataR\x05drain\x12&\n\x05pump0\x18\x05\x20\x01(\x0b2\x10.RelayOutletDa\
-    taR\x05pump0\x12&\n\x05pump1\x18\x06\x20\x01(\x0b2\x10.RelayOutletDataR\
-    \x05pump1\x12&\n\x05pump2\x18\x07\x20\x01(\x0b2\x10.RelayOutletDataR\x05\
-    pump2\x12&\n\x05pump3\x18\x08\x20\x01(\x0b2\x10.RelayOutletDataR\x05pump\
-    3\x12\x1c\n\ttimestamp\x18\t\x20\x01(\x05R\ttimestamp\x12\x1c\n\x05actor\
-    \x18\n\x20\x01(\x0b2\x06.ActorR\x05actor\"\xce\x02\n\x0eWCModuleConfig\
-    \x12\"\n\x02p0\x18\x01\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p0\x12\"\
-    \n\x02p1\x18\x02\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p1\x12\"\n\x02p\
-    2\x18\x03\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p2\x12(\n\x05drain\x18\
-    \x04\x20\x01(\x0b2\x12.RelayOutletConfigR\x05drain\x12(\n\x05pump0\x18\
-    \x05\x20\x01(\x0b2\x12.RelayOutletConfigR\x05pump0\x12(\n\x05pump1\x18\
-    \x06\x20\x01(\x0b2\x12.RelayOutletConfigR\x05pump1\x12(\n\x05pump2\x18\
-    \x07\x20\x01(\x0b2\x12.RelayOutletConfigR\x05pump2\x12(\n\x05pump3\x18\
-    \x08\x20\x01(\x0b2\x12.RelayOutletConfigR\x05pump3*Z\n\tActorType\x12\
-    \x15\n\x11MANUAL_USER_ACTOR\x10\0\x12\x12\n\x0eDURATION_ACTOR\x10\x01\
-    \x12\x0f\n\x0bALARM_ACTOR\x10\x02\x12\x11\n\rVIRTUAL_ACTOR\x10\x03*(\n\
-    \x0fRelayOutletMode\x12\n\n\x06MANUAL\x10\0\x12\t\n\x05ALARM\x10\x01b\
-    \x06proto3\
+    imestamp\"7\n\x0fSOILProbeConfig\x12\x10\n\x03low\x18\x01\x20\x01(\x05R\
+    \x03low\x12\x12\n\x04high\x18\x02\x20\x01(\x05R\x04high\"\xa2\x02\n\x10S\
+    OILModuleConfig\x12\x20\n\x02p0\x18\x01\x20\x01(\x0b2\x10.SOILProbeConfi\
+    gR\x02p0\x12\x20\n\x02p1\x18\x02\x20\x01(\x0b2\x10.SOILProbeConfigR\x02p\
+    1\x12\x20\n\x02p2\x18\x03\x20\x01(\x0b2\x10.SOILProbeConfigR\x02p2\x12\
+    \x20\n\x02p3\x18\x04\x20\x01(\x0b2\x10.SOILProbeConfigR\x02p3\x12\x20\n\
+    \x02p4\x18\x05\x20\x01(\x0b2\x10.SOILProbeConfigR\x02p4\x12\x20\n\x02p5\
+    \x18\x06\x20\x01(\x0b2\x10.SOILProbeConfigR\x02p5\x12\x20\n\x02p6\x18\
+    \x07\x20\x01(\x0b2\x10.SOILProbeConfigR\x02p6\x12\x20\n\x02p7\x18\x08\
+    \x20\x01(\x0b2\x10.SOILProbeConfigR\x02p7\"\x16\n\x14SOILCalibrationStar\
+    t\"N\n\x13SOILCalibrationStep\x127\n\x0erequested_step\x18\x01\x20\x01(\
+    \x0e2\x10.CalibrationStepR\rrequestedStep\"\xf7\x01\n\x18SOILCalibration\
+    StepEvent\x12$\n\x04step\x18\x01\x20\x01(\x0e2\x10.CalibrationStepR\x04s\
+    tep\x12.\n\x06status\x18\x02\x20\x01(\x0e2\x16.CalibrationStepStatusR\
+    \x06status\x12%\n\x04erro\x18\x03\x20\x01(\x0e2\x11.CalibrationErrorR\
+    \x04erro\x12\x16\n\x06messag\x18\x04\x20\x01(\tR\x06messag\x12!\n\x03low\
+    \x18\x05\x20\x03(\x0b2\x0f.SOILModuleDataR\x03low\x12#\n\x04high\x18\x06\
+    \x20\x03(\x0b2\x0f.SOILModuleDataR\x04high\"n\n\x0cWAModuleData\x12\x0e\
+    \n\x02PH\x18\x02\x20\x01(\x05R\x02PH\x12\x0e\n\x02EC\x18\x03\x20\x01(\
+    \x05R\x02EC\x12\x20\n\x0btemperature\x18\x04\x20\x01(\x05R\x0btemperatur\
+    e\x12\x1c\n\ttimestamp\x18\t\x20\x01(\x05R\ttimestamp\"\x82\x01\n\x08Cro\
+    nItem\x12\x16\n\x06minute\x18\x01\x20\x01(\x05R\x06minute\x12\x12\n\x04h\
+    our\x18\x02\x20\x01(\x05R\x04hour\x12\x1a\n\x08dayMonth\x18\x03\x20\x01(\
+    \x05R\x08dayMonth\x12\x14\n\x05month\x18\x04\x20\x01(\x05R\x05month\x12\
+    \x18\n\x07dayWeek\x18\x05\x20\x01(\x05R\x07dayWeek\"Q\n\x0bAlarmConfig\
+    \x12%\n\x08begining\x18\x01\x20\x01(\x0b2\t.CronItemR\x08begining\x12\
+    \x1b\n\x03end\x18\x02\x20\x01(\x0b2\t.CronItemR\x03end\"@\n\x0cManualCon\
+    fig\x12\x14\n\x05state\x18\x01\x20\x01(\x08R\x05state\x12\x1a\n\x08durat\
+    ion\x18\x02\x20\x01(\x05R\x08duration\"'\n\x0fRelayOutletData\x12\x14\n\
+    \x05state\x18\x01\x20\x01(\x08R\x05state\"\x84\x01\n\x11RelayOutletConfi\
+    g\x12$\n\x04mode\x18\x01\x20\x01(\x0e2\x10.RelayOutletModeR\x04mode\x12\
+    \"\n\x05alarm\x18\x02\x20\x01(\x0b2\x0c.AlarmConfigR\x05alarm\x12%\n\x06\
+    manual\x18\x03\x20\x01(\x0b2\r.ManualConfigR\x06manual\"\xdd\x02\n\x0fRe\
+    layModuleData\x12\x20\n\x02p0\x18\x01\x20\x01(\x0b2\x10.RelayOutletDataR\
+    \x02p0\x12\x20\n\x02p1\x18\x02\x20\x01(\x0b2\x10.RelayOutletDataR\x02p1\
+    \x12\x20\n\x02p2\x18\x03\x20\x01(\x0b2\x10.RelayOutletDataR\x02p2\x12\
+    \x20\n\x02p3\x18\x04\x20\x01(\x0b2\x10.RelayOutletDataR\x02p3\x12\x20\n\
+    \x02p4\x18\x05\x20\x01(\x0b2\x10.RelayOutletDataR\x02p4\x12\x20\n\x02p5\
+    \x18\x06\x20\x01(\x0b2\x10.RelayOutletDataR\x02p5\x12\x20\n\x02p6\x18\
+    \x07\x20\x01(\x0b2\x10.RelayOutletDataR\x02p6\x12\x20\n\x02p7\x18\x08\
+    \x20\x01(\x0b2\x10.RelayOutletDataR\x02p7\x12\x1c\n\ttimestamp\x18\t\x20\
+    \x01(\x05R\ttimestamp\x12\x1c\n\x05actor\x18\n\x20\x01(\x0b2\x06.ActorR\
+    \x05actor\"\xd1\x02\n\x11RelayModuleConfig\x12\"\n\x02p0\x18\x01\x20\x01\
+    (\x0b2\x12.RelayOutletConfigR\x02p0\x12\"\n\x02p1\x18\x02\x20\x01(\x0b2\
+    \x12.RelayOutletConfigR\x02p1\x12\"\n\x02p2\x18\x03\x20\x01(\x0b2\x12.Re\
+    layOutletConfigR\x02p2\x12\"\n\x02p3\x18\x04\x20\x01(\x0b2\x12.RelayOutl\
+    etConfigR\x02p3\x12\"\n\x02p4\x18\x05\x20\x01(\x0b2\x12.RelayOutletConfi\
+    gR\x02p4\x12\"\n\x02p5\x18\x06\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p\
+    5\x12\"\n\x02p6\x18\x07\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p6\x12\"\
+    \n\x02p7\x18\x08\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p7\x12\x1c\n\tt\
+    imestamp\x18\t\x20\x01(\x05R\ttimestamp\"\xf8\x02\n\x0cWCModuleData\x12\
+    \x20\n\x02p0\x18\x01\x20\x01(\x0b2\x10.RelayOutletDataR\x02p0\x12\x20\n\
+    \x02p1\x18\x02\x20\x01(\x0b2\x10.RelayOutletDataR\x02p1\x12\x20\n\x02p2\
+    \x18\x03\x20\x01(\x0b2\x10.RelayOutletDataR\x02p2\x12&\n\x05drain\x18\
+    \x04\x20\x01(\x0b2\x10.RelayOutletDataR\x05drain\x12&\n\x05pump0\x18\x05\
+    \x20\x01(\x0b2\x10.RelayOutletDataR\x05pump0\x12&\n\x05pump1\x18\x06\x20\
+    \x01(\x0b2\x10.RelayOutletDataR\x05pump1\x12&\n\x05pump2\x18\x07\x20\x01\
+    (\x0b2\x10.RelayOutletDataR\x05pump2\x12&\n\x05pump3\x18\x08\x20\x01(\
+    \x0b2\x10.RelayOutletDataR\x05pump3\x12\x1c\n\ttimestamp\x18\t\x20\x01(\
+    \x05R\ttimestamp\x12\x1c\n\x05actor\x18\n\x20\x01(\x0b2\x06.ActorR\x05ac\
+    tor\"\xce\x02\n\x0eWCModuleConfig\x12\"\n\x02p0\x18\x01\x20\x01(\x0b2\
+    \x12.RelayOutletConfigR\x02p0\x12\"\n\x02p1\x18\x02\x20\x01(\x0b2\x12.Re\
+    layOutletConfigR\x02p1\x12\"\n\x02p2\x18\x03\x20\x01(\x0b2\x12.RelayOutl\
+    etConfigR\x02p2\x12(\n\x05drain\x18\x04\x20\x01(\x0b2\x12.RelayOutletCon\
+    figR\x05drain\x12(\n\x05pump0\x18\x05\x20\x01(\x0b2\x12.RelayOutletConfi\
+    gR\x05pump0\x12(\n\x05pump1\x18\x06\x20\x01(\x0b2\x12.RelayOutletConfigR\
+    \x05pump1\x12(\n\x05pump2\x18\x07\x20\x01(\x0b2\x12.RelayOutletConfigR\
+    \x05pump2\x12(\n\x05pump3\x18\x08\x20\x01(\x0b2\x12.RelayOutletConfigR\
+    \x05pump3*Z\n\tActorType\x12\x15\n\x11MANUAL_USER_ACTOR\x10\0\x12\x12\n\
+    \x0eDURATION_ACTOR\x10\x01\x12\x0f\n\x0bALARM_ACTOR\x10\x02\x12\x11\n\rV\
+    IRTUAL_ACTOR\x10\x03*\x90\x01\n\x0fCalibrationStep\x12\x15\n\x11READY_CA\
+    LIBRATION\x10\0\x12\x13\n\x0fLOW_CALIBRATION\x10\x01\x12\x14\n\x10HIGH_C\
+    ALIBRATION\x10\x02\x12\x15\n\x11ERROR_CALIBRATION\x10\x03\x12$\n\x20WAIT\
+    ING_CONFIRMATION_CALIBRATION\x10\x04*y\n\x15CalibrationStepStatus\x12\
+    \x1b\n\x17INSUFFISANT_DATA_STATUS\x10\0\x12\x17\n\x13ENOUGHT_DATA_STATUS\
+    \x10\x01\x12\x10\n\x0cERROR_STATUS\x10\x02\x12\x18\n\x14AWAITING_STEP_ST\
+    ATUS\x10\x03*r\n\x10CalibrationError\x12\x0e\n\nNONE_ERROR\x10\0\x12\x19\
+    \n\x15ALREADY_STARTED_ERROR\x10\x01\x12\x17\n\x13INSTABLE_DATA_ERROR\x10\
+    \x02\x12\x1a\n\x16NOT_ENOUGHT_DATA_ERROR\x10\x03*(\n\x0fRelayOutletMode\
+    \x12\n\n\x06MANUAL\x10\0\x12\t\n\x05ALARM\x10\x01b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

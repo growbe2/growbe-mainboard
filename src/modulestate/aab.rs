@@ -22,7 +22,7 @@ impl super::interface::ModuleValueParsable for WCModuleData {}
 
 impl super::interface::ModuleValueValidator for AABValidator {
 
-    fn convert_to_value(&self, value_event: &crate::comboard::imple::interface::ModuleValueValidationEvent) -> Result<Box<dyn super::interface::ModuleValueParsable>, super::interface::ModuleError> {
+    fn convert_to_value(&mut self, value_event: &crate::comboard::imple::interface::ModuleValueValidationEvent) -> Result<Box<dyn super::interface::ModuleValueParsable>, super::interface::ModuleError> {
         let mut data = crate::protos::module::WCModuleData::new();
         data.p0 = get_outlet_data(value_event.buffer[0]);
         data.p1 = get_outlet_data(value_event.buffer[1]);
@@ -97,6 +97,16 @@ impl super::interface::ModuleValueValidator for AABValidator {
         }
 
         return (false, vec![]);
+    }
+
+    fn handle_command_validator(
+        &mut self,
+        cmd: &str,
+        module_id: &String,
+        data: std::sync::Arc<Vec<u8>>,
+        sender_socket: & std::sync::mpsc::Sender<(String, Box<dyn super::interface::ModuleValueParsable>)>,
+    ) -> Result<(Option<Vec<super::interface::ModuleStateCmd>>), ()> {
+        return Err(());
     }
 
 }

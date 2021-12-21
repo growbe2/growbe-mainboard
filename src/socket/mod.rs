@@ -28,7 +28,7 @@ fn on_set_rtc(_topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8
 }
 
 fn on_sync_request(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>)> {
-    crate::modulestate::CHANNEL_MODULE_STATE_CMD.0.lock().unwrap().send(crate::modulestate::ModuleStateCmd{
+    crate::modulestate::CHANNEL_MODULE_STATE_CMD.0.lock().unwrap().send(crate::modulestate::interface::ModuleStateCmd{
         cmd: "sync",
         data: data,
         topic: topic_name,
@@ -37,7 +37,7 @@ fn on_sync_request(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Ve
 }
 
 fn on_mconfig_request(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>)> {
-    crate::modulestate::CHANNEL_MODULE_STATE_CMD.0.lock().unwrap().send(crate::modulestate::ModuleStateCmd{
+    crate::modulestate::CHANNEL_MODULE_STATE_CMD.0.lock().unwrap().send(crate::modulestate::interface::ModuleStateCmd{
         cmd: "mconfig",
         topic: topic_name,
         data: data,
@@ -46,7 +46,7 @@ fn on_mconfig_request(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String,
 }
 
 fn on_add_alarm_request(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>)> {
-    crate::modulestate::CHANNEL_MODULE_STATE_CMD.0.lock().unwrap().send(crate::modulestate::ModuleStateCmd {
+    crate::modulestate::CHANNEL_MODULE_STATE_CMD.0.lock().unwrap().send(crate::modulestate::interface::ModuleStateCmd {
         cmd: "aAl",
         topic: topic_name,
         data: data
@@ -55,8 +55,53 @@ fn on_add_alarm_request(topic_name: String, data: Arc<Vec<u8>>) -> Option<(Strin
 }
 
 fn on_remove_alarm_request(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>)> {
-    crate::modulestate::CHANNEL_MODULE_STATE_CMD.0.lock().unwrap().send(crate::modulestate::ModuleStateCmd {
+    crate::modulestate::CHANNEL_MODULE_STATE_CMD.0.lock().unwrap().send(crate::modulestate::interface::ModuleStateCmd {
         cmd: "rAl",
+        topic: topic_name,
+        data: data
+    }).unwrap();
+    None
+}
+
+fn on_start_calibration(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>)> {
+    crate::modulestate::CHANNEL_MODULE_STATE_CMD.0.lock().unwrap().send(crate::modulestate::interface::ModuleStateCmd {
+        cmd: "startCalibration",
+        topic: topic_name,
+        data: data
+    }).unwrap();
+    None
+}
+
+fn on_set_step_calibration(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>)> {
+    crate::modulestate::CHANNEL_MODULE_STATE_CMD.0.lock().unwrap().send(crate::modulestate::interface::ModuleStateCmd {
+        cmd: "setCalibration",
+        topic: topic_name,
+        data: data
+    }).unwrap();
+    None
+}
+
+fn on_confirm_calibration(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>)> {
+    crate::modulestate::CHANNEL_MODULE_STATE_CMD.0.lock().unwrap().send(crate::modulestate::interface::ModuleStateCmd {
+        cmd: "terminateCalibration",
+        topic: topic_name,
+        data: data
+    }).unwrap();
+    None
+}
+
+fn on_cancel_calibration(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>)> {
+    crate::modulestate::CHANNEL_MODULE_STATE_CMD.0.lock().unwrap().send(crate::modulestate::interface::ModuleStateCmd {
+        cmd: "cancelCalibration",
+        topic: topic_name,
+        data: data
+    }).unwrap();
+    None
+}
+
+fn on_status_calibration(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>)> {
+    crate::modulestate::CHANNEL_MODULE_STATE_CMD.0.lock().unwrap().send(crate::modulestate::interface::ModuleStateCmd {
+        cmd: "statusCalibration",
         topic: topic_name,
         data: data
     }).unwrap();
@@ -136,6 +181,41 @@ pub fn socket_task(
             handler: on_update,
             not_prefix: true,
         },
+        MqttHandler{
+            subscription: "/board/startCalibration/+".to_string(),
+            regex: "startCalibration",
+            action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
+            handler: on_start_calibration,
+            not_prefix: false,
+        },
+        MqttHandler{
+            subscription: "/board/setCalibration/+".to_string(),
+            regex: "setCalibration",
+            action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
+            handler: on_set_step_calibration,
+            not_prefix: false,
+        },
+        MqttHandler{
+            subscription: "/board/terminateCalibration/+".to_string(),
+            regex: "terminateCalibration",
+            action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
+            handler: on_confirm_calibration,
+            not_prefix: false,
+        },
+        MqttHandler{
+            subscription: "/board/cancelCalibration/+".to_string(),
+            regex: "cancelCalibration",
+            action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
+            handler: on_cancel_calibration,
+            not_prefix: false,
+        },
+        MqttHandler{
+            subscription: "/board/statusCalibration/+".to_string(),
+            regex: "statusCalibration",
+            action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
+            handler: on_status_calibration,
+            not_prefix: false,
+        }
     );
 
     let id_client = format!("pi-{}", crate::id::get());

@@ -1,6 +1,6 @@
 use std::sync::{Arc, Mutex};
 
-use crate::protos::module::{RelayModuleConfig, WCModuleConfig};
+use crate::protos::module::{RelayModuleConfig, WCModuleConfig, SOILModuleConfig};
 use crate::store::database;
 use protobuf::Message;
 
@@ -29,6 +29,12 @@ impl ModuleStateStore {
                 log::debug!("{:?}", result);
                 if let Ok(d) = result {
                     Ok(Box::new(d) as Box<dyn Message>)
+                } else { Err(super::interface::ModuleError::new())}
+            },
+            'S' => {
+                let result = self.get_module_config_inner(id, SOILModuleConfig::parse_from_bytes);
+                if let Ok(config) = result {
+                    Ok(Box::new(config) as Box<dyn Message>)
                 } else { Err(super::interface::ModuleError::new())}
             },
             _ => Err(super::interface::ModuleError::new())
