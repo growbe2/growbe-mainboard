@@ -122,10 +122,9 @@ fn on_restart(_topic_name: String, _data: Arc<Vec<u8>>) -> Option<(String, Vec<u
     Some((format!("/growbe/{}/restarted", crate::id::get()), vec![]))
 }
 
-
 pub fn socket_task(
     receiver_socket: Arc<Mutex<Receiver<(String, Box<dyn crate::modulestate::interface::ModuleValueParsable>)>>>,
-    config_mqtt: & mqtt::CloudMQTTConfig,
+    config_mqtt: &'static mqtt::CloudMQTTConfig,
 ) -> tokio::task::JoinHandle<()> {
     /*
     Handle pour les trucs mqtt, ca va s'executer dans une task async et faut je fasse le map
@@ -219,11 +218,23 @@ pub fn socket_task(
     );
 
     let id_client = format!("pi-{}", crate::id::get());
-    let mqtt_options = MqttOptions::new(id_client, config_mqtt.url.as_str(), config_mqtt.port);
 
    return tokio::spawn(async move {
         let hearth_beath_rate = Duration::from_secs(15);
-        let (mut client, notifications) = MqttClient::start(mqtt_options).unwrap();
+
+        let (mut client, notifications) = loop {
+            let config = MqttOptions::new(id_client.clone(), config_mqtt.url.as_str(), config_mqtt.port);
+            match MqttClient::start(config) {
+                Ok(v) => {
+                    break v;
+                },
+                Err(err) => {
+                    log::error!("fatal error creating link to the cloud {:?}", err);
+                    tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
+                    continue;
+                }
+            }
+        };
 
         let mut last_send_instant = Instant::now();
 

@@ -23,17 +23,21 @@ pub fn get_curret_ssid_strength() -> i32 {
         lines.next();
 
         // error ici parfois
-        let wlan_line = lines.next().unwrap();
+        if let Some(wlan_line) = lines.next(){
+            let mut elements = wlan_line.split_whitespace();
+            elements.next();
+            elements.next();
+            elements.next();
 
-        let mut elements = wlan_line.split_whitespace();
-        elements.next();
-        elements.next();
-        elements.next();
+            let strength_str = elements.next().unwrap().replace(".", "");
+            let strength = strength_str.parse::<i32>().unwrap();
 
-        let strength_str = elements.next().unwrap().replace(".", "");
-        let strength = strength_str.parse::<i32>().unwrap();
+            return strength;
+        } else {
+            log::error!("failed to get lines for wlan");
+        }
 
-        return strength;
+        return -1;
     }
 
     return 0;

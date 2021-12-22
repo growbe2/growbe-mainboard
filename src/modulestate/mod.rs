@@ -98,8 +98,9 @@ fn send_module_state(
     send_state.id = String::from(id);
     send_state.plug = state;
     send_state.atIndex = port;
-    // error ici parfois
-    sender_socket.send((String::from(format!("/m/{}/state", id)), Box::new(send_state))).unwrap();
+    if let Err(err) = sender_socket.send((String::from(format!("/m/{}/state", id)), Box::new(send_state))) {
+        log::error!("error sending message for module state {:?}", err);
+    }
 }
 
 #[inline]
