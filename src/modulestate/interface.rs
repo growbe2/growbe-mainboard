@@ -25,7 +25,7 @@ impl ModuleError {
        self 
     }
 
-    pub fn module_id(mut self, module_id: String) -> ModuleError {
+    /*pub fn module_id(mut self, module_id: String) -> ModuleError {
         self.module_id = module_id;
         self
     }
@@ -33,7 +33,7 @@ impl ModuleError {
     pub fn port(mut self, port: i32) -> ModuleError {
         self.port = port;
         self
-    }
+    }*/
 }
 
 
@@ -96,7 +96,7 @@ pub trait ModuleValueValidator: Downcast {
         module_id: &String,
         data: std::sync::Arc<Vec<u8>>,
         sender_socket: & std::sync::mpsc::Sender<(String, Box<dyn ModuleValueParsable>)>,
-    ) -> Result<(Option<Vec<ModuleStateCmd>>), ()>;
+    ) -> Result<Option<Vec<ModuleStateCmd>>, ()>;
 
     // need to be option result
     fn apply_parse_config(&mut self, port: i32, t: char, data: std::sync::Arc<Vec<u8>>,

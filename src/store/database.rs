@@ -69,6 +69,7 @@ pub fn store_delete_combine_key(
 	).unwrap();
 }
 
+#[allow(dead_code)]
 pub fn nbr_entry(
     conn: &Arc<Mutex<Connection>>,
     table: &'static str,
@@ -79,7 +80,6 @@ pub fn nbr_entry(
 		|r| r.get(0)
 	).unwrap()
 }
-
 
 pub fn init() -> Connection {
 	let conn = Connection::open("./database.sqlite").unwrap();

@@ -6,7 +6,7 @@ pub fn get_currnet_ssid() -> String {
     let result = Command::new("iwgetid").args(["-r"]).output();
     return match result {
         Ok(value) => String::from_utf8_lossy(&value.stdout).to_string(),
-        Err(e) => String::from("")
+        Err(_e) => String::from("")
     };
 }
 

@@ -1,4 +1,4 @@
-use crate::protos::alarm::{AlarmZone, FieldAlarmEvent};
+use crate::protos::alarm::{AlarmZone};
 
 pub struct ModuleAlarmState<T: std::ops::Sub<Output = T>  + std::cmp::PartialOrd + std::ops::Add<Output = T> + Copy> {
     pub property: String,

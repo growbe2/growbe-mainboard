@@ -39,7 +39,7 @@ impl super::interface::ModuleValueValidator for AAPValidator {
         }
     }
     
-    fn apply_parse_config(&mut self, port: i32, t: char, data: std::sync::Arc<Vec<u8>>,
+    fn apply_parse_config(&mut self, port: i32, _t: char, data: std::sync::Arc<Vec<u8>>,
         sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::interface::Module_Config>,
         map_handler: & mut std::collections::HashMap<i32, tokio_util::sync::CancellationToken>
     ) -> Result<(Box<dyn protobuf::Message>, crate::comboard::imple::interface::Module_Config), super::interface::ModuleError> {
@@ -93,11 +93,11 @@ impl super::interface::ModuleValueValidator for AAPValidator {
 
     fn handle_command_validator(
         &mut self,
-        cmd: &str,
-        module_id: &String,
-        data: std::sync::Arc<Vec<u8>>,
-        sender_socket: & std::sync::mpsc::Sender<(String, Box<dyn super::interface::ModuleValueParsable>)>,
-    ) -> Result<(Option<Vec<super::interface::ModuleStateCmd>>), ()> {
+        _cmd: &str,
+        _module_id: &String,
+        _data: std::sync::Arc<Vec<u8>>,
+        _sender_socket: & std::sync::mpsc::Sender<(String, Box<dyn super::interface::ModuleValueParsable>)>,
+    ) -> Result<Option<Vec<super::interface::ModuleStateCmd>>, ()> {
         return Err(());
     }
 

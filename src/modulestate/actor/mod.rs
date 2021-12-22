@@ -2,21 +2,22 @@ use std::collections::HashMap;
 
 use crate::protos::module::Actor;
 
+/*
 pub struct ActorStore {
     pub actors_property: HashMap<String, Actor>,
 }
 
-
+*/
 pub fn get_owner<'a>(
     map: &'a HashMap<String, Actor>,
     property: &'static str,
 ) -> Option<&'a Actor> {
     return map.get(property);
 }
-
+/*
 pub fn validate_new_owner(
-    map: &mut HashMap<String, Actor>,
-    property: &str, previous_owner: Option<&Actor>,
+    _map: &mut HashMap<String, Actor>,
+    _property: &str, previous_owner: Option<&Actor>,
     new_owner: Option<Actor>
 ) -> bool {
 
@@ -41,3 +42,4 @@ impl ActorStore {
         return true;
     }
 }
+*/

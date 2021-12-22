@@ -178,7 +178,7 @@ fn handle_module_config(
     data: Arc<Vec<u8>>,
     manager: & mut MainboardModuleStateManager,
     sender_config: & Sender<crate::comboard::imple::interface::Module_Config>,
-    sender_socket: & Sender<(String, Box<dyn interface::ModuleValueParsable>)>,
+    _sender_socket: & Sender<(String, Box<dyn interface::ModuleValueParsable>)>,
     store: &store::ModuleStateStore,
 ) -> () {
     let id = last_element_path(topic);

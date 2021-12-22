@@ -1,5 +1,3 @@
-use std::sync::{Mutex, Arc, mpsc::Sender, mpsc::Receiver};
-
 #[repr(C)]
 pub struct Module_Config {
     pub port: cty::c_int,

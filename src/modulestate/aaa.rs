@@ -67,11 +67,11 @@ impl super::interface::ModuleValueValidator for AAAValidator {
 
     fn handle_command_validator(
         &mut self,
-        cmd: &str,
-        module_id: &String,
-        data: std::sync::Arc<Vec<u8>>,
-        sender_socket: & std::sync::mpsc::Sender<(String, Box<dyn super::interface::ModuleValueParsable>)>,
-    ) -> Result<(Option<Vec<super::interface::ModuleStateCmd>>), ()> {
+        _cmd: &str,
+        _module_id: &String,
+        _data: std::sync::Arc<Vec<u8>>,
+        _sender_socket: & std::sync::mpsc::Sender<(String, Box<dyn super::interface::ModuleValueParsable>)>,
+    ) -> Result<Option<Vec<super::interface::ModuleStateCmd>>, ()> {
         return Err(());
     }
 }

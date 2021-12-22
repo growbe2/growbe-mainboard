@@ -121,7 +121,7 @@ impl super::interface::ModuleValueValidator for AASValidator {
         module_id: &String,
         data: std::sync::Arc<Vec<u8>>,
         sender_socket: & std::sync::mpsc::Sender<(String, Box<dyn super::interface::ModuleValueParsable>)>,
-    ) -> Result<(Option<Vec<super::interface::ModuleStateCmd>>), ()> {
+    ) -> Result<Option<Vec<super::interface::ModuleStateCmd>>, ()> {
         let mut event = SOILCalibrationStepEvent::new();
         match cmd {
             "startCalibration" => {
@@ -137,7 +137,7 @@ impl super::interface::ModuleValueValidator for AASValidator {
             "setCalibration" => {
                 let data = SOILCalibrationStep::parse_from_bytes(&data).unwrap();
                 if let Some(process) = self.calibration_process.as_mut() {
-                    if (data.requested_step == CalibrationStep::READY_CALIBRATION) {
+                    if data.requested_step == CalibrationStep::READY_CALIBRATION {
                         process.stop_record();
                     } else {
                         process.start_record(data.requested_step);
@@ -163,7 +163,7 @@ impl super::interface::ModuleValueValidator for AASValidator {
                             };
                             return Ok(Some(vec![cmd]));
                         },
-                        Err(err) => {
+                        Err(_err) => {
                             log::error!("failed to terminate calibration for {}", module_id);
                         }
                     }
@@ -173,7 +173,7 @@ impl super::interface::ModuleValueValidator for AASValidator {
             },
             "cancelCalibration" => {
                 self.calibration_process = None;
-                return Ok((None));
+                return Ok(None);
             },
             "statusCalibration" =>  {
                 if let Some(process) = self.calibration_process.as_mut() {
@@ -186,6 +186,6 @@ impl super::interface::ModuleValueValidator for AASValidator {
             }
         }
         sender_socket.send((format!("/m/{}/calibrationEvent", module_id.as_str()), Box::new(event))).unwrap();
-        return Ok((None));
+        return Ok(None);
     }
 }

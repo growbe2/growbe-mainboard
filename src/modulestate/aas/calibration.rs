@@ -1,6 +1,6 @@
 
 use crate::protos::module::{SOILModuleData, SOILProbeConfig};
-use crate::protos::module::{CalibrationError, CalibrationStep, CalibrationStepStatus, SOILModuleConfig, SOILCalibrationStart, SOILCalibrationStep, SOILCalibrationStepEvent};
+use crate::protos::module::{CalibrationError, CalibrationStep, CalibrationStepStatus, SOILModuleConfig, SOILCalibrationStepEvent};
 
 impl crate::modulestate::interface::ModuleValue for SOILCalibrationStepEvent {}
 impl crate::modulestate::interface::ModuleValueParsable for SOILCalibrationStepEvent {}
@@ -114,7 +114,7 @@ impl CalibrationProcess {
     // stop the current step recording
     pub fn stop_record(&mut self) -> () {
         self.previous_step = self.current_step;
-        if (self.values_high.len() > 0 && self.values_low.len() > 0) {
+        if self.values_high.len() > 0 && self.values_low.len() > 0 {
             self.current_step = CalibrationStep::WAITING_CONFIRMATION_CALIBRATION;
         } else {
             self.current_step = CalibrationStep::READY_CALIBRATION;
@@ -125,8 +125,6 @@ impl CalibrationProcess {
     pub fn terminate(&self) -> Result<SOILModuleConfig, CalibrationEx>  {
         if self.current_step == CalibrationStep::WAITING_CONFIRMATION_CALIBRATION {
             let mut config = SOILModuleConfig::new();
-            // fait la moyenne des arrays
-            let mut total_item = 0;
 
             let value_low = self.average_values(&self.values_low);
             let value_high = self.average_values(&self.values_high);

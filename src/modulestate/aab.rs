@@ -1,6 +1,6 @@
-use crate::protos::module::{WCModuleData, WCModuleConfig, ActorWithOwnership, Actor};
+use crate::protos::module::{WCModuleData, WCModuleConfig, Actor};
 use super::{relay::{configure_relay, get_outlet_data}};
-use super::actor::{ActorStore, get_owner, validate_new_owner};
+use super::actor::{get_owner};
 use std::collections::HashMap;
 use protobuf::Message;
 
@@ -48,21 +48,22 @@ impl super::interface::ModuleValueValidator for AABValidator {
         let mut buffer = [255; 8];
 
         let previous_owner: Option<&Actor> = get_owner(&self.actors_property, "p0");
-        let new_owner = configure_relay(config.has_p0(),0, &port, config.get_p0(), & mut buffer[0], sender_comboard_config, map_handler, previous_owner);
+        
+        configure_relay(config.has_p0(),0, &port, config.get_p0(), & mut buffer[0], sender_comboard_config, map_handler, previous_owner);
 
-        let new_owner = configure_relay(config.has_p1(),1, &port, config.get_p1(), & mut buffer[1], sender_comboard_config, map_handler, previous_owner);
+        configure_relay(config.has_p1(),1, &port, config.get_p1(), & mut buffer[1], sender_comboard_config, map_handler, previous_owner);
 
-        let new_owner = configure_relay(config.has_p2(),2, &port, config.get_p2(), & mut buffer[2], sender_comboard_config, map_handler, previous_owner);
+        configure_relay(config.has_p2(),2, &port, config.get_p2(), & mut buffer[2], sender_comboard_config, map_handler, previous_owner);
 
-        let new_owner = configure_relay(config.has_drain(),3, &port, config.get_drain(), & mut buffer[3], sender_comboard_config, map_handler, previous_owner);
+        configure_relay(config.has_drain(),3, &port, config.get_drain(), & mut buffer[3], sender_comboard_config, map_handler, previous_owner);
 
-        let new_owner = configure_relay(config.has_pump0(),4, &port, config.get_pump0(), & mut buffer[4], sender_comboard_config, map_handler, previous_owner);
+        configure_relay(config.has_pump0(),4, &port, config.get_pump0(), & mut buffer[4], sender_comboard_config, map_handler, previous_owner);
 
-        let new_owner = configure_relay(config.has_pump1(),5, &port, config.get_pump1(), & mut buffer[5], sender_comboard_config, map_handler, previous_owner);
+        configure_relay(config.has_pump1(),5, &port, config.get_pump1(), & mut buffer[5], sender_comboard_config, map_handler, previous_owner);
 
-        let new_owner = configure_relay(config.has_pump2(),6, &port, config.get_pump2(), & mut buffer[6], sender_comboard_config, map_handler, previous_owner);
+        configure_relay(config.has_pump2(),6, &port, config.get_pump2(), & mut buffer[6], sender_comboard_config, map_handler, previous_owner);
 
-        let new_owner = configure_relay(config.has_pump3(),7, &port, config.get_pump3(), & mut buffer[7], sender_comboard_config, map_handler, previous_owner);
+        configure_relay(config.has_pump3(),7, &port, config.get_pump3(), & mut buffer[7], sender_comboard_config, map_handler, previous_owner);
 
 
         return Ok((
@@ -101,11 +102,11 @@ impl super::interface::ModuleValueValidator for AABValidator {
 
     fn handle_command_validator(
         &mut self,
-        cmd: &str,
-        module_id: &String,
-        data: std::sync::Arc<Vec<u8>>,
-        sender_socket: & std::sync::mpsc::Sender<(String, Box<dyn super::interface::ModuleValueParsable>)>,
-    ) -> Result<(Option<Vec<super::interface::ModuleStateCmd>>), ()> {
+        _cmd: &str,
+        _module_id: &String,
+        _data: std::sync::Arc<Vec<u8>>,
+        _sender_socket: & std::sync::mpsc::Sender<(String, Box<dyn super::interface::ModuleValueParsable>)>,
+    ) -> Result<Option<Vec<super::interface::ModuleStateCmd>>, ()> {
         return Err(());
     }
 

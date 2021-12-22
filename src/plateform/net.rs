@@ -28,10 +28,6 @@ pub fn get_ip_addr() -> String {
     return String::from("")
 }
 
-pub fn get_default_gateway() -> String {
-    return String::default();
-}
-
 pub fn get_net_info() -> NetworkInfo {
     let addrs = nix::ifaddrs::getifaddrs().unwrap();
 

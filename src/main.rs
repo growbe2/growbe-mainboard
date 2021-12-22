@@ -63,11 +63,11 @@ async fn main() {
 
 
 
-    //let server_task = server::http::get_server(&crate::mainboardstate::config::CONFIG.server);
+    let server_task = server::http::get_server(&crate::mainboardstate::config::CONFIG.server);
 
     // Wait for all task to finish (they should never end)
-    let ret = tokio::join!(
-        //server_task,
+    let _ret = tokio::join!(
+        server_task,
         comboard_task,
         module_state_task,
         socket_task,
