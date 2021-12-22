@@ -41,7 +41,7 @@ impl super::interface::ModuleValueValidator for AAAValidator {
     
     fn apply_parse_config(&mut self, _port: i32, _t: char, _data: std::sync::Arc<Vec<u8>>, 
         _sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::interface::Module_Config>,
-        _map_handler: & mut std::collections::HashMap<i32, tokio_util::sync::CancellationToken>
+        _map_handler: & mut std::collections::HashMap<String, tokio_util::sync::CancellationToken>
     ) -> Result<(Box<dyn protobuf::Message>, crate::comboard::imple::interface::Module_Config), super::interface::ModuleError> {
         Err(super::interface::ModuleError::new())
     }

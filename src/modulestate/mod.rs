@@ -34,7 +34,7 @@ lazy_static! {
 pub struct MainboardConnectedModule {
     pub port: i32,
     pub id: String,
-    pub handler_map: std::collections::HashMap<i32, tokio_util::sync::CancellationToken>,
+    pub handler_map: std::collections::HashMap<String, tokio_util::sync::CancellationToken>,
     pub last_value: Option<Box<dyn interface::ModuleValueParsable>>,
     pub validator: Box<dyn interface::ModuleValueValidator>,
 }
