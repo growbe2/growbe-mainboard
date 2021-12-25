@@ -48,6 +48,9 @@ pub fn configure_relay(
                     token
                 );
                 return None;
+            },
+            RelayOutletMode::VIRTUAL => {
+                // i'm a virtual relay , i do nothing here put more elsewhere
             }
         }
     }

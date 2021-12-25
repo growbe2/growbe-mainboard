@@ -372,9 +372,10 @@ pub fn module_state_task(
     
         let mut alarm_validator = alarm::validator::AlarmFieldValidator::new();
 
+        let mut virtual_relay_maps: HashMap<String, relay::virtual_relay::VirtualRelay> = HashMap::new();
+
         let receiver_state = CHANNEL_STATE.1.lock().unwrap();
         let receiver_value = CHANNEL_VALUE.1.lock().unwrap();
-
 
         loop {
             {

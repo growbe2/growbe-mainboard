@@ -4175,11 +4175,128 @@ impl ::protobuf::reflect::ProtobufValue for RelayOutletData {
 }
 
 #[derive(PartialEq,Clone,Default)]
+pub struct VirtualOutletConfig {
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a VirtualOutletConfig {
+    fn default() -> &'a VirtualOutletConfig {
+        <VirtualOutletConfig as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl VirtualOutletConfig {
+    pub fn new() -> VirtualOutletConfig {
+        ::std::default::Default::default()
+    }
+}
+
+impl ::protobuf::Message for VirtualOutletConfig {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> VirtualOutletConfig {
+        VirtualOutletConfig::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let fields = ::std::vec::Vec::new();
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<VirtualOutletConfig>(
+                "VirtualOutletConfig",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static VirtualOutletConfig {
+        static instance: ::protobuf::rt::LazyV2<VirtualOutletConfig> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(VirtualOutletConfig::new)
+    }
+}
+
+impl ::protobuf::Clear for VirtualOutletConfig {
+    fn clear(&mut self) {
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for VirtualOutletConfig {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for VirtualOutletConfig {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
 pub struct RelayOutletConfig {
     // message fields
     pub mode: RelayOutletMode,
     pub alarm: ::protobuf::SingularPtrField<AlarmConfig>,
     pub manual: ::protobuf::SingularPtrField<ManualConfig>,
+    pub field_virtual: ::protobuf::SingularPtrField<VirtualOutletConfig>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -4276,6 +4393,39 @@ impl RelayOutletConfig {
     pub fn take_manual(&mut self) -> ManualConfig {
         self.manual.take().unwrap_or_else(|| ManualConfig::new())
     }
+
+    // .VirtualOutletConfig virtual = 4;
+
+
+    pub fn get_field_virtual(&self) -> &VirtualOutletConfig {
+        self.field_virtual.as_ref().unwrap_or_else(|| <VirtualOutletConfig as ::protobuf::Message>::default_instance())
+    }
+    pub fn clear_field_virtual(&mut self) {
+        self.field_virtual.clear();
+    }
+
+    pub fn has_field_virtual(&self) -> bool {
+        self.field_virtual.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_field_virtual(&mut self, v: VirtualOutletConfig) {
+        self.field_virtual = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_field_virtual(&mut self) -> &mut VirtualOutletConfig {
+        if self.field_virtual.is_none() {
+            self.field_virtual.set_default();
+        }
+        self.field_virtual.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_field_virtual(&mut self) -> VirtualOutletConfig {
+        self.field_virtual.take().unwrap_or_else(|| VirtualOutletConfig::new())
+    }
 }
 
 impl ::protobuf::Message for RelayOutletConfig {
@@ -4286,6 +4436,11 @@ impl ::protobuf::Message for RelayOutletConfig {
             }
         };
         for v in &self.manual {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        for v in &self.field_virtual {
             if !v.is_initialized() {
                 return false;
             }
@@ -4305,6 +4460,9 @@ impl ::protobuf::Message for RelayOutletConfig {
                 },
                 3 => {
                     ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.manual)?;
+                },
+                4 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.field_virtual)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -4329,6 +4487,10 @@ impl ::protobuf::Message for RelayOutletConfig {
             let len = v.compute_size();
             my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
         }
+        if let Some(ref v) = self.field_virtual.as_ref() {
+            let len = v.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -4345,6 +4507,11 @@ impl ::protobuf::Message for RelayOutletConfig {
         }
         if let Some(ref v) = self.manual.as_ref() {
             os.write_tag(3, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        }
+        if let Some(ref v) = self.field_virtual.as_ref() {
+            os.write_tag(4, ::protobuf::wire_format::WireTypeLengthDelimited)?;
             os.write_raw_varint32(v.get_cached_size())?;
             v.write_to_with_cached_sizes(os)?;
         }
@@ -4401,6 +4568,11 @@ impl ::protobuf::Message for RelayOutletConfig {
                 |m: &RelayOutletConfig| { &m.manual },
                 |m: &mut RelayOutletConfig| { &mut m.manual },
             ));
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<VirtualOutletConfig>>(
+                "virtual",
+                |m: &RelayOutletConfig| { &m.field_virtual },
+                |m: &mut RelayOutletConfig| { &mut m.field_virtual },
+            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<RelayOutletConfig>(
                 "RelayOutletConfig",
                 fields,
@@ -4420,6 +4592,7 @@ impl ::protobuf::Clear for RelayOutletConfig {
         self.mode = RelayOutletMode::MANUAL;
         self.alarm.clear();
         self.manual.clear();
+        self.field_virtual.clear();
         self.unknown_fields.clear();
     }
 }
@@ -4431,6 +4604,526 @@ impl ::std::fmt::Debug for RelayOutletConfig {
 }
 
 impl ::protobuf::reflect::ProtobufValue for RelayOutletConfig {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
+pub struct VirtualOutletItem {
+    // message fields
+    pub properties: ::protobuf::RepeatedField<::std::string::String>,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a VirtualOutletItem {
+    fn default() -> &'a VirtualOutletItem {
+        <VirtualOutletItem as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl VirtualOutletItem {
+    pub fn new() -> VirtualOutletItem {
+        ::std::default::Default::default()
+    }
+
+    // repeated string properties = 1;
+
+
+    pub fn get_properties(&self) -> &[::std::string::String] {
+        &self.properties
+    }
+    pub fn clear_properties(&mut self) {
+        self.properties.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_properties(&mut self, v: ::protobuf::RepeatedField<::std::string::String>) {
+        self.properties = v;
+    }
+
+    // Mutable pointer to the field.
+    pub fn mut_properties(&mut self) -> &mut ::protobuf::RepeatedField<::std::string::String> {
+        &mut self.properties
+    }
+
+    // Take field
+    pub fn take_properties(&mut self) -> ::protobuf::RepeatedField<::std::string::String> {
+        ::std::mem::replace(&mut self.properties, ::protobuf::RepeatedField::new())
+    }
+}
+
+impl ::protobuf::Message for VirtualOutletItem {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_repeated_string_into(wire_type, is, &mut self.properties)?;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        for value in &self.properties {
+            my_size += ::protobuf::rt::string_size(1, &value);
+        };
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        for v in &self.properties {
+            os.write_string(1, &v)?;
+        };
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> VirtualOutletItem {
+        VirtualOutletItem::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_repeated_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "properties",
+                |m: &VirtualOutletItem| { &m.properties },
+                |m: &mut VirtualOutletItem| { &mut m.properties },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<VirtualOutletItem>(
+                "VirtualOutletItem",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static VirtualOutletItem {
+        static instance: ::protobuf::rt::LazyV2<VirtualOutletItem> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(VirtualOutletItem::new)
+    }
+}
+
+impl ::protobuf::Clear for VirtualOutletItem {
+    fn clear(&mut self) {
+        self.properties.clear();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for VirtualOutletItem {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for VirtualOutletItem {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
+pub struct VirtualOutlet {
+    // message fields
+    pub name: ::std::string::String,
+    pub relays: ::std::collections::HashMap<::std::string::String, VirtualOutletItem>,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a VirtualOutlet {
+    fn default() -> &'a VirtualOutlet {
+        <VirtualOutlet as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl VirtualOutlet {
+    pub fn new() -> VirtualOutlet {
+        ::std::default::Default::default()
+    }
+
+    // string name = 1;
+
+
+    pub fn get_name(&self) -> &str {
+        &self.name
+    }
+    pub fn clear_name(&mut self) {
+        self.name.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_name(&mut self, v: ::std::string::String) {
+        self.name = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_name(&mut self) -> &mut ::std::string::String {
+        &mut self.name
+    }
+
+    // Take field
+    pub fn take_name(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.name, ::std::string::String::new())
+    }
+
+    // repeated .VirtualOutlet.RelaysEntry relays = 2;
+
+
+    pub fn get_relays(&self) -> &::std::collections::HashMap<::std::string::String, VirtualOutletItem> {
+        &self.relays
+    }
+    pub fn clear_relays(&mut self) {
+        self.relays.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_relays(&mut self, v: ::std::collections::HashMap<::std::string::String, VirtualOutletItem>) {
+        self.relays = v;
+    }
+
+    // Mutable pointer to the field.
+    pub fn mut_relays(&mut self) -> &mut ::std::collections::HashMap<::std::string::String, VirtualOutletItem> {
+        &mut self.relays
+    }
+
+    // Take field
+    pub fn take_relays(&mut self) -> ::std::collections::HashMap<::std::string::String, VirtualOutletItem> {
+        ::std::mem::replace(&mut self.relays, ::std::collections::HashMap::new())
+    }
+}
+
+impl ::protobuf::Message for VirtualOutlet {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.name)?;
+                },
+                2 => {
+                    ::protobuf::rt::read_map_into::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<VirtualOutletItem>>(wire_type, is, &mut self.relays)?;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if !self.name.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.name);
+        }
+        my_size += ::protobuf::rt::compute_map_size::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<VirtualOutletItem>>(2, &self.relays);
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if !self.name.is_empty() {
+            os.write_string(1, &self.name)?;
+        }
+        ::protobuf::rt::write_map_with_cached_sizes::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<VirtualOutletItem>>(2, &self.relays, os)?;
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> VirtualOutlet {
+        VirtualOutlet::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "name",
+                |m: &VirtualOutlet| { &m.name },
+                |m: &mut VirtualOutlet| { &mut m.name },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_map_accessor::<_, ::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<VirtualOutletItem>>(
+                "relays",
+                |m: &VirtualOutlet| { &m.relays },
+                |m: &mut VirtualOutlet| { &mut m.relays },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<VirtualOutlet>(
+                "VirtualOutlet",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static VirtualOutlet {
+        static instance: ::protobuf::rt::LazyV2<VirtualOutlet> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(VirtualOutlet::new)
+    }
+}
+
+impl ::protobuf::Clear for VirtualOutlet {
+    fn clear(&mut self) {
+        self.name.clear();
+        self.relays.clear();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for VirtualOutlet {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for VirtualOutlet {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
+pub struct VirtualOutlets {
+    // message fields
+    pub outlets: ::protobuf::RepeatedField<VirtualOutlet>,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a VirtualOutlets {
+    fn default() -> &'a VirtualOutlets {
+        <VirtualOutlets as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl VirtualOutlets {
+    pub fn new() -> VirtualOutlets {
+        ::std::default::Default::default()
+    }
+
+    // repeated .VirtualOutlet outlets = 1;
+
+
+    pub fn get_outlets(&self) -> &[VirtualOutlet] {
+        &self.outlets
+    }
+    pub fn clear_outlets(&mut self) {
+        self.outlets.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_outlets(&mut self, v: ::protobuf::RepeatedField<VirtualOutlet>) {
+        self.outlets = v;
+    }
+
+    // Mutable pointer to the field.
+    pub fn mut_outlets(&mut self) -> &mut ::protobuf::RepeatedField<VirtualOutlet> {
+        &mut self.outlets
+    }
+
+    // Take field
+    pub fn take_outlets(&mut self) -> ::protobuf::RepeatedField<VirtualOutlet> {
+        ::std::mem::replace(&mut self.outlets, ::protobuf::RepeatedField::new())
+    }
+}
+
+impl ::protobuf::Message for VirtualOutlets {
+    fn is_initialized(&self) -> bool {
+        for v in &self.outlets {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_repeated_message_into(wire_type, is, &mut self.outlets)?;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        for value in &self.outlets {
+            let len = value.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        };
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        for v in &self.outlets {
+            os.write_tag(1, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        };
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> VirtualOutlets {
+        VirtualOutlets::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_repeated_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<VirtualOutlet>>(
+                "outlets",
+                |m: &VirtualOutlets| { &m.outlets },
+                |m: &mut VirtualOutlets| { &mut m.outlets },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<VirtualOutlets>(
+                "VirtualOutlets",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static VirtualOutlets {
+        static instance: ::protobuf::rt::LazyV2<VirtualOutlets> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(VirtualOutlets::new)
+    }
+}
+
+impl ::protobuf::Clear for VirtualOutlets {
+    fn clear(&mut self) {
+        self.outlets.clear();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for VirtualOutlets {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for VirtualOutlets {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
@@ -7178,6 +7871,7 @@ impl ::protobuf::reflect::ProtobufValue for CalibrationError {
 pub enum RelayOutletMode {
     MANUAL = 0,
     ALARM = 1,
+    VIRTUAL = 2,
 }
 
 impl ::protobuf::ProtobufEnum for RelayOutletMode {
@@ -7189,6 +7883,7 @@ impl ::protobuf::ProtobufEnum for RelayOutletMode {
         match value {
             0 => ::std::option::Option::Some(RelayOutletMode::MANUAL),
             1 => ::std::option::Option::Some(RelayOutletMode::ALARM),
+            2 => ::std::option::Option::Some(RelayOutletMode::VIRTUAL),
             _ => ::std::option::Option::None
         }
     }
@@ -7197,6 +7892,7 @@ impl ::protobuf::ProtobufEnum for RelayOutletMode {
         static values: &'static [RelayOutletMode] = &[
             RelayOutletMode::MANUAL,
             RelayOutletMode::ALARM,
+            RelayOutletMode::VIRTUAL,
         ];
         values
     }
@@ -7274,57 +7970,66 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x1b\n\x03end\x18\x02\x20\x01(\x0b2\t.CronItemR\x03end\"@\n\x0cManualCon\
     fig\x12\x14\n\x05state\x18\x01\x20\x01(\x08R\x05state\x12\x1a\n\x08durat\
     ion\x18\x02\x20\x01(\x05R\x08duration\"'\n\x0fRelayOutletData\x12\x14\n\
-    \x05state\x18\x01\x20\x01(\x08R\x05state\"\x84\x01\n\x11RelayOutletConfi\
-    g\x12$\n\x04mode\x18\x01\x20\x01(\x0e2\x10.RelayOutletModeR\x04mode\x12\
-    \"\n\x05alarm\x18\x02\x20\x01(\x0b2\x0c.AlarmConfigR\x05alarm\x12%\n\x06\
-    manual\x18\x03\x20\x01(\x0b2\r.ManualConfigR\x06manual\"\xdd\x02\n\x0fRe\
-    layModuleData\x12\x20\n\x02p0\x18\x01\x20\x01(\x0b2\x10.RelayOutletDataR\
-    \x02p0\x12\x20\n\x02p1\x18\x02\x20\x01(\x0b2\x10.RelayOutletDataR\x02p1\
-    \x12\x20\n\x02p2\x18\x03\x20\x01(\x0b2\x10.RelayOutletDataR\x02p2\x12\
-    \x20\n\x02p3\x18\x04\x20\x01(\x0b2\x10.RelayOutletDataR\x02p3\x12\x20\n\
-    \x02p4\x18\x05\x20\x01(\x0b2\x10.RelayOutletDataR\x02p4\x12\x20\n\x02p5\
-    \x18\x06\x20\x01(\x0b2\x10.RelayOutletDataR\x02p5\x12\x20\n\x02p6\x18\
-    \x07\x20\x01(\x0b2\x10.RelayOutletDataR\x02p6\x12\x20\n\x02p7\x18\x08\
-    \x20\x01(\x0b2\x10.RelayOutletDataR\x02p7\x12\x1c\n\ttimestamp\x18\t\x20\
-    \x01(\x05R\ttimestamp\x12\x1c\n\x05actor\x18\n\x20\x01(\x0b2\x06.ActorR\
-    \x05actor\"\xd1\x02\n\x11RelayModuleConfig\x12\"\n\x02p0\x18\x01\x20\x01\
-    (\x0b2\x12.RelayOutletConfigR\x02p0\x12\"\n\x02p1\x18\x02\x20\x01(\x0b2\
-    \x12.RelayOutletConfigR\x02p1\x12\"\n\x02p2\x18\x03\x20\x01(\x0b2\x12.Re\
-    layOutletConfigR\x02p2\x12\"\n\x02p3\x18\x04\x20\x01(\x0b2\x12.RelayOutl\
-    etConfigR\x02p3\x12\"\n\x02p4\x18\x05\x20\x01(\x0b2\x12.RelayOutletConfi\
-    gR\x02p4\x12\"\n\x02p5\x18\x06\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p\
-    5\x12\"\n\x02p6\x18\x07\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p6\x12\"\
-    \n\x02p7\x18\x08\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p7\x12\x1c\n\tt\
-    imestamp\x18\t\x20\x01(\x05R\ttimestamp\"\xf8\x02\n\x0cWCModuleData\x12\
-    \x20\n\x02p0\x18\x01\x20\x01(\x0b2\x10.RelayOutletDataR\x02p0\x12\x20\n\
-    \x02p1\x18\x02\x20\x01(\x0b2\x10.RelayOutletDataR\x02p1\x12\x20\n\x02p2\
-    \x18\x03\x20\x01(\x0b2\x10.RelayOutletDataR\x02p2\x12&\n\x05drain\x18\
-    \x04\x20\x01(\x0b2\x10.RelayOutletDataR\x05drain\x12&\n\x05pump0\x18\x05\
-    \x20\x01(\x0b2\x10.RelayOutletDataR\x05pump0\x12&\n\x05pump1\x18\x06\x20\
-    \x01(\x0b2\x10.RelayOutletDataR\x05pump1\x12&\n\x05pump2\x18\x07\x20\x01\
-    (\x0b2\x10.RelayOutletDataR\x05pump2\x12&\n\x05pump3\x18\x08\x20\x01(\
-    \x0b2\x10.RelayOutletDataR\x05pump3\x12\x1c\n\ttimestamp\x18\t\x20\x01(\
-    \x05R\ttimestamp\x12\x1c\n\x05actor\x18\n\x20\x01(\x0b2\x06.ActorR\x05ac\
-    tor\"\xce\x02\n\x0eWCModuleConfig\x12\"\n\x02p0\x18\x01\x20\x01(\x0b2\
-    \x12.RelayOutletConfigR\x02p0\x12\"\n\x02p1\x18\x02\x20\x01(\x0b2\x12.Re\
-    layOutletConfigR\x02p1\x12\"\n\x02p2\x18\x03\x20\x01(\x0b2\x12.RelayOutl\
-    etConfigR\x02p2\x12(\n\x05drain\x18\x04\x20\x01(\x0b2\x12.RelayOutletCon\
-    figR\x05drain\x12(\n\x05pump0\x18\x05\x20\x01(\x0b2\x12.RelayOutletConfi\
-    gR\x05pump0\x12(\n\x05pump1\x18\x06\x20\x01(\x0b2\x12.RelayOutletConfigR\
-    \x05pump1\x12(\n\x05pump2\x18\x07\x20\x01(\x0b2\x12.RelayOutletConfigR\
-    \x05pump2\x12(\n\x05pump3\x18\x08\x20\x01(\x0b2\x12.RelayOutletConfigR\
-    \x05pump3*Z\n\tActorType\x12\x15\n\x11MANUAL_USER_ACTOR\x10\0\x12\x12\n\
-    \x0eDURATION_ACTOR\x10\x01\x12\x0f\n\x0bALARM_ACTOR\x10\x02\x12\x11\n\rV\
-    IRTUAL_ACTOR\x10\x03*\x90\x01\n\x0fCalibrationStep\x12\x15\n\x11READY_CA\
-    LIBRATION\x10\0\x12\x13\n\x0fLOW_CALIBRATION\x10\x01\x12\x14\n\x10HIGH_C\
-    ALIBRATION\x10\x02\x12\x15\n\x11ERROR_CALIBRATION\x10\x03\x12$\n\x20WAIT\
-    ING_CONFIRMATION_CALIBRATION\x10\x04*y\n\x15CalibrationStepStatus\x12\
-    \x1b\n\x17INSUFFISANT_DATA_STATUS\x10\0\x12\x17\n\x13ENOUGHT_DATA_STATUS\
-    \x10\x01\x12\x10\n\x0cERROR_STATUS\x10\x02\x12\x18\n\x14AWAITING_STEP_ST\
-    ATUS\x10\x03*r\n\x10CalibrationError\x12\x0e\n\nNONE_ERROR\x10\0\x12\x19\
-    \n\x15ALREADY_STARTED_ERROR\x10\x01\x12\x17\n\x13INSTABLE_DATA_ERROR\x10\
-    \x02\x12\x1a\n\x16NOT_ENOUGHT_DATA_ERROR\x10\x03*(\n\x0fRelayOutletMode\
-    \x12\n\n\x06MANUAL\x10\0\x12\t\n\x05ALARM\x10\x01b\x06proto3\
+    \x05state\x18\x01\x20\x01(\x08R\x05state\"\x15\n\x13VirtualOutletConfig\
+    \"\xb4\x01\n\x11RelayOutletConfig\x12$\n\x04mode\x18\x01\x20\x01(\x0e2\
+    \x10.RelayOutletModeR\x04mode\x12\"\n\x05alarm\x18\x02\x20\x01(\x0b2\x0c\
+    .AlarmConfigR\x05alarm\x12%\n\x06manual\x18\x03\x20\x01(\x0b2\r.ManualCo\
+    nfigR\x06manual\x12.\n\x07virtual\x18\x04\x20\x01(\x0b2\x14.VirtualOutle\
+    tConfigR\x07virtual\"3\n\x11VirtualOutletItem\x12\x1e\n\nproperties\x18\
+    \x01\x20\x03(\tR\nproperties\"\xa6\x01\n\rVirtualOutlet\x12\x12\n\x04nam\
+    e\x18\x01\x20\x01(\tR\x04name\x122\n\x06relays\x18\x02\x20\x03(\x0b2\x1a\
+    .VirtualOutlet.RelaysEntryR\x06relays\x1aM\n\x0bRelaysEntry\x12\x10\n\
+    \x03key\x18\x01\x20\x01(\tR\x03key\x12(\n\x05value\x18\x02\x20\x01(\x0b2\
+    \x12.VirtualOutletItemR\x05value:\x028\x01\":\n\x0eVirtualOutlets\x12(\n\
+    \x07outlets\x18\x01\x20\x03(\x0b2\x0e.VirtualOutletR\x07outlets\"\xdd\
+    \x02\n\x0fRelayModuleData\x12\x20\n\x02p0\x18\x01\x20\x01(\x0b2\x10.Rela\
+    yOutletDataR\x02p0\x12\x20\n\x02p1\x18\x02\x20\x01(\x0b2\x10.RelayOutlet\
+    DataR\x02p1\x12\x20\n\x02p2\x18\x03\x20\x01(\x0b2\x10.RelayOutletDataR\
+    \x02p2\x12\x20\n\x02p3\x18\x04\x20\x01(\x0b2\x10.RelayOutletDataR\x02p3\
+    \x12\x20\n\x02p4\x18\x05\x20\x01(\x0b2\x10.RelayOutletDataR\x02p4\x12\
+    \x20\n\x02p5\x18\x06\x20\x01(\x0b2\x10.RelayOutletDataR\x02p5\x12\x20\n\
+    \x02p6\x18\x07\x20\x01(\x0b2\x10.RelayOutletDataR\x02p6\x12\x20\n\x02p7\
+    \x18\x08\x20\x01(\x0b2\x10.RelayOutletDataR\x02p7\x12\x1c\n\ttimestamp\
+    \x18\t\x20\x01(\x05R\ttimestamp\x12\x1c\n\x05actor\x18\n\x20\x01(\x0b2\
+    \x06.ActorR\x05actor\"\xd1\x02\n\x11RelayModuleConfig\x12\"\n\x02p0\x18\
+    \x01\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p0\x12\"\n\x02p1\x18\x02\
+    \x20\x01(\x0b2\x12.RelayOutletConfigR\x02p1\x12\"\n\x02p2\x18\x03\x20\
+    \x01(\x0b2\x12.RelayOutletConfigR\x02p2\x12\"\n\x02p3\x18\x04\x20\x01(\
+    \x0b2\x12.RelayOutletConfigR\x02p3\x12\"\n\x02p4\x18\x05\x20\x01(\x0b2\
+    \x12.RelayOutletConfigR\x02p4\x12\"\n\x02p5\x18\x06\x20\x01(\x0b2\x12.Re\
+    layOutletConfigR\x02p5\x12\"\n\x02p6\x18\x07\x20\x01(\x0b2\x12.RelayOutl\
+    etConfigR\x02p6\x12\"\n\x02p7\x18\x08\x20\x01(\x0b2\x12.RelayOutletConfi\
+    gR\x02p7\x12\x1c\n\ttimestamp\x18\t\x20\x01(\x05R\ttimestamp\"\xf8\x02\n\
+    \x0cWCModuleData\x12\x20\n\x02p0\x18\x01\x20\x01(\x0b2\x10.RelayOutletDa\
+    taR\x02p0\x12\x20\n\x02p1\x18\x02\x20\x01(\x0b2\x10.RelayOutletDataR\x02\
+    p1\x12\x20\n\x02p2\x18\x03\x20\x01(\x0b2\x10.RelayOutletDataR\x02p2\x12&\
+    \n\x05drain\x18\x04\x20\x01(\x0b2\x10.RelayOutletDataR\x05drain\x12&\n\
+    \x05pump0\x18\x05\x20\x01(\x0b2\x10.RelayOutletDataR\x05pump0\x12&\n\x05\
+    pump1\x18\x06\x20\x01(\x0b2\x10.RelayOutletDataR\x05pump1\x12&\n\x05pump\
+    2\x18\x07\x20\x01(\x0b2\x10.RelayOutletDataR\x05pump2\x12&\n\x05pump3\
+    \x18\x08\x20\x01(\x0b2\x10.RelayOutletDataR\x05pump3\x12\x1c\n\ttimestam\
+    p\x18\t\x20\x01(\x05R\ttimestamp\x12\x1c\n\x05actor\x18\n\x20\x01(\x0b2\
+    \x06.ActorR\x05actor\"\xce\x02\n\x0eWCModuleConfig\x12\"\n\x02p0\x18\x01\
+    \x20\x01(\x0b2\x12.RelayOutletConfigR\x02p0\x12\"\n\x02p1\x18\x02\x20\
+    \x01(\x0b2\x12.RelayOutletConfigR\x02p1\x12\"\n\x02p2\x18\x03\x20\x01(\
+    \x0b2\x12.RelayOutletConfigR\x02p2\x12(\n\x05drain\x18\x04\x20\x01(\x0b2\
+    \x12.RelayOutletConfigR\x05drain\x12(\n\x05pump0\x18\x05\x20\x01(\x0b2\
+    \x12.RelayOutletConfigR\x05pump0\x12(\n\x05pump1\x18\x06\x20\x01(\x0b2\
+    \x12.RelayOutletConfigR\x05pump1\x12(\n\x05pump2\x18\x07\x20\x01(\x0b2\
+    \x12.RelayOutletConfigR\x05pump2\x12(\n\x05pump3\x18\x08\x20\x01(\x0b2\
+    \x12.RelayOutletConfigR\x05pump3*Z\n\tActorType\x12\x15\n\x11MANUAL_USER\
+    _ACTOR\x10\0\x12\x12\n\x0eDURATION_ACTOR\x10\x01\x12\x0f\n\x0bALARM_ACTO\
+    R\x10\x02\x12\x11\n\rVIRTUAL_ACTOR\x10\x03*\x90\x01\n\x0fCalibrationStep\
+    \x12\x15\n\x11READY_CALIBRATION\x10\0\x12\x13\n\x0fLOW_CALIBRATION\x10\
+    \x01\x12\x14\n\x10HIGH_CALIBRATION\x10\x02\x12\x15\n\x11ERROR_CALIBRATIO\
+    N\x10\x03\x12$\n\x20WAITING_CONFIRMATION_CALIBRATION\x10\x04*y\n\x15Cali\
+    brationStepStatus\x12\x1b\n\x17INSUFFISANT_DATA_STATUS\x10\0\x12\x17\n\
+    \x13ENOUGHT_DATA_STATUS\x10\x01\x12\x10\n\x0cERROR_STATUS\x10\x02\x12\
+    \x18\n\x14AWAITING_STEP_STATUS\x10\x03*r\n\x10CalibrationError\x12\x0e\n\
+    \nNONE_ERROR\x10\0\x12\x19\n\x15ALREADY_STARTED_ERROR\x10\x01\x12\x17\n\
+    \x13INSTABLE_DATA_ERROR\x10\x02\x12\x1a\n\x16NOT_ENOUGHT_DATA_ERROR\x10\
+    \x03*5\n\x0fRelayOutletMode\x12\n\n\x06MANUAL\x10\0\x12\t\n\x05ALARM\x10\
+    \x01\x12\x0b\n\x07VIRTUAL\x10\x02b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

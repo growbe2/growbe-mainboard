@@ -1,6 +1,7 @@
 pub mod alarm;
 pub mod configure;
 pub mod duration;
+pub mod virtual_relay;
 pub mod physical_relay;
 
 use crate::protos::module::{RelayOutletData};

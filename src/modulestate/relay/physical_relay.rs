@@ -1,6 +1,4 @@
 
-
-
 pub struct PhysicalRelay {
     pub sender: std::sync::mpsc::Sender<crate::comboard::imple::interface::Module_Config>,
     pub port: i32,
