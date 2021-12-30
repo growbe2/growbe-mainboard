@@ -9,7 +9,7 @@ pub fn set_duration_relay(
 ) -> tokio::task::JoinHandle<()> {
     log::debug!("Creating duration task");
 
-    let mut relay = relay.clone();
+    let mut relay = relay.clone_me();
     return tokio::task::spawn(async move {
         log::debug!("Start duration timeout");
         select! {

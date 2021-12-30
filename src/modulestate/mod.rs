@@ -327,6 +327,7 @@ fn handle_module_command(
         "mconfig" => handle_module_config(topic, data, manager, &sender_config, &sender_socket, &store),
         "aAl" => handle_add_alarm(alarm_validator, &alarm_store, data),
         "rAl" => handle_remove_alarm(alarm_validator, &alarm_store, data),
+        "vconfig" => {},
         _ => {
             let module_id = extract_module_id(topic);
             match handle_validator_command(cmd,&module_id, manager, &sender_socket, data) {

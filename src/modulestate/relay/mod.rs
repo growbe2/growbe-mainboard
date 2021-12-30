@@ -31,7 +31,7 @@ pub trait State {
 
 pub trait Relay: State + Send {
     fn id(&self) -> String;
-    fn clone(&self) -> Box<dyn Relay>;
+    fn clone_me(&self) -> Box<dyn Relay>;
 }
 
 pub trait BatchRelay: Relay {

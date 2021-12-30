@@ -4612,7 +4612,7 @@ impl ::protobuf::reflect::ProtobufValue for RelayOutletConfig {
 #[derive(PartialEq,Clone,Default)]
 pub struct VirtualOutletItem {
     // message fields
-    pub properties: ::protobuf::RepeatedField<::std::string::String>,
+    pub properties: ::std::vec::Vec<i32>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -4629,10 +4629,10 @@ impl VirtualOutletItem {
         ::std::default::Default::default()
     }
 
-    // repeated string properties = 1;
+    // repeated int32 properties = 1;
 
 
-    pub fn get_properties(&self) -> &[::std::string::String] {
+    pub fn get_properties(&self) -> &[i32] {
         &self.properties
     }
     pub fn clear_properties(&mut self) {
@@ -4640,18 +4640,18 @@ impl VirtualOutletItem {
     }
 
     // Param is passed by value, moved
-    pub fn set_properties(&mut self, v: ::protobuf::RepeatedField<::std::string::String>) {
+    pub fn set_properties(&mut self, v: ::std::vec::Vec<i32>) {
         self.properties = v;
     }
 
     // Mutable pointer to the field.
-    pub fn mut_properties(&mut self) -> &mut ::protobuf::RepeatedField<::std::string::String> {
+    pub fn mut_properties(&mut self) -> &mut ::std::vec::Vec<i32> {
         &mut self.properties
     }
 
     // Take field
-    pub fn take_properties(&mut self) -> ::protobuf::RepeatedField<::std::string::String> {
-        ::std::mem::replace(&mut self.properties, ::protobuf::RepeatedField::new())
+    pub fn take_properties(&mut self) -> ::std::vec::Vec<i32> {
+        ::std::mem::replace(&mut self.properties, ::std::vec::Vec::new())
     }
 }
 
@@ -4665,7 +4665,7 @@ impl ::protobuf::Message for VirtualOutletItem {
             let (field_number, wire_type) = is.read_tag_unpack()?;
             match field_number {
                 1 => {
-                    ::protobuf::rt::read_repeated_string_into(wire_type, is, &mut self.properties)?;
+                    ::protobuf::rt::read_repeated_int32_into(wire_type, is, &mut self.properties)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -4680,7 +4680,7 @@ impl ::protobuf::Message for VirtualOutletItem {
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
         for value in &self.properties {
-            my_size += ::protobuf::rt::string_size(1, &value);
+            my_size += ::protobuf::rt::value_size(1, *value, ::protobuf::wire_format::WireTypeVarint);
         };
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -4689,7 +4689,7 @@ impl ::protobuf::Message for VirtualOutletItem {
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
         for v in &self.properties {
-            os.write_string(1, &v)?;
+            os.write_int32(1, *v)?;
         };
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -4729,7 +4729,7 @@ impl ::protobuf::Message for VirtualOutletItem {
         static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
         descriptor.get(|| {
             let mut fields = ::std::vec::Vec::new();
-            fields.push(::protobuf::reflect::accessor::make_repeated_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+            fields.push(::protobuf::reflect::accessor::make_vec_accessor::<_, ::protobuf::types::ProtobufTypeInt32>(
                 "properties",
                 |m: &VirtualOutletItem| { &m.properties },
                 |m: &mut VirtualOutletItem| { &mut m.properties },
@@ -7976,17 +7976,17 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     .AlarmConfigR\x05alarm\x12%\n\x06manual\x18\x03\x20\x01(\x0b2\r.ManualCo\
     nfigR\x06manual\x12.\n\x07virtual\x18\x04\x20\x01(\x0b2\x14.VirtualOutle\
     tConfigR\x07virtual\"3\n\x11VirtualOutletItem\x12\x1e\n\nproperties\x18\
-    \x01\x20\x03(\tR\nproperties\"\xa6\x01\n\rVirtualOutlet\x12\x12\n\x04nam\
-    e\x18\x01\x20\x01(\tR\x04name\x122\n\x06relays\x18\x02\x20\x03(\x0b2\x1a\
-    .VirtualOutlet.RelaysEntryR\x06relays\x1aM\n\x0bRelaysEntry\x12\x10\n\
-    \x03key\x18\x01\x20\x01(\tR\x03key\x12(\n\x05value\x18\x02\x20\x01(\x0b2\
-    \x12.VirtualOutletItemR\x05value:\x028\x01\":\n\x0eVirtualOutlets\x12(\n\
-    \x07outlets\x18\x01\x20\x03(\x0b2\x0e.VirtualOutletR\x07outlets\"\xdd\
-    \x02\n\x0fRelayModuleData\x12\x20\n\x02p0\x18\x01\x20\x01(\x0b2\x10.Rela\
-    yOutletDataR\x02p0\x12\x20\n\x02p1\x18\x02\x20\x01(\x0b2\x10.RelayOutlet\
-    DataR\x02p1\x12\x20\n\x02p2\x18\x03\x20\x01(\x0b2\x10.RelayOutletDataR\
-    \x02p2\x12\x20\n\x02p3\x18\x04\x20\x01(\x0b2\x10.RelayOutletDataR\x02p3\
-    \x12\x20\n\x02p4\x18\x05\x20\x01(\x0b2\x10.RelayOutletDataR\x02p4\x12\
+    \x01\x20\x03(\x05R\nproperties\"\xa6\x01\n\rVirtualOutlet\x12\x12\n\x04n\
+    ame\x18\x01\x20\x01(\tR\x04name\x122\n\x06relays\x18\x02\x20\x03(\x0b2\
+    \x1a.VirtualOutlet.RelaysEntryR\x06relays\x1aM\n\x0bRelaysEntry\x12\x10\
+    \n\x03key\x18\x01\x20\x01(\tR\x03key\x12(\n\x05value\x18\x02\x20\x01(\
+    \x0b2\x12.VirtualOutletItemR\x05value:\x028\x01\":\n\x0eVirtualOutlets\
+    \x12(\n\x07outlets\x18\x01\x20\x03(\x0b2\x0e.VirtualOutletR\x07outlets\"\
+    \xdd\x02\n\x0fRelayModuleData\x12\x20\n\x02p0\x18\x01\x20\x01(\x0b2\x10.\
+    RelayOutletDataR\x02p0\x12\x20\n\x02p1\x18\x02\x20\x01(\x0b2\x10.RelayOu\
+    tletDataR\x02p1\x12\x20\n\x02p2\x18\x03\x20\x01(\x0b2\x10.RelayOutletDat\
+    aR\x02p2\x12\x20\n\x02p3\x18\x04\x20\x01(\x0b2\x10.RelayOutletDataR\x02p\
+    3\x12\x20\n\x02p4\x18\x05\x20\x01(\x0b2\x10.RelayOutletDataR\x02p4\x12\
     \x20\n\x02p5\x18\x06\x20\x01(\x0b2\x10.RelayOutletDataR\x02p5\x12\x20\n\
     \x02p6\x18\x07\x20\x01(\x0b2\x10.RelayOutletDataR\x02p6\x12\x20\n\x02p7\
     \x18\x08\x20\x01(\x0b2\x10.RelayOutletDataR\x02p7\x12\x1c\n\ttimestamp\

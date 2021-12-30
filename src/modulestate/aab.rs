@@ -1,5 +1,5 @@
 use crate::protos::module::{WCModuleData, WCModuleConfig, Actor};
-use super::{relay::{get_outlet_data, configure::configure_relay}};
+use super::{relay::{get_outlet_data, configure::configure_relay, physical_relay::ActionPortUnion}};
 use super::actor::{get_owner};
 use std::collections::HashMap;
 use protobuf::Message;
@@ -51,32 +51,33 @@ impl super::interface::ModuleValueValidator for AABValidator {
         let previous_owner: Option<&Actor> = get_owner(&self.actors_property, "p0");
         
         let mut batch_relay = super::relay::physical_relay::BatchPhysicalRelay{
-            action_port: 0,
+            action_port: ActionPortUnion::new_port(0),
             buffer: [255; 8],
+            auto_send: false,
             port: port,
             sender: sender_comboard_config.clone(),
         };
         configure_relay(config.has_p0(), config.get_p0(), &mut batch_relay, map_handler, previous_owner);
 
-        batch_relay.action_port = 1;
+        batch_relay.action_port.port = 1;
         configure_relay(config.has_p1(), config.get_p1(), &mut batch_relay, map_handler, previous_owner);
 
-        batch_relay.action_port = 2;
+        batch_relay.action_port.port = 2;
         configure_relay(config.has_p2(), config.get_p2(), &mut batch_relay, map_handler, previous_owner);
 
-        batch_relay.action_port = 3;
+        batch_relay.action_port.port = 3;
         configure_relay(config.has_drain(), config.get_drain(), &mut batch_relay, map_handler, previous_owner);
 
-        batch_relay.action_port = 4;
+        batch_relay.action_port.port = 4;
         configure_relay(config.has_pump0(), config.get_pump0(), &mut batch_relay, map_handler, previous_owner);
 
-        batch_relay.action_port = 5;
+        batch_relay.action_port.port = 5;
         configure_relay(config.has_pump1(), config.get_pump1(), &mut batch_relay, map_handler, previous_owner);
 
-        batch_relay.action_port = 6;
+        batch_relay.action_port.port = 6;
         configure_relay(config.has_pump2(), config.get_pump2(), &mut batch_relay, map_handler, previous_owner);
 
-        batch_relay.action_port = 7;
+        batch_relay.action_port.port = 7;
         configure_relay(config.has_pump3(), config.get_pump3(), &mut batch_relay, map_handler, previous_owner);
 
         batch_relay.execute().unwrap();

@@ -22,7 +22,7 @@ pub fn set_alarm_relay(
     let night_mins = hr_night*60+min_night;
 
 
-    let mut relay = relay.clone();
+    let mut relay = relay.clone_me();
    
     return tokio::spawn(async move {
         log::debug!("starting alarm process for port {}, day_mins {} night_mins {}", relay.id(), day_mins, night_mins);
