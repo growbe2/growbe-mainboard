@@ -2,11 +2,18 @@
 use tokio_util::sync::CancellationToken;
 use super::{physical_relay::{PhysicalRelay, BatchPhysicalRelay, ActionPortUnion}, Relay};
 
+use protobuf::Message;
+
 // Fake relay that control mutliple physical relay to all triger them
 // together in a group
 pub struct VirtualRelay {
     pub name: String,
     pub relays: Vec<Box<dyn Relay>>
+}
+
+pub struct StoreVirtualRelay {
+    pub virtual_relay: VirtualRelay,
+    pub cancellation_token: Option<tokio_util::sync::CancellationToken>,
 }
 
 impl VirtualRelay {
@@ -89,13 +96,16 @@ fn create_virtual_relay(
 // it may affect the virtual relay, cannot create
 // one if 
 pub fn handle_virtual_relay(
-    relay_config: &crate::protos::module::VirtualOutlet,
-    virtual_relay_maps: &mut std::collections::HashMap<String, VirtualRelay>,
+    //relay_config: &crate::protos::module::VirtualOutlet,
+    data: std::sync::Arc<Vec<u8>>,
+    virtual_relay_maps: &mut std::collections::HashMap<String, StoreVirtualRelay>,
     sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::interface::Module_Config>,
-    sender_socket: std::sync::mpsc::Sender<(String, Box<dyn crate::modulestate::interface::ModuleValueParsable>)>,
-    store: crate::modulestate::store::ModuleStateStore,
+    sender_socket: & std::sync::mpsc::Sender<(String, Box<dyn crate::modulestate::interface::ModuleValueParsable>)>,
+    store: & crate::modulestate::store::ModuleStateStore,
     manager: & mut crate::modulestate::MainboardModuleStateManager,
 ) -> Result<(),()> {
+
+    let relay_config = crate::protos::module::VirtualOutlet::parse_from_bytes(&data).unwrap();
 
     // check if im already existing , if not , delete me and recreate me ??
     if virtual_relay_maps.contains_key(relay_config.get_name()) {
@@ -117,20 +127,21 @@ pub fn handle_virtual_relay(
         }
     }
 
-    let relay = create_virtual_relay(relay_config, sender_comboard_config, manager)?;
+    let relay = create_virtual_relay(&relay_config, sender_comboard_config, manager)?;
 
-    virtual_relay_maps.insert(relay_config.get_name().to_string(), relay);
+    // TODO change for store virtual relay
+    //virtual_relay_maps.insert(relay_config.get_name().to_string(), relay);
 
     return Ok(());
 }
 
 pub fn apply_config_virtual_relay(
-    virtual_relay_maps: &mut std::collections::HashMap<String, VirtualRelay>,
+    data: std::sync::Arc<Vec<u8>>,
+    virtual_relay_maps: &mut std::collections::HashMap<String, StoreVirtualRelay>,
     sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::interface::Module_Config>,
-    sender_socket: std::sync::mpsc::Sender<(String, Box<dyn crate::modulestate::interface::ModuleValueParsable>)>,
-    store: crate::modulestate::store::ModuleStateStore,
+    sender_socket: & std::sync::mpsc::Sender<(String, Box<dyn crate::modulestate::interface::ModuleValueParsable>)>,
+    store: & crate::modulestate::store::ModuleStateStore,
     manager: & mut crate::modulestate::MainboardModuleStateManager,
-    map_handler: & mut std::collections::HashMap<String, CancellationToken>,
 ) -> Result<(), ()> {
 
 
@@ -140,10 +151,10 @@ pub fn apply_config_virtual_relay(
 
 pub fn delete_virtual_relay(
     name: &str,
-    virtual_relay_maps: &mut std::collections::HashMap<String, VirtualRelay>,
+    virtual_relay_maps: &mut std::collections::HashMap<String, StoreVirtualRelay>,
     sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::interface::Module_Config>,
-    sender_socket: std::sync::mpsc::Sender<(String, Box<dyn crate::modulestate::interface::ModuleValueParsable>)>,
-    store: crate::modulestate::store::ModuleStateStore,
+    sender_socket: & std::sync::mpsc::Sender<(String, Box<dyn crate::modulestate::interface::ModuleValueParsable>)>,
+    store: & crate::modulestate::store::ModuleStateStore,
     manager: & mut crate::modulestate::MainboardModuleStateManager,
 ) -> Result<(), ()> {
 

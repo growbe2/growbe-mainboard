@@ -321,13 +321,19 @@ fn handle_module_command(
     alarm_store: & alarm::store::ModuleAlarmStore,
     sender_config: & Sender<crate::comboard::imple::interface::Module_Config>,
     sender_socket: & Sender<(String, Box<dyn interface::ModuleValueParsable>)>,
+    virtual_relay_maps: &mut std::collections::HashMap<String, relay::virtual_relay::StoreVirtualRelay>,
 ) {
     match cmd {
         "sync" => handle_sync_request(manager, &sender_socket),
         "mconfig" => handle_module_config(topic, data, manager, &sender_config, &sender_socket, &store),
         "aAl" => handle_add_alarm(alarm_validator, &alarm_store, data),
         "rAl" => handle_remove_alarm(alarm_validator, &alarm_store, data),
-        "vconfig" => {},
+        "vrelay" => relay::virtual_relay::handle_virtual_relay(
+            data, virtual_relay_maps, &sender_config, &sender_socket, store, manager,
+        ).unwrap(),
+        "vconfig" => relay::virtual_relay::apply_config_virtual_relay(
+            data, virtual_relay_maps, sender_config, sender_socket, store, manager,
+        ).unwrap(),
         _ => {
             let module_id = extract_module_id(topic);
             match handle_validator_command(cmd,&module_id, manager, &sender_socket, data) {
@@ -343,7 +349,8 @@ fn handle_module_command(
                                 alarm_validator,
                                 alarm_store,
                                 sender_config,
-                                sender_socket
+                                sender_socket,
+                                virtual_relay_maps,
                             );
                         });
                     }
@@ -373,7 +380,7 @@ pub fn module_state_task(
     
         let mut alarm_validator = alarm::validator::AlarmFieldValidator::new();
 
-        let mut virtual_relay_maps: HashMap<String, relay::virtual_relay::VirtualRelay> = HashMap::new();
+        let mut virtual_relay_maps: HashMap<String, relay::virtual_relay::StoreVirtualRelay> = HashMap::new();
 
         let receiver_state = CHANNEL_STATE.1.lock().unwrap();
         let receiver_value = CHANNEL_VALUE.1.lock().unwrap();
@@ -406,7 +413,8 @@ pub fn module_state_task(
                         &mut alarm_validator,
                         &alarm_store,
                         &sender_config,
-                        &sender_socket
+                        &sender_socket,
+                        &mut virtual_relay_maps,
                     );
                 }
             }
