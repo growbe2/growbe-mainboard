@@ -2,6 +2,21 @@
 
 The growbe-mainboard code is deploy on rasberry pi using the image that we build here : https://github.com/growbe2/pi-gen
 
+# Configure wifi with sd card
+
+Create this file in the boot partition on the sd card `wpa_supplicant.conf`
+
+```bash
+ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+country=CA
+update_config=1
+
+network={
+ ssid="<Name of your wireless LAN>"
+ psk="<Password for your wireless LAN>"
+}
+```
+
 # Connect by ssh
 
 ```bash
