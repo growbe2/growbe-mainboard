@@ -4,7 +4,7 @@ The growbe-mainboard code is deploy on rasberry pi using the image that we build
 
 # Connect by ssh
 
-­```bash
+```bash
 # Connecting from the same local network (check the local connection information from growbe cloud)
 ssh pi@[ip]
 # Connection from the cloud

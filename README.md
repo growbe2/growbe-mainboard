@@ -9,7 +9,7 @@ Repository for the growbe-mainboard
 
 ### Build the app
 
-```
+```bash
 # Build the docker image
 ./scripts/docker.sh
 
