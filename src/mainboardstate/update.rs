@@ -59,7 +59,7 @@ pub fn handle_version_update(payload: &crate::protos::board::VersionRelease) -> 
             update_execute.version = payload.version.clone();
 
             if update_config.reboot == true {
-                crate::plateform::restart::restart();
+                crate::plateform::restart::restart_process();
             }
 
             Some(update_execute);
