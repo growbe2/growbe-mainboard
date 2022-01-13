@@ -133,6 +133,16 @@ fn on_reboot(_topic_name: String, _data: Arc<Vec<u8>>) -> Option<(String, Vec<u8
     return None;
 }
 
+fn on_helloworld(_topic_name: String, _data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>)> {
+    let hello_world = crate::mainboardstate::hello_world::get_hello_world();
+    return Some((format!("/growbe/{}/hello", crate::id::get()), hello_world.write_to_bytes().unwrap()));
+}
+
+fn on_localconnection(_topic_name: String, _data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>)> {
+    let local_connection = crate::mainboardstate::localconnection::get_local_connection();
+    return Some((format!("/growbe/{}/localconnection", crate::id::get()), local_connection.write_to_bytes().unwrap()));
+}
+
 pub fn socket_task(
     receiver_socket: Arc<Mutex<Receiver<(String, Box<dyn crate::modulestate::interface::ModuleValueParsable>)>>>,
     config_mqtt: &'static mqtt::CloudMQTTConfig,
@@ -153,6 +163,20 @@ pub fn socket_task(
             regex: "sync",
             action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
             handler: on_sync_request,
+            not_prefix: false,
+        },
+        MqttHandler{
+            subscription: String::from("/board/helloworld"),
+            regex: "helloworld",
+            action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
+            handler: on_helloworld,
+            not_prefix: false,
+        },
+        MqttHandler{
+            subscription: String::from("/board/localconnection"),
+            regex: "localconnection",
+            action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
+            handler: on_localconnection,
             not_prefix: false,
         },
         MqttHandler{
