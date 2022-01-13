@@ -118,8 +118,19 @@ fn on_update(_topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>
 }
 
 fn on_restart(_topic_name: String, _data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>)> {
-    crate::plateform::restart::restart();
-    Some((format!("/growbe/{}/restarted", crate::id::get()), vec![]))
+    let d = tokio::task::spawn(async move {
+        tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
+        crate::plateform::restart::restart_process();
+    });
+    return None;
+}
+
+fn on_reboot(_topic_name: String, _data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>)> {
+    let d = tokio::task::spawn(async move {
+        tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
+        crate::plateform::restart::restart_host();
+    });
+    return None;
 }
 
 pub fn socket_task(
@@ -129,7 +140,6 @@ pub fn socket_task(
     /*
     Handle pour les trucs mqtt, ca va s'executer dans une task async et faut je fasse le map
      */
-
     let handlers = vec!(
         MqttHandler{
             subscription: String::from("/board/setTime"),
@@ -171,6 +181,13 @@ pub fn socket_task(
             regex: "restart",
             action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
             handler: on_restart,
+            not_prefix: false,
+        },
+        MqttHandler{
+            subscription: "/board/reboot".to_string(),
+            regex: "reboot",
+            action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
+            handler: on_reboot,
             not_prefix: false,
         },
         MqttHandler{
