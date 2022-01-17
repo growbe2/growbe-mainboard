@@ -13,7 +13,7 @@ struct MqttHandler {
     pub subscription: String,
     pub regex: &'static str,
     pub action_code: crate::protos::message::ActionCode,
-    pub handler: fn(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>)>,
+    pub handler: fn(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>, bool)>,
     pub not_prefix: bool,
 }
 
@@ -21,13 +21,13 @@ fn get_topic_prefix(subtopic: & str) -> String {
     return format!("/growbe/{}{}",crate::id::get(), subtopic);
 }
 
-fn on_set_rtc(_topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>)> {
+fn on_set_rtc(_topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>, bool)> {
     let payload = crate::protos::message::RTCTime::parse_from_bytes(&data).unwrap();
     crate::mainboardstate::rtc::set_rtc(payload);
     None
 }
 
-fn on_sync_request(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>)> {
+fn on_sync_request(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>, bool)> {
     crate::modulestate::CHANNEL_MODULE_STATE_CMD.0.lock().unwrap().send(crate::modulestate::interface::ModuleStateCmd{
         cmd: "sync",
         data: data,
@@ -36,7 +36,7 @@ fn on_sync_request(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Ve
     None
 }
 
-fn on_mconfig_request(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>)> {
+fn on_mconfig_request(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>, bool)> {
     crate::modulestate::CHANNEL_MODULE_STATE_CMD.0.lock().unwrap().send(crate::modulestate::interface::ModuleStateCmd{
         cmd: "mconfig",
         topic: topic_name,
@@ -45,7 +45,7 @@ fn on_mconfig_request(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String,
     None
 }
 
-fn on_add_alarm_request(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>)> {
+fn on_add_alarm_request(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>, bool)> {
     crate::modulestate::CHANNEL_MODULE_STATE_CMD.0.lock().unwrap().send(crate::modulestate::interface::ModuleStateCmd {
         cmd: "aAl",
         topic: topic_name,
@@ -54,7 +54,7 @@ fn on_add_alarm_request(topic_name: String, data: Arc<Vec<u8>>) -> Option<(Strin
     None
 }
 
-fn on_remove_alarm_request(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>)> {
+fn on_remove_alarm_request(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>, bool)> {
     crate::modulestate::CHANNEL_MODULE_STATE_CMD.0.lock().unwrap().send(crate::modulestate::interface::ModuleStateCmd {
         cmd: "rAl",
         topic: topic_name,
@@ -63,7 +63,7 @@ fn on_remove_alarm_request(topic_name: String, data: Arc<Vec<u8>>) -> Option<(St
     None
 }
 
-fn on_start_calibration(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>)> {
+fn on_start_calibration(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>, bool)> {
     crate::modulestate::CHANNEL_MODULE_STATE_CMD.0.lock().unwrap().send(crate::modulestate::interface::ModuleStateCmd {
         cmd: "startCalibration",
         topic: topic_name,
@@ -72,7 +72,7 @@ fn on_start_calibration(topic_name: String, data: Arc<Vec<u8>>) -> Option<(Strin
     None
 }
 
-fn on_set_step_calibration(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>)> {
+fn on_set_step_calibration(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>, bool)> {
     crate::modulestate::CHANNEL_MODULE_STATE_CMD.0.lock().unwrap().send(crate::modulestate::interface::ModuleStateCmd {
         cmd: "setCalibration",
         topic: topic_name,
@@ -81,7 +81,7 @@ fn on_set_step_calibration(topic_name: String, data: Arc<Vec<u8>>) -> Option<(St
     None
 }
 
-fn on_confirm_calibration(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>)> {
+fn on_confirm_calibration(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>, bool)> {
     crate::modulestate::CHANNEL_MODULE_STATE_CMD.0.lock().unwrap().send(crate::modulestate::interface::ModuleStateCmd {
         cmd: "terminateCalibration",
         topic: topic_name,
@@ -90,7 +90,7 @@ fn on_confirm_calibration(topic_name: String, data: Arc<Vec<u8>>) -> Option<(Str
     None
 }
 
-fn on_cancel_calibration(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>)> {
+fn on_cancel_calibration(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>, bool)> {
     crate::modulestate::CHANNEL_MODULE_STATE_CMD.0.lock().unwrap().send(crate::modulestate::interface::ModuleStateCmd {
         cmd: "cancelCalibration",
         topic: topic_name,
@@ -99,7 +99,7 @@ fn on_cancel_calibration(topic_name: String, data: Arc<Vec<u8>>) -> Option<(Stri
     None
 }
 
-fn on_status_calibration(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>)> {
+fn on_status_calibration(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>, bool)> {
     crate::modulestate::CHANNEL_MODULE_STATE_CMD.0.lock().unwrap().send(crate::modulestate::interface::ModuleStateCmd {
         cmd: "statusCalibration",
         topic: topic_name,
@@ -108,16 +108,16 @@ fn on_status_calibration(topic_name: String, data: Arc<Vec<u8>>) -> Option<(Stri
     None
 }
 
-fn on_update(_topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>)> {
+fn on_update(_topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>, bool)> {
     let payload = crate::protos::board::VersionRelease::parse_from_bytes(&data).unwrap();
     let update_executed_result = crate::mainboardstate::update::handle_version_update(&payload);
     if let Some(update_executed) = update_executed_result {
-        return Some((format!("/growbe/{}/updated", crate::id::get()), update_executed.write_to_bytes().unwrap()));
+        return Some((format!("/growbe/{}/updated", crate::id::get()), update_executed.write_to_bytes().unwrap(), true));
     }
     return None;
 }
 
-fn on_restart(_topic_name: String, _data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>)> {
+fn on_restart(_topic_name: String, _data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>, bool)> {
     let d = tokio::task::spawn(async move {
         tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
         crate::plateform::restart::restart_process();
@@ -125,7 +125,7 @@ fn on_restart(_topic_name: String, _data: Arc<Vec<u8>>) -> Option<(String, Vec<u
     return None;
 }
 
-fn on_reboot(_topic_name: String, _data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>)> {
+fn on_reboot(_topic_name: String, _data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>, bool)> {
     let d = tokio::task::spawn(async move {
         tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
         crate::plateform::restart::restart_host();
@@ -133,14 +133,14 @@ fn on_reboot(_topic_name: String, _data: Arc<Vec<u8>>) -> Option<(String, Vec<u8
     return None;
 }
 
-fn on_helloworld(_topic_name: String, _data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>)> {
+fn on_helloworld(_topic_name: String, _data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>, bool)> {
     let hello_world = crate::mainboardstate::hello_world::get_hello_world();
-    return Some((format!("/growbe/{}/hello", crate::id::get()), hello_world.write_to_bytes().unwrap()));
+    return Some((format!("/growbe/{}/hello", crate::id::get()), hello_world.write_to_bytes().unwrap(), true));
 }
 
-fn on_localconnection(_topic_name: String, _data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>)> {
+fn on_localconnection(_topic_name: String, _data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>, bool)> {
     let local_connection = crate::mainboardstate::localconnection::get_local_connection();
-    return Some((format!("/growbe/{}/localconnection", crate::id::get()), local_connection.write_to_bytes().unwrap()));
+    return Some((format!("/growbe/{}/localconnection", crate::id::get()), local_connection.write_to_bytes().unwrap(), true));
 }
 
 pub fn socket_task(
@@ -310,15 +310,15 @@ pub fn socket_task(
 
                             if let Some(ret) = (item.handler)(String::from(d.topic_name.as_str()), d.payload) {
                                 client.publish(ret.0, QoS::ExactlyOnce, false, ret.1).unwrap();
-                            } else {
-                                let mut action_respose = crate::protos::message::ActionResponse::new();
-                                action_respose.action = item.action_code;
-                                action_respose.status = 0;
-                                action_respose.msg = String::from("");
-                                client.publish(format!("{}{}", d.topic_name.as_str(), "/response"), QoS::ExactlyOnce, false, action_respose.write_to_bytes().unwrap()).unwrap();
                             }
-                           last_send_instant = Instant::now();
 
+                            let mut action_respose = crate::protos::message::ActionResponse::new();
+                            action_respose.action = item.action_code;
+                            action_respose.status = 0;
+                            action_respose.msg = String::from("");
+                            client.publish(format!("{}{}", d.topic_name.as_str(), "/response"), QoS::ExactlyOnce, false, action_respose.write_to_bytes().unwrap()).unwrap();
+                            
+                            last_send_instant = Instant::now();
                         },
                         Notification::Reconnection => {
                             log::warn!("mqtt reconnection");
