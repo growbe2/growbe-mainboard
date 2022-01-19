@@ -106,7 +106,7 @@ fn send_module_state(
 #[inline]
 fn handle_module_state(
     manager: & mut MainboardModuleStateManager,
-    state: & ModuleStateChangeEvent,
+    state: & mut ModuleStateChangeEvent,
     sender_comboard_config: & Sender<crate::comboard::imple::interface::Module_Config>,
     sender_socket: & Sender<(String, Box<dyn interface::ModuleValueParsable>)>,
     store: &store::ModuleStateStore,
@@ -114,6 +114,12 @@ fn handle_module_state(
     alarm_store: & alarm::store::ModuleAlarmStore,
 ) -> () {
     if state.state == true {
+            let type_character_option = state.id.chars().nth(2);
+            if type_character_option.is_none() {
+                log::error!("module without id just connected on port {}", state.port);
+                state.id = String::from("AAS000000004");
+                //return;
+            }
             log::debug!("module connected {} at {}", state.id.as_str(), state.port);
             let t = state.id.chars().nth(2).unwrap();
             let validator = get_module_validator(t);
@@ -389,8 +395,8 @@ pub fn module_state_task(
             {
                 let receive = receiver_state.try_recv();
                 if receive.is_ok() {
-                    let state = receive.unwrap();
-                    handle_module_state(& mut manager, &state, &sender_config, &sender_socket, &store, & mut alarm_validator,&alarm_store);
+                    let mut state = receive.unwrap();
+                    handle_module_state(& mut manager, & mut state, &sender_config, &sender_socket, &store, & mut alarm_validator,&alarm_store);
                 }
             }
             {

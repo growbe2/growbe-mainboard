@@ -7,6 +7,11 @@ impl crate::modulestate::interface::ModuleValueParsable for crate::protos::board
 pub async fn task_local_connection(
     sender: Sender<(String, Box<dyn crate::modulestate::interface::ModuleValueParsable>)>,
 ) -> () {
+    let local_connection = get_local_connection();
+    sender.send((String::from("/localconnection"), Box::new(local_connection))).unwrap();
+}
+
+pub fn get_local_connection() -> LocalConnection {
     let mut local_connection = LocalConnection::new();
 
     local_connection.set_ipAddr(crate::plateform::net::get_ip_addr());
@@ -15,5 +20,5 @@ pub async fn task_local_connection(
 
     local_connection.set_signalLevel(crate::plateform::wifi::get_curret_ssid_strength());
 
-    sender.send((String::from("/localconnection"), Box::new(local_connection))).unwrap();
+    return local_connection;
 }

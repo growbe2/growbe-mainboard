@@ -137,7 +137,7 @@ int I2cComLib_ReadMemoryInfo(int deviseAddress, long dumpSize, char* id)
 	if ( read > -1) {
 
 		for (char i = 0; i < 16; ++i) {
-
+			
 		   	if (isprint(rxMemoryDataInfo[i]) != 0)
 		    {
 		        id[i] = rxMemoryDataInfo[i] ;
@@ -382,6 +382,8 @@ void I2cComLib_SingleReadPortModuleInfo(char comPort) //PREMIERE FONCTION QUI VA
 	I2cComLib_EnableComPort(comPort);
 	result = I2cComLib_ReadMemoryInfo(MEMORY_MODULE_ADD,64, info->id); // PEUT ALLER JUSQUA 128 de dump size
 	I2cComLib_CloseAllComPort();
+
+	printf("%s|", info->id);
 
 	if (result != info->connected || (info->connected == -1 && result == true)) {
 		info->connected = result;
