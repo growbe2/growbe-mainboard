@@ -143,6 +143,33 @@ fn on_localconnection(_topic_name: String, _data: Arc<Vec<u8>>) -> Option<(Strin
     return Some((format!("/growbe/{}/localconnection", crate::id::get()), local_connection.write_to_bytes().unwrap(), true));
 }
 
+fn on_add_vr(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>, bool)> {
+    crate::modulestate::CHANNEL_MODULE_STATE_CMD.0.lock().unwrap().send(crate::modulestate::interface::ModuleStateCmd {
+        cmd: "addVr",
+        topic: topic_name,
+        data: data
+    }).unwrap();
+    return None;
+}
+
+fn on_update_vr(_topic_name: String, _data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>, bool)> {
+    return None;
+}
+
+fn on_delete_vr(_topic_name: String, _data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>, bool)> {
+    return None;
+}
+
+fn on_config_vr(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>, bool)> {
+    crate::modulestate::CHANNEL_MODULE_STATE_CMD.0.lock().unwrap().send(crate::modulestate::interface::ModuleStateCmd {
+        cmd: "vrconfig",
+        topic: topic_name,
+        data: data
+    }).unwrap();
+    return None;
+}
+
+
 pub fn socket_task(
     receiver_socket: Arc<Mutex<Receiver<(String, Box<dyn crate::modulestate::interface::ModuleValueParsable>)>>>,
     config_mqtt: &'static mqtt::CloudMQTTConfig,
@@ -254,6 +281,34 @@ pub fn socket_task(
             regex: "statusCalibration",
             action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
             handler: on_status_calibration,
+            not_prefix: false,
+        },
+        MqttHandler{
+            subscription: "/board/addVr".to_string(),
+            regex: "addVr",
+            action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
+            handler: on_add_vr,
+            not_prefix: false,
+        },
+        MqttHandler{
+            subscription: "/board/rmVr".to_string(),
+            regex: "rmVr",
+            action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
+            handler: on_delete_vr,
+            not_prefix: false,
+        },
+        MqttHandler{
+            subscription: "/board/updVr".to_string(),
+            regex: "updVr",
+            action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
+            handler: on_update_vr,
+            not_prefix: false,
+        },
+        MqttHandler{
+            subscription: "/board/vrconfig/+".to_string(),
+            regex: "vrconfig",
+            action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
+            handler: on_config_vr,
             not_prefix: false,
         }
     );

@@ -10,7 +10,7 @@ pub mod alarm;
 pub mod actor;
 
 
-use crate::{comboard::imple::interface::{ModuleStateChangeEvent, ModuleValueValidationEvent}};
+use crate::{comboard::imple::interface::{ModuleStateChangeEvent, ModuleValueValidationEvent}, modulestate::relay::virtual_relay::initialize_virtual_relays};
 use crate::comboard::imple::channel::*;
 use crate::protos::alarm::FieldAlarm;
 use interface::ModuleStateCmd;
@@ -187,7 +187,7 @@ fn handle_module_config(
     _sender_socket: & Sender<(String, Box<dyn interface::ModuleValueParsable>)>,
     store: &store::ModuleStateStore,
 ) -> () {
-    let id = last_element_path(topic);
+    let id = crate::utils::mqtt::last_element_path(topic);
     let module_ref_option = manager.connected_module.get_mut(id.as_str());
 
     if let Some(module_ref) = module_ref_option {
@@ -273,15 +273,6 @@ fn handle_sync_request(
     }
 }
 
-fn last_element_path(path: &str) -> String {
-    let topic_elements: Vec<&str> = path.split("/").collect();
-    return match topic_elements.len() {
-        0 => panic!("Failed to get module id from path"),
-        n => String::from(topic_elements[n - 1])
-    };
-}
-
-
 fn handle_add_alarm(
     alarm_validator: & mut alarm::validator::AlarmFieldValidator,
     alarm_store: & alarm::store::ModuleAlarmStore,
@@ -327,18 +318,19 @@ fn handle_module_command(
     alarm_store: & alarm::store::ModuleAlarmStore,
     sender_config: & Sender<crate::comboard::imple::interface::Module_Config>,
     sender_socket: & Sender<(String, Box<dyn interface::ModuleValueParsable>)>,
-    virtual_relay_maps: &mut std::collections::HashMap<String, relay::virtual_relay::StoreVirtualRelay>,
+    virtual_relay_store: &mut relay::virtual_relay::VirtualRelayStore,
 ) {
     match cmd {
         "sync" => handle_sync_request(manager, &sender_socket),
         "mconfig" => handle_module_config(topic, data, manager, &sender_config, &sender_socket, &store),
         "aAl" => handle_add_alarm(alarm_validator, &alarm_store, data),
         "rAl" => handle_remove_alarm(alarm_validator, &alarm_store, data),
-        "vrelay" => relay::virtual_relay::handle_virtual_relay(
-            data, virtual_relay_maps, &sender_config, &sender_socket, store, manager,
+        "addVr" => relay::virtual_relay::handle_virtual_relay(
+            data,  &sender_config, &sender_socket, store, virtual_relay_store, manager,
         ).unwrap(),
-        "vconfig" => relay::virtual_relay::apply_config_virtual_relay(
-            data, virtual_relay_maps, sender_config, sender_socket, store, manager,
+        "vrconfig" => relay::virtual_relay::handle_apply_config_virtual_relay(
+            topic, data, sender_config, sender_socket, store, virtual_relay_store, manager,
+            
         ).unwrap(),
         _ => {
             let module_id = extract_module_id(topic);
@@ -356,7 +348,7 @@ fn handle_module_command(
                                 alarm_store,
                                 sender_config,
                                 sender_socket,
-                                virtual_relay_maps,
+                                virtual_relay_store,
                             );
                         });
                     }
@@ -386,10 +378,15 @@ pub fn module_state_task(
     
         let mut alarm_validator = alarm::validator::AlarmFieldValidator::new();
 
-        let mut virtual_relay_maps: HashMap<String, relay::virtual_relay::StoreVirtualRelay> = HashMap::new();
+        let mut virtual_relay_store = relay::virtual_relay::VirtualRelayStore::new(
+            alarm_store.conn.clone()
+        );
 
         let receiver_state = CHANNEL_STATE.1.lock().unwrap();
         let receiver_value = CHANNEL_VALUE.1.lock().unwrap();
+
+
+        let mut operation_waiting_from: Option<std::time::Instant> = Some(std::time::Instant::now());
 
         loop {
             {
@@ -420,9 +417,21 @@ pub fn module_state_task(
                         &alarm_store,
                         &sender_config,
                         &sender_socket,
-                        &mut virtual_relay_maps,
+                        &mut virtual_relay_store,
                     );
                 }
+            }
+            {
+                // need a better solution , but i need to create virtual relay on startup after all the port
+                // have beenn scan
+                if let Some(time) = operation_waiting_from {
+                    if time.elapsed() >= std::time::Duration::from_secs(3) {
+                        log::info!("initializing virtual relays");
+                        initialize_virtual_relays(&sender_config, &sender_socket, &store, & mut virtual_relay_store, &mut manager).unwrap();
+                        operation_waiting_from = None;
+                    }
+               }
+
             }
         }
     });
