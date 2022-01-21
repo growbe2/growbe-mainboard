@@ -10,7 +10,7 @@ pub mod alarm;
 pub mod actor;
 
 
-use crate::{comboard::imple::interface::{ModuleStateChangeEvent, ModuleValueValidationEvent}, modulestate::relay::virtual_relay::initialize_virtual_relays};
+use crate::{comboard::imple::interface::{ModuleStateChangeEvent, ModuleValueValidationEvent}};
 use crate::comboard::imple::channel::*;
 use crate::protos::alarm::FieldAlarm;
 use interface::ModuleStateCmd;
@@ -20,6 +20,8 @@ use std::{collections::HashMap};
 use std::sync::{Mutex, Arc};
 use std::sync::mpsc::{Receiver, Sender,};
 use aab::AABValidator;
+
+use self::relay::virtual_relay::on_module_state_changed_virtual_relays;
 
 
 
@@ -62,6 +64,10 @@ impl MainboardModuleStateManager {
             }
         }
         return self.connected_module.get_mut(&id);
+    }
+
+    fn get_connected_modules(&self) -> Vec<String> {
+        return Vec::from_iter(self.connected_module.keys().cloned());
     }
 }
 
@@ -386,14 +392,13 @@ pub fn module_state_task(
         let receiver_value = CHANNEL_VALUE.1.lock().unwrap();
 
 
-        let mut operation_waiting_from: Option<std::time::Instant> = Some(std::time::Instant::now());
-
         loop {
             {
                 let receive = receiver_state.try_recv();
                 if receive.is_ok() {
                     let mut state = receive.unwrap();
                     handle_module_state(& mut manager, & mut state, &sender_config, &sender_socket, &store, & mut alarm_validator,&alarm_store);
+                    on_module_state_changed_virtual_relays(state.state, &sender_config, &sender_socket, &store, &mut virtual_relay_store, &mut manager).unwrap();
                 }
             }
             {
@@ -420,18 +425,6 @@ pub fn module_state_task(
                         &mut virtual_relay_store,
                     );
                 }
-            }
-            {
-                // need a better solution , but i need to create virtual relay on startup after all the port
-                // have beenn scan
-                if let Some(time) = operation_waiting_from {
-                    if time.elapsed() >= std::time::Duration::from_secs(3) {
-                        log::info!("initializing virtual relays");
-                        initialize_virtual_relays(&sender_config, &sender_socket, &store, & mut virtual_relay_store, &mut manager).unwrap();
-                        operation_waiting_from = None;
-                    }
-               }
-
             }
         }
     });

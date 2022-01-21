@@ -15,17 +15,11 @@ pub struct VirtualRelay {
     pub relays: Vec<Box<dyn Relay>>
 }
 
-pub struct StoreVirtualRelay {
-    pub virtual_relay: VirtualRelay,
-}
-
-
 pub struct VirtualRelayStore {
     pub conn: Arc<Mutex<rusqlite::Connection>>,
     pub virtual_relay_maps: std::collections::HashMap<String, VirtualRelay>,
     pub cancellation_token_maps: std::collections::HashMap<String, CancellationToken>,
 }
-
 
 impl VirtualRelayStore {
     pub fn new(
@@ -38,6 +32,18 @@ impl VirtualRelayStore {
         }
     }
 
+    pub fn is_created(&self, virtual_relay_id: &str) -> bool {
+        return self.virtual_relay_maps.contains_key(virtual_relay_id);
+    }
+
+    pub fn stop_virtual_relay(&mut self, id: &str) {
+        let d = self.virtual_relay_maps.remove(id);
+        if d.is_some() {
+            if let Some(cancellation_token) = self.cancellation_token_maps.remove(id) {
+                cancellation_token.cancel();
+            }
+        }
+    }
 
     pub fn store_relay(&self, config: &crate::protos::module::VirtualRelay) -> Result<(), ()> {
         crate::store::database::store_field_from_table(&self.conn, "virtual_relay", &String::from(config.get_name()), "relay", Box::new(config.clone()));
@@ -202,7 +208,30 @@ fn apply_config_virtual_relay(
     }
 }
 
-pub fn initialize_virtual_relays(
+fn is_virtual_relay_required_module(
+    modules: &Vec<String>,
+    virtual_relay: &crate::protos::module::VirtualRelay,
+) -> bool {
+    return virtual_relay.get_relays().keys().all(|e| modules.contains(e));
+}
+
+fn initialize_virtual_relay_and_apply_config(
+    virtual_relay: &crate::protos::module::VirtualRelay, 
+    virtual_config: &Option<crate::protos::module::RelayOutletConfig>,
+    sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::interface::Module_Config>,
+    sender_socket: & std::sync::mpsc::Sender<(String, Box<dyn crate::modulestate::interface::ModuleValueParsable>)>,
+    store: & crate::modulestate::store::ModuleStateStore,
+    store_virtual_relay: & mut VirtualRelayStore,
+    manager: & mut crate::modulestate::MainboardModuleStateManager,
+) {
+    initialize_virtual_relay(&virtual_relay, sender_comboard_config, sender_socket, store, store_virtual_relay, manager).unwrap();
+    if let Some(config) = virtual_config.as_ref() {
+        apply_config_virtual_relay(&String::from(virtual_relay.get_name()), config, sender_comboard_config, sender_socket, store, store_virtual_relay, manager).unwrap();
+    }
+}
+
+pub fn on_module_state_changed_virtual_relays(
+    state: bool,
     sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::interface::Module_Config>,
     sender_socket: & std::sync::mpsc::Sender<(String, Box<dyn crate::modulestate::interface::ModuleValueParsable>)>,
     store: & crate::modulestate::store::ModuleStateStore,
@@ -210,17 +239,44 @@ pub fn initialize_virtual_relays(
     manager: & mut crate::modulestate::MainboardModuleStateManager,
 ) -> Result<(), ()> {
     let config_relays = store_virtual_relay.get_stored_relays().unwrap();
-    
-    for virtual_relay in config_relays.iter() {
-       initialize_virtual_relay(&virtual_relay.0, sender_comboard_config, sender_socket, store, store_virtual_relay, manager).unwrap();
-       if let Some(config) = virtual_relay.1.as_ref() {
-            apply_config_virtual_relay(&String::from(virtual_relay.0.get_name()), config, sender_comboard_config, sender_socket, store, store_virtual_relay, manager).unwrap();
-       }
+    let connected_modules = manager.get_connected_modules();
+
+    if state {
+        // regarde si je dois demarrer des virtual relays
+        for (vr, opt_config) in config_relays {
+            // valide si j'existe deja first
+            if !store_virtual_relay.is_created(vr.get_name()) {
+                if is_virtual_relay_required_module(&connected_modules, &vr) {
+                    log::info!("creating virtual relay {}", vr.get_name());
+                    initialize_virtual_relay_and_apply_config(&vr, &opt_config, sender_comboard_config, sender_socket, store, store_virtual_relay, manager)
+                } else {
+                    // cant create the vr missing modules
+                }
+            } else {
+                // already created do nothing
+            }
+        }
+
+        
+    } else {
+        // Je dois valider si je dois desactiver des virtuals relays
+        for (vr, _opt_config) in config_relays {
+            if store_virtual_relay.is_created(vr.get_name()) {
+                if !is_virtual_relay_required_module(&connected_modules, &vr) {
+                    log::info!("deleting virtual relay {}", vr.get_name());
+                    store_virtual_relay.stop_virtual_relay(vr.get_name());
+                }
+            }
+        }
+
     }
 
     return Ok(());
 }
 
+
+
+// HANDLING FUNCTION FOR ROUTER
 
 // handle the creating and destruction of virtual relay
 // do this everytime a module connect or disconnect because
