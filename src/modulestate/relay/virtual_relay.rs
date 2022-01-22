@@ -6,7 +6,17 @@ use super::{physical_relay::{PhysicalRelay, BatchPhysicalRelay, ActionPortUnion}
 use protobuf::Message;
 
 use tokio_util::sync::CancellationToken;
-use crate::modulestate::relay::State;
+
+use crate::modulestate::interface::{ModuleValue, ModuleValueParsable};
+use crate::protos::module::{VirtualRelayData, VirtualRelayState};
+
+impl ModuleValue for VirtualRelayData {}
+
+impl ModuleValueParsable for VirtualRelayData {}
+
+impl ModuleValue for VirtualRelayState {}
+
+impl ModuleValueParsable for VirtualRelayState {}
 
 // Fake relay that control mutliple physical relay to all triger them
 // together in a group
@@ -50,8 +60,11 @@ impl VirtualRelayStore {
         return Ok(());
     }
 
-    pub fn remove_relay(&self,) {
+    pub fn remove_relay(&self, id: &str) {
+        // remove relay and its configj
 
+
+        self.remove_relay_config().unwrap();
     }
 
     pub fn get_stored_relays(&self,) -> Result<Vec<(crate::protos::module::VirtualRelay, Option<crate::protos::module::RelayOutletConfig>)>, ()> {
@@ -59,6 +72,12 @@ impl VirtualRelayStore {
             &self.conn, "virtual_relay", "relay", "config",
         crate::protos::module::VirtualRelay::parse_from_bytes, crate::protos::module::RelayOutletConfig::parse_from_bytes
         ).map_err(|x| ());
+    }
+
+    pub fn remove_relay_config(&self,) -> Result<(), ()> {
+
+
+        return Ok(());
     }
 
     pub fn store_relay_config(&self,) {
@@ -248,7 +267,12 @@ pub fn on_module_state_changed_virtual_relays(
             if !store_virtual_relay.is_created(vr.get_name()) {
                 if is_virtual_relay_required_module(&connected_modules, &vr) {
                     log::info!("creating virtual relay {}", vr.get_name());
-                    initialize_virtual_relay_and_apply_config(&vr, &opt_config, sender_comboard_config, sender_socket, store, store_virtual_relay, manager)
+                    initialize_virtual_relay_and_apply_config(&vr, &opt_config, sender_comboard_config, sender_socket, store, store_virtual_relay, manager);
+
+                    let mut state = crate::protos::module::VirtualRelayState::new();
+                    state.set_id(vr.get_name().to_string());
+                    state.set_state(true);
+                    sender_socket.send((format!("/vr/{}/vrstate", vr.get_name()), Box::new(state))).unwrap();
                 } else {
                     // cant create the vr missing modules
                 }
@@ -256,7 +280,6 @@ pub fn on_module_state_changed_virtual_relays(
                 // already created do nothing
             }
         }
-
         
     } else {
         // Je dois valider si je dois desactiver des virtuals relays
@@ -265,10 +288,13 @@ pub fn on_module_state_changed_virtual_relays(
                 if !is_virtual_relay_required_module(&connected_modules, &vr) {
                     log::info!("deleting virtual relay {}", vr.get_name());
                     store_virtual_relay.stop_virtual_relay(vr.get_name());
+                    let mut state = crate::protos::module::VirtualRelayState::new();
+                    state.set_id(vr.get_name().to_string());
+                    state.set_state(false);
+                    sender_socket.send((format!("/vr/{}/vrstate", vr.get_name()), Box::new(state))).unwrap();
                 }
             }
         }
-
     }
 
     return Ok(());
@@ -322,6 +348,16 @@ pub fn delete_virtual_relay(
     manager: & mut crate::modulestate::MainboardModuleStateManager,
 ) -> Result<(), ()> {
 
+
+    if store_virtual_relay.is_created(name)  {
+        store_virtual_relay.stop_virtual_relay(name);
+        let mut state = crate::protos::module::VirtualRelayState::new();
+        state.set_id(name.to_string());
+        state.set_state(false);
+        sender_socket.send((format!("/vr/{}/vrstate", name), Box::new(state))).unwrap();
+    }
+
+    store_virtual_relay.remove_relay(name);
     return Ok(());
 }
 

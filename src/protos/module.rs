@@ -5569,6 +5569,242 @@ impl ::protobuf::reflect::ProtobufValue for VirtualRelayData {
 }
 
 #[derive(PartialEq,Clone,Default)]
+pub struct VirtualRelayState {
+    // message fields
+    pub id: ::std::string::String,
+    pub state: bool,
+    pub message: ::std::string::String,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a VirtualRelayState {
+    fn default() -> &'a VirtualRelayState {
+        <VirtualRelayState as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl VirtualRelayState {
+    pub fn new() -> VirtualRelayState {
+        ::std::default::Default::default()
+    }
+
+    // string id = 1;
+
+
+    pub fn get_id(&self) -> &str {
+        &self.id
+    }
+    pub fn clear_id(&mut self) {
+        self.id.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_id(&mut self, v: ::std::string::String) {
+        self.id = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_id(&mut self) -> &mut ::std::string::String {
+        &mut self.id
+    }
+
+    // Take field
+    pub fn take_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.id, ::std::string::String::new())
+    }
+
+    // bool state = 2;
+
+
+    pub fn get_state(&self) -> bool {
+        self.state
+    }
+    pub fn clear_state(&mut self) {
+        self.state = false;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_state(&mut self, v: bool) {
+        self.state = v;
+    }
+
+    // string message = 3;
+
+
+    pub fn get_message(&self) -> &str {
+        &self.message
+    }
+    pub fn clear_message(&mut self) {
+        self.message.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_message(&mut self, v: ::std::string::String) {
+        self.message = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_message(&mut self) -> &mut ::std::string::String {
+        &mut self.message
+    }
+
+    // Take field
+    pub fn take_message(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.message, ::std::string::String::new())
+    }
+}
+
+impl ::protobuf::Message for VirtualRelayState {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.id)?;
+                },
+                2 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_bool()?;
+                    self.state = tmp;
+                },
+                3 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.message)?;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if !self.id.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.id);
+        }
+        if self.state != false {
+            my_size += 2;
+        }
+        if !self.message.is_empty() {
+            my_size += ::protobuf::rt::string_size(3, &self.message);
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if !self.id.is_empty() {
+            os.write_string(1, &self.id)?;
+        }
+        if self.state != false {
+            os.write_bool(2, self.state)?;
+        }
+        if !self.message.is_empty() {
+            os.write_string(3, &self.message)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> VirtualRelayState {
+        VirtualRelayState::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "id",
+                |m: &VirtualRelayState| { &m.id },
+                |m: &mut VirtualRelayState| { &mut m.id },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBool>(
+                "state",
+                |m: &VirtualRelayState| { &m.state },
+                |m: &mut VirtualRelayState| { &mut m.state },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "message",
+                |m: &VirtualRelayState| { &m.message },
+                |m: &mut VirtualRelayState| { &mut m.message },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<VirtualRelayState>(
+                "VirtualRelayState",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static VirtualRelayState {
+        static instance: ::protobuf::rt::LazyV2<VirtualRelayState> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(VirtualRelayState::new)
+    }
+}
+
+impl ::protobuf::Clear for VirtualRelayState {
+    fn clear(&mut self) {
+        self.id.clear();
+        self.state = false;
+        self.message.clear();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for VirtualRelayState {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for VirtualRelayState {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
 pub struct RelayModuleData {
     // message fields
     pub p0: ::protobuf::SingularPtrField<RelayOutletData>,
@@ -8425,55 +8661,58 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x01(\x0b2\x11.VirtualRelayItemR\x05value:\x028\x01\"6\n\rVirtualRelays\
     \x12%\n\x06relays\x18\x01\x20\x03(\x0b2\r.VirtualRelayR\x06relays\"V\n\
     \x10VirtualRelayData\x12$\n\x04data\x18\x01\x20\x01(\x0b2\x10.RelayOutle\
-    tDataR\x04data\x12\x1c\n\ttimestamp\x18\x02\x20\x01(\x05R\ttimestamp\"\
-    \xdd\x02\n\x0fRelayModuleData\x12\x20\n\x02p0\x18\x01\x20\x01(\x0b2\x10.\
-    RelayOutletDataR\x02p0\x12\x20\n\x02p1\x18\x02\x20\x01(\x0b2\x10.RelayOu\
-    tletDataR\x02p1\x12\x20\n\x02p2\x18\x03\x20\x01(\x0b2\x10.RelayOutletDat\
-    aR\x02p2\x12\x20\n\x02p3\x18\x04\x20\x01(\x0b2\x10.RelayOutletDataR\x02p\
-    3\x12\x20\n\x02p4\x18\x05\x20\x01(\x0b2\x10.RelayOutletDataR\x02p4\x12\
-    \x20\n\x02p5\x18\x06\x20\x01(\x0b2\x10.RelayOutletDataR\x02p5\x12\x20\n\
-    \x02p6\x18\x07\x20\x01(\x0b2\x10.RelayOutletDataR\x02p6\x12\x20\n\x02p7\
-    \x18\x08\x20\x01(\x0b2\x10.RelayOutletDataR\x02p7\x12\x1c\n\ttimestamp\
-    \x18\t\x20\x01(\x05R\ttimestamp\x12\x1c\n\x05actor\x18\n\x20\x01(\x0b2\
-    \x06.ActorR\x05actor\"\xd1\x02\n\x11RelayModuleConfig\x12\"\n\x02p0\x18\
-    \x01\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p0\x12\"\n\x02p1\x18\x02\
-    \x20\x01(\x0b2\x12.RelayOutletConfigR\x02p1\x12\"\n\x02p2\x18\x03\x20\
-    \x01(\x0b2\x12.RelayOutletConfigR\x02p2\x12\"\n\x02p3\x18\x04\x20\x01(\
-    \x0b2\x12.RelayOutletConfigR\x02p3\x12\"\n\x02p4\x18\x05\x20\x01(\x0b2\
-    \x12.RelayOutletConfigR\x02p4\x12\"\n\x02p5\x18\x06\x20\x01(\x0b2\x12.Re\
-    layOutletConfigR\x02p5\x12\"\n\x02p6\x18\x07\x20\x01(\x0b2\x12.RelayOutl\
-    etConfigR\x02p6\x12\"\n\x02p7\x18\x08\x20\x01(\x0b2\x12.RelayOutletConfi\
-    gR\x02p7\x12\x1c\n\ttimestamp\x18\t\x20\x01(\x05R\ttimestamp\"\xf8\x02\n\
-    \x0cWCModuleData\x12\x20\n\x02p0\x18\x01\x20\x01(\x0b2\x10.RelayOutletDa\
-    taR\x02p0\x12\x20\n\x02p1\x18\x02\x20\x01(\x0b2\x10.RelayOutletDataR\x02\
-    p1\x12\x20\n\x02p2\x18\x03\x20\x01(\x0b2\x10.RelayOutletDataR\x02p2\x12&\
-    \n\x05drain\x18\x04\x20\x01(\x0b2\x10.RelayOutletDataR\x05drain\x12&\n\
-    \x05pump0\x18\x05\x20\x01(\x0b2\x10.RelayOutletDataR\x05pump0\x12&\n\x05\
-    pump1\x18\x06\x20\x01(\x0b2\x10.RelayOutletDataR\x05pump1\x12&\n\x05pump\
-    2\x18\x07\x20\x01(\x0b2\x10.RelayOutletDataR\x05pump2\x12&\n\x05pump3\
-    \x18\x08\x20\x01(\x0b2\x10.RelayOutletDataR\x05pump3\x12\x1c\n\ttimestam\
-    p\x18\t\x20\x01(\x05R\ttimestamp\x12\x1c\n\x05actor\x18\n\x20\x01(\x0b2\
-    \x06.ActorR\x05actor\"\xce\x02\n\x0eWCModuleConfig\x12\"\n\x02p0\x18\x01\
-    \x20\x01(\x0b2\x12.RelayOutletConfigR\x02p0\x12\"\n\x02p1\x18\x02\x20\
-    \x01(\x0b2\x12.RelayOutletConfigR\x02p1\x12\"\n\x02p2\x18\x03\x20\x01(\
-    \x0b2\x12.RelayOutletConfigR\x02p2\x12(\n\x05drain\x18\x04\x20\x01(\x0b2\
-    \x12.RelayOutletConfigR\x05drain\x12(\n\x05pump0\x18\x05\x20\x01(\x0b2\
-    \x12.RelayOutletConfigR\x05pump0\x12(\n\x05pump1\x18\x06\x20\x01(\x0b2\
-    \x12.RelayOutletConfigR\x05pump1\x12(\n\x05pump2\x18\x07\x20\x01(\x0b2\
-    \x12.RelayOutletConfigR\x05pump2\x12(\n\x05pump3\x18\x08\x20\x01(\x0b2\
-    \x12.RelayOutletConfigR\x05pump3*Z\n\tActorType\x12\x15\n\x11MANUAL_USER\
-    _ACTOR\x10\0\x12\x12\n\x0eDURATION_ACTOR\x10\x01\x12\x0f\n\x0bALARM_ACTO\
-    R\x10\x02\x12\x11\n\rVIRTUAL_ACTOR\x10\x03*\x90\x01\n\x0fCalibrationStep\
-    \x12\x15\n\x11READY_CALIBRATION\x10\0\x12\x13\n\x0fLOW_CALIBRATION\x10\
-    \x01\x12\x14\n\x10HIGH_CALIBRATION\x10\x02\x12\x15\n\x11ERROR_CALIBRATIO\
-    N\x10\x03\x12$\n\x20WAITING_CONFIRMATION_CALIBRATION\x10\x04*y\n\x15Cali\
-    brationStepStatus\x12\x1b\n\x17INSUFFISANT_DATA_STATUS\x10\0\x12\x17\n\
-    \x13ENOUGHT_DATA_STATUS\x10\x01\x12\x10\n\x0cERROR_STATUS\x10\x02\x12\
-    \x18\n\x14AWAITING_STEP_STATUS\x10\x03*r\n\x10CalibrationError\x12\x0e\n\
-    \nNONE_ERROR\x10\0\x12\x19\n\x15ALREADY_STARTED_ERROR\x10\x01\x12\x17\n\
-    \x13INSTABLE_DATA_ERROR\x10\x02\x12\x1a\n\x16NOT_ENOUGHT_DATA_ERROR\x10\
-    \x03*5\n\x0fRelayOutletMode\x12\n\n\x06MANUAL\x10\0\x12\t\n\x05ALARM\x10\
-    \x01\x12\x0b\n\x07VIRTUAL\x10\x02b\x06proto3\
+    tDataR\x04data\x12\x1c\n\ttimestamp\x18\x02\x20\x01(\x05R\ttimestamp\"S\
+    \n\x11VirtualRelayState\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\
+    \x14\n\x05state\x18\x02\x20\x01(\x08R\x05state\x12\x18\n\x07message\x18\
+    \x03\x20\x01(\tR\x07message\"\xdd\x02\n\x0fRelayModuleData\x12\x20\n\x02\
+    p0\x18\x01\x20\x01(\x0b2\x10.RelayOutletDataR\x02p0\x12\x20\n\x02p1\x18\
+    \x02\x20\x01(\x0b2\x10.RelayOutletDataR\x02p1\x12\x20\n\x02p2\x18\x03\
+    \x20\x01(\x0b2\x10.RelayOutletDataR\x02p2\x12\x20\n\x02p3\x18\x04\x20\
+    \x01(\x0b2\x10.RelayOutletDataR\x02p3\x12\x20\n\x02p4\x18\x05\x20\x01(\
+    \x0b2\x10.RelayOutletDataR\x02p4\x12\x20\n\x02p5\x18\x06\x20\x01(\x0b2\
+    \x10.RelayOutletDataR\x02p5\x12\x20\n\x02p6\x18\x07\x20\x01(\x0b2\x10.Re\
+    layOutletDataR\x02p6\x12\x20\n\x02p7\x18\x08\x20\x01(\x0b2\x10.RelayOutl\
+    etDataR\x02p7\x12\x1c\n\ttimestamp\x18\t\x20\x01(\x05R\ttimestamp\x12\
+    \x1c\n\x05actor\x18\n\x20\x01(\x0b2\x06.ActorR\x05actor\"\xd1\x02\n\x11R\
+    elayModuleConfig\x12\"\n\x02p0\x18\x01\x20\x01(\x0b2\x12.RelayOutletConf\
+    igR\x02p0\x12\"\n\x02p1\x18\x02\x20\x01(\x0b2\x12.RelayOutletConfigR\x02\
+    p1\x12\"\n\x02p2\x18\x03\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p2\x12\
+    \"\n\x02p3\x18\x04\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p3\x12\"\n\
+    \x02p4\x18\x05\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p4\x12\"\n\x02p5\
+    \x18\x06\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p5\x12\"\n\x02p6\x18\
+    \x07\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p6\x12\"\n\x02p7\x18\x08\
+    \x20\x01(\x0b2\x12.RelayOutletConfigR\x02p7\x12\x1c\n\ttimestamp\x18\t\
+    \x20\x01(\x05R\ttimestamp\"\xf8\x02\n\x0cWCModuleData\x12\x20\n\x02p0\
+    \x18\x01\x20\x01(\x0b2\x10.RelayOutletDataR\x02p0\x12\x20\n\x02p1\x18\
+    \x02\x20\x01(\x0b2\x10.RelayOutletDataR\x02p1\x12\x20\n\x02p2\x18\x03\
+    \x20\x01(\x0b2\x10.RelayOutletDataR\x02p2\x12&\n\x05drain\x18\x04\x20\
+    \x01(\x0b2\x10.RelayOutletDataR\x05drain\x12&\n\x05pump0\x18\x05\x20\x01\
+    (\x0b2\x10.RelayOutletDataR\x05pump0\x12&\n\x05pump1\x18\x06\x20\x01(\
+    \x0b2\x10.RelayOutletDataR\x05pump1\x12&\n\x05pump2\x18\x07\x20\x01(\x0b\
+    2\x10.RelayOutletDataR\x05pump2\x12&\n\x05pump3\x18\x08\x20\x01(\x0b2\
+    \x10.RelayOutletDataR\x05pump3\x12\x1c\n\ttimestamp\x18\t\x20\x01(\x05R\
+    \ttimestamp\x12\x1c\n\x05actor\x18\n\x20\x01(\x0b2\x06.ActorR\x05actor\"\
+    \xce\x02\n\x0eWCModuleConfig\x12\"\n\x02p0\x18\x01\x20\x01(\x0b2\x12.Rel\
+    ayOutletConfigR\x02p0\x12\"\n\x02p1\x18\x02\x20\x01(\x0b2\x12.RelayOutle\
+    tConfigR\x02p1\x12\"\n\x02p2\x18\x03\x20\x01(\x0b2\x12.RelayOutletConfig\
+    R\x02p2\x12(\n\x05drain\x18\x04\x20\x01(\x0b2\x12.RelayOutletConfigR\x05\
+    drain\x12(\n\x05pump0\x18\x05\x20\x01(\x0b2\x12.RelayOutletConfigR\x05pu\
+    mp0\x12(\n\x05pump1\x18\x06\x20\x01(\x0b2\x12.RelayOutletConfigR\x05pump\
+    1\x12(\n\x05pump2\x18\x07\x20\x01(\x0b2\x12.RelayOutletConfigR\x05pump2\
+    \x12(\n\x05pump3\x18\x08\x20\x01(\x0b2\x12.RelayOutletConfigR\x05pump3*Z\
+    \n\tActorType\x12\x15\n\x11MANUAL_USER_ACTOR\x10\0\x12\x12\n\x0eDURATION\
+    _ACTOR\x10\x01\x12\x0f\n\x0bALARM_ACTOR\x10\x02\x12\x11\n\rVIRTUAL_ACTOR\
+    \x10\x03*\x90\x01\n\x0fCalibrationStep\x12\x15\n\x11READY_CALIBRATION\
+    \x10\0\x12\x13\n\x0fLOW_CALIBRATION\x10\x01\x12\x14\n\x10HIGH_CALIBRATIO\
+    N\x10\x02\x12\x15\n\x11ERROR_CALIBRATION\x10\x03\x12$\n\x20WAITING_CONFI\
+    RMATION_CALIBRATION\x10\x04*y\n\x15CalibrationStepStatus\x12\x1b\n\x17IN\
+    SUFFISANT_DATA_STATUS\x10\0\x12\x17\n\x13ENOUGHT_DATA_STATUS\x10\x01\x12\
+    \x10\n\x0cERROR_STATUS\x10\x02\x12\x18\n\x14AWAITING_STEP_STATUS\x10\x03\
+    *r\n\x10CalibrationError\x12\x0e\n\nNONE_ERROR\x10\0\x12\x19\n\x15ALREAD\
+    Y_STARTED_ERROR\x10\x01\x12\x17\n\x13INSTABLE_DATA_ERROR\x10\x02\x12\x1a\
+    \n\x16NOT_ENOUGHT_DATA_ERROR\x10\x03*5\n\x0fRelayOutletMode\x12\n\n\x06M\
+    ANUAL\x10\0\x12\t\n\x05ALARM\x10\x01\x12\x0b\n\x07VIRTUAL\x10\x02b\x06pr\
+    oto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;
