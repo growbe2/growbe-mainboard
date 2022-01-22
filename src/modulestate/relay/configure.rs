@@ -17,7 +17,7 @@ pub fn configure_relay(
         let previous_handler = map_handler.get(&id);
         if previous_handler.is_some() {
             log::debug!("aborting previous handler for port {}", id);
-            previous_handler.unwrap().cancel();
+            //previous_handler.unwrap().cancel();
         }
 
         match config.mode {

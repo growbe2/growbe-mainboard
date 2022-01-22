@@ -108,6 +108,34 @@ fn on_status_calibration(topic_name: String, data: Arc<Vec<u8>>) -> Option<(Stri
     None
 }
 
+fn on_add_vr(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>, bool)> {
+    crate::modulestate::CHANNEL_MODULE_STATE_CMD.0.lock().unwrap().send(crate::modulestate::interface::ModuleStateCmd {
+        cmd: "addVr",
+        topic: topic_name,
+        data: data
+    }).unwrap();
+    None
+}
+
+fn on_rm_vr(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>, bool)> {
+    crate::modulestate::CHANNEL_MODULE_STATE_CMD.0.lock().unwrap().send(crate::modulestate::interface::ModuleStateCmd {
+        cmd: "rmVr",
+        topic: topic_name,
+        data: data
+    }).unwrap();
+    None
+}
+
+fn on_config_vr(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>, bool)> {
+    crate::modulestate::CHANNEL_MODULE_STATE_CMD.0.lock().unwrap().send(crate::modulestate::interface::ModuleStateCmd {
+        cmd: "configVr",
+        topic: topic_name,
+        data: data
+    }).unwrap();
+    None
+}
+
+
 fn on_update(_topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>, bool)> {
     let payload = crate::protos::board::VersionRelease::parse_from_bytes(&data).unwrap();
     let update_executed_result = crate::mainboardstate::update::handle_version_update(&payload);
@@ -142,33 +170,6 @@ fn on_localconnection(_topic_name: String, _data: Arc<Vec<u8>>) -> Option<(Strin
     let local_connection = crate::mainboardstate::localconnection::get_local_connection();
     return Some((format!("/growbe/{}/localconnection", crate::id::get()), local_connection.write_to_bytes().unwrap(), true));
 }
-
-fn on_add_vr(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>, bool)> {
-    crate::modulestate::CHANNEL_MODULE_STATE_CMD.0.lock().unwrap().send(crate::modulestate::interface::ModuleStateCmd {
-        cmd: "addVr",
-        topic: topic_name,
-        data: data
-    }).unwrap();
-    return None;
-}
-
-fn on_update_vr(_topic_name: String, _data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>, bool)> {
-    return None;
-}
-
-fn on_delete_vr(_topic_name: String, _data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>, bool)> {
-    return None;
-}
-
-fn on_config_vr(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>, bool)> {
-    crate::modulestate::CHANNEL_MODULE_STATE_CMD.0.lock().unwrap().send(crate::modulestate::interface::ModuleStateCmd {
-        cmd: "vrconfig",
-        topic: topic_name,
-        data: data
-    }).unwrap();
-    return None;
-}
-
 
 pub fn socket_task(
     receiver_socket: Arc<Mutex<Receiver<(String, Box<dyn crate::modulestate::interface::ModuleValueParsable>)>>>,
@@ -291,17 +292,10 @@ pub fn socket_task(
             not_prefix: false,
         },
         MqttHandler{
-            subscription: "/board/rmVr".to_string(),
+            subscription: "/board/rmVr/+".to_string(),
             regex: "rmVr",
             action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
-            handler: on_delete_vr,
-            not_prefix: false,
-        },
-        MqttHandler{
-            subscription: "/board/updVr".to_string(),
-            regex: "updVr",
-            action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
-            handler: on_update_vr,
+            handler: on_rm_vr,
             not_prefix: false,
         },
         MqttHandler{

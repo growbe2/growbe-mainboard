@@ -86,6 +86,32 @@ pub fn store_field_from_table_combine_key(
 	}
 }
 
+pub fn store_update_property(
+	conn: &Arc<Mutex<Connection>>,
+	table_name: &'static str,
+	property: &'static str,
+	id: &str,
+	data: Box<dyn protobuf::Message>,
+) -> () {
+	let buffer = data.write_to_bytes().unwrap();
+	conn.lock().unwrap().execute(
+		(format!("UPDATE {} SET {} = ? WHERE id = ?", table_name, property)).as_str(),
+		params![&buffer, id]
+	).unwrap();
+}
+
+
+pub fn store_delete_key(
+	conn: &Arc<Mutex<Connection>>,
+	table_name: &'static str,
+	id: &str,
+) -> () {
+	conn.lock().unwrap().execute(
+		(format!("DELETE FROM {} WHERE id = ?", table_name)).as_str(),
+		params![id]
+	).unwrap();
+}
+
 pub fn store_delete_combine_key(
 	conn: &Arc<Mutex<Connection>>,
 	table_name: &'static str,

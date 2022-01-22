@@ -21,9 +21,7 @@ use std::sync::{Mutex, Arc};
 use std::sync::mpsc::{Receiver, Sender,};
 use aab::AABValidator;
 
-use self::relay::virtual_relay::on_module_state_changed_virtual_relays;
-
-
+use self::relay::virtual_relay::handler::on_module_state_changed_virtual_relays;
 
 lazy_static! {
     pub static ref CHANNEL_MODULE_STATE_CMD: (Mutex<Sender<ModuleStateCmd>>, Mutex<Receiver<ModuleStateCmd>>) = {
@@ -324,19 +322,22 @@ fn handle_module_command(
     alarm_store: & alarm::store::ModuleAlarmStore,
     sender_config: & Sender<crate::comboard::imple::interface::Module_Config>,
     sender_socket: & Sender<(String, Box<dyn interface::ModuleValueParsable>)>,
-    virtual_relay_store: &mut relay::virtual_relay::VirtualRelayStore,
+    virtual_relay_store: &mut relay::virtual_relay::store::VirtualRelayStore,
 ) {
     match cmd {
         "sync" => handle_sync_request(manager, &sender_socket),
         "mconfig" => handle_module_config(topic, data, manager, &sender_config, &sender_socket, &store),
         "aAl" => handle_add_alarm(alarm_validator, &alarm_store, data),
         "rAl" => handle_remove_alarm(alarm_validator, &alarm_store, data),
-        "addVr" => relay::virtual_relay::handle_virtual_relay(
+        "addVr" => relay::virtual_relay::handler::handle_virtual_relay(
             data,  &sender_config, &sender_socket, store, virtual_relay_store, manager,
         ).unwrap(),
-        "vrconfig" => relay::virtual_relay::handle_apply_config_virtual_relay(
+        "configVr" => relay::virtual_relay::handler::handle_apply_config_virtual_relay(
             topic, data, sender_config, sender_socket, store, virtual_relay_store, manager,
             
+        ).unwrap(),
+        "rmVr" => relay::virtual_relay::handler::handle_delete_virtual_relay(
+             topic, data, sender_config, sender_socket, store, virtual_relay_store, manager,
         ).unwrap(),
         _ => {
             let module_id = extract_module_id(topic);
@@ -384,7 +385,7 @@ pub fn module_state_task(
     
         let mut alarm_validator = alarm::validator::AlarmFieldValidator::new();
 
-        let mut virtual_relay_store = relay::virtual_relay::VirtualRelayStore::new(
+        let mut virtual_relay_store = relay::virtual_relay::store::VirtualRelayStore::new(
             alarm_store.conn.clone()
         );
 

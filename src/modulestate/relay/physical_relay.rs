@@ -68,8 +68,9 @@ impl super::State for BatchPhysicalRelay {
         if self.auto_send {
             self.sender.send(crate::comboard::imple::interface::Module_Config{
                 port: self.port,
-                buffer: self.buffer
+                buffer: self.buffer.clone()
             }).unwrap();
+
             self.buffer = [255; 8];
         }
         return Ok(());
