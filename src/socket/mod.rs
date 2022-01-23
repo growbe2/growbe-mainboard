@@ -117,6 +117,16 @@ fn on_add_vr(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>,
     None
 }
 
+fn on_update_vr(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>, bool)> {
+    crate::modulestate::CHANNEL_MODULE_STATE_CMD.0.lock().unwrap().send(crate::modulestate::interface::ModuleStateCmd {
+        cmd: "updateVr",
+        topic: topic_name,
+        data: data
+    }).unwrap();
+    None
+}
+
+
 fn on_rm_vr(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>, bool)> {
     crate::modulestate::CHANNEL_MODULE_STATE_CMD.0.lock().unwrap().send(crate::modulestate::interface::ModuleStateCmd {
         cmd: "rmVr",
@@ -296,6 +306,13 @@ pub fn socket_task(
             regex: "rmVr",
             action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
             handler: on_rm_vr,
+            not_prefix: false,
+        },
+        MqttHandler{
+            subscription: "/board/updateVr/+".to_string(),
+            regex: "updateVr",
+            action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
+            handler: on_update_vr,
             not_prefix: false,
         },
         MqttHandler{
