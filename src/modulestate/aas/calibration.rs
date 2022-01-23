@@ -21,7 +21,7 @@ pub fn get_value_property_with_calibration(
     value: i32,
     config: &SOILProbeConfig,
 ) -> i32 {
-    if value < 10 {
+    if value < 100 {
         return -1;
     }
     let m: f32 = (100.0f32) / ((config.high - config.low) as f32);

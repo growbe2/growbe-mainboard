@@ -121,8 +121,7 @@ fn handle_module_state(
             let type_character_option = state.id.chars().nth(2);
             if type_character_option.is_none() {
                 log::error!("module without id just connected on port {}", state.port);
-                state.id = String::from("AAS000000004");
-                //return;
+                return;
             }
             log::debug!("module connected {} at {}", state.id.as_str(), state.port);
             let t = state.id.chars().nth(2).unwrap();
