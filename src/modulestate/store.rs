@@ -70,6 +70,7 @@ impl ModuleStateStore {
             &self.conn,
             "module_config",
             id,
+            "config",
             config,
         );
 

@@ -108,6 +108,44 @@ fn on_status_calibration(topic_name: String, data: Arc<Vec<u8>>) -> Option<(Stri
     None
 }
 
+fn on_add_vr(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>, bool)> {
+    crate::modulestate::CHANNEL_MODULE_STATE_CMD.0.lock().unwrap().send(crate::modulestate::interface::ModuleStateCmd {
+        cmd: "addVr",
+        topic: topic_name,
+        data: data
+    }).unwrap();
+    None
+}
+
+fn on_update_vr(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>, bool)> {
+    crate::modulestate::CHANNEL_MODULE_STATE_CMD.0.lock().unwrap().send(crate::modulestate::interface::ModuleStateCmd {
+        cmd: "updateVr",
+        topic: topic_name,
+        data: data
+    }).unwrap();
+    None
+}
+
+
+fn on_rm_vr(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>, bool)> {
+    crate::modulestate::CHANNEL_MODULE_STATE_CMD.0.lock().unwrap().send(crate::modulestate::interface::ModuleStateCmd {
+        cmd: "rmVr",
+        topic: topic_name,
+        data: data
+    }).unwrap();
+    None
+}
+
+fn on_config_vr(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>, bool)> {
+    crate::modulestate::CHANNEL_MODULE_STATE_CMD.0.lock().unwrap().send(crate::modulestate::interface::ModuleStateCmd {
+        cmd: "configVr",
+        topic: topic_name,
+        data: data
+    }).unwrap();
+    None
+}
+
+
 fn on_update(_topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>, bool)> {
     let payload = crate::protos::board::VersionRelease::parse_from_bytes(&data).unwrap();
     let update_executed_result = crate::mainboardstate::update::handle_version_update(&payload);
@@ -254,6 +292,34 @@ pub fn socket_task(
             regex: "statusCalibration",
             action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
             handler: on_status_calibration,
+            not_prefix: false,
+        },
+        MqttHandler{
+            subscription: "/board/addVr".to_string(),
+            regex: "addVr",
+            action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
+            handler: on_add_vr,
+            not_prefix: false,
+        },
+        MqttHandler{
+            subscription: "/board/rmVr/+".to_string(),
+            regex: "rmVr",
+            action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
+            handler: on_rm_vr,
+            not_prefix: false,
+        },
+        MqttHandler{
+            subscription: "/board/updateVr/+".to_string(),
+            regex: "updateVr",
+            action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
+            handler: on_update_vr,
+            not_prefix: false,
+        },
+        MqttHandler{
+            subscription: "/board/vrconfig/+".to_string(),
+            regex: "vrconfig",
+            action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
+            handler: on_config_vr,
             not_prefix: false,
         }
     );

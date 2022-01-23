@@ -101,6 +101,6 @@ pub trait ModuleValueValidator: Downcast {
     // need to be option result
     fn apply_parse_config(&mut self, port: i32, t: char, data: std::sync::Arc<Vec<u8>>,
         sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::interface::Module_Config>,
-        map_handler: & mut std::collections::HashMap<i32, tokio_util::sync::CancellationToken>,
+        map_handler: & mut std::collections::HashMap<String, tokio_util::sync::CancellationToken>,
     ) -> Result<(Box<dyn protobuf::Message>, crate::comboard::imple::interface::Module_Config), ModuleError>;
 }

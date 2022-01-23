@@ -383,8 +383,6 @@ void I2cComLib_SingleReadPortModuleInfo(char comPort) //PREMIERE FONCTION QUI VA
 	result = I2cComLib_ReadMemoryInfo(MEMORY_MODULE_ADD,64, info->id); // PEUT ALLER JUSQUA 128 de dump size
 	I2cComLib_CloseAllComPort();
 
-	printf("%s|", info->id);
-
 	if (result != info->connected || (info->connected == -1 && result == true)) {
 		info->connected = result;
 		if(result == true)
