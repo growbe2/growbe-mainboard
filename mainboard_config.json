@@ -1,8 +1,7 @@
 {
-	"id": "1F54019",
 	"mqtt": {
-		"url": "192.168.50.29",
-		"port": 1883
+		"url": "broker.dev.growbe.ca",
+		"port": 1884
 	},
 	"comboard": {
 		"config": "/dev/i2c-1",
