@@ -7,12 +7,13 @@ use super::{store::VirtualRelayStore, virtual_relay::VirtualRelay};
 
 pub fn create_virtual_relay(
     relay_config: &crate::protos::module::VirtualRelay,
+    sender_socket: & std::sync::mpsc::Sender<(String, Box<dyn crate::modulestate::interface::ModuleValueParsable>)>,
     sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::interface::Module_Config>,
     manager: & crate::modulestate::MainboardModuleStateManager,
     store_virtual_relay: & mut VirtualRelayStore,
 ) -> Result<VirtualRelay, ()> {
     
-    let mut virtual_relay = VirtualRelay::new(relay_config.get_name());
+    let mut virtual_relay = VirtualRelay::new(relay_config.get_name(), sender_socket);
 
     store_virtual_relay.store_relay(relay_config).unwrap();
 
@@ -104,10 +105,10 @@ pub fn initialize_virtual_relay(
         }
     }
 
-    let relay = create_virtual_relay(&relay_config, sender_comboard_config, manager, store_virtual_relay)?;
+    let relay = create_virtual_relay(&relay_config, sender_socket, sender_comboard_config, manager, store_virtual_relay)?;
 
     let clone_str = relay.name.clone();
-    store_virtual_relay.virtual_relay_maps.insert(relay.name.clone(),VirtualRelay { name: clone_str, relays: relay.relays });
+    store_virtual_relay.virtual_relay_maps.insert(relay.name.clone(),VirtualRelay { name: clone_str, relays: relay.relays, sender_socket: relay.sender_socket });
     store_virtual_relay.cancellation_token_maps.insert(relay.name, CancellationToken::new());
 
     return Ok(());
