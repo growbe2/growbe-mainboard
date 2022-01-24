@@ -109,7 +109,12 @@ pub fn initialize_virtual_relay(
 
     let clone_str = relay.name.clone();
     store_virtual_relay.virtual_relay_maps.insert(relay.name.clone(),VirtualRelay { name: clone_str, relays: relay.relays, sender_socket: relay.sender_socket });
-    store_virtual_relay.cancellation_token_maps.insert(relay.name, CancellationToken::new());
+    store_virtual_relay.cancellation_token_maps.insert(relay.name.clone(), CancellationToken::new());
+
+    let mut state = crate::protos::module::VirtualRelayState::new();
+    state.set_id(relay.name.clone());
+    state.set_state(true);
+    sender_socket.send((format!("/vr/{}/vrstate", relay.name), Box::new(state))).unwrap();
 
     return Ok(());
 }

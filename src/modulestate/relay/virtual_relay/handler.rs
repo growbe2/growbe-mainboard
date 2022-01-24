@@ -24,11 +24,6 @@ pub fn on_module_state_changed_virtual_relays(
                 if is_virtual_relay_required_module(&connected_modules, &vr) {
                     log::info!("creating virtual relay {}", vr.get_name());
                     initialize_virtual_relay_and_apply_config(&vr, &opt_config, sender_comboard_config, sender_socket, store, store_virtual_relay, manager);
-
-                    let mut state = crate::protos::module::VirtualRelayState::new();
-                    state.set_id(vr.get_name().to_string());
-                    state.set_state(true);
-                    sender_socket.send((format!("/vr/{}/vrstate", vr.get_name()), Box::new(state))).unwrap();
                 } else {
                     // cant create the vr missing modules
                 }
