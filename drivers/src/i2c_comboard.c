@@ -57,6 +57,8 @@ static ModuleInfo module_ports[8] = {0};
 rs_cb_module_state_changed callback_state_changed;
 rs_cb_module_value_validation callback_value_validation;
 rs_cb_module_config_queue callback_config_queue;
+rs_cb_log callback_log;
+
 
 
 int I2cComLib_Write(char slaveAdd , uint8_t *data , int dataSize)
@@ -404,10 +406,12 @@ void I2cComLib_SingleReadPortModuleInfo(char comPort) //PREMIERE FONCTION QUI VA
 
 
 
-int32_t register_callback_comboard(rs_cb_module_state_changed callback, rs_cb_module_value_validation c2, rs_cb_module_config_queue c3) {
+int32_t register_callback_comboard(rs_cb_module_state_changed callback, rs_cb_module_value_validation c2, rs_cb_module_config_queue c3, rs_cb_log c4) {
     callback_state_changed = callback;
     callback_value_validation = c2;
     callback_config_queue = c3;
+	callback_log = c4;
+
     return 1;
 }
 
@@ -458,6 +462,9 @@ int init(const char* device) {
 }
 
 
+Module_Config configs[8];
+int len_configs = 0;
+
 void comboard_loop_body() {
 	static uint8_t da[512];
 
@@ -468,9 +475,17 @@ void comboard_loop_body() {
     	I2cComLib_SingleReadPortModuleInfo(comport);
     }
 
-	Module_Config config;
 
-	callback_config_queue(&config);
+	len_configs = 0;
+	while (1) {
+		callback_config_queue(&configs[len_configs]);
+		if (configs[len_configs].port != -1 ) {
+			len_configs += 1;
+			callback_log("got a config");
+		} else {
+			break;
+		}
+	}
 
 	for (int comport = 0; comport < 8; ++comport) {
 		data_read = -1;
@@ -486,28 +501,42 @@ void comboard_loop_body() {
 
 				case 'B':
 				{
-					if (config.port == comport) {
-						data_read = I2cComLib_Read(0x40, da, 512);
-						for (int i = 0; i < 8; i++) {
-							if (config.buffer[i] != 0xFF) {
-								da[i] = config.buffer[i];
+					if (len_configs >= 1) {
+						for(int i = 0; i < (len_configs + 1); i++) {
+							if (configs[i].port == comport) {
+								callback_log("calisssse");
+								data_read = I2cComLib_Read(0x40, da, 512);
+								for (int y = 0; y < 8; y++) {
+									if (configs[i].buffer[y] != 0xFF) {
+										da[y] = config.buffer[y];
+									}
+								}
+								I2cComLib_Write(0x40, da, 512);
+								configs[i].port = -1;
+								break;
 							}
 						}
-						I2cComLib_Write(0x40, da, 512);
 					}
-					break;
+				break;
 				}
 				case 'P':
 				{
 					data_read = I2cComLib_Read(0x42, da, 512);
-					if (config.port == comport) {
-						for (int i = 0; i < 8; i++) {
-							if (config.buffer[i] != 0xFF) {
-								da[i] = config.buffer[i];
+					if (len_configs >= 1) {
+						for(int i = 0; i < (len_configs + 1); i++) {
+							if (configs[i].port == comport) {
+								for (int y = 0; y < 8; y++) {
+									if (configs[i].buffer[y] != 0xFF) {
+										da[y] = config.buffer[y];
+									}
+								}
+								I2cComLib_Write(0x42, da, 512);
+								configs[i].port = -1;
+								break;
 							}
 						}
-						I2cComLib_Write(0x42, da, 512);
 					}
+					
 					break;
 				}
 				case 'S':
