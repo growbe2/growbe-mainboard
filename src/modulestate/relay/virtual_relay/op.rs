@@ -114,7 +114,7 @@ pub fn initialize_virtual_relay(
     let mut state = crate::protos::module::VirtualRelayState::new();
     state.set_id(relay.name.clone());
     state.set_state(true);
-    sender_socket.send((format!("/vr/{}/vrstate", relay.name), Box::new(state))).unwrap();
+    sender_socket.send((format!("/vr/{}/vrstate", state.get_id()), Box::new(state))).unwrap();
 
     return Ok(());
 }
