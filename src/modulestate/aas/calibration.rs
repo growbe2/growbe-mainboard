@@ -47,6 +47,7 @@ pub fn transform_value_with_calibration(
     data.p5 = get_value_property_with_calibration(data.p5, config.get_p5());
     data.p6 = get_value_property_with_calibration(data.p6, config.get_p6());
     data.p7 = get_value_property_with_calibration(data.p7, config.get_p7());
+    data.set_valuetype("calibrate".to_string());
 }
 
 pub struct CalibrationProcess {

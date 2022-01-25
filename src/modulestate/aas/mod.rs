@@ -53,6 +53,7 @@ impl super::interface::ModuleValueValidator for AASValidator {
             data.p6 = two_u8_to_u16(value_event.buffer[60], value_event.buffer[61]) as i32;
             data.p7 = two_u8_to_u16(value_event.buffer[70], value_event.buffer[71]) as i32;
             data.timestamp = std::time::SystemTime::now().duration_since(std::time::SystemTime::UNIX_EPOCH).unwrap().as_secs() as i32;
+            data.set_valuetype("raw".to_string());
         }
 
         if self.calibration_process.is_some() {
