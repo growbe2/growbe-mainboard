@@ -3,7 +3,7 @@ use protobuf::Message;
 
 use crate::modulestate::relay::virtual_relay::op::initialize_virtual_relay_and_apply_config;
 
-use super::{store::{VirtualRelayStore}, op::{is_virtual_relay_required_module, initialize_virtual_relay, apply_config_virtual_relay, delete_virtual_relay}};
+use super::{store::{VirtualRelayStore}, op::{is_virtual_relay_required_module, initialize_virtual_relay, apply_config_virtual_relay, delete_virtual_relay, get_missing_required_module}};
 
 pub fn on_module_state_changed_virtual_relays(
     state: bool,
@@ -26,6 +26,11 @@ pub fn on_module_state_changed_virtual_relays(
                     initialize_virtual_relay_and_apply_config(&vr, &opt_config, sender_comboard_config, sender_socket, store, store_virtual_relay, manager);
                 } else {
                     // cant create the vr missing modules
+                    let mut state = crate::protos::module::VirtualRelayState::new();
+                    state.set_id(vr.get_name().to_string());
+                    state.set_state(false);
+                    state.set_message(format!("[missing] {}", get_missing_required_module(&connected_modules, &vr).join(" ")));
+                    sender_socket.send((format!("/vr/{}/vrstate", vr.get_name()), Box::new(state))).unwrap();
                 }
             } else {
                 // already created do nothing
@@ -42,6 +47,7 @@ pub fn on_module_state_changed_virtual_relays(
                     let mut state = crate::protos::module::VirtualRelayState::new();
                     state.set_id(vr.get_name().to_string());
                     state.set_state(false);
+                    state.set_message(format!("[missing] {}", get_missing_required_module(&connected_modules, &vr).join(" ")));
                     sender_socket.send((format!("/vr/{}/vrstate", vr.get_name()), Box::new(state))).unwrap();
                 }
             }

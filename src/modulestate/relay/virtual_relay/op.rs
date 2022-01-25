@@ -148,6 +148,13 @@ pub fn is_virtual_relay_required_module(
     return virtual_relay.get_relays().keys().all(|e| modules.contains(e));
 }
 
+pub fn get_missing_required_module(
+    modules: &Vec<String>,
+    virtual_relay: &crate::protos::module::VirtualRelay,
+) -> Vec<String> {
+    return virtual_relay.get_relays().keys().filter(|vr| !modules.contains(vr)).map(|vr| vr.clone()).collect();
+}
+
 pub fn initialize_virtual_relay_and_apply_config(
     virtual_relay: &crate::protos::module::VirtualRelay, 
     virtual_config: &Option<crate::protos::module::RelayOutletConfig>,
