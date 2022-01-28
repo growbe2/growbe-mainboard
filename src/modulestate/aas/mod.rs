@@ -58,7 +58,7 @@ impl super::interface::ModuleValueValidator for AASValidator {
 
         if self.calibration_process.is_some() {
             self.calibration_process.as_mut().unwrap().on_value(data.clone());
-            return Err(super::interface::ModuleError::new());
+            return Ok(Box::new(data));
         }
 
         if self.option_config.is_some() {
