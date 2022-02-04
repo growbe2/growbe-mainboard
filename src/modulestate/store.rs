@@ -47,6 +47,11 @@ impl ModuleStateStore {
         }
     }
 
+    pub fn delete_module_config(&self, id: &str) -> Result<(), rusqlite::Error> {
+        database::store_delete_key(&self.conn, "module_config", id);
+        return Ok(());
+    }
+
     fn get_module_config_inner<T>(
         &self,
         id: &String,

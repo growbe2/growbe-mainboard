@@ -46,6 +46,10 @@ impl super::interface::ModuleValueValidator for AAAValidator {
         Err(super::interface::ModuleError::new())
     }
 
+    fn remove_config(&mut self) -> Result<(), super::interface::ModuleError> {
+        return Ok(());
+    }
+
     fn have_data_change(&self, current: &Box<dyn crate::modulestate::interface::ModuleValueParsable>, last: &Box<dyn crate::modulestate::interface::ModuleValueParsable>) -> (bool, Vec<super::alarm::model::ValueChange<i32>>) {
         let current = current.as_any().downcast_ref::<THLModuleData>().unwrap();
         let last = last.as_any().downcast_ref::<THLModuleData>().unwrap();

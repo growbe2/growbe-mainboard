@@ -41,6 +41,11 @@ impl super::interface::ModuleValueValidator for AAPValidator {
             return Err(super::interface::ModuleError::new());
         }
     }
+
+    fn remove_config(&mut self) -> Result<(), super::interface::ModuleError> {
+
+        return Ok(());
+    }
     
     fn apply_parse_config(&mut self, port: i32, _t: char, data: std::sync::Arc<Vec<u8>>,
         sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::interface::Module_Config>,

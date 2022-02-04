@@ -45,6 +45,15 @@ fn on_mconfig_request(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String,
     None
 }
 
+fn on_rmconfig_request(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>, bool)> {
+    crate::modulestate::CHANNEL_MODULE_STATE_CMD.0.lock().unwrap().send(crate::modulestate::interface::ModuleStateCmd{
+        cmd: "rmconfig",
+        topic: topic_name,
+        data: data,
+    }).unwrap();
+    None
+}
+
 fn on_add_alarm_request(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>, bool)> {
     crate::modulestate::CHANNEL_MODULE_STATE_CMD.0.lock().unwrap().send(crate::modulestate::interface::ModuleStateCmd {
         cmd: "aAl",
@@ -218,13 +227,20 @@ pub fn socket_task(
             not_prefix: false,
         },
         MqttHandler{
+            subscription: "/board/rmconfig/+".to_string(),
+            regex: "rmconfig",
+            action_code: crate::protos::message::ActionCode::MODULE_CONFIG,
+            handler: on_rmconfig_request,
+            not_prefix: false,
+        },
+        MqttHandler{
             subscription: "/board/mconfig/+".to_string(),
             regex: "mconfig",
             action_code: crate::protos::message::ActionCode::MODULE_CONFIG,
             handler: on_mconfig_request,
             not_prefix: false,
         },
-        MqttHandler{
+       MqttHandler{
             subscription: "/board/aAl".to_string(),
             regex: "aAl",
             action_code: crate::protos::message::ActionCode::ADD_ALARM,

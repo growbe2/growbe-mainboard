@@ -103,4 +103,6 @@ pub trait ModuleValueValidator: Downcast {
         sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::interface::Module_Config>,
         map_handler: & mut std::collections::HashMap<String, tokio_util::sync::CancellationToken>,
     ) -> Result<(Box<dyn protobuf::Message>, crate::comboard::imple::interface::Module_Config), ModuleError>;
+
+    fn remove_config(&mut self) -> Result<(), ModuleError>;
 }

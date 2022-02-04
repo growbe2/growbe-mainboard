@@ -53,7 +53,7 @@ impl super::interface::ModuleValueValidator for AASValidator {
             data.p6 = two_u8_to_u16(value_event.buffer[60], value_event.buffer[61]) as i32;
             data.p7 = two_u8_to_u16(value_event.buffer[70], value_event.buffer[71]) as i32;
             data.timestamp = std::time::SystemTime::now().duration_since(std::time::SystemTime::UNIX_EPOCH).unwrap().as_secs() as i32;
-            data.set_valuetype("raw".to_string());
+            data.valuetype = "raw".to_string();
         }
 
         if self.calibration_process.is_some() {
@@ -67,7 +67,12 @@ impl super::interface::ModuleValueValidator for AASValidator {
 
         return Ok(Box::new(data));
     }
-    
+
+    fn remove_config(&mut self) -> Result<(), super::interface::ModuleError> {
+        self.option_config = None;
+        return Ok(());
+    }
+
     fn apply_parse_config(&mut self, port: i32, _t: char, data: std::sync::Arc<Vec<u8>>, _sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::interface::Module_Config>,
         _map_handler: & mut std::collections::HashMap<String, tokio_util::sync::CancellationToken>
     ) -> Result<(Box<dyn protobuf::Message>, crate::comboard::imple::interface::Module_Config), super::interface::ModuleError> {

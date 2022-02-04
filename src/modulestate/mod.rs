@@ -210,6 +210,24 @@ fn handle_module_config(
     }
 }
 
+fn handle_remove_module_config(
+    topic: &String,
+    data: Arc<Vec<u8>>,
+    manager: & mut MainboardModuleStateManager,
+    sender_config: & Sender<crate::comboard::imple::interface::Module_Config>,
+    _sender_socket: & Sender<(String, Box<dyn interface::ModuleValueParsable>)>,
+    store: &store::ModuleStateStore,
+) -> () {
+    let id = crate::utils::mqtt::last_element_path(topic);
+    let module_ref_option = manager.connected_module.get_mut(id.as_str());
+    if let Some(module_ref) = module_ref_option {
+        module_ref.validator.remove_config().unwrap();
+        store.delete_module_config(&id).unwrap();
+    } else {
+        // TODO return error not found to the router
+    }
+}
+
 fn handle_module_value(
     manager: & mut MainboardModuleStateManager,
     value: & ModuleValueValidationEvent,
@@ -326,6 +344,7 @@ fn handle_module_command(
     match cmd {
         "sync" => handle_sync_request(manager, &sender_socket),
         "mconfig" => handle_module_config(topic, data, manager, &sender_config, &sender_socket, &store),
+        "rmconfig" => handle_remove_module_config(topic, data, manager, &sender_config, &sender_socket, &store),
         "aAl" => handle_add_alarm(alarm_validator, &alarm_store, data),
         "rAl" => handle_remove_alarm(alarm_validator, &alarm_store, data),
         "addVr" => relay::virtual_relay::handler::handle_virtual_relay(
