@@ -27,6 +27,7 @@ fn on_set_rtc(_topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8
     None
 }
 
+/*
 fn on_sync_request(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>, bool)> {
     crate::modulestate::CHANNEL_MODULE_STATE_CMD.0.lock().unwrap().send(crate::modulestate::interface::ModuleStateCmd{
         cmd: "sync",
@@ -153,7 +154,7 @@ fn on_config_vr(topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u
     }).unwrap();
     None
 }
-
+*/
 
 fn on_update(_topic_name: String, data: Arc<Vec<u8>>) -> Option<(String, Vec<u8>, bool)> {
     let payload = crate::protos::board::VersionRelease::parse_from_bytes(&data).unwrap();
@@ -206,13 +207,6 @@ pub fn socket_task(
             not_prefix: false,
         },
         MqttHandler{
-            subscription: String::from("/board/sync"),
-            regex: "sync",
-            action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
-            handler: on_sync_request,
-            not_prefix: false,
-        },
-        MqttHandler{
             subscription: String::from("/board/helloworld"),
             regex: "helloworld",
             action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
@@ -224,34 +218,6 @@ pub fn socket_task(
             regex: "localconnection",
             action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
             handler: on_localconnection,
-            not_prefix: false,
-        },
-        MqttHandler{
-            subscription: "/board/rmconfig/+".to_string(),
-            regex: "rmconfig",
-            action_code: crate::protos::message::ActionCode::MODULE_CONFIG,
-            handler: on_rmconfig_request,
-            not_prefix: false,
-        },
-        MqttHandler{
-            subscription: "/board/mconfig/+".to_string(),
-            regex: "mconfig",
-            action_code: crate::protos::message::ActionCode::MODULE_CONFIG,
-            handler: on_mconfig_request,
-            not_prefix: false,
-        },
-       MqttHandler{
-            subscription: "/board/aAl".to_string(),
-            regex: "aAl",
-            action_code: crate::protos::message::ActionCode::ADD_ALARM,
-            handler: on_add_alarm_request,
-            not_prefix: false,
-        },
-        MqttHandler{
-            subscription: "/board/rAl".to_string(),
-            regex: "rAl",
-            action_code: crate::protos::message::ActionCode::REMOVE_ALARM,
-            handler: on_remove_alarm_request,
             not_prefix: false,
         },
         MqttHandler{
@@ -274,69 +240,6 @@ pub fn socket_task(
             action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
             handler: on_update,
             not_prefix: true,
-        },
-        MqttHandler{
-            subscription: "/board/startCalibration/+".to_string(),
-            regex: "startCalibration",
-            action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
-            handler: on_start_calibration,
-            not_prefix: false,
-        },
-        MqttHandler{
-            subscription: "/board/setCalibration/+".to_string(),
-            regex: "setCalibration",
-            action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
-            handler: on_set_step_calibration,
-            not_prefix: false,
-        },
-        MqttHandler{
-            subscription: "/board/terminateCalibration/+".to_string(),
-            regex: "terminateCalibration",
-            action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
-            handler: on_confirm_calibration,
-            not_prefix: false,
-        },
-        MqttHandler{
-            subscription: "/board/cancelCalibration/+".to_string(),
-            regex: "cancelCalibration",
-            action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
-            handler: on_cancel_calibration,
-            not_prefix: false,
-        },
-        MqttHandler{
-            subscription: "/board/statusCalibration/+".to_string(),
-            regex: "statusCalibration",
-            action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
-            handler: on_status_calibration,
-            not_prefix: false,
-        },
-        MqttHandler{
-            subscription: "/board/addVr".to_string(),
-            regex: "addVr",
-            action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
-            handler: on_add_vr,
-            not_prefix: false,
-        },
-        MqttHandler{
-            subscription: "/board/rmVr/+".to_string(),
-            regex: "rmVr",
-            action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
-            handler: on_rm_vr,
-            not_prefix: false,
-        },
-        MqttHandler{
-            subscription: "/board/updateVr/+".to_string(),
-            regex: "updateVr",
-            action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
-            handler: on_update_vr,
-            not_prefix: false,
-        },
-        MqttHandler{
-            subscription: "/board/vrconfig/+".to_string(),
-            regex: "vrconfig",
-            action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
-            handler: on_config_vr,
-            not_prefix: false,
         }
     );
 
@@ -386,9 +289,17 @@ pub fn socket_task(
                     match message {
                         Notification::Publish(d) => {
                             log::debug!("receive message from cloud, {}", d.topic_name);
-                            let item = handlers.iter().find(|&x| {
+                            let item_opt = handlers.iter().find(|&x| {
                                 return d.topic_name.contains(x.regex);
-                            }).unwrap();
+                            });
+
+                            if let Some(item) = item_opt {
+                                // Execute the handler
+
+                            } else {
+                                // if we do not found the handler in the socket handler we forward to request to the module handler
+                                // because it's probably for him
+                            }
 
                             if let Some(ret) = (item.handler)(String::from(d.topic_name.as_str()), d.payload) {
                                 client.publish(ret.0, QoS::ExactlyOnce, false, ret.1).unwrap();
