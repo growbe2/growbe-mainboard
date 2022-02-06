@@ -182,57 +182,10 @@ fn handle_module_state(
    }
 }
 
-fn handle_module_config(
-    topic: &String,
-    data: Arc<Vec<u8>>,
-    manager: & mut MainboardModuleStateManager,
-    sender_config: & Sender<crate::comboard::imple::interface::Module_Config>,
-    _sender_socket: & Sender<(String, Box<dyn interface::ModuleValueParsable>)>,
-    store: &store::ModuleStateStore,
-) -> () {
-    let id = crate::utils::mqtt::last_element_path(topic);
-    let module_ref_option = manager.connected_module.get_mut(id.as_str());
-
-    if let Some(module_ref) = module_ref_option {
-
-        let t = module_ref.id.chars().nth(2).unwrap();
-
-        match module_ref.validator.apply_parse_config(module_ref.port, t, data, &sender_config, &mut module_ref.handler_map) {
-            Ok((config, config_comboard)) => {
-                store.store_module_config(&id, config);
-                sender_config.send(config_comboard).unwrap();
-            },
-            Err(e) => log::error!("{}", e)
-        }
-        tokio::task::spawn(async {});
-    } else {
-        log::error!("Receive config for unplug module not supported {}", id.as_str());
-    }
-}
-
-fn handle_remove_module_config(
-    topic: &String,
-    data: Arc<Vec<u8>>,
-    manager: & mut MainboardModuleStateManager,
-    sender_config: & Sender<crate::comboard::imple::interface::Module_Config>,
-    _sender_socket: & Sender<(String, Box<dyn interface::ModuleValueParsable>)>,
-    store: &store::ModuleStateStore,
-) -> () {
-    let id = crate::utils::mqtt::last_element_path(topic);
-    let module_ref_option = manager.connected_module.get_mut(id.as_str());
-    if let Some(module_ref) = module_ref_option {
-        module_ref.validator.remove_config().unwrap();
-        store.delete_module_config(&id).unwrap();
-    } else {
-        // TODO return error not found to the router
-    }
-}
-
 fn handle_module_value(
     manager: & mut MainboardModuleStateManager,
     value: & ModuleValueValidationEvent,
     sender_socket: & Sender<(String, Box<dyn interface::ModuleValueParsable>)>,
-    
     alarm_validator: & mut alarm::validator::AlarmFieldValidator,
 ) -> () {
 
@@ -284,34 +237,93 @@ fn handle_module_value(
     }
 }
 
+
+
+fn handle_module_config(
+    topic: &String,
+    data: Arc<Vec<u8>>,
+    manager: & mut MainboardModuleStateManager,
+    sender_config: & Sender<crate::comboard::imple::interface::Module_Config>,
+    _sender_socket: & Sender<(String, Box<dyn interface::ModuleValueParsable>)>,
+    store: &store::ModuleStateStore,
+) -> Result<(), interface::ModuleError> {
+    let id = crate::utils::mqtt::last_element_path(topic);
+    let module_ref_option = manager.connected_module.get_mut(id.as_str());
+
+    if let Some(module_ref) = module_ref_option {
+
+        let t = module_ref.id.chars().nth(2).unwrap();
+
+        match module_ref.validator.apply_parse_config(module_ref.port, t, data, &sender_config, &mut module_ref.handler_map) {
+            Ok((config, config_comboard)) => {
+                store.store_module_config(&id, config);
+                sender_config.send(config_comboard).unwrap();
+            },
+            Err(e) => log::error!("{}", e)
+        }
+        tokio::task::spawn(async {});
+    } else {
+        return Err(interface::ModuleError::not_found(&id)));
+    }
+
+    return Ok();
+}
+
+fn handle_remove_module_config(
+    topic: &String,
+    data: Arc<Vec<u8>>,
+    manager: & mut MainboardModuleStateManager,
+    sender_config: & Sender<crate::comboard::imple::interface::Module_Config>,
+    _sender_socket: & Sender<(String, Box<dyn interface::ModuleValueParsable>)>,
+    store: &store::ModuleStateStore,
+) -> Result<(), interface::ModuleError> {
+    let id = crate::utils::mqtt::last_element_path(topic);
+    let module_ref_option = manager.connected_module.get_mut(id.as_str());
+    if let Some(module_ref) = module_ref_option {
+        module_ref.validator.remove_config().unwrap();
+        store.delete_module_config(&id).unwrap();
+    } else {
+        return Err(interface::ModuleError::not_found(&id)));
+    }
+
+    return Ok();
+}
+
+
 fn handle_sync_request(
     manager: & mut MainboardModuleStateManager,
     sender_socket: & Sender<(String, Box<dyn interface::ModuleValueParsable>)>,
-) -> () {
+) -> Result<(), interface::ModuleError>  {
     log::debug!("send sync request to the cloud");
     for (k,v) in manager.connected_module.iter() {
         send_module_state(k, v.port, true, sender_socket);
     }
+
+    return Ok();
 }
 
 fn handle_add_alarm(
     alarm_validator: & mut alarm::validator::AlarmFieldValidator,
     alarm_store: & alarm::store::ModuleAlarmStore,
     data: Arc<Vec<u8>>,
-) -> () {
+) -> Result<(), interface::ModuleError>  {
     let field_alarm = FieldAlarm::parse_from_bytes(&data).unwrap();
     alarm_store.add_alarm_field(&field_alarm).unwrap();
     alarm_validator.register_field_alarm(field_alarm).unwrap();
+
+    return Ok();
 }
 
 fn handle_remove_alarm(
     alarm_validator: & mut alarm::validator::AlarmFieldValidator,
     alarm_store: & alarm::store::ModuleAlarmStore,
     data: Arc<Vec<u8>>,
-) -> () {
+) -> Result<(), interface::ModuleError> {
     let field_alarm = FieldAlarm::parse_from_bytes(&data).unwrap();
     alarm_store.remove_alarm_field(&field_alarm).unwrap();
     alarm_validator.deregister_field_alarm(field_alarm).unwrap();
+
+    return Ok();
 }
 
 fn handle_validator_command(
@@ -320,12 +332,11 @@ fn handle_validator_command(
     manager: & mut MainboardModuleStateManager,
     sender_socket: & Sender<(String, Box<dyn interface::ModuleValueParsable>)>,
     data: std::sync::Arc<Vec<u8>>,
-) -> Result<std::option::Option<Vec<ModuleStateCmd>>, ()> {
+) -> Result<std::option::Option<Vec<ModuleStateCmd>>, interface::ModuleError> {
     if let Some(module) = manager.connected_module.get_mut(module_id) {
         return module.validator.handle_command_validator(cmd, module_id,data, sender_socket);
     } else {
-        log::error!("cant find module {}", module_id.as_str());
-        return Err(());
+        return Err(interface::ModuleError::not_found(module_id)));
     }
 }
 
@@ -333,6 +344,7 @@ fn handle_module_command(
     cmd: &str,
     topic: &String,
     data: std::sync::Arc<Vec<u8>>,
+    sender_response: std::sync::Sender<crate::protos::message::ActionResponse>,
     manager: & mut MainboardModuleStateManager,
     store: & store::ModuleStateStore,
     alarm_validator: & mut alarm::validator::AlarmFieldValidator,
@@ -341,7 +353,7 @@ fn handle_module_command(
     sender_socket: & Sender<(String, Box<dyn interface::ModuleValueParsable>)>,
     virtual_relay_store: &mut relay::virtual_relay::store::VirtualRelayStore,
 ) {
-    match cmd {
+    let result = match cmd {
         "sync" => handle_sync_request(manager, &sender_socket),
         "mconfig" => handle_module_config(topic, data, manager, &sender_config, &sender_socket, &store),
         "rmconfig" => handle_remove_module_config(topic, data, manager, &sender_config, &sender_socket, &store),
@@ -349,14 +361,13 @@ fn handle_module_command(
         "rAl" => handle_remove_alarm(alarm_validator, &alarm_store, data),
         "addVr" => relay::virtual_relay::handler::handle_virtual_relay(
             data,  &sender_config, &sender_socket, store, virtual_relay_store, manager,
-        ).unwrap(),
+        ),
         "configVr" => relay::virtual_relay::handler::handle_apply_config_virtual_relay(
             topic, data, sender_config, sender_socket, store, virtual_relay_store, manager,
-            
-        ).unwrap(),
+        ),
         "rmVr" => relay::virtual_relay::handler::handle_delete_virtual_relay(
              topic, data, sender_config, sender_socket, store, virtual_relay_store, manager,
-        ).unwrap(),
+        ),
         _ => {
             let module_id = extract_module_id(topic);
             match handle_validator_command(cmd,&module_id, manager, &sender_socket, data) {
@@ -376,14 +387,31 @@ fn handle_module_command(
                                 virtual_relay_store,
                             );
                         });
+                        Ok()
+                    } else {
+                        // end of chain return
+                        Ok()
                     }
                 },
                 Err(_e) => {
                     log::debug!("failed to execute module validator command {} for {}", cmd ,module_id);
+                    Err(interface::ModuleError::not_found("cmd"))
                 }
             }
         },
+    };
+
+    let mut action_respose = crate::protos::message::ActionResponse::new();
+    match result {
+        Ok(()) => {
+
+        },
+        Err(_module_error) => {
+
+        }
     }
+    
+    sender_action_response.send(action_respose);
 }
 
 
@@ -435,6 +463,7 @@ pub fn module_state_task(
                         cmd.cmd,
                         &cmd.topic,
                         cmd.data,
+                        &cmd.sender,
                         &mut manager,
                         &store,
                         &mut alarm_validator,

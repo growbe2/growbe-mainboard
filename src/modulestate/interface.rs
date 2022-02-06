@@ -20,6 +20,14 @@ impl ModuleError {
         };
     }
 
+    pub fn new_not_found(module_id: &str)  -> ModuleError {
+        return ModuleError{
+            message: String::from(""),
+            module_id: module_id.to_string(),
+            port: -1,
+        };
+    }
+
     pub fn message(mut self, message: String) -> ModuleError {
        self.message = message;
        self 
@@ -41,6 +49,7 @@ pub struct ModuleStateCmd {
     pub cmd: &'static str,
     pub topic: String,
     pub data: std::sync::Arc<Vec<u8>>,
+    pub sender: std::sync::Sender<crate::protos::message::ActionResponse>,
 }
 
 impl std::fmt::Display for ModuleError {
