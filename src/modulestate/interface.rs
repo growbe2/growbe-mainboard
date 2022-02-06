@@ -4,11 +4,16 @@ pub trait ModuleValueParsable: ModuleValue + protobuf::Message {}
 impl ModuleValue for crate::protos::module::ModuleData {}
 impl ModuleValueParsable for crate::protos::module::ModuleData {}
 
+
+pub const MODULE_NOT_FOUND: u32 = 404;
+pub const CMD_NOT_SUPPORTED: u32 = 400;
+
 #[derive(Debug, Clone)]
 pub struct ModuleError {
     pub message: String,
     pub module_id: String,
     pub port: i32,
+    pub status: u32,
 }
 
 impl ModuleError {
@@ -17,20 +22,27 @@ impl ModuleError {
             message: String::from(""),
             module_id: String::from(""),
             port: -1,
+            status: 0,
         };
     }
 
     pub fn not_found(module_id: &str)  -> ModuleError {
         return ModuleError{
-            message: String::from(""),
+            message: String::from("module not found"),
             module_id: module_id.to_string(),
             port: -1,
+            status: MODULE_NOT_FOUND,
         };
     }
 
     pub fn message(mut self, message: String) -> ModuleError {
        self.message = message;
        self 
+    }
+
+    pub fn status(mut self, status: u32) -> ModuleError {
+        self.status = status;
+        self
     }
 
     /*pub fn module_id(mut self, module_id: String) -> ModuleError {

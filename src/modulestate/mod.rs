@@ -395,9 +395,8 @@ fn handle_module_command(
                         Ok(())
                     }
                 },
-                Err(_e) => {
-                    log::debug!("failed to execute module validator command {} for {}", cmd ,module_id);
-                    Err(interface::ModuleError::not_found("cmd"))
+                Err(e) => {
+                    Err(e)
                 }
             }
         },
@@ -408,12 +407,13 @@ fn handle_module_command(
         Ok(()) => {
             action_respose.status = 0;
         },
-        Err(_module_error) => {
-            action_respose.status = 500;
+        Err(module_error) => {
+            action_respose.status = module_error.status;
+            action_respose.msg = module_error.message;
         }
     }
     
-    sender_response.send(action_respose);
+    sender_response.send(action_respose).unwrap();
 }
 
 

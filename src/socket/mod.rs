@@ -11,18 +11,25 @@ use protobuf::Message;
 use crate::protos::message::ActionCode;
 
 struct SocketMessagingError {
-    pub status: i32,
+    pub status: u32,
+    pub msg: String,
 }
 
 impl SocketMessagingError {
     pub fn new() -> Self {
         return SocketMessagingError{
             status: 1, // TODO use a define for default error code
+            msg: "".to_string(),
         };
     }
 
-    pub fn status(mut self, status: i32) -> SocketMessagingError {
+    pub fn status(mut self, status: u32) -> SocketMessagingError {
         self.status = status;
+        self
+    }
+
+    pub fn message(mut self, msg: String) -> SocketMessagingError {
+        self.msg = msg;
         self
     }
 }
@@ -39,10 +46,10 @@ fn get_topic_prefix(subtopic: & str) -> String {
     return format!("/growbe/{}{}",crate::id::get(), subtopic);
 }
 
-fn on_set_rtc(_topic_name: String, data: Arc<Vec<u8>>) -> Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError> {
-    let payload = crate::protos::message::RTCTime::parse_from_bytes(&data).unwrap();
-    crate::mainboardstate::rtc::set_rtc(payload);
-    Err(SocketMessagingError::new().status(400))
+fn on_set_rtc(_topic_name: String, _data: Arc<Vec<u8>>) -> Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError> {
+    //let payload = crate::protos::message::RTCTime::parse_from_bytes(&data).unwrap();
+    //crate::mainboardstate::rtc::set_rtc(payload);
+    Err(SocketMessagingError::new().status(400).message("operation not supported on device".to_string()))
 }
 
 fn on_update(_topic_name: String, data: Arc<Vec<u8>>) -> Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError> {
@@ -54,19 +61,31 @@ fn on_update(_topic_name: String, data: Arc<Vec<u8>>) -> Result<Option<(String, 
     return Ok(None);
 }
 
-fn on_restart(_topic_name: String, _data: Arc<Vec<u8>>) -> Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError> {
-    let d = tokio::task::spawn(async move {
+
+fn restart_task() {
+    tokio::task::spawn(async move {
         tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
         crate::plateform::restart::restart_process();
     });
+}
+
+
+fn on_restart(_topic_name: String, _data: Arc<Vec<u8>>) -> Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError> {
+    restart_task();
+    restart_task();
     return Ok(None);
 }
 
-fn on_reboot(_topic_name: String, _data: Arc<Vec<u8>>) -> Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError> {
-    let d = tokio::task::spawn(async move {
+fn reboot_task() {
+    tokio::task::spawn(async move {
         tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
         crate::plateform::restart::restart_host();
     });
+}
+
+fn on_reboot(_topic_name: String, _data: Arc<Vec<u8>>) -> Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError> {
+    reboot_task();
+    reboot_task();
     return Ok(None);
 }
 
@@ -220,10 +239,9 @@ pub fn socket_task(
                                     action_respose.set_action(item.action_code);
                                     action_respose.msg = String::from("");
                                 } else {
-                                    //let err = handler_result.error();
-                                    action_respose.status = 400;
-                                    action_respose.msg = String::from("error");
-
+                                    let err = handler_result.unwrap_err();
+                                    action_respose.status = err.status;
+                                    action_respose.msg = err.msg;
                                 }
                             } else {
                                 let module_cmd_result = mapping_module.iter().find(|&x| {

@@ -23,7 +23,7 @@ pub fn create_virtual_relay(
         let module_ref_options = manager.connected_module.get(k);
 
         if module_ref_options.is_none() {
-            return Err(ModuleError::new());
+            return Err(ModuleError::not_found(k));
         }
 
         let module_ref = module_ref_options.unwrap();
@@ -53,11 +53,11 @@ pub fn create_virtual_relay(
 
 pub fn delete_virtual_relay(
     name: &str,
-    sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::interface::Module_Config>,
+    _sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::interface::Module_Config>,
     sender_socket: & std::sync::mpsc::Sender<(String, Box<dyn crate::modulestate::interface::ModuleValueParsable>)>,
-    store: & crate::modulestate::store::ModuleStateStore,
+    _store: & crate::modulestate::store::ModuleStateStore,
     store_virtual_relay: & mut VirtualRelayStore,
-    manager: & mut crate::modulestate::MainboardModuleStateManager,
+    _manager: & mut crate::modulestate::MainboardModuleStateManager,
 ) -> Result<(), ModuleError> {
 
     if store_virtual_relay.is_created(name)  {
@@ -121,11 +121,11 @@ pub fn initialize_virtual_relay(
 pub fn apply_config_virtual_relay(
     id: &String,
     config: &crate::protos::module::RelayOutletConfig,
-    sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::interface::Module_Config>,
-    sender_socket: & std::sync::mpsc::Sender<(String, Box<dyn crate::modulestate::interface::ModuleValueParsable>)>,
-    store: & crate::modulestate::store::ModuleStateStore,
+    _sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::interface::Module_Config>,
+    _sender_socket: & std::sync::mpsc::Sender<(String, Box<dyn crate::modulestate::interface::ModuleValueParsable>)>,
+    _store: & crate::modulestate::store::ModuleStateStore,
     store_virtual_relay: & mut VirtualRelayStore,
-    manager: & mut crate::modulestate::MainboardModuleStateManager,
+    _manager: & mut crate::modulestate::MainboardModuleStateManager,
 ) -> Result<(), ModuleError> {
 
     match store_virtual_relay.virtual_relay_maps.get_mut(id) {
@@ -136,7 +136,7 @@ pub fn apply_config_virtual_relay(
             store_virtual_relay.store_relay_config(id, config).unwrap();
             return Ok(());
         },
-        None => return Err(ModuleError::new()),
+        None => return Err(ModuleError::not_found(id)),
     }
 }
 

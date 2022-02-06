@@ -196,7 +196,7 @@ impl super::interface::ModuleValueValidator for AASValidator {
                 }
             }
             _ => {
-                return Ok(None);
+                return Err(super::interface::ModuleError::new().status(super::interface::CMD_NOT_SUPPORTED));
             }
         }
         sender_socket.send((format!("/m/{}/calibrationEvent", module_id.as_str()), Box::new(event))).unwrap();
