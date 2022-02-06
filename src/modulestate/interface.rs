@@ -20,7 +20,7 @@ impl ModuleError {
         };
     }
 
-    pub fn new_not_found(module_id: &str)  -> ModuleError {
+    pub fn not_found(module_id: &str)  -> ModuleError {
         return ModuleError{
             message: String::from(""),
             module_id: module_id.to_string(),
@@ -49,7 +49,7 @@ pub struct ModuleStateCmd {
     pub cmd: &'static str,
     pub topic: String,
     pub data: std::sync::Arc<Vec<u8>>,
-    pub sender: std::sync::Sender<crate::protos::message::ActionResponse>,
+    pub sender: std::sync::mpsc::Sender<crate::protos::message::ActionResponse>,
 }
 
 impl std::fmt::Display for ModuleError {
@@ -104,8 +104,9 @@ pub trait ModuleValueValidator: Downcast {
         cmd: &str,
         module_id: &String,
         data: std::sync::Arc<Vec<u8>>,
+        sender_response: &std::sync::mpsc::Sender<crate::protos::message::ActionResponse>,
         sender_socket: & std::sync::mpsc::Sender<(String, Box<dyn ModuleValueParsable>)>,
-    ) -> Result<Option<Vec<ModuleStateCmd>>, ()>;
+    ) -> Result<Option<Vec<ModuleStateCmd>>, ModuleError>;
 
     // need to be option result
     fn apply_parse_config(&mut self, port: i32, t: char, data: std::sync::Arc<Vec<u8>>,

@@ -263,10 +263,10 @@ fn handle_module_config(
         }
         tokio::task::spawn(async {});
     } else {
-        return Err(interface::ModuleError::not_found(&id)));
+        return Err(interface::ModuleError::not_found(&id));
     }
 
-    return Ok();
+    return Ok(());
 }
 
 fn handle_remove_module_config(
@@ -283,10 +283,10 @@ fn handle_remove_module_config(
         module_ref.validator.remove_config().unwrap();
         store.delete_module_config(&id).unwrap();
     } else {
-        return Err(interface::ModuleError::not_found(&id)));
+        return Err(interface::ModuleError::not_found(&id));
     }
 
-    return Ok();
+    return Ok(());
 }
 
 
@@ -299,7 +299,7 @@ fn handle_sync_request(
         send_module_state(k, v.port, true, sender_socket);
     }
 
-    return Ok();
+    return Ok(());
 }
 
 fn handle_add_alarm(
@@ -311,7 +311,7 @@ fn handle_add_alarm(
     alarm_store.add_alarm_field(&field_alarm).unwrap();
     alarm_validator.register_field_alarm(field_alarm).unwrap();
 
-    return Ok();
+    return Ok(());
 }
 
 fn handle_remove_alarm(
@@ -323,20 +323,21 @@ fn handle_remove_alarm(
     alarm_store.remove_alarm_field(&field_alarm).unwrap();
     alarm_validator.deregister_field_alarm(field_alarm).unwrap();
 
-    return Ok();
+    return Ok(());
 }
 
 fn handle_validator_command(
     cmd: &str,
     module_id: &String,
+    sender_response: &std::sync::mpsc::Sender<crate::protos::message::ActionResponse>,
     manager: & mut MainboardModuleStateManager,
     sender_socket: & Sender<(String, Box<dyn interface::ModuleValueParsable>)>,
     data: std::sync::Arc<Vec<u8>>,
 ) -> Result<std::option::Option<Vec<ModuleStateCmd>>, interface::ModuleError> {
     if let Some(module) = manager.connected_module.get_mut(module_id) {
-        return module.validator.handle_command_validator(cmd, module_id,data, sender_socket);
+        return module.validator.handle_command_validator(cmd, module_id,data, sender_response, sender_socket);
     } else {
-        return Err(interface::ModuleError::not_found(module_id)));
+        return Err(interface::ModuleError::not_found(module_id));
     }
 }
 
@@ -344,7 +345,7 @@ fn handle_module_command(
     cmd: &str,
     topic: &String,
     data: std::sync::Arc<Vec<u8>>,
-    sender_response: std::sync::Sender<crate::protos::message::ActionResponse>,
+    sender_response: &std::sync::mpsc::Sender<crate::protos::message::ActionResponse>,
     manager: & mut MainboardModuleStateManager,
     store: & store::ModuleStateStore,
     alarm_validator: & mut alarm::validator::AlarmFieldValidator,
@@ -352,7 +353,7 @@ fn handle_module_command(
     sender_config: & Sender<crate::comboard::imple::interface::Module_Config>,
     sender_socket: & Sender<(String, Box<dyn interface::ModuleValueParsable>)>,
     virtual_relay_store: &mut relay::virtual_relay::store::VirtualRelayStore,
-) {
+) -> () {
     let result = match cmd {
         "sync" => handle_sync_request(manager, &sender_socket),
         "mconfig" => handle_module_config(topic, data, manager, &sender_config, &sender_socket, &store),
@@ -370,7 +371,7 @@ fn handle_module_command(
         ),
         _ => {
             let module_id = extract_module_id(topic);
-            match handle_validator_command(cmd,&module_id, manager, &sender_socket, data) {
+            match handle_validator_command(cmd,&module_id, sender_response,manager, &sender_socket, data) {
                 Ok(option_cmd) => {
                     if let Some(cmds) = option_cmd {
                         cmds.into_iter().for_each(|cmd| {
@@ -378,6 +379,7 @@ fn handle_module_command(
                                 cmd.cmd,
                                 &cmd.topic,
                                 cmd.data,
+                                sender_response,
                                 manager,
                                 store,
                                 alarm_validator,
@@ -387,10 +389,10 @@ fn handle_module_command(
                                 virtual_relay_store,
                             );
                         });
-                        Ok()
+                        Ok(())
                     } else {
                         // end of chain return
-                        Ok()
+                        Ok(())
                     }
                 },
                 Err(_e) => {
@@ -404,14 +406,14 @@ fn handle_module_command(
     let mut action_respose = crate::protos::message::ActionResponse::new();
     match result {
         Ok(()) => {
-
+            action_respose.status = 0;
         },
         Err(_module_error) => {
-
+            action_respose.status = 500;
         }
     }
     
-    sender_action_response.send(action_respose);
+    sender_response.send(action_respose);
 }
 
 

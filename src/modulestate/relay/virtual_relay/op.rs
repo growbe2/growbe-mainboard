@@ -1,6 +1,7 @@
 use tokio_util::sync::CancellationToken;
 
 use crate::modulestate::relay::{physical_relay::{PhysicalRelay, BatchPhysicalRelay, ActionPortUnion}, configure::configure_relay};
+use crate::modulestate::interface::ModuleError;
 
 use super::{store::VirtualRelayStore, virtual_relay::VirtualRelay};
 
@@ -11,7 +12,7 @@ pub fn create_virtual_relay(
     sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::interface::Module_Config>,
     manager: & crate::modulestate::MainboardModuleStateManager,
     store_virtual_relay: & mut VirtualRelayStore,
-) -> Result<VirtualRelay, ()> {
+) -> Result<VirtualRelay, ModuleError> {
     
     let mut virtual_relay = VirtualRelay::new(relay_config.get_name(), sender_socket);
 
@@ -22,7 +23,7 @@ pub fn create_virtual_relay(
         let module_ref_options = manager.connected_module.get(k);
 
         if module_ref_options.is_none() {
-            return Err(());
+            return Err(ModuleError::new());
         }
 
         let module_ref = module_ref_options.unwrap();
@@ -47,7 +48,6 @@ pub fn create_virtual_relay(
         }
     }
 
-
     return Ok(virtual_relay);
 }
 
@@ -58,8 +58,7 @@ pub fn delete_virtual_relay(
     store: & crate::modulestate::store::ModuleStateStore,
     store_virtual_relay: & mut VirtualRelayStore,
     manager: & mut crate::modulestate::MainboardModuleStateManager,
-) -> Result<(), ()> {
-
+) -> Result<(), ModuleError> {
 
     if store_virtual_relay.is_created(name)  {
         store_virtual_relay.stop_virtual_relay(name);
@@ -82,7 +81,7 @@ pub fn initialize_virtual_relay(
     store: & crate::modulestate::store::ModuleStateStore,
     store_virtual_relay: & mut VirtualRelayStore,
     manager: & mut crate::modulestate::MainboardModuleStateManager,
-) -> Result<(),()> {
+) -> Result<(), ModuleError> {
 
 
     // check if im already existing , if not , delete me and recreate me ??
@@ -98,9 +97,9 @@ pub fn initialize_virtual_relay(
             Ok(()) => {
                 log::debug!("deleting virtual relay {}", relay_config.get_name());
             },
-            Err(()) => {
+            Err(module_error) => {
                 // error cannot delete existing one
-                return Err(());
+                return Err(module_error);
             },
         }
     }
@@ -127,7 +126,7 @@ pub fn apply_config_virtual_relay(
     store: & crate::modulestate::store::ModuleStateStore,
     store_virtual_relay: & mut VirtualRelayStore,
     manager: & mut crate::modulestate::MainboardModuleStateManager,
-) -> Result<(), ()> {
+) -> Result<(), ModuleError> {
 
     match store_virtual_relay.virtual_relay_maps.get_mut(id) {
         Some(relay) => {
@@ -137,7 +136,7 @@ pub fn apply_config_virtual_relay(
             store_virtual_relay.store_relay_config(id, config).unwrap();
             return Ok(());
         },
-        None => return Err(()),
+        None => return Err(ModuleError::new()),
     }
 }
 
