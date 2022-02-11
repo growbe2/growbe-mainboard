@@ -152,19 +152,19 @@ pub fn socket_task(
     );
 
     let mapping_module = vec![
-        ("sync", false),
-        ("mconfig", true),
-        ("rmconfig", true),
-        ("aAl", true),
-        ("rAl", true),
-        ("addVr", false),
-        ("configVr", true),
-        ("rmVr", true),
-        ("startCalibration", true),
-        ("setCalibration", true),
-        ("terminateCalibration", true),
-        ("cancelCalibration", true),
-        ("statusCalibration", true)
+        ("sync", false, ActionCode::SYNC_REQUEST),
+        ("mconfig", true, ActionCode::MODULE_CONFIG),
+        ("rmconfig", true, ActionCode::MODULE_CONFIG),
+        ("aAl", true, ActionCode::ADD_ALARM),
+        ("rAl", true, ActionCode::REMOVE_ALARM),
+        ("addVr", false, ActionCode::SYNC_REQUEST),
+        ("vrconfig", true, ActionCode::SYNC_REQUEST),
+        ("rmVr", true, ActionCode::SYNC_REQUEST),
+        ("startCalibration", true, ActionCode::SYNC_REQUEST),
+        ("setCalibration", true, ActionCode::SYNC_REQUEST),
+        ("terminateCalibration", true, ActionCode::SYNC_REQUEST),
+        ("cancelCalibration", true, ActionCode::SYNC_REQUEST),
+        ("statusCalibration", true, ActionCode::SYNC_REQUEST)
     ];
 
     let id_client = format!("pi-{}", crate::id::get());
@@ -247,7 +247,7 @@ pub fn socket_task(
                                 let module_cmd_result = mapping_module.iter().find(|&x| {
                                     return d.topic_name.contains(x.0);
                                 });
-                                if let Some((cmd, _)) = module_cmd_result {
+                                if let Some((cmd, _, action_code)) = module_cmd_result {
                                     // send to modulestate handler and wait for response
                                     crate::modulestate::CHANNEL_MODULE_STATE_CMD.0.lock().unwrap().send(crate::modulestate::interface::ModuleStateCmd {
                                         cmd: cmd,
@@ -261,8 +261,10 @@ pub fn socket_task(
                                     match action_response_result {
                                         Ok(ar) => {
                                             action_respose = ar;
+                                            action_respose.action = *action_code;
                                         },
                                         Err(_) => {
+                                            action_respose.action = *action_code;
                                             action_respose.status = 405;
                                             action_respose.msg = "timeout waiting for cmd response".to_string();
                                         }

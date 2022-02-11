@@ -363,7 +363,7 @@ fn handle_module_command(
         "addVr" => relay::virtual_relay::handler::handle_virtual_relay(
             data,  &sender_config, &sender_socket, store, virtual_relay_store, manager,
         ),
-        "configVr" => relay::virtual_relay::handler::handle_apply_config_virtual_relay(
+        "vrconfig" => relay::virtual_relay::handler::handle_apply_config_virtual_relay(
             topic, data, sender_config, sender_socket, store, virtual_relay_store, manager,
         ),
         "rmVr" => relay::virtual_relay::handler::handle_delete_virtual_relay(
