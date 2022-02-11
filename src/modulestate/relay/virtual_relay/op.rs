@@ -131,8 +131,8 @@ pub fn apply_config_virtual_relay(
     match store_virtual_relay.virtual_relay_maps.get_mut(id) {
         Some(relay) => {
             configure_relay(true, &config, relay, & mut store_virtual_relay.cancellation_token_maps, None);
-            // HACK , fixe issue of task not starting for relay ?????
-            configure_relay(true, &config, relay, & mut store_virtual_relay.cancellation_token_maps, None);
+            //configure_relay(true, &config, relay, & mut store_virtual_relay.cancellation_token_maps, None);
+            tokio::spawn(async {});
             store_virtual_relay.store_relay_config(id, config).unwrap();
             return Ok(());
         },
@@ -167,4 +167,6 @@ pub fn initialize_virtual_relay_and_apply_config(
     if let Some(config) = virtual_config.as_ref() {
         apply_config_virtual_relay(&String::from(virtual_relay.get_name()), config, sender_comboard_config, sender_socket, store, store_virtual_relay, manager).unwrap();
     }
+
+
 }
