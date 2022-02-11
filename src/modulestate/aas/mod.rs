@@ -132,8 +132,9 @@ impl super::interface::ModuleValueValidator for AASValidator {
         cmd: &str,
         module_id: &String,
         data: std::sync::Arc<Vec<u8>>,
+        sender_response: &std::sync::mpsc::Sender<crate::protos::message::ActionResponse>,
         sender_socket: & std::sync::mpsc::Sender<(String, Box<dyn super::interface::ModuleValueParsable>)>,
-    ) -> Result<Option<Vec<super::interface::ModuleStateCmd>>, ()> {
+    ) -> Result<Option<Vec<super::interface::ModuleStateCmd>>, super::interface::ModuleError> {
         let mut event = SOILCalibrationStepEvent::new();
         match cmd {
             "startCalibration" => {
@@ -172,6 +173,7 @@ impl super::interface::ModuleValueValidator for AASValidator {
                                 cmd: "mconfig",
                                 topic: format!("/{}", module_id),
                                 data: std::sync::Arc::new(config_bytes),
+                                sender: sender_response.clone()
                             };
                             return Ok(Some(vec![cmd]));
                         },
@@ -194,7 +196,7 @@ impl super::interface::ModuleValueValidator for AASValidator {
                 }
             }
             _ => {
-                return Err(());
+                return Err(super::interface::ModuleError::new().status(super::interface::CMD_NOT_SUPPORTED));
             }
         }
         sender_socket.send((format!("/m/{}/calibrationEvent", module_id.as_str()), Box::new(event))).unwrap();

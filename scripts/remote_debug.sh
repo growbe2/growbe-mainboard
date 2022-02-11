@@ -35,4 +35,4 @@ if ! rsync -avz "${BUILD_BIN_FILE}" "./mainboard_config.json" "${TARGET_USER}@${
 fi
 
 #ssh -f "${TARGET_USER}@${SSH_REMOTE}" "sh -c 'cd ${TARGET_CWD}; nohup gdbserver *:${GDBPORT} ${TARGET_BIN_FILE} > /dev/null 2>&1 &'"
-ssh "${TARGET_USER}@${SSH_REMOTE}" "killall growbe-mainboard; sh -c 'cd ${TARGET_CWD};${TARGET_BIN_FILE} ./mainboard_config.json'"
+ssh "${TARGET_USER}@${SSH_REMOTE}" "killall growbe-mainboard; sudo systemctl stop growbe-mainboard@dev.service; sh -c 'cd ${TARGET_CWD};${TARGET_BIN_FILE} ./mainboard_config.json'"
