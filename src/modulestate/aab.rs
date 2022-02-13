@@ -108,7 +108,7 @@ impl super::interface::ModuleValueValidator for AABValidator {
             return (true, vec![]);
         } else if current.drain.as_ref().unwrap().state != last.drain.as_ref().unwrap().state {
             return (true, vec![]);
-        } else if current.pump1.as_ref().unwrap().state != last.pump0.as_ref().unwrap().state {
+        } else if current.pump1.as_ref().unwrap().state != last.pump1.as_ref().unwrap().state {
             return (true, vec![]);
         } else if current.pump2.as_ref().unwrap().state != last.pump2.as_ref().unwrap().state {
             return (true, vec![]);
