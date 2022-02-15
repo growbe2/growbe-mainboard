@@ -1,4 +1,5 @@
 pub mod alarm;
+pub mod cycle;
 pub mod configure;
 pub mod duration;
 pub mod virtual_relay;

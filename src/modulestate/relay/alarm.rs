@@ -54,8 +54,6 @@ pub fn set_alarm_relay(
             night_mins
         );
 
-        // TODO : make a better implementation , this will cause issue on clock update, hour change
-        // 1500 === 0
         loop {
 
             let current_minute = get_current_min();
