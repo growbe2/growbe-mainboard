@@ -15,6 +15,7 @@ use crate::comboard::imple::channel::*;
 use crate::protos::alarm::FieldAlarm;
 use interface::ModuleStateCmd;
 use lazy_static::lazy_static;
+use regex::Regex;
 use protobuf::Message;
 use std::{collections::HashMap};
 use std::sync::{Mutex, Arc};
@@ -28,6 +29,8 @@ lazy_static! {
         let (sender, receiver) = std::sync::mpsc::channel::<ModuleStateCmd>();
         return (Mutex::new(sender), Mutex::new(receiver));
     };
+
+    static ref REGEX_MODULE_ID: Regex = Regex::new("[A-Z]{3}[0-9]{9}").unwrap();
 }
 
 
@@ -69,18 +72,17 @@ impl MainboardModuleStateManager {
     }
 }
 
-fn get_module_validator(module_type: char, ) -> Box<dyn interface::ModuleValueValidator> {
-    // TODO switch back to a match but i was having issue with match :(
+fn get_module_validator(module_type: char, ) -> Result<Box<dyn interface::ModuleValueValidator>, interface::ModuleError> {
     if module_type == 'A' {
-        return Box::new(aaa::AAAValidator::new());
+        return Ok(Box::new(aaa::AAAValidator::new()));
     } else if module_type == 'S' {
-        return Box::new(aas::AASValidator::new());
+        return Ok(Box::new(aas::AASValidator::new()));
     } else if module_type == 'P' {
-        return Box::new(aap::AAPValidator::new());
+        return Ok(Box::new(aap::AAPValidator::new()));
     } else if module_type == 'B' {
-        return Box::new(AABValidator::new());
+        return Ok(Box::new(AABValidator::new()));
     } else {
-        panic!("its a panic no validator found for type {}", module_type);
+        return Err(interface::ModuleError::new().message("cannot find validator for module type".to_string()));
     }
 }
 
@@ -91,6 +93,9 @@ fn extract_module_id(topic_name: &String) -> String {
     return String::from(last.clone());
 }
 
+fn valid_module_id(module_id: &String) -> bool {
+    return REGEX_MODULE_ID.is_match(module_id);
+}
 
 fn send_module_state(
     id: &str,
@@ -117,6 +122,12 @@ fn handle_module_state(
     alarm_validator: & mut alarm::validator::AlarmFieldValidator,
     alarm_store: & alarm::store::ModuleAlarmStore,
 ) -> () {
+    if !valid_module_id(&state.id) {
+        if state.state == true {
+            log::error!("receive state changed from invalid ID {} state {}", state.id, state.state);
+        }
+        return;
+    }
     if state.state == true {
             let type_character_option = state.id.chars().nth(2);
             if type_character_option.is_none() {
@@ -125,7 +136,13 @@ fn handle_module_state(
             }
             log::debug!("module connected {} at {}", state.id.as_str(), state.port);
             let t = state.id.chars().nth(2).unwrap();
-            let validator = get_module_validator(t);
+            let validator_result = get_module_validator(t);
+            if validator_result.is_err() {
+                //log::error!("{}", validator_result.unwrap_err().message);
+                log::error!("cannot find a validator for module {}", state.id);
+                return;
+            }
+            let validator = validator_result.unwrap();
             manager.connected_module.insert(state.id.clone(), MainboardConnectedModule{
                 port: state.port,
                 id: state.id.clone(),
@@ -188,7 +205,6 @@ fn handle_module_value(
     sender_socket: & Sender<(String, Box<dyn interface::ModuleValueParsable>)>,
     alarm_validator: & mut alarm::validator::AlarmFieldValidator,
 ) -> () {
-
     let reference_connected_module_option = manager.get_module_at_index_mut(value.port);
     if reference_connected_module_option.is_none() {
         log::error!("receive value for port {} but module is not in the store", value.port);

@@ -511,6 +511,7 @@ dependencies = [
  "nix",
  "protobuf",
  "protoc-rust",
+ "regex",
  "rumqtt",
  "rusqlite",
  "serde",
