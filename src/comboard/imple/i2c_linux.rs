@@ -73,7 +73,7 @@ impl super::interface::ComboardClient for I2CLinuxComboardClient {
          }
          loop {
             unsafe { comboard_loop_body(); }
-            std::thread::sleep(std::time::Duration::from_millis(50));
+            //std::thread::sleep(std::time::Duration::from_millis(50));
          }
         });
     }
