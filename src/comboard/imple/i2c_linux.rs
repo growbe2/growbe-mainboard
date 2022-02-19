@@ -1,9 +1,11 @@
  
 use std::ffi::CStr;
-
+use std::error::Error;
 use crate::comboard::imple::channel::*;
 use crate::comboard::imple::interface::{ModuleStateChangeEvent, ModuleValueValidationEvent};
 
+use tokio::select;
+use rppal::gpio::Gpio;
 
 extern fn callback_state_changed(port: i32, id: *const ::std::os::raw::c_char, state: bool) -> () {
     let c_str: &CStr = unsafe { CStr::from_ptr(id) };
@@ -58,12 +60,53 @@ extern "C" {
     fn init(device: *const ::std::os::raw::c_char) -> i32;
 }
 
+pub struct PIHatControl {}
+
+impl PIHatControl {
+    fn enable() -> Result<(), Box<dyn Error>> {
+        let mut hat_pin = Gpio::new()?.get(23)?.into_output();
+
+        hat_pin.set_high();
+        log::info!("hat is enable");
+
+        return Ok(());
+    }
+
+    fn enable_led_hat() {
+        tokio::spawn(async move {
+            let mut hat_pin = Gpio::new().unwrap().get(23).unwrap().into_output();
+
+            let mut b = false;
+            
+            log::info!("starting led hat");
+
+            loop {
+                select! {
+                    _ = tokio::time::sleep(tokio::time::Duration::from_secs(1)) => {
+                        if b {
+                            hat_pin.set_high();
+                        } else {
+                            hat_pin.set_low();
+                        }
+                        b = !b
+                    }
+                }
+            }
+        });
+    }
+
+}
+
 pub struct I2CLinuxComboardClient {}
 
 impl super::interface::ComboardClient for I2CLinuxComboardClient {
     fn run(&self,
         config: super::interface::ComboardClientConfig) -> tokio::task::JoinHandle<()>  {
         let c = std::ffi::CString::new(config.config.as_str()).unwrap();
+
+        PIHatControl::enable().unwrap();
+        PIHatControl::enable_led_hat();
+
         return tokio::spawn(async move {
          unsafe {
             register_callback_comboard(callback_state_changed, callback_value_validation, callback_config);
