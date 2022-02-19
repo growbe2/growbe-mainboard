@@ -75,19 +75,23 @@ impl PIHatControl {
 
     fn enable_led_hat() {
         tokio::spawn(async move {
-            let mut hat_pin = Gpio::new().unwrap().get(21).unwrap().into_output();
+            let mut led_pin = Gpio::new().unwrap().get(21).unwrap().into_output();
 
             let mut b = false;
             
             log::info!("starting led hat");
 
+            let mut hat_pin = Gpio::new().unwrap().get(23).unwrap().into_output();
+            hat_pin.set_high();
+            log::info!("hat is {}", hat_pin.is_set_high());
+
             loop {
                 select! {
                     _ = tokio::time::sleep(tokio::time::Duration::from_secs(1)) => {
                         if b {
-                            hat_pin.set_high();
+                            led_pin.set_high();
                         } else {
-                            hat_pin.set_low();
+                            led_pin.set_low();
                         }
                         b = !b
                     }
