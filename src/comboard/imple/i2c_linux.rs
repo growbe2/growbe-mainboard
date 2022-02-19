@@ -74,7 +74,7 @@ impl PIHatControl {
 
     fn enable_led_hat() {
         tokio::spawn(async move {
-            let mut hat_pin = Gpio::new().unwrap().get(23).unwrap().into_output();
+            let mut hat_pin = Gpio::new().unwrap().get(21).unwrap().into_output();
 
             let mut b = false;
             
