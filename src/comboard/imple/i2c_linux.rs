@@ -67,7 +67,8 @@ impl PIHatControl {
         let mut hat_pin = Gpio::new()?.get(23)?.into_output();
 
         hat_pin.set_high();
-        log::info!("hat is enable");
+        hat_pin.set_high();
+        log::info!("hat is {}", hat_pin.is_set_high());
 
         return Ok(());
     }
