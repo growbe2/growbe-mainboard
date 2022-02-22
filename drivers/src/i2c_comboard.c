@@ -486,7 +486,7 @@ void comboard_loop_body() {
 
 				case 'B':
 				{
-					data_read = I2cComLib_Read(0x40, da, 512);
+					data_read = I2cComLib_Read(0x39, da, 512);
 					
 					if (config.port == comport) {
 						for (int i = 0; i < 8; i++) {
@@ -500,7 +500,7 @@ void comboard_loop_body() {
 				}
 				case 'P':
 				{
-					data_read = I2cComLib_Read(0x42, da, 512);
+					data_read = I2cComLib_Read(0x39, da, 512);
 					
 					if (config.port == comport) {
 						for (int i = 0; i < 8; i++) {
