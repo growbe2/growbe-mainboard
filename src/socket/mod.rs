@@ -284,6 +284,20 @@ pub fn socket_task(
                         Notification::Reconnection => {
                             log::warn!("mqtt reconnection");
                             handlers.iter().for_each(|handler| client.subscribe(format!("/growbe/{}{}", crate::id::get(), handler.subscription),  QoS::ExactlyOnce).unwrap());
+                            handlers.iter().for_each(|handler| {
+                                if handler.not_prefix {
+                                    client.subscribe(handler.subscription.as_str(),  QoS::ExactlyOnce).unwrap();
+                                } else {
+                                    client.subscribe(format!("/growbe/{}{}", crate::id::get(), handler.subscription),  QoS::ExactlyOnce).unwrap();
+                                }
+                            });
+
+                            mapping_module.iter().for_each(|handler| {
+                                let suffix = if handler.1 == true { "/+" } else { "" };
+                                let topic = format!("/growbe/{}/board/{}{}", crate::id::get(), handler.0, suffix);
+                                
+                                client.subscribe(topic,  QoS::ExactlyOnce).unwrap();
+                            });
                         }
                         _ => log::error!("mqtt message not publish {:?}", message),
                     }
