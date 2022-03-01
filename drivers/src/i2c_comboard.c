@@ -508,7 +508,7 @@ void comboard_loop_body() {
 								da[i] = config.buffer[i];
 							}
 						}
-						I2cComLib_Write(0x42, da, 512);
+						I2cComLib_Write(0x43, da, 512);
 					}
 					
 					break;
