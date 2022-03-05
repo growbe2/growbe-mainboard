@@ -1,4 +1,4 @@
-use crate::protos::module::{RelayModuleData, RelayModuleConfig, Actor};
+use crate::protos::module::{RelayModuleData, RelayModuleConfig, Actor, WCModuleConfig};
 use super::relay::configure::configure_relay;
 use super::relay::physical_relay::ActionPortUnion;
 use super::relay::{get_outlet_data};
@@ -8,12 +8,14 @@ use crate::modulestate::relay::BatchRelay;
 
 pub struct AAPValidator {
     pub actors_property: std::collections::HashMap<String, Actor>,
+    pub previous_config: RelayModuleConfig,
 }
 
 impl AAPValidator {
     pub fn new() -> AAPValidator {
         return AAPValidator {
             actors_property: std::collections::HashMap::new(),
+            previous_config: RelayModuleConfig::new(),
         };
     } 
 }
@@ -63,30 +65,32 @@ impl super::interface::ModuleValueValidator for AAPValidator {
             auto_send: false,
             sender: sender_comboard_config.clone(),
         };
-        configure_relay(config.has_p0(), config.get_p0(), &mut batch_relay, map_handler, previous_owner);
+        configure_relay(config.has_p0(), config.get_p0(),self.previous_config.has_p0(), self.previous_config.get_p0(), &mut batch_relay, map_handler, previous_owner);
 
         batch_relay.action_port.port = 1;
-        configure_relay(config.has_p1(), config.get_p1(), &mut batch_relay, map_handler, previous_owner);
+        configure_relay(config.has_p1(), config.get_p1(),self.previous_config.has_p1(), self.previous_config.get_p1(), &mut batch_relay, map_handler, previous_owner);
 
         batch_relay.action_port.port = 2;
-        configure_relay(config.has_p2(), config.get_p2(), &mut batch_relay, map_handler, previous_owner);
+        configure_relay(config.has_p2(), config.get_p2(),self.previous_config.has_p2(), self.previous_config.get_p2(), &mut batch_relay, map_handler, previous_owner);
 
         batch_relay.action_port.port = 3;
-        configure_relay(config.has_p3(), config.get_p3(), &mut batch_relay, map_handler, previous_owner);
+        configure_relay(config.has_p3(), config.get_p3(),self.previous_config.has_p3(), self.previous_config.get_p3(), &mut batch_relay, map_handler, previous_owner);
 
         batch_relay.action_port.port = 4;
-        configure_relay(config.has_p4(), config.get_p4(), &mut batch_relay, map_handler, previous_owner);
+        configure_relay(config.has_p4(), config.get_p4(),self.previous_config.has_p4(), self.previous_config.get_p4(), &mut batch_relay, map_handler, previous_owner);
 
         batch_relay.action_port.port = 5;
-        configure_relay(config.has_p5(), config.get_p5(), &mut batch_relay, map_handler, previous_owner);
+        configure_relay(config.has_p5(), config.get_p5(),self.previous_config.has_p5(), self.previous_config.get_p5(), &mut batch_relay, map_handler, previous_owner);
 
         batch_relay.action_port.port = 6;
-        configure_relay(config.has_p6(), config.get_p6(), &mut batch_relay, map_handler, previous_owner);
+        configure_relay(config.has_p6(), config.get_p6(), self.previous_config.has_p6(), self.previous_config.get_p6(),&mut batch_relay, map_handler, previous_owner);
 
         batch_relay.action_port.port = 7;
-        configure_relay(config.has_p7(), config.get_p7(), &mut batch_relay, map_handler, previous_owner);
+        configure_relay(config.has_p7(), config.get_p7(), self.previous_config.has_p7(), self.previous_config.get_p7(), &mut batch_relay, map_handler, previous_owner);
 
         batch_relay.execute().unwrap();
+
+        //self.previous_config = *config.clone();
 
         return Ok((
             config,
