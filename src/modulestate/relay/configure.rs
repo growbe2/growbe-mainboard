@@ -1,17 +1,27 @@
 use tokio_util::sync::CancellationToken;
 
-use crate::protos::module::{RelayOutletConfig, Actor, RelayOutletMode};
+use crate::protos::module::{RelayOutletConfig, Actor, RelayOutletMode, AlarmConfig, CronItem, CycleConfig};
 
 use super::Relay;
 
 
-fn have_alarm_change(prev)
+fn compare_cron(current: &CronItem, previous: &CronItem) -> bool {
+    return current.minute == previous.minute && current.hour == previous.hour;
+}
+
+fn compare_alarm(current: &AlarmConfig, previous: &AlarmConfig) -> bool {
+    return compare_cron(current.get_begining(), previous.get_begining()) && compare_cron(current.get_end(), previous.get_end());
+}
+
+fn compare_cycle(current: &CycleConfig, previous: &CycleConfig) -> bool {
+    return current.runningTime == previous.runningTime && current.waitingTime == previous.waitingTime;
+}
 
 pub fn configure_relay(
     has_field: bool,
     config: &RelayOutletConfig,
     has_field_previous: bool,
-    config_previous: &Option<RelayOutletConfig>,
+    prev_config: &RelayOutletConfig,
     relay: &mut impl Relay,
     map_handler: & mut std::collections::HashMap<String, CancellationToken>,
     _previous_owner: std::option::Option<&Actor>
@@ -22,31 +32,31 @@ pub fn configure_relay(
         let previous_handler = map_handler.get(&id);
 
         if has_field_previous {
-            let prev_config = config_previous.unwrap();
             if prev_config.mode == config.mode {
                 // Match pour regarder si ca la changer
                 match config.mode {
                     RelayOutletMode::MANUAL => {
-                        if config.get_manual().state !== prev_config.get_manual().state {
+                        if config.get_manual().state == prev_config.get_manual().state {
                             return None;
                         }
                     },
                     RelayOutletMode::ALARM => {
-                        let cur_alarm = config.get_alarm();
-                        let prev_alarm = prev_config.get_alarm();
+                        if compare_alarm( config.get_alarm(), prev_config.get_alarm()) {
+                            return None;
+                        }
                     },
                     RelayOutletMode::CYCLE => {
-
+                        if compare_cycle(config.get_cycle(), prev_config.get_cycle()) {
+                            return None;
+                        }
                     },
                     _ => {
-
                     }
                 }
             }
         }
 
         if previous_handler.is_some() {
-            log::debug!("aborting previous handler for port {}", id);
             previous_handler.unwrap().cancel();
         }
 

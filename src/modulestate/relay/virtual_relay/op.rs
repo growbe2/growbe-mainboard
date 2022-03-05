@@ -130,7 +130,7 @@ pub fn apply_config_virtual_relay(
 
     match store_virtual_relay.virtual_relay_maps.get_mut(id) {
         Some(relay) => {
-            configure_relay(true, &config, relay, & mut store_virtual_relay.cancellation_token_maps, None);
+            configure_relay(true, &config, false, &config, relay, & mut store_virtual_relay.cancellation_token_maps, None);
             //configure_relay(true, &config, relay, & mut store_virtual_relay.cancellation_token_maps, None);
             tokio::spawn(async {});
             store_virtual_relay.store_relay_config(id, config).unwrap();
