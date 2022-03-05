@@ -7,6 +7,7 @@ use crate::modulestate::relay::BatchRelay;
 
 pub struct AABValidator {
     pub actors_property: HashMap<String, Actor>,
+    pub previous_config: Option<WCModuleConfig>,
 }
 
 impl AABValidator {

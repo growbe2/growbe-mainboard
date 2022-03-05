@@ -4,9 +4,14 @@ use crate::protos::module::{RelayOutletConfig, Actor, RelayOutletMode};
 
 use super::Relay;
 
+
+fn have_alarm_change(prev)
+
 pub fn configure_relay(
     has_field: bool,
     config: &RelayOutletConfig,
+    has_field_previous: bool,
+    config_previous: &Option<RelayOutletConfig>,
     relay: &mut impl Relay,
     map_handler: & mut std::collections::HashMap<String, CancellationToken>,
     _previous_owner: std::option::Option<&Actor>
@@ -15,6 +20,31 @@ pub fn configure_relay(
     if has_field {
         let id = relay.id();
         let previous_handler = map_handler.get(&id);
+
+        if has_field_previous {
+            let prev_config = config_previous.unwrap();
+            if prev_config.mode == config.mode {
+                // Match pour regarder si ca la changer
+                match config.mode {
+                    RelayOutletMode::MANUAL => {
+                        if config.get_manual().state !== prev_config.get_manual().state {
+                            return None;
+                        }
+                    },
+                    RelayOutletMode::ALARM => {
+                        let cur_alarm = config.get_alarm();
+                        let prev_alarm = prev_config.get_alarm();
+                    },
+                    RelayOutletMode::CYCLE => {
+
+                    },
+                    _ => {
+
+                    }
+                }
+            }
+        }
+
         if previous_handler.is_some() {
             log::debug!("aborting previous handler for port {}", id);
             previous_handler.unwrap().cancel();
