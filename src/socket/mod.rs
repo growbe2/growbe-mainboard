@@ -173,7 +173,7 @@ pub fn socket_task(
     let (sender_action_response, receiver_action_response) = std::sync::mpsc::channel::<crate::protos::message::ActionResponse>();
 
    return tokio::spawn(async move {
-        let hearth_beath_rate = Duration::from_secs(15);
+        let hearth_beath_rate = Duration::from_secs(5);
 
         let (mut client, notifications) = loop {
             let config = MqttOptions::new(id_client.clone(), config_mqtt.url.as_str(), config_mqtt.port);
