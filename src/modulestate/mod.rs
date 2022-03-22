@@ -330,6 +330,20 @@ fn handle_add_alarm(
     return Ok(());
 }
 
+
+fn handle_update_alarm(
+    alarm_validator: & mut alarm::validator::AlarmFieldValidator,
+    alarm_store: & alarm::store::ModuleAlarmStore,
+    data: Arc<Vec<u8>>,
+) -> Result<(), interface::ModuleError>  {
+    let field_alarm = FieldAlarm::parse_from_bytes(&data).unwrap();
+    alarm_store.update_alarm_field(&field_alarm).unwrap();
+    alarm_validator.register_field_alarm(field_alarm).unwrap();
+
+    return Ok(());
+}
+
+
 fn handle_remove_alarm(
     alarm_validator: & mut alarm::validator::AlarmFieldValidator,
     alarm_store: & alarm::store::ModuleAlarmStore,
@@ -376,6 +390,7 @@ fn handle_module_command(
         "rmconfig" => handle_remove_module_config(topic, data, manager, &sender_config, &sender_socket, &store),
         "aAl" => handle_add_alarm(alarm_validator, &alarm_store, data),
         "rAl" => handle_remove_alarm(alarm_validator, &alarm_store, data),
+        "uAl" => handle_update_alarm(alarm_validator, &alarm_store, data),
         "addVr" => relay::virtual_relay::handler::handle_virtual_relay(
             data,  &sender_config, &sender_socket, store, virtual_relay_store, manager,
         ),

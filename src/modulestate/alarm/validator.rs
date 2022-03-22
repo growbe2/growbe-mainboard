@@ -57,16 +57,18 @@ impl AlarmFieldValidator {
     pub fn deregister_field_alarm(& mut self, alarm: FieldAlarm) -> Result<(), ModuleError> {
         let id = self.get_id(&alarm.moduleId, &alarm.property);
         match self.maps.remove(&id) {
-            Some(_v) => Ok(()),
+            Some(_v) => {
+                log::info!("deregistering alarm on {}", id.as_str());
+                Ok(())
+            },
             None => Err(ModuleError::new())
         }
     }
 
     pub fn register_field_alarm(& mut self, alarm: FieldAlarm) -> Result<(), ModuleError> {
         let id = self.get_id(&alarm.moduleId, &alarm.property);
-        if self.maps.contains_key(&id) {
-            return Err(ModuleError::new());
-        }
+
+        log::info!("registering alarm on {}", id.as_str());
 
         self.maps.insert(id, StoreAlarmItem{
             state: ModuleAlarmState::<i32> {
@@ -78,6 +80,7 @@ impl AlarmFieldValidator {
             },
             field_alarm: alarm,
         });
+
 
         Ok(())
     }

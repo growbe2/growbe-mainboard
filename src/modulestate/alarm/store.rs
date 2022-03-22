@@ -1,8 +1,9 @@
 use crate::protos::alarm::FieldAlarm;
 use crate::modulestate::interface::ModuleError;
-use crate::store::database::{store_field_from_table_combine_key, store_delete_combine_key};
+use crate::store::database::{store_field_from_table_combine_key, store_delete_combine_key, store_update_property_combine_key};
 
 use protobuf::Message;
+
 
 use std::sync::{Arc, Mutex};
 
@@ -31,6 +32,11 @@ impl ModuleAlarmStore {
 
     pub fn add_alarm_field(&self, alarm: &FieldAlarm) -> Result<(), ModuleError>  {
         store_field_from_table_combine_key(&self.conn, "module_field_alarm", &alarm.moduleId.clone(), &alarm.property.clone(), alarm.write_to_bytes().unwrap());
+        Ok(())
+    }
+
+    pub fn update_alarm_field(&self, alarm: &FieldAlarm) -> Result<(), ModuleError> {
+        store_update_property_combine_key(&self.conn, "module_field_alarm", "config", &alarm.moduleId.clone(), &alarm.property.clone(), alarm.write_to_bytes().unwrap());
         Ok(())
     }
 

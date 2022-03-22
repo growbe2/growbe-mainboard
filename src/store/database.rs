@@ -100,6 +100,21 @@ pub fn store_update_property(
 	).unwrap();
 }
 
+pub fn store_update_property_combine_key(
+	conn: &Arc<Mutex<Connection>>,
+	table_name: &'static str,
+	property: &'static str,
+	id: &str,
+	module_id: &str,
+	payload: Vec<u8>,
+) -> () {
+	conn.lock().unwrap().execute(
+		(format!("UPDATE {} SET {} = ? WHERE id = ? AND property = ?", table_name, property)).as_str(),
+		params![payload, id, module_id]
+	).unwrap();
+}
+
+
 
 pub fn store_delete_key(
 	conn: &Arc<Mutex<Connection>>,
