@@ -61,7 +61,10 @@ impl AlarmFieldValidator {
                 log::info!("deregistering alarm on {}", id.as_str());
                 Ok(())
             },
-            None => Err(ModuleError::new())
+            None => {
+                // Err(ModuleError::new());
+                Ok(())
+            }
         }
     }
 
