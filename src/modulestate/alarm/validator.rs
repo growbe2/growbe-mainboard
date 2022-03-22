@@ -106,6 +106,7 @@ impl AlarmFieldValidator {
                     event.previousZone = item.state.zone;
                     event.currentValue = value.current_value as u32;
                     event.currentZone = new_zone;
+                    event.moduleId = change.module_id.clone();
 
                     item.state.current_value = value.current_value;
                     item.state.zone = new_zone;
