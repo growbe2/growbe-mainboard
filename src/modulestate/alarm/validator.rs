@@ -97,6 +97,7 @@ impl AlarmFieldValidator {
             if let Some(item) = result {
 
                 let new_zone = AlarmFieldValidator::get_value_zone(value.current_value, item.field_alarm.get_low(), item.field_alarm.get_high(),item.state.zone);
+                item.state.previous_value = value.current_value;
 
                 if new_zone != AlarmZone::UNKNOW && new_zone != item.state.zone {
                     log::debug!("transition from {:?} to {:?} {} {}", item.state.zone, new_zone, value.current_value, value.previous_value);
