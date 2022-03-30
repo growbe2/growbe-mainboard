@@ -97,7 +97,6 @@ impl AlarmFieldValidator {
             if let Some(item) = result {
 
                 let new_zone = AlarmFieldValidator::get_value_zone(value.current_value, item.field_alarm.get_low(), item.field_alarm.get_high(),item.state.zone);
-                item.state.previous_value = value.current_value;
 
                 if new_zone != AlarmZone::UNKNOW && new_zone != item.state.zone {
                     log::debug!("transition from {:?} to {:?} {} {}", item.state.zone, new_zone, value.current_value, value.previous_value);
@@ -114,6 +113,8 @@ impl AlarmFieldValidator {
 
                     return Some(event);
                 }
+
+                item.state.previous_value = value.current_value;
            }
             return None;
         }).collect();
@@ -200,10 +201,21 @@ mod tests {
         
 
         assert_eq!(events.len(), 4);
+
         assert_eq!(events[0].currentZone, AlarmZone::LOW);
+        assert_eq!(events[0].previousValue, 0);
+        assert_eq!(events[0].currentValue, 30);
+
         assert_eq!(events[1].currentZone, AlarmZone::MIDDLE);
+        assert_eq!(events[1].previousValue, 32);
+        assert_eq!(events[1].currentValue, 40);
+
         assert_eq!(events[2].currentZone, AlarmZone::HIGH);
+        assert_eq!(events[2].previousValue, 72);
+        assert_eq!(events[2].currentValue, 73);
+ 
         assert_eq!(events[3].currentZone, AlarmZone::MIDDLE);
+ 
     }
 
 
