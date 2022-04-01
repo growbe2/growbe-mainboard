@@ -1,18 +1,24 @@
 {
-	"id": "1F54019",
-	"mqtt": {
-		"url": "broker.dev.growbe.ca",
-		"port": 1884
-	},
-	"comboard": {
-		"config": "./virtual-comboard.json",
-		"imple": "virt"
-	},
-	"server": {
-		"addr": "0.0.0.0",
-		"port": 3031
-	},
-	"logger": {
-		"target": "growbe_mainboard"
-	}
+  "id": "1F54019",
+  "mqtt": {
+    "url": "broker.dev.growbe.ca",
+    "port": 1884
+  },
+  "comboard": {
+    "imple": "virt",
+    "config": "./virtual-comboard.json"
+  },
+  "server": {
+    "addr": "0.0.0.0",
+    "port": 3031
+  },
+  "logger": {
+    "target": "growbe_mainboard",
+    "systemd": true
+  },
+  "update": {
+    "autoupdate": false,
+    "channel": "",
+    "reboot": false
+  }
 }

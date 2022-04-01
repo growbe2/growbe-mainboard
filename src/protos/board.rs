@@ -1165,6 +1165,1427 @@ impl ::protobuf::reflect::ProtobufValue for LocalConnection {
     }
 }
 
+#[derive(PartialEq,Clone,Default)]
+pub struct MQTTConfig {
+    // message fields
+    pub url: ::std::string::String,
+    pub port: i32,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a MQTTConfig {
+    fn default() -> &'a MQTTConfig {
+        <MQTTConfig as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl MQTTConfig {
+    pub fn new() -> MQTTConfig {
+        ::std::default::Default::default()
+    }
+
+    // string url = 1;
+
+
+    pub fn get_url(&self) -> &str {
+        &self.url
+    }
+    pub fn clear_url(&mut self) {
+        self.url.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_url(&mut self, v: ::std::string::String) {
+        self.url = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_url(&mut self) -> &mut ::std::string::String {
+        &mut self.url
+    }
+
+    // Take field
+    pub fn take_url(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.url, ::std::string::String::new())
+    }
+
+    // int32 port = 2;
+
+
+    pub fn get_port(&self) -> i32 {
+        self.port
+    }
+    pub fn clear_port(&mut self) {
+        self.port = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_port(&mut self, v: i32) {
+        self.port = v;
+    }
+}
+
+impl ::protobuf::Message for MQTTConfig {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.url)?;
+                },
+                2 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_int32()?;
+                    self.port = tmp;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if !self.url.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.url);
+        }
+        if self.port != 0 {
+            my_size += ::protobuf::rt::value_size(2, self.port, ::protobuf::wire_format::WireTypeVarint);
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if !self.url.is_empty() {
+            os.write_string(1, &self.url)?;
+        }
+        if self.port != 0 {
+            os.write_int32(2, self.port)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> MQTTConfig {
+        MQTTConfig::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "url",
+                |m: &MQTTConfig| { &m.url },
+                |m: &mut MQTTConfig| { &mut m.url },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt32>(
+                "port",
+                |m: &MQTTConfig| { &m.port },
+                |m: &mut MQTTConfig| { &mut m.port },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<MQTTConfig>(
+                "MQTTConfig",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static MQTTConfig {
+        static instance: ::protobuf::rt::LazyV2<MQTTConfig> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(MQTTConfig::new)
+    }
+}
+
+impl ::protobuf::Clear for MQTTConfig {
+    fn clear(&mut self) {
+        self.url.clear();
+        self.port = 0;
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for MQTTConfig {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for MQTTConfig {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
+pub struct ComboardConfig {
+    // message fields
+    pub config: ::std::string::String,
+    pub imple: ::std::string::String,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a ComboardConfig {
+    fn default() -> &'a ComboardConfig {
+        <ComboardConfig as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl ComboardConfig {
+    pub fn new() -> ComboardConfig {
+        ::std::default::Default::default()
+    }
+
+    // string config = 1;
+
+
+    pub fn get_config(&self) -> &str {
+        &self.config
+    }
+    pub fn clear_config(&mut self) {
+        self.config.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_config(&mut self, v: ::std::string::String) {
+        self.config = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_config(&mut self) -> &mut ::std::string::String {
+        &mut self.config
+    }
+
+    // Take field
+    pub fn take_config(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.config, ::std::string::String::new())
+    }
+
+    // string imple = 2;
+
+
+    pub fn get_imple(&self) -> &str {
+        &self.imple
+    }
+    pub fn clear_imple(&mut self) {
+        self.imple.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_imple(&mut self, v: ::std::string::String) {
+        self.imple = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_imple(&mut self) -> &mut ::std::string::String {
+        &mut self.imple
+    }
+
+    // Take field
+    pub fn take_imple(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.imple, ::std::string::String::new())
+    }
+}
+
+impl ::protobuf::Message for ComboardConfig {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.config)?;
+                },
+                2 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.imple)?;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if !self.config.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.config);
+        }
+        if !self.imple.is_empty() {
+            my_size += ::protobuf::rt::string_size(2, &self.imple);
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if !self.config.is_empty() {
+            os.write_string(1, &self.config)?;
+        }
+        if !self.imple.is_empty() {
+            os.write_string(2, &self.imple)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> ComboardConfig {
+        ComboardConfig::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "config",
+                |m: &ComboardConfig| { &m.config },
+                |m: &mut ComboardConfig| { &mut m.config },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "imple",
+                |m: &ComboardConfig| { &m.imple },
+                |m: &mut ComboardConfig| { &mut m.imple },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<ComboardConfig>(
+                "ComboardConfig",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static ComboardConfig {
+        static instance: ::protobuf::rt::LazyV2<ComboardConfig> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(ComboardConfig::new)
+    }
+}
+
+impl ::protobuf::Clear for ComboardConfig {
+    fn clear(&mut self) {
+        self.config.clear();
+        self.imple.clear();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for ComboardConfig {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for ComboardConfig {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
+pub struct HttpServerConfig {
+    // message fields
+    pub addr: ::std::string::String,
+    pub port: i32,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a HttpServerConfig {
+    fn default() -> &'a HttpServerConfig {
+        <HttpServerConfig as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl HttpServerConfig {
+    pub fn new() -> HttpServerConfig {
+        ::std::default::Default::default()
+    }
+
+    // string addr = 1;
+
+
+    pub fn get_addr(&self) -> &str {
+        &self.addr
+    }
+    pub fn clear_addr(&mut self) {
+        self.addr.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_addr(&mut self, v: ::std::string::String) {
+        self.addr = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_addr(&mut self) -> &mut ::std::string::String {
+        &mut self.addr
+    }
+
+    // Take field
+    pub fn take_addr(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.addr, ::std::string::String::new())
+    }
+
+    // int32 port = 2;
+
+
+    pub fn get_port(&self) -> i32 {
+        self.port
+    }
+    pub fn clear_port(&mut self) {
+        self.port = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_port(&mut self, v: i32) {
+        self.port = v;
+    }
+}
+
+impl ::protobuf::Message for HttpServerConfig {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.addr)?;
+                },
+                2 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_int32()?;
+                    self.port = tmp;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if !self.addr.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.addr);
+        }
+        if self.port != 0 {
+            my_size += ::protobuf::rt::value_size(2, self.port, ::protobuf::wire_format::WireTypeVarint);
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if !self.addr.is_empty() {
+            os.write_string(1, &self.addr)?;
+        }
+        if self.port != 0 {
+            os.write_int32(2, self.port)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> HttpServerConfig {
+        HttpServerConfig::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "addr",
+                |m: &HttpServerConfig| { &m.addr },
+                |m: &mut HttpServerConfig| { &mut m.addr },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt32>(
+                "port",
+                |m: &HttpServerConfig| { &m.port },
+                |m: &mut HttpServerConfig| { &mut m.port },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<HttpServerConfig>(
+                "HttpServerConfig",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static HttpServerConfig {
+        static instance: ::protobuf::rt::LazyV2<HttpServerConfig> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(HttpServerConfig::new)
+    }
+}
+
+impl ::protobuf::Clear for HttpServerConfig {
+    fn clear(&mut self) {
+        self.addr.clear();
+        self.port = 0;
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for HttpServerConfig {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for HttpServerConfig {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
+pub struct LoggerConfig {
+    // message fields
+    pub target: ::std::string::String,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a LoggerConfig {
+    fn default() -> &'a LoggerConfig {
+        <LoggerConfig as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl LoggerConfig {
+    pub fn new() -> LoggerConfig {
+        ::std::default::Default::default()
+    }
+
+    // string target = 1;
+
+
+    pub fn get_target(&self) -> &str {
+        &self.target
+    }
+    pub fn clear_target(&mut self) {
+        self.target.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_target(&mut self, v: ::std::string::String) {
+        self.target = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_target(&mut self) -> &mut ::std::string::String {
+        &mut self.target
+    }
+
+    // Take field
+    pub fn take_target(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.target, ::std::string::String::new())
+    }
+}
+
+impl ::protobuf::Message for LoggerConfig {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.target)?;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if !self.target.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.target);
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if !self.target.is_empty() {
+            os.write_string(1, &self.target)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> LoggerConfig {
+        LoggerConfig::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "target",
+                |m: &LoggerConfig| { &m.target },
+                |m: &mut LoggerConfig| { &mut m.target },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<LoggerConfig>(
+                "LoggerConfig",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static LoggerConfig {
+        static instance: ::protobuf::rt::LazyV2<LoggerConfig> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(LoggerConfig::new)
+    }
+}
+
+impl ::protobuf::Clear for LoggerConfig {
+    fn clear(&mut self) {
+        self.target.clear();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for LoggerConfig {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for LoggerConfig {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
+pub struct UpdaterConfig {
+    // message fields
+    pub autoupdate: bool,
+    pub channel: ::std::string::String,
+    pub reboot: bool,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a UpdaterConfig {
+    fn default() -> &'a UpdaterConfig {
+        <UpdaterConfig as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl UpdaterConfig {
+    pub fn new() -> UpdaterConfig {
+        ::std::default::Default::default()
+    }
+
+    // bool autoupdate = 1;
+
+
+    pub fn get_autoupdate(&self) -> bool {
+        self.autoupdate
+    }
+    pub fn clear_autoupdate(&mut self) {
+        self.autoupdate = false;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_autoupdate(&mut self, v: bool) {
+        self.autoupdate = v;
+    }
+
+    // string channel = 2;
+
+
+    pub fn get_channel(&self) -> &str {
+        &self.channel
+    }
+    pub fn clear_channel(&mut self) {
+        self.channel.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_channel(&mut self, v: ::std::string::String) {
+        self.channel = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_channel(&mut self) -> &mut ::std::string::String {
+        &mut self.channel
+    }
+
+    // Take field
+    pub fn take_channel(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.channel, ::std::string::String::new())
+    }
+
+    // bool reboot = 3;
+
+
+    pub fn get_reboot(&self) -> bool {
+        self.reboot
+    }
+    pub fn clear_reboot(&mut self) {
+        self.reboot = false;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_reboot(&mut self, v: bool) {
+        self.reboot = v;
+    }
+}
+
+impl ::protobuf::Message for UpdaterConfig {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_bool()?;
+                    self.autoupdate = tmp;
+                },
+                2 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.channel)?;
+                },
+                3 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_bool()?;
+                    self.reboot = tmp;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if self.autoupdate != false {
+            my_size += 2;
+        }
+        if !self.channel.is_empty() {
+            my_size += ::protobuf::rt::string_size(2, &self.channel);
+        }
+        if self.reboot != false {
+            my_size += 2;
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if self.autoupdate != false {
+            os.write_bool(1, self.autoupdate)?;
+        }
+        if !self.channel.is_empty() {
+            os.write_string(2, &self.channel)?;
+        }
+        if self.reboot != false {
+            os.write_bool(3, self.reboot)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> UpdaterConfig {
+        UpdaterConfig::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBool>(
+                "autoupdate",
+                |m: &UpdaterConfig| { &m.autoupdate },
+                |m: &mut UpdaterConfig| { &mut m.autoupdate },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "channel",
+                |m: &UpdaterConfig| { &m.channel },
+                |m: &mut UpdaterConfig| { &mut m.channel },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBool>(
+                "reboot",
+                |m: &UpdaterConfig| { &m.reboot },
+                |m: &mut UpdaterConfig| { &mut m.reboot },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<UpdaterConfig>(
+                "UpdaterConfig",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static UpdaterConfig {
+        static instance: ::protobuf::rt::LazyV2<UpdaterConfig> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(UpdaterConfig::new)
+    }
+}
+
+impl ::protobuf::Clear for UpdaterConfig {
+    fn clear(&mut self) {
+        self.autoupdate = false;
+        self.channel.clear();
+        self.reboot = false;
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for UpdaterConfig {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for UpdaterConfig {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
+pub struct MainboardConfig {
+    // message fields
+    pub id: ::std::string::String,
+    pub mqtt: ::protobuf::SingularPtrField<MQTTConfig>,
+    pub comboard: ::protobuf::SingularPtrField<ComboardConfig>,
+    pub server: ::protobuf::SingularPtrField<HttpServerConfig>,
+    pub logger: ::protobuf::SingularPtrField<LoggerConfig>,
+    pub update: ::protobuf::SingularPtrField<UpdaterConfig>,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a MainboardConfig {
+    fn default() -> &'a MainboardConfig {
+        <MainboardConfig as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl MainboardConfig {
+    pub fn new() -> MainboardConfig {
+        ::std::default::Default::default()
+    }
+
+    // string id = 1;
+
+
+    pub fn get_id(&self) -> &str {
+        &self.id
+    }
+    pub fn clear_id(&mut self) {
+        self.id.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_id(&mut self, v: ::std::string::String) {
+        self.id = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_id(&mut self) -> &mut ::std::string::String {
+        &mut self.id
+    }
+
+    // Take field
+    pub fn take_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.id, ::std::string::String::new())
+    }
+
+    // .MQTTConfig mqtt = 2;
+
+
+    pub fn get_mqtt(&self) -> &MQTTConfig {
+        self.mqtt.as_ref().unwrap_or_else(|| <MQTTConfig as ::protobuf::Message>::default_instance())
+    }
+    pub fn clear_mqtt(&mut self) {
+        self.mqtt.clear();
+    }
+
+    pub fn has_mqtt(&self) -> bool {
+        self.mqtt.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_mqtt(&mut self, v: MQTTConfig) {
+        self.mqtt = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_mqtt(&mut self) -> &mut MQTTConfig {
+        if self.mqtt.is_none() {
+            self.mqtt.set_default();
+        }
+        self.mqtt.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_mqtt(&mut self) -> MQTTConfig {
+        self.mqtt.take().unwrap_or_else(|| MQTTConfig::new())
+    }
+
+    // .ComboardConfig comboard = 3;
+
+
+    pub fn get_comboard(&self) -> &ComboardConfig {
+        self.comboard.as_ref().unwrap_or_else(|| <ComboardConfig as ::protobuf::Message>::default_instance())
+    }
+    pub fn clear_comboard(&mut self) {
+        self.comboard.clear();
+    }
+
+    pub fn has_comboard(&self) -> bool {
+        self.comboard.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_comboard(&mut self, v: ComboardConfig) {
+        self.comboard = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_comboard(&mut self) -> &mut ComboardConfig {
+        if self.comboard.is_none() {
+            self.comboard.set_default();
+        }
+        self.comboard.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_comboard(&mut self) -> ComboardConfig {
+        self.comboard.take().unwrap_or_else(|| ComboardConfig::new())
+    }
+
+    // .HttpServerConfig server = 4;
+
+
+    pub fn get_server(&self) -> &HttpServerConfig {
+        self.server.as_ref().unwrap_or_else(|| <HttpServerConfig as ::protobuf::Message>::default_instance())
+    }
+    pub fn clear_server(&mut self) {
+        self.server.clear();
+    }
+
+    pub fn has_server(&self) -> bool {
+        self.server.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_server(&mut self, v: HttpServerConfig) {
+        self.server = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_server(&mut self) -> &mut HttpServerConfig {
+        if self.server.is_none() {
+            self.server.set_default();
+        }
+        self.server.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_server(&mut self) -> HttpServerConfig {
+        self.server.take().unwrap_or_else(|| HttpServerConfig::new())
+    }
+
+    // .LoggerConfig logger = 5;
+
+
+    pub fn get_logger(&self) -> &LoggerConfig {
+        self.logger.as_ref().unwrap_or_else(|| <LoggerConfig as ::protobuf::Message>::default_instance())
+    }
+    pub fn clear_logger(&mut self) {
+        self.logger.clear();
+    }
+
+    pub fn has_logger(&self) -> bool {
+        self.logger.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_logger(&mut self, v: LoggerConfig) {
+        self.logger = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_logger(&mut self) -> &mut LoggerConfig {
+        if self.logger.is_none() {
+            self.logger.set_default();
+        }
+        self.logger.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_logger(&mut self) -> LoggerConfig {
+        self.logger.take().unwrap_or_else(|| LoggerConfig::new())
+    }
+
+    // .UpdaterConfig update = 6;
+
+
+    pub fn get_update(&self) -> &UpdaterConfig {
+        self.update.as_ref().unwrap_or_else(|| <UpdaterConfig as ::protobuf::Message>::default_instance())
+    }
+    pub fn clear_update(&mut self) {
+        self.update.clear();
+    }
+
+    pub fn has_update(&self) -> bool {
+        self.update.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_update(&mut self, v: UpdaterConfig) {
+        self.update = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_update(&mut self) -> &mut UpdaterConfig {
+        if self.update.is_none() {
+            self.update.set_default();
+        }
+        self.update.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_update(&mut self) -> UpdaterConfig {
+        self.update.take().unwrap_or_else(|| UpdaterConfig::new())
+    }
+}
+
+impl ::protobuf::Message for MainboardConfig {
+    fn is_initialized(&self) -> bool {
+        for v in &self.mqtt {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        for v in &self.comboard {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        for v in &self.server {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        for v in &self.logger {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        for v in &self.update {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.id)?;
+                },
+                2 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.mqtt)?;
+                },
+                3 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.comboard)?;
+                },
+                4 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.server)?;
+                },
+                5 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.logger)?;
+                },
+                6 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.update)?;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if !self.id.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.id);
+        }
+        if let Some(ref v) = self.mqtt.as_ref() {
+            let len = v.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        }
+        if let Some(ref v) = self.comboard.as_ref() {
+            let len = v.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        }
+        if let Some(ref v) = self.server.as_ref() {
+            let len = v.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        }
+        if let Some(ref v) = self.logger.as_ref() {
+            let len = v.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        }
+        if let Some(ref v) = self.update.as_ref() {
+            let len = v.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if !self.id.is_empty() {
+            os.write_string(1, &self.id)?;
+        }
+        if let Some(ref v) = self.mqtt.as_ref() {
+            os.write_tag(2, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        }
+        if let Some(ref v) = self.comboard.as_ref() {
+            os.write_tag(3, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        }
+        if let Some(ref v) = self.server.as_ref() {
+            os.write_tag(4, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        }
+        if let Some(ref v) = self.logger.as_ref() {
+            os.write_tag(5, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        }
+        if let Some(ref v) = self.update.as_ref() {
+            os.write_tag(6, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> MainboardConfig {
+        MainboardConfig::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "id",
+                |m: &MainboardConfig| { &m.id },
+                |m: &mut MainboardConfig| { &mut m.id },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<MQTTConfig>>(
+                "mqtt",
+                |m: &MainboardConfig| { &m.mqtt },
+                |m: &mut MainboardConfig| { &mut m.mqtt },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<ComboardConfig>>(
+                "comboard",
+                |m: &MainboardConfig| { &m.comboard },
+                |m: &mut MainboardConfig| { &mut m.comboard },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<HttpServerConfig>>(
+                "server",
+                |m: &MainboardConfig| { &m.server },
+                |m: &mut MainboardConfig| { &mut m.server },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<LoggerConfig>>(
+                "logger",
+                |m: &MainboardConfig| { &m.logger },
+                |m: &mut MainboardConfig| { &mut m.logger },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<UpdaterConfig>>(
+                "update",
+                |m: &MainboardConfig| { &m.update },
+                |m: &mut MainboardConfig| { &mut m.update },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<MainboardConfig>(
+                "MainboardConfig",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static MainboardConfig {
+        static instance: ::protobuf::rt::LazyV2<MainboardConfig> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(MainboardConfig::new)
+    }
+}
+
+impl ::protobuf::Clear for MainboardConfig {
+    fn clear(&mut self) {
+        self.id.clear();
+        self.mqtt.clear();
+        self.comboard.clear();
+        self.server.clear();
+        self.logger.clear();
+        self.update.clear();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for MainboardConfig {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for MainboardConfig {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
 static file_descriptor_proto_data: &'static [u8] = b"\
     \n\x0bboard.proto\"9\n\x15GrowbeMainboardConfig\x12\x20\n\x0bhearthBeath\
     \x18\x01\x20\x01(\x05R\x0bhearthBeath\"[\n\tHelloWord\x12\x18\n\x07versi\
@@ -1176,7 +2597,21 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     d\x18\x02\x20\x01(\x08R\trestarted\"\x10\n\x0eRestartRequest\"_\n\x0fLoc\
     alConnection\x12\x12\n\x04ssid\x18\x01\x20\x01(\tR\x04ssid\x12\x20\n\x0b\
     signalLevel\x18\x02\x20\x01(\x05R\x0bsignalLevel\x12\x16\n\x06ipAddr\x18\
-    \x03\x20\x01(\tR\x06ipAddrb\x06proto3\
+    \x03\x20\x01(\tR\x06ipAddr\"2\n\nMQTTConfig\x12\x10\n\x03url\x18\x01\x20\
+    \x01(\tR\x03url\x12\x12\n\x04port\x18\x02\x20\x01(\x05R\x04port\">\n\x0e\
+    ComboardConfig\x12\x16\n\x06config\x18\x01\x20\x01(\tR\x06config\x12\x14\
+    \n\x05imple\x18\x02\x20\x01(\tR\x05imple\":\n\x10HttpServerConfig\x12\
+    \x12\n\x04addr\x18\x01\x20\x01(\tR\x04addr\x12\x12\n\x04port\x18\x02\x20\
+    \x01(\x05R\x04port\"&\n\x0cLoggerConfig\x12\x16\n\x06target\x18\x01\x20\
+    \x01(\tR\x06target\"a\n\rUpdaterConfig\x12\x1e\n\nautoupdate\x18\x01\x20\
+    \x01(\x08R\nautoupdate\x12\x18\n\x07channel\x18\x02\x20\x01(\tR\x07chann\
+    el\x12\x16\n\x06reboot\x18\x03\x20\x01(\x08R\x06reboot\"\xe9\x01\n\x0fMa\
+    inboardConfig\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\x1f\n\x04mqt\
+    t\x18\x02\x20\x01(\x0b2\x0b.MQTTConfigR\x04mqtt\x12+\n\x08comboard\x18\
+    \x03\x20\x01(\x0b2\x0f.ComboardConfigR\x08comboard\x12)\n\x06server\x18\
+    \x04\x20\x01(\x0b2\x11.HttpServerConfigR\x06server\x12%\n\x06logger\x18\
+    \x05\x20\x01(\x0b2\r.LoggerConfigR\x06logger\x12&\n\x06update\x18\x06\
+    \x20\x01(\x0b2\x0e.UpdaterConfigR\x06updateb\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

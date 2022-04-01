@@ -8,6 +8,7 @@ use std::time::{Instant, Duration};
 use rumqtt::{MqttOptions, MqttClient, QoS, Notification};
 use protobuf::Message;
 
+use crate::mainboardstate::config::rewrite_configuration;
 use crate::protos::message::ActionCode;
 
 struct SocketMessagingError {
@@ -99,6 +100,12 @@ fn on_localconnection(_topic_name: String, _data: Arc<Vec<u8>>) -> Result<Option
     return Ok(Some((format!("/growbe/{}/localconnection", crate::id::get()), local_connection.write_to_bytes().unwrap(), true)));
 }
 
+fn on_setconfig(_topic_name: String, data: Arc<Vec<u8>>) -> Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError> {
+    let config = crate::protos::board::MainboardConfig::parse_from_bytes(&data).unwrap();
+    rewrite_configuration(config);
+    return Ok(None);
+}
+
 pub fn socket_task(
     receiver_socket: Arc<Mutex<Receiver<(String, Box<dyn crate::modulestate::interface::ModuleValueParsable>)>>>,
     config_mqtt: &'static mqtt::CloudMQTTConfig,
@@ -140,6 +147,13 @@ pub fn socket_task(
             regex: "reboot",
             action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
             handler: on_reboot,
+            not_prefix: false,
+        },
+        MqttHandler{
+            subscription: "/board/config".to_string(),
+            regex: "config",
+            action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
+            handler: on_setconfig,
             not_prefix: false,
         },
         MqttHandler{
