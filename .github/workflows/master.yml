@@ -19,7 +19,7 @@ jobs:
       - name: Run UT
         run: ./scripts/rust_env.sh cargo test
       - name: Build ARMv7
-        run: ./scripts/rust_env.sh make -C ./drivers clean && ./scripts/rust_env.sh make -C ./drivers CC=arm-linux-gnueabihf-gcc && COMMIT=$(echo ${GITHUB_SHA} | cut -c1-8) ./scripts/rust_env.sh cargo build --target armv7-unknown-linux-gnueabihf --release
+        run: ./scripts/rust_env.sh make -C ./drivers && COMMIT=$(echo ${GITHUB_SHA} | cut -c1-8) ./scripts/rust_env.sh cargo build --target armv7-unknown-linux-gnueabihf --release
       - name: Create release folder
         run: mkdir -p release && cp ./target/armv7-unknown-linux-gnueabihf/release/growbe-mainboard ./release/growbe-mainboard-arm-linux
       - uses: "marvinpinto/action-automatic-releases@latest"
@@ -30,8 +30,6 @@ jobs:
           title: "Development Build"
           files: |
             ./release/*
-      - name: Send notification to the growbe-cloud
-        run: docker run --env DB_URL=${{secrets.DB_URL}} --env MQTT_URL=${{secrets.MQTT_URL}} docker.pkg.github.com/growbe2/growbe-cloud/growbe-cloud node ./dist/growbe-version.js latest
       - name: Notify
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
