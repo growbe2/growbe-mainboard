@@ -101,9 +101,15 @@ fn on_localconnection(_topic_name: String, _data: Arc<Vec<u8>>) -> Result<Option
 }
 
 fn on_setconfig(_topic_name: String, data: Arc<Vec<u8>>) -> Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError> {
-    let config = crate::protos::board::MainboardConfig::parse_from_bytes(&data).unwrap();
-    rewrite_configuration(config);
-    return Ok(None);
+    match crate::protos::board::MainboardConfig::parse_from_bytes(&data) {
+        Ok(config) => {
+           rewrite_configuration(config);
+           return Ok(None);
+        },
+        Err(_) => {
+            return Err(SocketMessagingError::new());
+        }
+    }
 }
 
 pub fn socket_task(
@@ -150,8 +156,8 @@ pub fn socket_task(
             not_prefix: false,
         },
         MqttHandler{
-            subscription: "/board/config".to_string(),
-            regex: "config",
+            subscription: "/board/boardconfig".to_string(),
+            regex: "boardconfig",
             action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
             handler: on_setconfig,
             not_prefix: false,
