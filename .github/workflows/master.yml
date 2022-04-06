@@ -19,7 +19,7 @@ jobs:
       - name: Run UT
         run: ./scripts/rust_env.sh cargo test
       - name: Build ARMv7
-        run: ./scripts/rust_env.sh make -C ./drivers clean && ./scripts/rust_env.sh make -C ./drivers CC=arm-linux-gnueabihf-gcc && COMMIT=$(echo ${GITHUB_SHA} | cut -c1-8) ./scripts/rust_env.sh cargo build --target armv7-unknown-linux-gnueabihf --release
+        run: ./scripts/rust_env.sh make -C ./drivers clean && ./scripts/rust_env.sh make -C ./drivers CC=arm-linux-gnueabihf-gcc && COMMIT=$(git rev-parse --short "$GITHUB_SHA") ./scripts/rust_env.sh cargo build --target armv7-unknown-linux-gnueabihf --release
       - name: Create release folder
         run: mkdir -p release && cp ./target/armv7-unknown-linux-gnueabihf/release/growbe-mainboard ./release/growbe-mainboard-arm-linux
       - uses: "marvinpinto/action-automatic-releases@latest"
