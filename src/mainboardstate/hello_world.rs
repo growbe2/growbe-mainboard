@@ -4,7 +4,7 @@ use rumqtt::Header;
 use crate::{protos::{board::{HelloWord,}}, mainboardstate::config::get_configuration_proto};
 
 const VERSION: &'static str = env!("CARGO_PKG_VERSION");
-const SNAPSHOT_COMMIT: Option<&'static str> = option_env!("SHAPSHOT_COMMIT");
+const SNAPSHOT_COMMIT: Option<&'static str> = option_env!("COMMIT");
 
 impl crate::modulestate::interface::ModuleValue for crate::protos::board::HelloWord {}
 impl crate::modulestate::interface::ModuleValueParsable for crate::protos::board::HelloWord {}
