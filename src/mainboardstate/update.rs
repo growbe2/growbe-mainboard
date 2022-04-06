@@ -3,10 +3,15 @@ use std::process::Command;
 use std::io::Write;
 
 
+fn get_default_reboot() -> bool {
+    false
+}
+
 #[derive(Serialize, Deserialize)]
 pub struct UpdateConfig {
     pub autoupdate: bool,
     pub channel: String,
+	#[serde(default = "get_default_reboot")]
     pub reboot: bool,
 }
 

@@ -18,7 +18,6 @@
   },
   "update": {
     "autoupdate": false,
-    "channel": "",
-    "reboot": false
+    "channel": "dev"
   }
 }
