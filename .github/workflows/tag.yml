@@ -20,24 +20,18 @@ jobs:
         run: ./scripts/rust_env.sh cargo vendor && ./scripts/rust_env.sh make -C ./drivers
       - name: Build ARMv7
         run: ./scripts/rust_env.sh make -C ./drivers clean && ./scripts/rust_env.sh make -C ./drivers CC=arm-linux-gnueabihf-gcc && ./scripts/rust_env.sh cargo build --target armv7-unknown-linux-gnueabihf --release
-      - name: Build ARMv6
-        run: ./scripts/rust_env.sh cargo build --target arm-unknown-linux-gnueabihf --release
       - name: Create release folder
-        run: mkdir -p release && cp ./target/armv7-unknown-linux-gnueabihf/release/growbe-mainboard ./release/growbe-mainboard-arm-linux && cp ./target/arm-unknown-linux-gnueabihf/release/growbe-mainboard ./release/growbe-mainboard-armv6-linux
+        run: mkdir -p release && cp ./target/armv7-unknown-linux-gnueabihf/release/growbe-mainboard ./release/growbe-mainboard-arm-linux
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
           files: ./release/*
           draft: true
-      - name: Extract tag name
+      - name: Get the version
         id: tag
-        uses: actions/github-script@0.2.0
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            return context.payload.ref.replace(/\/refs\/tags\//, '');
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
       - name: Send notification to the growbe-cloud
-        run: docker run --env DB_URL=${{secrets.DB_URL}} --env MQTT_URL=${{secrets.MQTT_URL}} docker.pkg.github.com/growbe2/growbe-cloud/growbe-cloud node ./dist/growbe-version.js ${{ steps.tag.outputs.result }}
+        run: docker run --env API_URL=http://api.growbe.ca --env SSO_URL=https://auth.growbe.ca --env PASSWORD=${{secrets.PASSWORD}} --env EMAIL=${{secrets.EMAIL}} docker.pkg.github.com/growbe2/growbe-cloud/growbe-cloud:1.2.5-SNAPSHOT-060422-03h-c5cba69 node ./dist/growbe-version.js ${{ steps.tag.outputs.result  }}
       - name: Notify
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
