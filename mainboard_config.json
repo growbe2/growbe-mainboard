@@ -1,12 +1,19 @@
 {
+	"id": "123456",
 	"mqtt": {
 		"url": "broker.dev.growbe.ca",
 		"port": 1884
 	},
-	"comboard": {
-		"config": "/dev/i2c-1",
-		"imple": "i2c"
-	},
+	"comboards": [
+		{
+			"config": "./virtual-comboard.json",
+			"imple": "virt"
+		},
+		{
+			"config": "",
+			"imple": "ble"
+		}
+	],
 	"server": {
 		"addr": "0.0.0.0",
 		"port": 3031

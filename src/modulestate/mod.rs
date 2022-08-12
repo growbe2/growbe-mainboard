@@ -2,9 +2,13 @@
 pub mod aaa;
 pub mod aas;
 pub mod aap;
+pub mod aab;
+pub mod ppo;
+pub mod pac;
+pub mod pal;
+pub mod ppr;
 pub mod store;
 pub mod relay;
-pub mod aab;
 pub mod interface;
 pub mod alarm;
 pub mod actor;
@@ -22,7 +26,7 @@ use std::sync::{Mutex, Arc};
 use std::sync::mpsc::{Receiver, Sender,};
 use aab::AABValidator;
 
-use self::relay::virtual_relay::handler::on_module_state_changed_virtual_relays;
+use self::{relay::virtual_relay::handler::on_module_state_changed_virtual_relays, pac::PACValidator, ppo::PPOValidator, ppr::PPRValidator, pal::PALValidator};
 
 lazy_static! {
     pub static ref CHANNEL_MODULE_STATE_CMD: (Mutex<Sender<ModuleStateCmd>>, Mutex<Receiver<ModuleStateCmd>>) = {
@@ -30,13 +34,15 @@ lazy_static! {
         return (Mutex::new(sender), Mutex::new(receiver));
     };
 
-    static ref REGEX_MODULE_ID: Regex = Regex::new("[A-Z]{3}[0-9]{9}").unwrap();
+    static ref REGEX_MODULE_ID: Regex = Regex::new("[A-Z]{3}[A-Z0-9]{9}").unwrap();
 }
 
 
 pub struct MainboardConnectedModule {
     pub port: i32,
     pub id: String,
+    pub board: String,
+    pub board_addr: String,
     pub handler_map: std::collections::HashMap<String, tokio_util::sync::CancellationToken>,
     pub last_value: Option<Box<dyn interface::ModuleValueParsable>>,
     pub validator: Box<dyn interface::ModuleValueValidator>,
@@ -48,19 +54,19 @@ pub struct MainboardModuleStateManager {
 
 
 impl MainboardModuleStateManager {
-    fn get_module_at_index(&self, port: i32) -> Option<&MainboardConnectedModule> {
+    fn get_module_at_index(&self, board: &String, board_addr: &String, port: i32) -> Option<&MainboardConnectedModule> {
         for (_, v) in self.connected_module.iter() {
-            if v.port == port {
+            if v.port == port && v.board == *board && v.board_addr == *board_addr {
                 return Some(&v);
             }
         }
         return None;
     }
     // cheap hack plz can i do better
-    fn get_module_at_index_mut(&mut self, port: i32) -> Option<&mut MainboardConnectedModule> {
+    fn get_module_at_index_mut(&mut self, board: &String, board_addr: &String, port: i32) -> Option<&mut MainboardConnectedModule> {
         let mut id: String = String::from("");
         {
-            if let Some(its_a_me_variable) = self.get_module_at_index(port) {
+            if let Some(its_a_me_variable) = self.get_module_at_index(board, board_addr, port) {
                 id = its_a_me_variable.id.clone();
             }
         }
@@ -81,6 +87,14 @@ fn get_module_validator(module_type: char, ) -> Result<Box<dyn interface::Module
         return Ok(Box::new(aap::AAPValidator::new()));
     } else if module_type == 'B' {
         return Ok(Box::new(AABValidator::new()));
+    } else if module_type == 'C' {
+        return Ok(Box::new(PACValidator::new()));
+    } else if module_type == 'O' {
+        return Ok(Box::new(PPOValidator::new()));
+    } else if module_type == 'R' {
+        return Ok(Box::new(PPRValidator::new()));
+    } else if module_type == 'L' {
+        return Ok(Box::new(PALValidator::new()));
     } else {
         return Err(interface::ModuleError::new().message("cannot find validator for module type".to_string()));
     }
@@ -101,12 +115,16 @@ fn send_module_state(
     id: &str,
     port: i32,
     state: bool,
+    board: &String,
+    board_addr: &String,
     sender_socket: & Sender<(String, Box<dyn interface::ModuleValueParsable>)>,
 ) -> () {
     let mut send_state = crate::protos::module::ModuleData::new();
     send_state.id = String::from(id);
     send_state.plug = state;
     send_state.atIndex = port;
+    send_state.board = board.clone();
+    send_state.boardAddr = board_addr.clone();
     if let Err(err) = sender_socket.send((String::from(format!("/m/{}/state", id)), Box::new(send_state))) {
         log::error!("error sending message for module state {:?}", err);
     }
@@ -146,12 +164,14 @@ fn handle_module_state(
             manager.connected_module.insert(state.id.clone(), MainboardConnectedModule{
                 port: state.port,
                 id: state.id.clone(),
+                board: state.board.clone(),
+                board_addr: state.board_addr.clone(),
                 handler_map: std::collections::HashMap::new(),
                 last_value: None,
                 validator: validator,
             });
 
-            send_module_state(state.id.as_str(), state.port, true, sender_socket);
+            send_module_state(state.id.as_str(), state.port, true, &state.board, &state.board_addr, sender_socket);
 
 
             let config = store.get_module_config(&state.id);
@@ -185,7 +205,7 @@ fn handle_module_state(
         // clear task  
         if connected_module.is_some() {
             connected_module.unwrap().handler_map.iter().for_each(|module| module.1.cancel());
-            send_module_state(state.id.as_str(), state.port, false, sender_socket);
+            send_module_state(state.id.as_str(), state.port, false, &state.board, &state.board_addr, sender_socket);
         }
         // clear alarm
         let alarms_result = alarm_store.get_alarm_for_module(&state.id.clone());
@@ -205,7 +225,7 @@ fn handle_module_value(
     sender_socket: & Sender<(String, Box<dyn interface::ModuleValueParsable>)>,
     alarm_validator: & mut alarm::validator::AlarmFieldValidator,
 ) -> () {
-    let reference_connected_module_option = manager.get_module_at_index_mut(value.port);
+    let reference_connected_module_option = manager.get_module_at_index_mut(&value.board, &value.board_addr, value.port);
     if reference_connected_module_option.is_none() {
         log::error!("receive value for port {} but module is not in the store", value.port);
         return;
@@ -287,9 +307,9 @@ fn handle_module_config(
 
 fn handle_remove_module_config(
     topic: &String,
-    data: Arc<Vec<u8>>,
+    _data: Arc<Vec<u8>>,
     manager: & mut MainboardModuleStateManager,
-    sender_config: & Sender<crate::comboard::imple::interface::Module_Config>,
+    _sender_config: & Sender<crate::comboard::imple::interface::Module_Config>,
     _sender_socket: & Sender<(String, Box<dyn interface::ModuleValueParsable>)>,
     store: &store::ModuleStateStore,
 ) -> Result<(), interface::ModuleError> {
@@ -312,7 +332,7 @@ fn handle_sync_request(
 ) -> Result<(), interface::ModuleError>  {
     log::debug!("send sync request to the cloud");
     for (k,v) in manager.connected_module.iter() {
-        send_module_state(k, v.port, true, sender_socket);
+        send_module_state(v.id.as_str(), v.port, true, &v.board, &v.board_addr, sender_socket);
     }
 
     return Ok(());
@@ -454,7 +474,7 @@ pub fn module_state_task(
     alarm_store: alarm::store::ModuleAlarmStore,
 ) -> tokio::task::JoinHandle<()> {
 
-    let sender_config = CHANNEL_CONFIG.0.lock().unwrap().clone();
+    let sender_config = CHANNEL_CONFIG_I2C.0.lock().unwrap().clone();
         
 
     return tokio::spawn(async move {

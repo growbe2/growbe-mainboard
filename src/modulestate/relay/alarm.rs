@@ -1,5 +1,3 @@
-use std::thread::current;
-
 use crate::protos::module::AlarmConfig;
 use chrono::Timelike;
 use tokio::select;

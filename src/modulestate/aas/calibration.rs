@@ -229,8 +229,6 @@ mod tests {
 
         assert_eq!(process.current_step, CalibrationStep::WAITING_CONFIRMATION_CALIBRATION);
 
-        let config_result = process.terminate().unwrap();
-
-
+        process.terminate().unwrap();
     }
 }

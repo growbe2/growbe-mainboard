@@ -181,6 +181,7 @@ pub struct HelloWord {
     pub version: ::std::string::String,
     pub cloudVersion: ::std::string::String,
     pub RTC: ::std::string::String,
+    pub boards: ::protobuf::RepeatedField<RunningComboard>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -274,10 +275,40 @@ impl HelloWord {
     pub fn take_RTC(&mut self) -> ::std::string::String {
         ::std::mem::replace(&mut self.RTC, ::std::string::String::new())
     }
+
+    // repeated .RunningComboard boards = 4;
+
+
+    pub fn get_boards(&self) -> &[RunningComboard] {
+        &self.boards
+    }
+    pub fn clear_boards(&mut self) {
+        self.boards.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_boards(&mut self, v: ::protobuf::RepeatedField<RunningComboard>) {
+        self.boards = v;
+    }
+
+    // Mutable pointer to the field.
+    pub fn mut_boards(&mut self) -> &mut ::protobuf::RepeatedField<RunningComboard> {
+        &mut self.boards
+    }
+
+    // Take field
+    pub fn take_boards(&mut self) -> ::protobuf::RepeatedField<RunningComboard> {
+        ::std::mem::replace(&mut self.boards, ::protobuf::RepeatedField::new())
+    }
 }
 
 impl ::protobuf::Message for HelloWord {
     fn is_initialized(&self) -> bool {
+        for v in &self.boards {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
         true
     }
 
@@ -293,6 +324,9 @@ impl ::protobuf::Message for HelloWord {
                 },
                 3 => {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.RTC)?;
+                },
+                4 => {
+                    ::protobuf::rt::read_repeated_message_into(wire_type, is, &mut self.boards)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -315,6 +349,10 @@ impl ::protobuf::Message for HelloWord {
         if !self.RTC.is_empty() {
             my_size += ::protobuf::rt::string_size(3, &self.RTC);
         }
+        for value in &self.boards {
+            let len = value.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        };
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -330,6 +368,11 @@ impl ::protobuf::Message for HelloWord {
         if !self.RTC.is_empty() {
             os.write_string(3, &self.RTC)?;
         }
+        for v in &self.boards {
+            os.write_tag(4, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        };
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
     }
@@ -383,6 +426,11 @@ impl ::protobuf::Message for HelloWord {
                 |m: &HelloWord| { &m.RTC },
                 |m: &mut HelloWord| { &mut m.RTC },
             ));
+            fields.push(::protobuf::reflect::accessor::make_repeated_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<RunningComboard>>(
+                "boards",
+                |m: &HelloWord| { &m.boards },
+                |m: &mut HelloWord| { &mut m.boards },
+            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<HelloWord>(
                 "HelloWord",
                 fields,
@@ -402,6 +450,7 @@ impl ::protobuf::Clear for HelloWord {
         self.version.clear();
         self.cloudVersion.clear();
         self.RTC.clear();
+        self.boards.clear();
         self.unknown_fields.clear();
     }
 }
@@ -1561,6 +1610,207 @@ impl ::protobuf::reflect::ProtobufValue for ComboardConfig {
 }
 
 #[derive(PartialEq,Clone,Default)]
+pub struct RunningComboard {
+    // message fields
+    pub imple: ::std::string::String,
+    pub addr: ::std::string::String,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a RunningComboard {
+    fn default() -> &'a RunningComboard {
+        <RunningComboard as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl RunningComboard {
+    pub fn new() -> RunningComboard {
+        ::std::default::Default::default()
+    }
+
+    // string imple = 1;
+
+
+    pub fn get_imple(&self) -> &str {
+        &self.imple
+    }
+    pub fn clear_imple(&mut self) {
+        self.imple.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_imple(&mut self, v: ::std::string::String) {
+        self.imple = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_imple(&mut self) -> &mut ::std::string::String {
+        &mut self.imple
+    }
+
+    // Take field
+    pub fn take_imple(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.imple, ::std::string::String::new())
+    }
+
+    // string addr = 2;
+
+
+    pub fn get_addr(&self) -> &str {
+        &self.addr
+    }
+    pub fn clear_addr(&mut self) {
+        self.addr.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_addr(&mut self, v: ::std::string::String) {
+        self.addr = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_addr(&mut self) -> &mut ::std::string::String {
+        &mut self.addr
+    }
+
+    // Take field
+    pub fn take_addr(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.addr, ::std::string::String::new())
+    }
+}
+
+impl ::protobuf::Message for RunningComboard {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.imple)?;
+                },
+                2 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.addr)?;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if !self.imple.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.imple);
+        }
+        if !self.addr.is_empty() {
+            my_size += ::protobuf::rt::string_size(2, &self.addr);
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if !self.imple.is_empty() {
+            os.write_string(1, &self.imple)?;
+        }
+        if !self.addr.is_empty() {
+            os.write_string(2, &self.addr)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> RunningComboard {
+        RunningComboard::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "imple",
+                |m: &RunningComboard| { &m.imple },
+                |m: &mut RunningComboard| { &mut m.imple },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "addr",
+                |m: &RunningComboard| { &m.addr },
+                |m: &mut RunningComboard| { &mut m.addr },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<RunningComboard>(
+                "RunningComboard",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static RunningComboard {
+        static instance: ::protobuf::rt::LazyV2<RunningComboard> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(RunningComboard::new)
+    }
+}
+
+impl ::protobuf::Clear for RunningComboard {
+    fn clear(&mut self) {
+        self.imple.clear();
+        self.addr.clear();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for RunningComboard {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for RunningComboard {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
 pub struct HttpServerConfig {
     // message fields
     pub addr: ::std::string::String,
@@ -2148,6 +2398,7 @@ pub struct MainboardConfig {
     pub id: ::std::string::String,
     pub mqtt: ::protobuf::SingularPtrField<MQTTConfig>,
     pub comboard: ::protobuf::SingularPtrField<ComboardConfig>,
+    pub comboards: ::protobuf::RepeatedField<ComboardConfig>,
     pub server: ::protobuf::SingularPtrField<HttpServerConfig>,
     pub logger: ::protobuf::SingularPtrField<LoggerConfig>,
     pub update: ::protobuf::SingularPtrField<UpdaterConfig>,
@@ -2257,6 +2508,31 @@ impl MainboardConfig {
     // Take field
     pub fn take_comboard(&mut self) -> ComboardConfig {
         self.comboard.take().unwrap_or_else(|| ComboardConfig::new())
+    }
+
+    // repeated .ComboardConfig comboards = 7;
+
+
+    pub fn get_comboards(&self) -> &[ComboardConfig] {
+        &self.comboards
+    }
+    pub fn clear_comboards(&mut self) {
+        self.comboards.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_comboards(&mut self, v: ::protobuf::RepeatedField<ComboardConfig>) {
+        self.comboards = v;
+    }
+
+    // Mutable pointer to the field.
+    pub fn mut_comboards(&mut self) -> &mut ::protobuf::RepeatedField<ComboardConfig> {
+        &mut self.comboards
+    }
+
+    // Take field
+    pub fn take_comboards(&mut self) -> ::protobuf::RepeatedField<ComboardConfig> {
+        ::std::mem::replace(&mut self.comboards, ::protobuf::RepeatedField::new())
     }
 
     // .HttpServerConfig server = 4;
@@ -2371,6 +2647,11 @@ impl ::protobuf::Message for MainboardConfig {
                 return false;
             }
         };
+        for v in &self.comboards {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
         for v in &self.server {
             if !v.is_initialized() {
                 return false;
@@ -2401,6 +2682,9 @@ impl ::protobuf::Message for MainboardConfig {
                 },
                 3 => {
                     ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.comboard)?;
+                },
+                7 => {
+                    ::protobuf::rt::read_repeated_message_into(wire_type, is, &mut self.comboards)?;
                 },
                 4 => {
                     ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.server)?;
@@ -2434,6 +2718,10 @@ impl ::protobuf::Message for MainboardConfig {
             let len = v.compute_size();
             my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
         }
+        for value in &self.comboards {
+            let len = value.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        };
         if let Some(ref v) = self.server.as_ref() {
             let len = v.compute_size();
             my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
@@ -2465,6 +2753,11 @@ impl ::protobuf::Message for MainboardConfig {
             os.write_raw_varint32(v.get_cached_size())?;
             v.write_to_with_cached_sizes(os)?;
         }
+        for v in &self.comboards {
+            os.write_tag(7, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        };
         if let Some(ref v) = self.server.as_ref() {
             os.write_tag(4, ::protobuf::wire_format::WireTypeLengthDelimited)?;
             os.write_raw_varint32(v.get_cached_size())?;
@@ -2533,6 +2826,11 @@ impl ::protobuf::Message for MainboardConfig {
                 |m: &MainboardConfig| { &m.comboard },
                 |m: &mut MainboardConfig| { &mut m.comboard },
             ));
+            fields.push(::protobuf::reflect::accessor::make_repeated_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<ComboardConfig>>(
+                "comboards",
+                |m: &MainboardConfig| { &m.comboards },
+                |m: &mut MainboardConfig| { &mut m.comboards },
+            ));
             fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<HttpServerConfig>>(
                 "server",
                 |m: &MainboardConfig| { &m.server },
@@ -2567,6 +2865,7 @@ impl ::protobuf::Clear for MainboardConfig {
         self.id.clear();
         self.mqtt.clear();
         self.comboard.clear();
+        self.comboards.clear();
         self.server.clear();
         self.logger.clear();
         self.update.clear();
@@ -2588,27 +2887,31 @@ impl ::protobuf::reflect::ProtobufValue for MainboardConfig {
 
 static file_descriptor_proto_data: &'static [u8] = b"\
     \n\x0bboard.proto\"9\n\x15GrowbeMainboardConfig\x12\x20\n\x0bhearthBeath\
-    \x18\x01\x20\x01(\x05R\x0bhearthBeath\"[\n\tHelloWord\x12\x18\n\x07versi\
-    on\x18\x01\x20\x01(\tR\x07version\x12\"\n\x0ccloudVersion\x18\x02\x20\
-    \x01(\tR\x0ccloudVersion\x12\x10\n\x03RTC\x18\x03\x20\x01(\tR\x03RTC\"D\
-    \n\x0eVersionRelease\x12\x18\n\x07version\x18\x01\x20\x01(\tR\x07version\
-    \x12\x18\n\x07channel\x18\x02\x20\x01(\tR\x07channel\"G\n\rUpdateExecute\
-    \x12\x18\n\x07version\x18\x01\x20\x01(\tR\x07version\x12\x1c\n\trestarte\
-    d\x18\x02\x20\x01(\x08R\trestarted\"\x10\n\x0eRestartRequest\"_\n\x0fLoc\
-    alConnection\x12\x12\n\x04ssid\x18\x01\x20\x01(\tR\x04ssid\x12\x20\n\x0b\
-    signalLevel\x18\x02\x20\x01(\x05R\x0bsignalLevel\x12\x16\n\x06ipAddr\x18\
-    \x03\x20\x01(\tR\x06ipAddr\"2\n\nMQTTConfig\x12\x10\n\x03url\x18\x01\x20\
-    \x01(\tR\x03url\x12\x12\n\x04port\x18\x02\x20\x01(\x05R\x04port\">\n\x0e\
-    ComboardConfig\x12\x16\n\x06config\x18\x01\x20\x01(\tR\x06config\x12\x14\
-    \n\x05imple\x18\x02\x20\x01(\tR\x05imple\":\n\x10HttpServerConfig\x12\
-    \x12\n\x04addr\x18\x01\x20\x01(\tR\x04addr\x12\x12\n\x04port\x18\x02\x20\
-    \x01(\x05R\x04port\"&\n\x0cLoggerConfig\x12\x16\n\x06target\x18\x01\x20\
-    \x01(\tR\x06target\"a\n\rUpdaterConfig\x12\x1e\n\nautoupdate\x18\x01\x20\
-    \x01(\x08R\nautoupdate\x12\x18\n\x07channel\x18\x02\x20\x01(\tR\x07chann\
-    el\x12\x16\n\x06reboot\x18\x03\x20\x01(\x08R\x06reboot\"\xe9\x01\n\x0fMa\
-    inboardConfig\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\x1f\n\x04mqt\
-    t\x18\x02\x20\x01(\x0b2\x0b.MQTTConfigR\x04mqtt\x12+\n\x08comboard\x18\
-    \x03\x20\x01(\x0b2\x0f.ComboardConfigR\x08comboard\x12)\n\x06server\x18\
+    \x18\x01\x20\x01(\x05R\x0bhearthBeath\"\x85\x01\n\tHelloWord\x12\x18\n\
+    \x07version\x18\x01\x20\x01(\tR\x07version\x12\"\n\x0ccloudVersion\x18\
+    \x02\x20\x01(\tR\x0ccloudVersion\x12\x10\n\x03RTC\x18\x03\x20\x01(\tR\
+    \x03RTC\x12(\n\x06boards\x18\x04\x20\x03(\x0b2\x10.RunningComboardR\x06b\
+    oards\"D\n\x0eVersionRelease\x12\x18\n\x07version\x18\x01\x20\x01(\tR\
+    \x07version\x12\x18\n\x07channel\x18\x02\x20\x01(\tR\x07channel\"G\n\rUp\
+    dateExecute\x12\x18\n\x07version\x18\x01\x20\x01(\tR\x07version\x12\x1c\
+    \n\trestarted\x18\x02\x20\x01(\x08R\trestarted\"\x10\n\x0eRestartRequest\
+    \"_\n\x0fLocalConnection\x12\x12\n\x04ssid\x18\x01\x20\x01(\tR\x04ssid\
+    \x12\x20\n\x0bsignalLevel\x18\x02\x20\x01(\x05R\x0bsignalLevel\x12\x16\n\
+    \x06ipAddr\x18\x03\x20\x01(\tR\x06ipAddr\"2\n\nMQTTConfig\x12\x10\n\x03u\
+    rl\x18\x01\x20\x01(\tR\x03url\x12\x12\n\x04port\x18\x02\x20\x01(\x05R\
+    \x04port\">\n\x0eComboardConfig\x12\x16\n\x06config\x18\x01\x20\x01(\tR\
+    \x06config\x12\x14\n\x05imple\x18\x02\x20\x01(\tR\x05imple\";\n\x0fRunni\
+    ngComboard\x12\x14\n\x05imple\x18\x01\x20\x01(\tR\x05imple\x12\x12\n\x04\
+    addr\x18\x02\x20\x01(\tR\x04addr\":\n\x10HttpServerConfig\x12\x12\n\x04a\
+    ddr\x18\x01\x20\x01(\tR\x04addr\x12\x12\n\x04port\x18\x02\x20\x01(\x05R\
+    \x04port\"&\n\x0cLoggerConfig\x12\x16\n\x06target\x18\x01\x20\x01(\tR\
+    \x06target\"a\n\rUpdaterConfig\x12\x1e\n\nautoupdate\x18\x01\x20\x01(\
+    \x08R\nautoupdate\x12\x18\n\x07channel\x18\x02\x20\x01(\tR\x07channel\
+    \x12\x16\n\x06reboot\x18\x03\x20\x01(\x08R\x06reboot\"\x98\x02\n\x0fMain\
+    boardConfig\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\x1f\n\x04mqtt\
+    \x18\x02\x20\x01(\x0b2\x0b.MQTTConfigR\x04mqtt\x12+\n\x08comboard\x18\
+    \x03\x20\x01(\x0b2\x0f.ComboardConfigR\x08comboard\x12-\n\tcomboards\x18\
+    \x07\x20\x03(\x0b2\x0f.ComboardConfigR\tcomboards\x12)\n\x06server\x18\
     \x04\x20\x01(\x0b2\x11.HttpServerConfigR\x06server\x12%\n\x06logger\x18\
     \x05\x20\x01(\x0b2\r.LoggerConfigR\x06logger\x12&\n\x06update\x18\x06\
     \x20\x01(\x0b2\x0e.UpdaterConfigR\x06updateb\x06proto3\

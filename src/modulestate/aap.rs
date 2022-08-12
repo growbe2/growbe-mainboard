@@ -1,4 +1,4 @@
-use crate::protos::module::{RelayModuleData, RelayModuleConfig, Actor, WCModuleConfig};
+use crate::protos::module::{RelayModuleData, RelayModuleConfig, Actor};
 use super::relay::configure::configure_relay;
 use super::relay::physical_relay::ActionPortUnion;
 use super::relay::{get_outlet_data};

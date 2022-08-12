@@ -1,3 +1,4 @@
+#![warn(const_err)]
 extern crate lazy_static;
 
 mod protos;
@@ -14,7 +15,6 @@ mod utils;
 
 use std::sync::{Mutex, Arc, mpsc::channel};
 
-
 #[tokio::main(flavor = "multi_thread")]
 async fn main() {
 
@@ -25,7 +25,7 @@ async fn main() {
     // Initializing database
     let conn_database = Arc::new(Mutex::new(store::database::init()));
 
-    let d = comboard::get_comboard_client();
+    let (boards, running_boards) = comboard::get_comboard_client();
 
     let (sender_socket, receiver_socket) = channel::<(String, Box<dyn modulestate::interface::ModuleValueParsable>)>();
 
@@ -33,12 +33,11 @@ async fn main() {
     let sender_socket_localconnection = sender_socket.clone();
 
     // Create the task to run the comboard
-    let comboard_task = d.run(
-        comboard::imple::interface::ComboardClientConfig{
-        config: mainboardstate::config::CONFIG.comboard.config.clone(),
+    boards.iter().for_each(|x| {
+        x.run();
     });
 
-   // Create the task to handle the modules state 
+    // Create the task to handle the modules state 
     let module_state_task = modulestate::module_state_task(
         sender_socket,
         modulestate::store::ModuleStateStore::new(conn_database.clone()),
@@ -55,6 +54,7 @@ async fn main() {
     // Run the hello world task to start the application
     mainboardstate::hello_world::task_hello_world(
         sender_socket_hello,
+        running_boards,
     ).await;
 
     mainboardstate::localconnection::task_local_connection(
@@ -68,7 +68,6 @@ async fn main() {
     // Wait for all task to finish (they should never end)
     let _ret = tokio::join!(
         server_task,
-        comboard_task,
         module_state_task,
         socket_task,
     );

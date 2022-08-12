@@ -1,7 +1,6 @@
 use std::sync::mpsc::Sender;
-use rumqtt::Header;
 
-use crate::{protos::{board::{HelloWord,}}, mainboardstate::config::get_configuration_proto};
+use crate::{protos::{board::{HelloWord, RunningComboard,}}, mainboardstate::config::get_configuration_proto};
 
 const VERSION: &'static str = env!("CARGO_PKG_VERSION");
 const SNAPSHOT_COMMIT: Option<&'static str> = option_env!("COMMIT");
@@ -12,9 +11,11 @@ impl crate::modulestate::interface::ModuleValueParsable for crate::protos::board
 
 pub async fn task_hello_world(
     sender: Sender<(String, Box<dyn crate::modulestate::interface::ModuleValueParsable>)>,
+    running_boards: Vec<RunningComboard>,
 ) -> () {
-    let hello = get_hello_world();
+    let mut hello = get_hello_world();
     let config = get_configuration_proto();
+    hello.boards = running_boards.try_into().unwrap();
     log::info!("hello world starting with version {}", hello.version);
     sender.send((String::from("/hello"), Box::new(hello))).unwrap();
     sender.send((String::from("/config"), Box::new(config))).unwrap();

@@ -13,6 +13,8 @@ extern fn callback_state_changed(port: i32, id: *const ::std::os::raw::c_char, s
 
     CHANNEL_STATE.0.lock().unwrap().send(
         ModuleStateChangeEvent{
+            board: "i2c".to_string(),
+            board_addr: "1".to_string(),
             port: port,
             id: String::from(str_slice),
             state: state,
@@ -24,6 +26,8 @@ extern fn callback_value_validation(port: i32, buffer: &[u8; 512]) -> () {
     CHANNEL_VALUE.0.lock().unwrap().send(
         ModuleValueValidationEvent{
             port: port,
+            board: "i2c".to_string(),
+            board_addr: "1".to_string(),
             buffer: buffer.to_vec(),
         }
     ).unwrap();
@@ -31,7 +35,7 @@ extern fn callback_value_validation(port: i32, buffer: &[u8; 512]) -> () {
 
 extern fn callback_config(config: *mut super::interface::Module_Config) {
     if !config.is_null() {
-        let value = CHANNEL_CONFIG.1.lock().unwrap().try_recv();
+        let value = CHANNEL_CONFIG_I2C.1.lock().unwrap().try_recv();
         if value.is_ok() {
             let v = value.unwrap();
             unsafe {
@@ -102,12 +106,13 @@ impl PIHatControl {
 
 }
 
-pub struct I2CLinuxComboardClient {}
+pub struct I2CLinuxComboardClient {
+    pub config_comboard: super::interface::ComboardClientConfig
+}
 
 impl super::interface::ComboardClient for I2CLinuxComboardClient {
-    fn run(&self,
-        config: super::interface::ComboardClientConfig) -> tokio::task::JoinHandle<()>  {
-        let c = std::ffi::CString::new(config.config.as_str()).unwrap();
+    fn run(&self) -> tokio::task::JoinHandle<()>  {
+        let c = std::ffi::CString::new(self.config_comboard.config.as_str()).unwrap();
 
         PIHatControl::enable().unwrap();
         PIHatControl::enable_led_hat();

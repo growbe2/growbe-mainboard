@@ -73,7 +73,7 @@ impl VirtualRelayStore {
         return crate::store::database::get_fields_from_table(
             &self.conn, "virtual_relay", "relay", "config",
         crate::protos::module::VirtualRelay::parse_from_bytes, crate::protos::module::RelayOutletConfig::parse_from_bytes
-        ).map_err(|x| ());
+        ).map_err(|_x| ());
     }
 
     /*

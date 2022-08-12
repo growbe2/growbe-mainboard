@@ -1,5 +1,5 @@
 
-use crate::comboard::imple::interface::{ModuleStateChangeEvent, ModuleValueValidationEvent};
+use crate::comboard::imple::interface::{ModuleStateChangeEvent, ModuleValueValidationEvent, I2C_VIRT_ID};
 
 use crate::comboard::imple::channel::*;
 
@@ -35,28 +35,31 @@ struct VirtualScenario {
 
 
 fn get_config(config: &String) -> Result<VirtualScenario>  {
-    let file = std::fs::File::open(config).expect("Error open file");
+    let file = std::fs::File::open(config).expect(config);
     let scenario: VirtualScenario = serde_json::from_reader(file)?;
     Ok(scenario)
 }
 
-pub struct VirtualComboardClient {}
+pub struct VirtualComboardClient {
+    pub config_comboard: super::interface::ComboardClientConfig
+}
 
 impl super::interface::ComboardClient for VirtualComboardClient {
 
-    fn run(&self,
-        config_comboard: super::interface::ComboardClientConfig) -> tokio::task::JoinHandle<()> {
+    fn run(&self) -> tokio::task::JoinHandle<()> {
 
         let sender_value = CHANNEL_VALUE.0.lock().unwrap().clone();
         let sender_state = CHANNEL_STATE.0.lock().unwrap().clone();
-            
+        
+        let config_board = self.config_comboard.config.clone();
+
         return tokio::spawn(async move {
-            let config = get_config(&config_comboard.config).expect("Failed to load config for virtual comboard");
+            let config = get_config(&config_board).expect(&config_board);
             // Read json config file
             let mut i: usize = 0;
             let mut waiting: Option<std::time::Instant> = None;
 
-            let receiver_config = CHANNEL_CONFIG.1.lock().unwrap();
+            let receiver_config = CHANNEL_CONFIG_I2C.1.lock().unwrap();
             while i < config.actions.len() {
 
                 // check if we have event to process config change
@@ -67,6 +70,8 @@ impl super::interface::ComboardClient for VirtualComboardClient {
 
                     sender_value.send(
                         ModuleValueValidationEvent{
+                            board: I2C_VIRT_ID.to_string(),
+                            board_addr: config_board.clone(),
                             port: config.port,
                             buffer: Vec::from(config.buffer)
                         }
@@ -78,6 +83,8 @@ impl super::interface::ComboardClient for VirtualComboardClient {
                         "state" => {
                             sender_state.send(
                                 ModuleStateChangeEvent{
+                                    board: I2C_VIRT_ID.to_string(),
+                                    board_addr: config_board.clone(),
                                     port: config.actions[i].port,
                                     id: config.actions[i].id.clone(),
                                     state: config.actions[i].state,
@@ -88,6 +95,8 @@ impl super::interface::ComboardClient for VirtualComboardClient {
                             let new_buffer = config.actions[i].buffer.clone();
                             sender_value.send(
                                 ModuleValueValidationEvent{
+                                    board: I2C_VIRT_ID.to_string(),
+                                    board_addr: config_board.clone(),
                                     port: config.actions[i].port,
                                     buffer: new_buffer,
                             }
