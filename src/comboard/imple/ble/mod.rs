@@ -82,8 +82,6 @@ async fn read_connected_modules(
 
             let mut found_service = false;
 
-            log::info!("Found {:?} devices", peripheral.services().len());
-
             for service in peripheral.services() {
                 if service.uuid != GROWBE_ANDROID_MODULE_SERVICE {
                     continue;
@@ -151,7 +149,6 @@ async fn try_find_growbe_module(
         if let Some(addrs) = config {
             let addr = peripheral.address().to_string();
             if let Some(_) = addrs.iter().find(|&x| addr.eq(x)) {
-                println!("FOUND");
             } else {
                 continue;
             }
