@@ -10,7 +10,7 @@
 			"imple": "virt"
 		},
 		{
-			"config": "",
+			"config": "F0:5C:77:CC:46:FD",
 			"imple": "ble"
 		}
 	],

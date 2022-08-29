@@ -15,6 +15,8 @@ mod utils;
 
 use std::sync::{Mutex, Arc, mpsc::channel};
 
+use tokio::select;
+
 #[tokio::main(flavor = "multi_thread")]
 async fn main() {
 
@@ -66,11 +68,17 @@ async fn main() {
     let server_task = server::http::get_server(&crate::mainboardstate::config::CONFIG.server);
 
     // Wait for all task to finish (they should never end)
-    let _ret = tokio::join!(
-        server_task,
-        module_state_task,
-        socket_task,
-    );
+    //let _ret = tokio::join!(
+    //    server_task,
+    //    module_state_task,
+    //    socket_task,
+    //);
+
+    select! {
+        _ = server_task => {},
+        _ = module_state_task => {},
+        _ = socket_task => {},
+    }
 
     //let exit_code = if let Err(_) = ret {
     //    1

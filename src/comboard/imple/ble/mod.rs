@@ -43,6 +43,11 @@ pub struct BLEComboardClient {
     pub config_comboard: super::interface::ComboardClientConfig,
 }
 
+pub fn get_devices(str: String) -> Option<Vec<String>> {
+    let addr: Vec<String> = str.split(";").map(|x| String::from(x)).collect();
+    return if addr.len() == 0 { None } else { Some(addr) };
+}
+
 fn on_module_disconnect(d: &PeripheralId, modules: &mut HashMap<PeripheralId, BLEConnectedModule>) {
     if let Some(module) = modules.get(d) {
         for (i, m) in module.activated_modules.iter().enumerate() {
@@ -62,13 +67,11 @@ async fn read_connected_modules(
     'peripheral: for peripheral in peripherals.iter() {
         
         if let Some(module) = modules.get(&peripheral.id()) {
-            println!("READING FROM ONE");
-
             select! {
                 _ =  peripheral.discover_services() => {},
-                _ = tokio::time::sleep(tokio::time::Duration::from_millis(4000)) => {
+                _ = tokio::time::sleep(tokio::time::Duration::from_millis(10000)) => {
                     on_module_disconnect(&peripheral.id(), modules);
-                    println!("Disconnecting from peripheral {:?}...", peripheral.id());
+                    log::error!("timeout discovering service {:?}", peripheral.id());
                     peripheral
                         .disconnect()
                         .await
@@ -78,6 +81,8 @@ async fn read_connected_modules(
             }
 
             let mut found_service = false;
+
+            log::info!("Found {:?} devices", peripheral.services().len());
 
             for service in peripheral.services() {
                 if service.uuid != GROWBE_ANDROID_MODULE_SERVICE {
@@ -91,7 +96,7 @@ async fn read_connected_modules(
                                 value
                             } else {
                                 on_module_disconnect(&peripheral.id(), modules);
-                                println!("Disconnecting from peripheral {:?}...", peripheral.id());
+                                log::error!("error reading characteritics {:?}", peripheral.id());
                                 peripheral
                                     .disconnect()
                                     .await
@@ -100,6 +105,7 @@ async fn read_connected_modules(
                             }
                         }
                         _ = tokio::time::sleep(tokio::time::Duration::from_millis(3000)) => {
+                            log::error!("timeout reading characteristic {:?}", peripheral.id());
                             on_module_disconnect(&peripheral.id(), modules);
                             peripheral
                                 .disconnect()
@@ -118,8 +124,7 @@ async fn read_connected_modules(
             }
 
             if !found_service {
-                // Service not longer exists
-                println!("SERVICE IS NOT THERE ANYMORE");
+                log::error!("service cant be found anymore")
             }
 
        }
@@ -129,41 +134,47 @@ async fn read_connected_modules(
 
 async fn try_find_growbe_module(
     adapter: &Adapter,
+    config: &Option<Vec<String>>,
     modules: &mut HashMap<PeripheralId, BLEConnectedModule>,
     not_modules: &mut HashMap<PeripheralId, i32>,
 ) {
     // TRY TO FIND GROWBE MODULE
     let peripherals = adapter.peripherals().await.unwrap();
-
-    println!("{} peripherals", peripherals.len());
-
+    
     for peripheral in peripherals.iter() {
-        let is_connected = peripheral.is_connected().await.unwrap();
+        let already_is_connected = peripheral.is_connected().await.unwrap();
 
         if modules.contains_key(&peripheral.id()) || not_modules.contains_key(&peripheral.id()) {
             continue;
         }
+        
+        if let Some(addrs) = config {
+            let addr = peripheral.address().to_string();
+            if let Some(_) = addrs.iter().find(|&x| addr.eq(x)) {
+                println!("FOUND");
+            } else {
+                continue;
+            }
+        }
 
-        println!(
-            "Peripheral {:?} is connected: {:?}",
-            peripheral.id(), is_connected
+        log::info!(
+            "try connection with {:?} is connected: {:?}",
+            peripheral.id(), already_is_connected
         );
 
 
         // Regarde s'il est pas deja connecter ou si pas deja ignorer
-        if !is_connected {
-            println!("Connecting to peripheral {:?}...", &peripheral.id());
+        if !already_is_connected {
             // I'm stuck need to put a fucking select!j
             select! {
                 result = peripheral.connect() => {
-                    println!("CONNECTED");
                     if let Err(err) = result {
-                        eprintln!("Error connecting to peripheral, skipping: {}", err);
+                        log::error!("Error connecting to peripheral, skipping: {}", err);
                         continue;
                     }
                 },
-                _ = tokio::time::sleep(tokio::time::Duration::from_millis(5000)) => {
-                    eprintln!("Error is connecting");
+                _ = tokio::time::sleep(tokio::time::Duration::from_millis(50000)) => {
+                    log::error!("timeout connecting");
                     continue;
                 }
             }
@@ -172,12 +183,12 @@ async fn try_find_growbe_module(
             is_connected = peripheral.is_connected() => {
                 is_connected.unwrap()
             },
-            _ = tokio::time::sleep(tokio::time::Duration::from_millis(500)) => {
-                eprintln!("Error is connected");
+            _ = tokio::time::sleep(tokio::time::Duration::from_millis(10000)) => {
+                log::error!("timeout is connecting");
                 continue;
             }
         };
-        println!(
+        log::info!(
             "Now connected ({:?}) to peripheral {:?}...",
             is_connected, peripheral.id()
         );
@@ -194,7 +205,7 @@ async fn try_find_growbe_module(
 
             is_and_module = true;
 
-            println!(
+            log::info!(
                 "Service UUID {}, primary: {}",
                 service.uuid, service.primary
             );
@@ -241,8 +252,8 @@ async fn try_find_growbe_module(
             }
         } else {
             // not_modules.insert(peripheral.id(), 0);
-            if is_connected {
-                println!("Disconnecting from peripheral {:?}...", peripheral.id());
+            if !already_is_connected && is_connected {
+                log::info!("Disconnecting from peripheral this is not a android module {:?}...", peripheral.id());
                 peripheral
                     .disconnect()
                     .await
@@ -256,6 +267,7 @@ async fn try_find_growbe_module(
 
 impl super::interface::ComboardClient for BLEComboardClient {
     fn run(&self) -> tokio::task::JoinHandle<()> {
+        let devices = get_devices(self.config_comboard.config.clone());
 
         return tokio::spawn(async move {
             let manager = Manager::new().await.unwrap();
@@ -297,13 +309,13 @@ impl super::interface::ComboardClient for BLEComboardClient {
                             _ => {}
                         }
                     },
-                    _ = tokio::time::sleep(tokio::time::Duration::from_millis(40)) => {}
+                    _ = tokio::time::sleep(tokio::time::Duration::from_millis(100)) => {}
                 }
                 select! {
                     _ = tokio::time::sleep(timeout_read) => {
 
                         if i == 0 {
-                            try_find_growbe_module(&adapter, &mut modules, &mut not_modules).await;
+                            try_find_growbe_module(&adapter, &devices, &mut modules, &mut not_modules).await;
                         }
 
                         read_connected_modules(&adapter, &mut modules).await;
