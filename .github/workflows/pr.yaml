@@ -1,0 +1,22 @@
+name: master pipeline , developpment build
+
+on:
+  pull_request:
+    types: [assigned, opened, synchronize, reopened]
+
+
+jobs:
+  proxy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Login docker
+        run: docker login https://docker.pkg.github.com -u berlingoqc -p $GITHUB_ACCESS_TOKEN
+        env:
+          GITHUB_ACCESS_TOKEN: ${{ secrets.PAT }}
+      - name: Download vendors
+        run: ./scripts/rust_env.sh cargo vendor && ./scripts/rust_env.sh make -C ./drivers
+      - name: Run UT
+        run: ./scripts/rust_env.sh cargo test
+      - name: Build ARMv7
+        run: ./scripts/rust_env.sh make -C ./drivers clean && ./scripts/rust_env.sh make -C ./drivers CC=arm-linux-gnueabihf-gcc && COMMIT=$(git rev-parse --short "$GITHUB_SHA") ./scripts/rust_env.sh cargo build --target armv7-unknown-linux-gnueabihf --release
