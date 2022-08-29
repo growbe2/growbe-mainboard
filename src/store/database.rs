@@ -32,7 +32,7 @@ pub fn get_fields_from_table<T, D>(
 
 	return Ok(statement.query_map([], |row| {
 		let buffer_p1: Vec<u8> = row.get(0).unwrap();
-		let buffer_p2_result: Result<Vec<u8>, ()> = row.get(1).map_err(|x| ());
+		let buffer_p2_result: Result<Vec<u8>, ()> = row.get(1).map_err(|_x| ());
 
 		let option_d = if let Ok(buffer_p2) = buffer_p2_result {
 			if buffer_p2.len() > 0 { Some(id3(&buffer_p2).unwrap())} else { None }

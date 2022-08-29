@@ -60,6 +60,7 @@ pub fn get_net_info() -> NetworkInfo {
                           item.destination = destination.to_string();
                       }
                   },
+		            #[cfg(target_os = "linux")]
                   AddressFamily::Packet => item.mac = address.to_string(),
                   _ => {}
               }

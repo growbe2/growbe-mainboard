@@ -19,6 +19,17 @@ fn get_config_path() -> String {
 	return args[1].clone()
 }
 
+fn get_default_comboards() -> Vec<crate::comboard::config::ComboardConfig> {
+	return vec![];
+}
+
+fn get_default_comboard() -> crate::comboard::config::ComboardConfig {
+	return crate::comboard::config::ComboardConfig {
+		config: "".to_string(),
+		imple: "".to_string()
+	}
+}
+
 lazy_static::lazy_static! {
 	pub static ref CONFIG: MainboardProcessConfig = {
 	    return get(&get_config_path()).unwrap();
@@ -30,7 +41,11 @@ pub struct MainboardProcessConfig {
     #[serde(default)] 
 	pub id: String,
 	pub mqtt: crate::socket::mqtt::CloudMQTTConfig,
+	// DEPRECATED , will be replace with comboards array.
+    #[serde(default = "get_default_comboard")] 
 	pub comboard: crate::comboard::config::ComboardConfig,
+    #[serde(default = "get_default_comboards")] 
+	pub comboards: Vec<crate::comboard::config::ComboardConfig>,
     #[serde(default = "get_default_server_config")] 
 	pub server: crate::server::http::HttpServerConfig,
 	#[serde(default = "default_logger")]
@@ -60,6 +75,7 @@ pub fn rewrite_configuration(config: MainboardConfig) -> () {
 			config: config.comboard.get_ref().config.clone(),
 			imple: config.comboard.get_ref().imple.clone()
 		},
+		comboards: vec![],
 		server: crate::server::http::HttpServerConfig{
 			addr: config.server.get_ref().addr.clone(),
 			port: config.server.get_ref().port as u16,
