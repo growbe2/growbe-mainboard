@@ -189,13 +189,26 @@ async fn try_find_growbe_module(
             "Now connected ({:?}) to peripheral {:?}...",
             is_connected, peripheral.id()
         );
-        peripheral.discover_services().await.unwrap();
-
+        select! {
+            _ = peripheral.discover_services() => {
+            },
+            _ = tokio::time::sleep(tokio::time::Duration::from_millis(1000)) => {
+                log::warn!("timeout discovering services");
+            }
+        }
         let mut is_and_module = false;
         let mut module_id: String = String::new();
         let mut supported_module: Vec<String> = vec![];
 
+
+        let le = peripheral.services().len();
+        log::info!("FOund {:?} services", le);
+
         for service in peripheral.services() {
+            log::info!(
+                "Service UUID {}, primary: {}",
+                service.uuid, service.primary
+            );
             if !service.uuid.eq(&GROWBE_ANDROID_MODULE_SERVICE) {
                 continue;
             }
@@ -255,6 +268,8 @@ async fn try_find_growbe_module(
                     .disconnect()
                     .await
                     .expect("Error disconnecting from BLE peripheral");
+            } else {
+                log::info!("nothing found but was already connected");
             }
         }
     }
