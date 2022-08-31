@@ -1,6 +1,6 @@
 use crate::protos::board::RunningComboard;
 
-use self::{imple::{interface::ComboardClientConfig, ble::BLEComboardClient}};
+use self::{imple::{interface::ComboardClientConfig, ble::{BLEComboardClient, get_ble_comboard}}};
 
 pub mod imple;
 pub mod config;
@@ -39,7 +39,7 @@ pub fn get_comboard_client() -> (Vec<Box<dyn imple::interface::ComboardClient>>,
 			#[cfg(not(target_os = "linux"))]
 			panic!("i2c not supported on this os")
 		} else if element.imple == "ble" {
-			boards.push(Box::new(BLEComboardClient{config_comboard: ComboardClientConfig { config: element.config.clone() }}))
+			boards.push(get_ble_comboard(element.config.clone()));
 		}
 
 		running_boards.push(RunningComboard { imple: element.imple.clone(), addr: element.config.clone(), ..Default::default()})
