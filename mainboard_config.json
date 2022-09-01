@@ -10,8 +10,8 @@
 			"imple": "virt"
 		},
 		{
-			"config": "F0:5C:77:CC:46:FD",
-			"imple": "ble"
+			"config": "192.168.1.130",
+			"imple": "ws"
 		}
 	],
 	"server": {

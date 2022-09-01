@@ -786,6 +786,7 @@ dependencies = [
  "cty",
  "env_logger",
  "futures 0.3.21",
+ "futures-util",
  "lazy_static",
  "log",
  "nix 0.23.0",
@@ -799,7 +800,9 @@ dependencies = [
  "serde_json",
  "tokio 1.20.1",
  "tokio-stream",
+ "tokio-tungstenite",
  "tokio-util 0.6.9",
+ "url",
  "uuid 1.1.2",
  "warp",
 ]
