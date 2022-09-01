@@ -1,3 +1,4 @@
+use cty::{c_int, uint8_t};
 
 pub static I2C_BOARD_ID: &'static str = "i2c";
 pub static I2C_VIRT_ID: &'static str = "virt";
@@ -5,8 +6,8 @@ pub static I2C_BLE_ID: &'static str = "ble";
 
 #[repr(C)]
 pub struct Module_Config {
-    pub port: cty::c_int,
-    pub buffer: [cty::uint8_t; 8],
+    pub port: c_int,
+    pub buffer: [uint8_t; 8],
 }
 
 pub struct ModuleStateChangeEvent {

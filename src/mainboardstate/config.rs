@@ -2,7 +2,7 @@
 use serde::{Deserialize, Serialize};
 
 use super::update::{UpdateConfig, get_default_update_config};
-use crate::server::http::get_default_server_config;
+use crate::server::config::get_default_server_config;
 use crate::logger::{LoggerConfig, default_logger};
 
 use crate::protos::{board::{MainboardConfig, MQTTConfig, HttpServerConfig, LoggerConfig as ProtoLoggerConfig, UpdaterConfig, ComboardConfig}};
@@ -47,7 +47,7 @@ pub struct MainboardProcessConfig {
     #[serde(default = "get_default_comboards")] 
 	pub comboards: Vec<crate::comboard::config::ComboardConfig>,
     #[serde(default = "get_default_server_config")] 
-	pub server: crate::server::http::HttpServerConfig,
+	pub server: crate::server::config::HttpServerConfig,
 	#[serde(default = "default_logger")]
 	pub logger: LoggerConfig,
 	#[serde(default = "get_default_update_config")]
@@ -76,7 +76,7 @@ pub fn rewrite_configuration(config: MainboardConfig) -> () {
 			imple: config.comboard.get_ref().imple.clone()
 		},
 		comboards: vec![],
-		server: crate::server::http::HttpServerConfig{
+		server: crate::server::config::HttpServerConfig{
 			addr: config.server.get_ref().addr.clone(),
 			port: config.server.get_ref().port as u16,
 		},

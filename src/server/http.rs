@@ -1,13 +1,6 @@
-use serde::{Deserialize, Serialize};
 use warp::http::header::{HeaderMap, HeaderValue};
 use warp::Filter;
 
-
-#[derive(Serialize, Deserialize)]
-pub struct HttpServerConfig {
-    pub addr: String,
-    pub port: u16,
-}
 
 fn get_default_response_headers() -> HeaderMap {
     let mut headers = HeaderMap::new();
@@ -17,14 +10,7 @@ fn get_default_response_headers() -> HeaderMap {
     return headers;
 }
 
-pub fn get_default_server_config() -> HttpServerConfig {
-    return HttpServerConfig{
-        addr: String::from("0.0.0.0"),
-        port: 3030
-    }
-}
-
-pub fn get_server(http_server_config: &HttpServerConfig) -> tokio::task::JoinHandle<()> {
+pub fn get_server(http_server_config: &super::config::HttpServerConfig) -> tokio::task::JoinHandle<()> {
 
     let hello_world = warp::path::end().map(|| "alive");//
     let sys_info = warp::path("sysinfo").map(|| warp::reply::json(&crate::plateform::sysinfo::get_sys_info())).with(warp::reply::with::headers(get_default_response_headers()));
