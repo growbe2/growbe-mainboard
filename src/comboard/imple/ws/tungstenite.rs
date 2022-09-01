@@ -1,9 +1,9 @@
 use std::sync::mpsc::Receiver;
 
 use futures::TryStreamExt;
-use futures_util::{future, pin_mut, StreamExt};
-use tokio::io::{AsyncReadExt, AsyncWriteExt};
-use tokio_tungstenite::{connect_async, tungstenite::protocol::Message};
+use futures_util::StreamExt;
+use tokio::io::AsyncWriteExt;
+use tokio_tungstenite::connect_async;
 use url::Url;
 
 fn parse_client_addr(config: String) -> Vec<String> {
@@ -21,6 +21,8 @@ async fn handle_device_loop(url: Url) -> Result<(), ()> {
     //let ws_to_stdout = {
     read.try_for_each(|message| async {
 		let data = message.into_data();
+
+        // Send data to comboard manager
 		tokio::io::stdout().write_all(&data).await.unwrap();
 		Ok(())
     })
