@@ -4,13 +4,12 @@ version = "0.1.10"
 edition = "2021"
 
 [features]
-default = ["com_virtual", "http_server", "com_ws", "com_ble", "com_virt"]
+default = ["com_virt", "com_ws"]
 gpio = ["rppal"]
 com_ble = ["bluer", "btleplug", "futures", "uuid", "tokio-stream"]
-com_virtual = []
+com_virt = []
 com_ws = ["tokio-tungstenite", "futures", "futures-util", "url"]
 com_i2c = ["gpio", "cty"]
-com_virt = []
 http_server = ["warp"]
 
 pi = ["com_ws", "com_i2c"]
