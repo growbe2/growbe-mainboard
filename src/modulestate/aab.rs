@@ -46,9 +46,9 @@ impl super::interface::ModuleValueValidator for AABValidator {
     }
 
     fn apply_parse_config(&mut self, port: i32, _t: char, data: std::sync::Arc<Vec<u8>>,
-        sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::interface::Module_Config>,
+        sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::channel::ModuleConfig>,
         map_handler: & mut std::collections::HashMap<String, tokio_util::sync::CancellationToken>
-    ) -> Result<(Box<dyn protobuf::Message>, crate::comboard::imple::interface::Module_Config), super::interface::ModuleError> {
+    ) -> Result<(Box<dyn protobuf::Message>, crate::comboard::imple::channel::ModuleConfig), super::interface::ModuleError> {
 
 		
         let config: Box<WCModuleConfig> = Box::new(WCModuleConfig::parse_from_bytes(&data).map_err(|_e| super::interface::ModuleError::new())?);
@@ -94,9 +94,9 @@ impl super::interface::ModuleValueValidator for AABValidator {
 
         return Ok((
             config,
-            crate::comboard::imple::interface::Module_Config{
+            crate::comboard::imple::channel::ModuleConfig{
                 port: port,
-                buffer: buffer,
+                data: buffer.try_into().unwrap(),
             },
         ));
     }

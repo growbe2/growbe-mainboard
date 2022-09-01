@@ -1,6 +1,8 @@
 use btleplug::platform::{Adapter, PeripheralId};
 use std::collections::HashMap;
 
+use std::sync::mpsc::Receiver;
+
 use tokio::select;
 use tokio_stream::StreamExt;
 use btleplug::api::{
@@ -237,7 +239,7 @@ async fn try_find_growbe_module(
 
 
 impl crate::comboard::imple::interface::ComboardClient for BLEComboardClient {
-    fn run(&self) -> tokio::task::JoinHandle<()> {
+    fn run(&self, receiver_config: Receiver<crate::comboard::imple::channel::ModuleConfig>) -> tokio::task::JoinHandle<()> {
         let devices = get_devices(self.config_comboard.config.clone());
 
         return tokio::spawn(async move {

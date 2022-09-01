@@ -73,18 +73,18 @@ impl super::interface::ModuleValueValidator for AASValidator {
         return Ok(());
     }
 
-    fn apply_parse_config(&mut self, port: i32, _t: char, data: std::sync::Arc<Vec<u8>>, _sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::interface::Module_Config>,
+    fn apply_parse_config(&mut self, port: i32, _t: char, data: std::sync::Arc<Vec<u8>>, _sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::channel::ModuleConfig>,
         _map_handler: & mut std::collections::HashMap<String, tokio_util::sync::CancellationToken>
-    ) -> Result<(Box<dyn protobuf::Message>, crate::comboard::imple::interface::Module_Config), super::interface::ModuleError> {
+    ) -> Result<(Box<dyn protobuf::Message>, crate::comboard::imple::channel::ModuleConfig), super::interface::ModuleError> {
         let config: SOILModuleConfig = SOILModuleConfig::parse_from_bytes(&data).unwrap();
 
         self.option_config = Some(config.clone());
 
         return Ok((
             Box::new(config),
-            crate::comboard::imple::interface::Module_Config{
+            crate::comboard::imple::channel::ModuleConfig{
                 port: port,
-                buffer: [255; 8],
+                data: [255; 8].try_into().unwrap(),
             },
         ));
     }

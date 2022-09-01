@@ -1,13 +1,13 @@
 
 use protobuf::Message;
 
-use crate::modulestate::{relay::virtual_relay::op::initialize_virtual_relay_and_apply_config, interface::ModuleError};
+use crate::{modulestate::{relay::virtual_relay::op::initialize_virtual_relay_and_apply_config, interface::ModuleError}, comboard::imple::channel::ComboardSenderMapReference};
 
 use super::{store::{VirtualRelayStore}, op::{is_virtual_relay_required_module, initialize_virtual_relay, apply_config_virtual_relay, delete_virtual_relay, get_missing_required_module}};
 
 pub fn on_module_state_changed_virtual_relays(
     state: bool,
-    sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::interface::Module_Config>,
+    sender_comboard_config: &ComboardSenderMapReference,
     sender_socket: & std::sync::mpsc::Sender<(String, Box<dyn crate::modulestate::interface::ModuleValueParsable>)>,
     store: & crate::modulestate::store::ModuleStateStore,
     store_virtual_relay: & mut VirtualRelayStore,
@@ -67,7 +67,7 @@ pub fn on_module_state_changed_virtual_relays(
 // one if 
 pub fn handle_virtual_relay(
     data: std::sync::Arc<Vec<u8>>,
-    sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::interface::Module_Config>,
+    sender_comboard_config: &ComboardSenderMapReference,
     sender_socket: & std::sync::mpsc::Sender<(String, Box<dyn crate::modulestate::interface::ModuleValueParsable>)>,
     store: & crate::modulestate::store::ModuleStateStore,
     store_virtual_relay: & mut VirtualRelayStore,
@@ -82,7 +82,7 @@ pub fn handle_virtual_relay(
 pub fn handle_apply_config_virtual_relay(
     topic: &String,
     data: std::sync::Arc<Vec<u8>>,
-    sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::interface::Module_Config>,
+    sender_comboard_config: &ComboardSenderMapReference,
     sender_socket: & std::sync::mpsc::Sender<(String, Box<dyn crate::modulestate::interface::ModuleValueParsable>)>,
     store: & crate::modulestate::store::ModuleStateStore,
     store_virtual_relay: & mut VirtualRelayStore,
@@ -99,7 +99,7 @@ pub fn handle_apply_config_virtual_relay(
 pub fn handle_delete_virtual_relay(
     topic: &String,
     _data: std::sync::Arc<Vec<u8>>,
-    sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::interface::Module_Config>,
+    sender_comboard_config: &ComboardSenderMapReference,
     sender_socket: & std::sync::mpsc::Sender<(String, Box<dyn crate::modulestate::interface::ModuleValueParsable>)>,
     store: & crate::modulestate::store::ModuleStateStore,
     store_virtual_relay: & mut VirtualRelayStore,

@@ -1,3 +1,5 @@
+use std::sync::mpsc::Receiver;
+
 use futures::TryStreamExt;
 use futures_util::{future, pin_mut, StreamExt};
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
@@ -33,7 +35,7 @@ pub struct WSComboardClient {
 }
 
 impl crate::comboard::imple::interface::ComboardClient for WSComboardClient {
-    fn run(&self) -> tokio::task::JoinHandle<()> {
+    fn run(&self, receiver_config: Receiver<crate::comboard::imple::channel::ModuleConfig>) -> tokio::task::JoinHandle<()> {
         let config =
             ("ws://".to_string() + &self.config_comboard.config.clone() + ":5000/live").to_string();
 

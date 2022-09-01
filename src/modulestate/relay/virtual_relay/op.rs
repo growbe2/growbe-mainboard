@@ -1,6 +1,6 @@
 use tokio_util::sync::CancellationToken;
 
-use crate::modulestate::relay::{physical_relay::{PhysicalRelay, BatchPhysicalRelay, ActionPortUnion}, configure::configure_relay};
+use crate::{modulestate::relay::{physical_relay::{PhysicalRelay, BatchPhysicalRelay, ActionPortUnion}, configure::configure_relay}, comboard::imple::channel::{ComboardSenderMapReference, ComboardAddr}};
 use crate::modulestate::interface::ModuleError;
 
 use super::{store::VirtualRelayStore, virtual_relay::VirtualRelay};
@@ -9,7 +9,7 @@ use super::{store::VirtualRelayStore, virtual_relay::VirtualRelay};
 pub fn create_virtual_relay(
     relay_config: &crate::protos::module::VirtualRelay,
     sender_socket: & std::sync::mpsc::Sender<(String, Box<dyn crate::modulestate::interface::ModuleValueParsable>)>,
-    sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::interface::Module_Config>,
+    sender_comboard_config: &ComboardSenderMapReference,
     manager: & crate::modulestate::MainboardModuleStateManager,
     store_virtual_relay: & mut VirtualRelayStore,
 ) -> Result<VirtualRelay, ModuleError> {
@@ -31,7 +31,8 @@ pub fn create_virtual_relay(
         // if only one propertie use a normal relay
         if v.properties.len() == 1 {
             let relay: Box<PhysicalRelay> = Box::new(PhysicalRelay{
-                sender: sender_comboard_config.clone(),
+                // TODO remove unwrap
+                sender: sender_comboard_config.get_sender(ComboardAddr { imple: module_ref.board.clone(), addr: module_ref.board_addr.clone()}).unwrap(),
                 port: module_ref.port,
                 action_port: (*v.properties.get(0).unwrap()).property as usize,
             });
@@ -42,7 +43,7 @@ pub fn create_virtual_relay(
                 buffer: [255; 8],
                 auto_send: true,
                 port: module_ref.port,
-                sender: sender_comboard_config.clone(),
+                sender: sender_comboard_config.get_sender(ComboardAddr { imple: module_ref.board.clone(), addr: module_ref.board_addr.clone()}).unwrap(),
             });
             virtual_relay.relays.push(batch_relay);
         }
@@ -53,7 +54,7 @@ pub fn create_virtual_relay(
 
 pub fn delete_virtual_relay(
     name: &str,
-    _sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::interface::Module_Config>,
+    _sender_comboard_config: &ComboardSenderMapReference,
     sender_socket: & std::sync::mpsc::Sender<(String, Box<dyn crate::modulestate::interface::ModuleValueParsable>)>,
     _store: & crate::modulestate::store::ModuleStateStore,
     store_virtual_relay: & mut VirtualRelayStore,
@@ -76,7 +77,7 @@ pub fn delete_virtual_relay(
 
 pub fn initialize_virtual_relay(
     relay_config: &crate::protos::module::VirtualRelay, 
-    sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::interface::Module_Config>,
+    sender_comboard_config: &ComboardSenderMapReference,
     sender_socket: & std::sync::mpsc::Sender<(String, Box<dyn crate::modulestate::interface::ModuleValueParsable>)>,
     store: & crate::modulestate::store::ModuleStateStore,
     store_virtual_relay: & mut VirtualRelayStore,
@@ -121,7 +122,7 @@ pub fn initialize_virtual_relay(
 pub fn apply_config_virtual_relay(
     id: &String,
     config: &crate::protos::module::RelayOutletConfig,
-    _sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::interface::Module_Config>,
+    sender_comboard_config: &ComboardSenderMapReference,
     _sender_socket: & std::sync::mpsc::Sender<(String, Box<dyn crate::modulestate::interface::ModuleValueParsable>)>,
     _store: & crate::modulestate::store::ModuleStateStore,
     store_virtual_relay: & mut VirtualRelayStore,
@@ -157,7 +158,7 @@ pub fn get_missing_required_module(
 pub fn initialize_virtual_relay_and_apply_config(
     virtual_relay: &crate::protos::module::VirtualRelay, 
     virtual_config: &Option<crate::protos::module::RelayOutletConfig>,
-    sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::interface::Module_Config>,
+    sender_comboard_config: &ComboardSenderMapReference,
     sender_socket: & std::sync::mpsc::Sender<(String, Box<dyn crate::modulestate::interface::ModuleValueParsable>)>,
     store: & crate::modulestate::store::ModuleStateStore,
     store_virtual_relay: & mut VirtualRelayStore,

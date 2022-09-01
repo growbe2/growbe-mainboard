@@ -1,4 +1,6 @@
 
+use std::sync::mpsc::Receiver;
+
 use bluer::{gatt::remote::Characteristic, AdapterEvent, Device, Result};
 use futures::{pin_mut, StreamExt};
 
@@ -106,7 +108,7 @@ async fn bt_task(config: String) -> bluer::Result<()> {
 }
 
 impl crate::comboard::imple::interface::ComboardClient for super::BLEComboardClient {
-    fn run(&self) -> tokio::task::JoinHandle<()> {
+    fn run(&self, receiver_config: Receiver<crate::comboard::imple::channel::ModuleConfig>) -> tokio::task::JoinHandle<()> {
 		let config = self.config_comboard.config.clone();
         return tokio::spawn(async move {
 			match bt_task(config).await {

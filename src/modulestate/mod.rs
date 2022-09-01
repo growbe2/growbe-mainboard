@@ -134,7 +134,7 @@ fn send_module_state(
 fn handle_module_state(
     manager: & mut MainboardModuleStateManager,
     state: & mut ModuleStateChangeEvent,
-    sender_comboard_config: & Sender<crate::comboard::imple::interface::Module_Config>,
+    sender_comboard_config: &ComboardSenderMapReference,
     sender_socket: & Sender<(String, Box<dyn interface::ModuleValueParsable>)>,
     store: &store::ModuleStateStore,
     alarm_validator: & mut alarm::validator::AlarmFieldValidator,
@@ -180,8 +180,10 @@ fn handle_module_state(
                 // TODO implement fonction to handle not byte but structure directly
                 let module_mut_ref = manager.connected_module.get_mut(state.id.as_str()).unwrap();
                 let bytes = Arc::new(config.unwrap().write_to_bytes().unwrap());
-                match module_mut_ref.validator.apply_parse_config(state.port, t, bytes, sender_comboard_config, &mut module_mut_ref.handler_map) {
-                    Ok((_config, config_comboard)) => sender_comboard_config.send(config_comboard).unwrap(),
+
+                let sender_config = sender_comboard_config.get_sender(ComboardAddr { imple: module_mut_ref.board.clone(), addr: module_mut_ref.board_addr.clone() }).unwrap();
+                match module_mut_ref.validator.apply_parse_config(state.port, t, bytes, &sender_config, &mut module_mut_ref.handler_map) {
+                    Ok((_config, config_comboard)) => sender_config.send(config_comboard).unwrap(),
                     Err(e) => log::error!("{}", e),
                 }
                 tokio::task::spawn(async {});
@@ -279,7 +281,7 @@ fn handle_module_config(
     topic: &String,
     data: Arc<Vec<u8>>,
     manager: & mut MainboardModuleStateManager,
-    sender_config: & Sender<crate::comboard::imple::interface::Module_Config>,
+    sender_config: &ComboardSenderMapReference,
     _sender_socket: & Sender<(String, Box<dyn interface::ModuleValueParsable>)>,
     store: &store::ModuleStateStore,
 ) -> Result<(), interface::ModuleError> {
@@ -289,6 +291,8 @@ fn handle_module_config(
     if let Some(module_ref) = module_ref_option {
 
         let t = module_ref.id.chars().nth(2).unwrap();
+
+        let sender_config = sender_config.get_sender(ComboardAddr { imple: module_ref.board.clone(), addr: module_ref.board_addr.clone() }).unwrap();
 
         match module_ref.validator.apply_parse_config(module_ref.port, t, data, &sender_config, &mut module_ref.handler_map) {
             Ok((config, config_comboard)) => {
@@ -309,7 +313,7 @@ fn handle_remove_module_config(
     topic: &String,
     _data: Arc<Vec<u8>>,
     manager: & mut MainboardModuleStateManager,
-    _sender_config: & Sender<crate::comboard::imple::interface::Module_Config>,
+    _sender_config: &ComboardSenderMapReference,
     _sender_socket: & Sender<(String, Box<dyn interface::ModuleValueParsable>)>,
     store: &store::ModuleStateStore,
 ) -> Result<(), interface::ModuleError> {
@@ -400,7 +404,7 @@ fn handle_module_command(
     store: & store::ModuleStateStore,
     alarm_validator: & mut alarm::validator::AlarmFieldValidator,
     alarm_store: & alarm::store::ModuleAlarmStore,
-    sender_config: & Sender<crate::comboard::imple::interface::Module_Config>,
+    sender_config: &ComboardSenderMapReference,
     sender_socket: & Sender<(String, Box<dyn interface::ModuleValueParsable>)>,
     virtual_relay_store: &mut relay::virtual_relay::store::VirtualRelayStore,
 ) -> () {
@@ -471,10 +475,10 @@ fn handle_module_command(
 pub fn module_state_task(
     sender_socket: Sender<(String, Box<dyn interface::ModuleValueParsable>)>,
     store: store::ModuleStateStore,
+    sender_config: ComboardSenderMapReference,
     alarm_store: alarm::store::ModuleAlarmStore,
 ) -> tokio::task::JoinHandle<()> {
 
-    let sender_config = CHANNEL_CONFIG_I2C.0.lock().unwrap().clone();
         
 
     return tokio::spawn(async move {

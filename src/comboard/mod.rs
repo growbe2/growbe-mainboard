@@ -25,43 +25,33 @@ fn get_comboard_virt(config: ComboardClientConfig) -> imple::virt::VirtualComboa
 	};
 }
 
-pub fn get_comboard_client() -> (Vec<Box<dyn imple::interface::ComboardClient>>, Vec<RunningComboard>) {
-	let mut boards: Vec<Box<dyn imple::interface::ComboardClient>>  = vec![];
-	let mut running_boards: Vec<RunningComboard> = vec![];
-
-	let imple = crate::mainboardstate::config::CONFIG.comboard.imple.as_str();
-	if imple == "i2c" {
-		#[cfg(all(target_os = "linux", feature = "com_i2c"))]
-		boards.push(Box::new(get_comboard_i2c(ComboardClientConfig { config: crate::mainboardstate::config::CONFIG.comboard.config.to_string() })));
-		#[cfg(not(all(target_os = "linux", feature = "com_i2c")))]
-		panic!("i2c not supported on this os")
-	}
+pub fn get_comboard_client() -> Vec<(RunningComboard, Box<dyn imple::interface::ComboardClient>)> {
+	let mut boards: Vec<(RunningComboard, Box<dyn imple::interface::ComboardClient>)>  = vec![];
 
 	for element in crate::mainboardstate::config::CONFIG.comboards.iter() {
+		let mut board: Vec<Box<dyn imple::interface::ComboardClient>> = vec![];
+		
 		if element.imple == "virt" {
 			#[cfg(feature = "com_virt")]
-			boards.push(Box::new(get_comboard_virt(ComboardClientConfig { config: element.config.clone() })));
-			#[cfg(not(feature = "com_virt"))]
-			panic!("virt not build")
+			board.push(Box::new(get_comboard_virt(ComboardClientConfig { config: element.config.clone() })));
 		} else if element.imple == "i2c" {
 			#[cfg(all(target_os = "linux", feature = "com_i2c"))]
-			boards.push(Box::new(get_comboard_i2c(ComboardClientConfig { config: element.config.clone() })));
-			#[cfg(not(all(target_os = "linux", feature = "com_i2c")))]
-			panic!("i2c not supported on this os")
+			board.push(Box::new(get_comboard_i2c(ComboardClientConfig { config: element.config.clone() })));
 		} else if element.imple == "ble" {
 			#[cfg(feature = "com_ble")]
-			boards.push(get_ble_comboard(element.config.clone()));
-			#[cfg(not(feature = "com_ble"))]
-			panic!("ble not build")
+			board.push(get_ble_comboard(element.config.clone()));
 		} else if element.imple == "ws" {
 			#[cfg(feature = "com_ws")]
-			boards.push(get_ws_comboard(element.config.clone()));
-			#[cfg(not(feature = "com_ws"))]
-			panic!("ws not build")
+			board.push(get_ws_comboard(element.config.clone()));
+		};
+
+		if board.len() == 1{
+			boards.push((RunningComboard { imple: element.imple.clone(), addr: element.config.clone(), ..Default::default()}, board.pop().unwrap()));
+		} else {
+			panic!("comboard is not supported {} : either it does not exists or it's not build in", element.imple);
 		}
 
-		running_boards.push(RunningComboard { imple: element.imple.clone(), addr: element.config.clone(), ..Default::default()})
 	}
 
-	return (boards, running_boards);
+	return boards;
 }

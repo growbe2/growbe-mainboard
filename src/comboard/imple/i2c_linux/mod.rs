@@ -1,8 +1,13 @@
  
+pub mod channel;
+
 use std::ffi::CStr;
 use std::error::Error;
+use std::sync::mpsc::Receiver;
 use crate::comboard::imple::channel::*;
 use crate::comboard::imple::interface::{ModuleStateChangeEvent, ModuleValueValidationEvent};
+
+use self::channel::{CHANNEL_CONFIG_I2C, Module_Config};
 
 use tokio::select;
 use rppal::gpio::Gpio;
@@ -14,7 +19,7 @@ extern fn callback_state_changed(port: i32, id: *const ::std::os::raw::c_char, s
     CHANNEL_STATE.0.lock().unwrap().send(
         ModuleStateChangeEvent{
             board: "i2c".to_string(),
-            board_addr: "1".to_string(),
+            board_addr: "/dev/i2c-1".to_string(),
             port: port,
             id: String::from(str_slice),
             state: state,
@@ -27,13 +32,13 @@ extern fn callback_value_validation(port: i32, buffer: &[u8; 512]) -> () {
         ModuleValueValidationEvent{
             port: port,
             board: "i2c".to_string(),
-            board_addr: "1".to_string(),
+            board_addr: "/dev/i2c-1".to_string(),
             buffer: buffer.to_vec(),
         }
     ).unwrap();
 }
 
-extern fn callback_config(config: *mut super::interface::Module_Config) {
+extern fn callback_config(config: *mut channel::Module_Config) {
     if !config.is_null() {
         let value = CHANNEL_CONFIG_I2C.1.lock().unwrap().try_recv();
         if value.is_ok() {
@@ -57,7 +62,7 @@ extern "C" {
     fn register_callback_comboard(
         cb: extern fn(i32,*const ::std::os::raw::c_char,bool) -> (),
         cb1: extern fn(i32, &[u8; 512]),
-        cb2: extern fn( *mut super::interface::Module_Config)
+        cb2: extern fn( *mut channel::Module_Config)
     );
 
     fn comboard_loop_body();
@@ -111,7 +116,7 @@ pub struct I2CLinuxComboardClient {
 }
 
 impl super::interface::ComboardClient for I2CLinuxComboardClient {
-    fn run(&self) -> tokio::task::JoinHandle<()>  {
+    fn run(&self, receiver_config: Receiver<crate::comboard::imple::channel::ModuleConfig>) -> tokio::task::JoinHandle<()>  {
         let c = std::ffi::CString::new(self.config_comboard.config.as_str()).unwrap();
 
         PIHatControl::enable().unwrap();
@@ -125,8 +130,17 @@ impl super::interface::ComboardClient for I2CLinuxComboardClient {
             }
          }
          loop {
-            unsafe { comboard_loop_body(); }
-            //std::thread::sleep(std::time::Duration::from_millis(50));
+            unsafe {
+                if let Ok(value) = receiver_config.try_recv() {
+                    let v: [u8; 8] = value.data.try_into().unwrap();
+                    CHANNEL_CONFIG_I2C.0.lock().unwrap().send(Module_Config{
+                        port: value.port,
+                        buffer: v,
+                    }).unwrap();
+                }
+
+                comboard_loop_body();
+            }
          }
         });
     }
