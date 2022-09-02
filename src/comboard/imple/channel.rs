@@ -104,7 +104,7 @@ impl ComboardConfigChannelManager {
 	pub fn create_channel(&mut self, addr: ComboardAddr) -> Receiver<ModuleConfig> {
 		let (sender, receiver) = channel::<ModuleConfig>();
 		self.senders.lock().unwrap().insert(addr.to_string(), sender);
-		log::error!("creating channel for {:?}", addr.to_string());
+		log::info!("creating channel for {:?}", addr.to_string());
 		return receiver;
 	}
 
