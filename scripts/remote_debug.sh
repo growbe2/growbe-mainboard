@@ -25,7 +25,7 @@ TARGET_CWD="/opt/growbe/"
 RUNNER="./scripts/rust_env.sh"
 
 $RUNNER make -C ./drivers CC=${TARGET_CC}
-COMMIT=$(git rev-parse --short HEAD) $RUNNER cargo build --target=${TARGET_ARCH} --release
+COMMIT=$(git rev-parse --short HEAD) $RUNNER cargo build --target=${TARGET_ARCH} --features pi --release
 
 if ! rsync -avz "${BUILD_BIN_FILE}" "./mainboard_config.json" "${TARGET_USER}@${SSH_REMOTE}:${TARGET_CWD}"; then
     # If rsync doesn't work, it may not be available on target. Fallback to trying SSH copy.

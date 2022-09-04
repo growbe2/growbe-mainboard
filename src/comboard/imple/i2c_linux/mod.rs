@@ -12,6 +12,7 @@ use self::channel::{CHANNEL_CONFIG_I2C, Module_Config};
 use tokio::select;
 use rppal::gpio::Gpio;
 
+
 extern fn callback_state_changed(port: i32, id: *const ::std::os::raw::c_char, state: bool) -> () {
     let c_str: &CStr = unsafe { CStr::from_ptr(id) };
     let str_slice = c_str.to_str().unwrap();
@@ -65,7 +66,8 @@ extern "C" {
         cb2: extern fn( *mut channel::Module_Config)
     );
 
-    fn comboard_loop_body();
+    // starting 
+    fn comboard_loop_body(starting_port: i32, ending_port: i32);
     fn init(device: *const ::std::os::raw::c_char) -> i32;
 }
 
@@ -117,7 +119,17 @@ pub struct I2CLinuxComboardClient {
 
 impl super::interface::ComboardClient for I2CLinuxComboardClient {
     fn run(&self, receiver_config: Receiver<crate::comboard::imple::channel::ModuleConfig>) -> tokio::task::JoinHandle<()>  {
-        let c = std::ffi::CString::new(self.config_comboard.config.as_str()).unwrap();
+        let str_config: Vec<String> = self.config_comboard.config.clone().split(":").map(|x| x.to_string()).collect();
+
+        let device = str_config.get(0).unwrap().clone();
+
+        let starting_port: i32 = if let Some(item) = str_config.get(1) { item.parse().unwrap() } else { 0 };
+
+        let ending_port: i32 = if let Some(item) = str_config.get(2) { item.parse().unwrap() } else { 8 };
+
+        let c = std::ffi::CString::new(device.as_str()).unwrap();
+
+        log::info!("Starting comboard with config {} {}:{}", device, starting_port, ending_port);
 
         PIHatControl::enable().unwrap();
         PIHatControl::enable_led_hat();
@@ -139,7 +151,7 @@ impl super::interface::ComboardClient for I2CLinuxComboardClient {
                     }).unwrap();
                 }
 
-                comboard_loop_body();
+                comboard_loop_body(starting_port, ending_port);
             }
          }
         });

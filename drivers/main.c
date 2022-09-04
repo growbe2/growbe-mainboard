@@ -20,7 +20,7 @@ int main() {
 	init("/dev/i2c-1");
 
 	while (1 != 0) {
-		comboard_loop_body();
+		comboard_loop_body(0, 8);
 	}
 
 	return 0;

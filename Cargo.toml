@@ -4,7 +4,7 @@ version = "0.1.10"
 edition = "2021"
 
 [features]
-default = ["com_virt", "com_ws"]
+default = ["com_virt", "com_ws", "com_i2c"]
 gpio = ["rppal"]
 com_ble = ["bluer", "btleplug", "futures", "uuid", "tokio-stream"]
 com_virt = []
