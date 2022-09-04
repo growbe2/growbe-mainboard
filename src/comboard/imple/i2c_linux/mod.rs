@@ -79,7 +79,7 @@ impl PIHatControl {
 
         hat_pin.set_high();
         hat_pin.set_high();
-        log::info!("hat is {}", hat_pin.is_set_high());
+        log::info!("hat for board {}", hat_pin.is_set_high());
 
         return Ok(());
     }
@@ -90,11 +90,9 @@ impl PIHatControl {
 
             let mut b = false;
             
-            log::info!("starting led hat");
-
             let mut hat_pin = Gpio::new().unwrap().get(23).unwrap().into_output();
             hat_pin.set_high();
-            log::info!("hat is {}", hat_pin.is_set_high());
+            log::info!("hat for led {}", hat_pin.is_set_high());
 
             loop {
                 select! {
