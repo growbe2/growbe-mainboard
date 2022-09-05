@@ -184,7 +184,7 @@ fn handle_module_state(
                 let sender_config = sender_comboard_config.get_sender(ComboardAddr { imple: module_mut_ref.board.clone(), addr: module_mut_ref.board_addr.clone() }).unwrap();
                 match module_mut_ref.validator.apply_parse_config(state.port, t, bytes, &sender_config, &mut module_mut_ref.handler_map) {
                     Ok((_config, config_comboard)) => sender_config.send(config_comboard).unwrap(),
-                    Err(e) => log::error!("{}", e),
+                    Err(e) => log::error!("validation error {}", e),
                 }
                 tokio::task::spawn(async {});
             } else {
@@ -271,7 +271,7 @@ fn handle_module_value(
                 }
             }
         },
-        Err(e) => log::error!("{}", e),
+        Err(e) => log::error!("convert to value error : {}", e),
     }
 }
 

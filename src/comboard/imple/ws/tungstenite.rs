@@ -1,14 +1,15 @@
-use std::sync::{mpsc::Receiver, Arc};
+use std::sync::mpsc::Receiver;
 
-use futures::{future, pin_mut, Future, TryStreamExt};
+use futures::TryStreamExt;
 use futures_util::StreamExt;
+use protobuf::Message;
 use serde::{Deserialize, Serialize};
-use tokio::{io::AsyncWriteExt, sync::Mutex};
 use tokio::select;
 use tokio_tungstenite::connect_async;
 use url::Url;
 
-use crate::comboard::imple::channel::ModuleConfig;
+use crate::comboard::imple::channel::{comboard_send_state, comboard_send_value};
+use crate::protos::module::PhoneAccelerationData;
 
 #[derive(Serialize, Deserialize)]
 pub struct WebSocketMessage {
@@ -18,10 +19,9 @@ pub struct WebSocketMessage {
 
 const TOPIC_MODULE_ID: &str = "READ_MODULE_ID";
 const TOPIC_MODULES: &str = "READ_SUPPORTED_MODULES";
-const TOPIC_MODULE_DATA_PREFIX: &str = "DATA:(.*)";
 
 async fn handle_device_loop(url: Url) -> Result<(), ()> {
-    let (ws_stream, _) = connect_async(url).await.map_err(|_| ())?;
+    let (ws_stream, _) = connect_async(url.clone()).await.map_err(|_| ())?;
     println!("WebSocket handshake has been successfully completed");
 
     let (write, mut read) = ws_stream.split();
@@ -29,7 +29,6 @@ async fn handle_device_loop(url: Url) -> Result<(), ()> {
     let mut connected = false;
     let mut module_id: String = "".to_string();
     let mut supported_modules: Vec<String> = vec![];
-
 
     loop {
         select! {
@@ -40,62 +39,43 @@ async fn handle_device_loop(url: Url) -> Result<(), ()> {
                         Ok(message) => {
                             match message.topic.as_str() {
                                 TOPIC_MODULE_ID => {
-                                    module_id = message.payload.clone();
-                                }
+								    module_id = message.payload.clone();
+                                },
                                 TOPIC_MODULES => {
                                     supported_modules = message.payload.split(";").map(|x| x.to_string()).collect();
                                 }
                                 _ => {
-                                    // Module data
+
                                 }
                             }
 
                             if !connected && module_id != "" && supported_modules.len() > 0 {
                                 connected = true;
-                                println!("Module connected");
+                                for (i, module_type) in supported_modules.iter().enumerate() {
+                                    let id = module_type.clone() + &module_id;
+                                    comboard_send_state("ws".to_string(), url.to_string(), i as i32, id.clone(), true).unwrap();
+                                }
                             }
                        }
-                       Err(err) => println!("{:?}",err)
+                       Err(err) => {
+                           // Regarde si on est un message protobuf;
+                           if module_id.is_empty() {
+                               continue;
+                           }
+                           if data[0] <= 10 {
+                                comboard_send_value("ws".to_string(), url.to_string(), data[0] as i32, data[1..data.len()].to_vec()).unwrap();
+                           } else {
+                               log::error!("error parsing json : {:?}", err);
+                           }
+                       }
                     }
                 } else {
-                    println!("FAILED TO TRY_NEXT");
+                    log::error!("error try_next websocket");
+                    return Err(());
                 }
             }
         }
     }
-
-    /*
-    let task_read = {
-        read.try_next()
-        read.try_for_each(|message| async {
-            let data = message.into_data();
-            if let Ok(message) = serde_json::from_slice::<WebSocketMessage>(&data) {
-                match message.topic.as_str() {
-                    TOPIC_MODULE_ID => {
-                    }
-                    TOPIC_MODULES => {}
-                    _ => {
-                        // Module data
-                    }
-                }
-            }
-
-            Ok(())
-        })
-    };
-
-    let task_write = async {
-        loop {
-            if let Ok(config) = receiver.recv() {
-                println!("config to send to ws");
-            }
-        }
-    };
-
-    pin_mut!(task_read, task_write);
-    future::select(task_read, task_write).await;
-    */
-    return Ok(());
 }
 
 pub struct WSComboardClient {
@@ -117,7 +97,7 @@ impl crate::comboard::imple::interface::ComboardClient for WSComboardClient {
                 match handle_device_loop(url.clone()).await {
                     Ok(_) => {}
                     Err(_) => {
-                        log::warn!("failed to connect");
+                        log::warn!("waiting to retry on websocket client");
                         tokio::time::sleep(tokio::time::Duration::from_millis(1000)).await;
                     }
                 }
