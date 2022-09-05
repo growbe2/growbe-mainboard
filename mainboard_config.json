@@ -1,5 +1,5 @@
 {
-	"id": "123456",
+	"id": "56837D",
 	"mqtt": {
 		"url": "broker.dev.growbe.ca",
 		"port": 1884
@@ -10,7 +10,7 @@
 			"imple": "virt"
 		},
 		{
-			"config": "192.168.1.130",
+			"config": "192.168.6.7",
 			"imple": "ws"
 		}
 	],

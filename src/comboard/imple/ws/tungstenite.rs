@@ -2,14 +2,12 @@ use std::sync::mpsc::Receiver;
 
 use futures::TryStreamExt;
 use futures_util::StreamExt;
-use protobuf::Message;
 use serde::{Deserialize, Serialize};
 use tokio::select;
 use tokio_tungstenite::connect_async;
 use url::Url;
 
 use crate::comboard::imple::channel::{comboard_send_state, comboard_send_value};
-use crate::protos::module::PhoneAccelerationData;
 
 #[derive(Serialize, Deserialize)]
 pub struct WebSocketMessage {
@@ -20,11 +18,27 @@ pub struct WebSocketMessage {
 const TOPIC_MODULE_ID: &str = "READ_MODULE_ID";
 const TOPIC_MODULES: &str = "READ_SUPPORTED_MODULES";
 
-async fn handle_device_loop(url: Url) -> Result<(), ()> {
-    let (ws_stream, _) = connect_async(url.clone()).await.map_err(|_| ())?;
-    println!("WebSocket handshake has been successfully completed");
+fn send_module_state(module_id: &String, supported_modules: &Vec<String>, url: &Url, state: bool) {
+    for (i, module_type) in supported_modules.iter().enumerate() {
+        let id = module_type.clone() + module_id;
+        comboard_send_state("ws".to_string(), url.to_string(), i as i32, id.clone(), state).unwrap();
+    }
+}
 
-    let (write, mut read) = ws_stream.split();
+async fn handle_device_loop(url: Url) -> Result<(), ()> {
+
+    let (ws_stream, _) = select! {
+        ret = connect_async(url.clone()) => {
+            ret.map_err(|_| ())?
+        },
+        _ = tokio::time::sleep(tokio::time::Duration::from_millis(15000)) => {
+            log::error!("timeout connection async {:?}", url.to_string());
+            return Err(())
+       }
+    };
+    log::info!("WebSocket handshake has been successfully completed {:?}", url.to_string());
+
+    let (_write, mut read) = ws_stream.split();
 
     let mut connected = false;
     let mut module_id: String = "".to_string();
@@ -32,7 +46,7 @@ async fn handle_device_loop(url: Url) -> Result<(), ()> {
 
     loop {
         select! {
-            message = read.try_next() => {
+            message = read.try_next() => { 
                 if let Ok(message) = message {
                     let data = message.unwrap().into_data();
                     match serde_json::from_slice::<WebSocketMessage>(&data) {
@@ -51,10 +65,7 @@ async fn handle_device_loop(url: Url) -> Result<(), ()> {
 
                             if !connected && module_id != "" && supported_modules.len() > 0 {
                                 connected = true;
-                                for (i, module_type) in supported_modules.iter().enumerate() {
-                                    let id = module_type.clone() + &module_id;
-                                    comboard_send_state("ws".to_string(), url.to_string(), i as i32, id.clone(), true).unwrap();
-                                }
+                                send_module_state(&module_id, &supported_modules, &url, true);
                             }
                        }
                        Err(err) => {
@@ -70,9 +81,16 @@ async fn handle_device_loop(url: Url) -> Result<(), ()> {
                        }
                     }
                 } else {
-                    log::error!("error try_next websocket");
+                    log::debug!("error try_next websocket");
+                    if supported_modules.len() > 0 {
+                        send_module_state(&module_id, &supported_modules, &url, false);
+                    }
                     return Err(());
                 }
+            },
+            _ = tokio::time::sleep(tokio::time::Duration::from_millis(15000)) => {
+                send_module_state(&module_id, &supported_modules, &url, false);
+                return Err(());
             }
         }
     }
@@ -97,8 +115,8 @@ impl crate::comboard::imple::interface::ComboardClient for WSComboardClient {
                 match handle_device_loop(url.clone()).await {
                     Ok(_) => {}
                     Err(_) => {
-                        log::warn!("waiting to retry on websocket client");
-                        tokio::time::sleep(tokio::time::Duration::from_millis(1000)).await;
+                        log::debug!("waiting to connect on {}", url.to_string());
+                        tokio::time::sleep(tokio::time::Duration::from_millis(3000)).await;
                     }
                 }
             }
