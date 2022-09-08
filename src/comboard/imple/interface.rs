@@ -26,5 +26,5 @@ pub struct ComboardClientConfig {
 }
 
 pub trait ComboardClient {
-	fn run(&self, receiver_config: Receiver<super::channel::ModuleConfig>) -> tokio::task::JoinHandle<()>;
+	fn run(&self, receiver_config: Receiver<super::channel::ModuleConfig>) -> tokio::task::JoinHandle<Result<(), ()>>;
 }

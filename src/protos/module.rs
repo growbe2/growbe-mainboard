@@ -9862,6 +9862,464 @@ impl ::protobuf::reflect::ProtobufValue for PhonePressureConfig {
     }
 }
 
+#[derive(PartialEq,Clone,Default)]
+pub struct PhoneStreamingData {
+    // message fields
+    pub status: ::std::string::String,
+    pub fps: f32,
+    pub bitrate: f32,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a PhoneStreamingData {
+    fn default() -> &'a PhoneStreamingData {
+        <PhoneStreamingData as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl PhoneStreamingData {
+    pub fn new() -> PhoneStreamingData {
+        ::std::default::Default::default()
+    }
+
+    // string status = 1;
+
+
+    pub fn get_status(&self) -> &str {
+        &self.status
+    }
+    pub fn clear_status(&mut self) {
+        self.status.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_status(&mut self, v: ::std::string::String) {
+        self.status = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_status(&mut self) -> &mut ::std::string::String {
+        &mut self.status
+    }
+
+    // Take field
+    pub fn take_status(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.status, ::std::string::String::new())
+    }
+
+    // float fps = 2;
+
+
+    pub fn get_fps(&self) -> f32 {
+        self.fps
+    }
+    pub fn clear_fps(&mut self) {
+        self.fps = 0.;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_fps(&mut self, v: f32) {
+        self.fps = v;
+    }
+
+    // float bitrate = 3;
+
+
+    pub fn get_bitrate(&self) -> f32 {
+        self.bitrate
+    }
+    pub fn clear_bitrate(&mut self) {
+        self.bitrate = 0.;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_bitrate(&mut self, v: f32) {
+        self.bitrate = v;
+    }
+}
+
+impl ::protobuf::Message for PhoneStreamingData {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.status)?;
+                },
+                2 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeFixed32 {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_float()?;
+                    self.fps = tmp;
+                },
+                3 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeFixed32 {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_float()?;
+                    self.bitrate = tmp;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if !self.status.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.status);
+        }
+        if self.fps != 0. {
+            my_size += 5;
+        }
+        if self.bitrate != 0. {
+            my_size += 5;
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if !self.status.is_empty() {
+            os.write_string(1, &self.status)?;
+        }
+        if self.fps != 0. {
+            os.write_float(2, self.fps)?;
+        }
+        if self.bitrate != 0. {
+            os.write_float(3, self.bitrate)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> PhoneStreamingData {
+        PhoneStreamingData::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "status",
+                |m: &PhoneStreamingData| { &m.status },
+                |m: &mut PhoneStreamingData| { &mut m.status },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeFloat>(
+                "fps",
+                |m: &PhoneStreamingData| { &m.fps },
+                |m: &mut PhoneStreamingData| { &mut m.fps },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeFloat>(
+                "bitrate",
+                |m: &PhoneStreamingData| { &m.bitrate },
+                |m: &mut PhoneStreamingData| { &mut m.bitrate },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<PhoneStreamingData>(
+                "PhoneStreamingData",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static PhoneStreamingData {
+        static instance: ::protobuf::rt::LazyV2<PhoneStreamingData> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(PhoneStreamingData::new)
+    }
+}
+
+impl ::protobuf::Clear for PhoneStreamingData {
+    fn clear(&mut self) {
+        self.status.clear();
+        self.fps = 0.;
+        self.bitrate = 0.;
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for PhoneStreamingData {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for PhoneStreamingData {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
+pub struct PhoneStreamingConfig {
+    // message fields
+    pub activated: bool,
+    pub url: ::std::string::String,
+    pub camera: i32,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a PhoneStreamingConfig {
+    fn default() -> &'a PhoneStreamingConfig {
+        <PhoneStreamingConfig as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl PhoneStreamingConfig {
+    pub fn new() -> PhoneStreamingConfig {
+        ::std::default::Default::default()
+    }
+
+    // bool activated = 1;
+
+
+    pub fn get_activated(&self) -> bool {
+        self.activated
+    }
+    pub fn clear_activated(&mut self) {
+        self.activated = false;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_activated(&mut self, v: bool) {
+        self.activated = v;
+    }
+
+    // string url = 2;
+
+
+    pub fn get_url(&self) -> &str {
+        &self.url
+    }
+    pub fn clear_url(&mut self) {
+        self.url.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_url(&mut self, v: ::std::string::String) {
+        self.url = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_url(&mut self) -> &mut ::std::string::String {
+        &mut self.url
+    }
+
+    // Take field
+    pub fn take_url(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.url, ::std::string::String::new())
+    }
+
+    // int32 camera = 3;
+
+
+    pub fn get_camera(&self) -> i32 {
+        self.camera
+    }
+    pub fn clear_camera(&mut self) {
+        self.camera = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_camera(&mut self, v: i32) {
+        self.camera = v;
+    }
+}
+
+impl ::protobuf::Message for PhoneStreamingConfig {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_bool()?;
+                    self.activated = tmp;
+                },
+                2 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.url)?;
+                },
+                3 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_int32()?;
+                    self.camera = tmp;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if self.activated != false {
+            my_size += 2;
+        }
+        if !self.url.is_empty() {
+            my_size += ::protobuf::rt::string_size(2, &self.url);
+        }
+        if self.camera != 0 {
+            my_size += ::protobuf::rt::value_size(3, self.camera, ::protobuf::wire_format::WireTypeVarint);
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if self.activated != false {
+            os.write_bool(1, self.activated)?;
+        }
+        if !self.url.is_empty() {
+            os.write_string(2, &self.url)?;
+        }
+        if self.camera != 0 {
+            os.write_int32(3, self.camera)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> PhoneStreamingConfig {
+        PhoneStreamingConfig::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBool>(
+                "activated",
+                |m: &PhoneStreamingConfig| { &m.activated },
+                |m: &mut PhoneStreamingConfig| { &mut m.activated },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "url",
+                |m: &PhoneStreamingConfig| { &m.url },
+                |m: &mut PhoneStreamingConfig| { &mut m.url },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt32>(
+                "camera",
+                |m: &PhoneStreamingConfig| { &m.camera },
+                |m: &mut PhoneStreamingConfig| { &mut m.camera },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<PhoneStreamingConfig>(
+                "PhoneStreamingConfig",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static PhoneStreamingConfig {
+        static instance: ::protobuf::rt::LazyV2<PhoneStreamingConfig> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(PhoneStreamingConfig::new)
+    }
+}
+
+impl ::protobuf::Clear for PhoneStreamingConfig {
+    fn clear(&mut self) {
+        self.activated = false;
+        self.url.clear();
+        self.camera = 0;
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for PhoneStreamingConfig {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for PhoneStreamingConfig {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
 pub enum ActorType {
     MANUAL_USER_ACTOR = 0,
@@ -10262,7 +10720,12 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x03\x20\x01(\x02R\x02gz\"\x19\n\x17PhoneAccelerationConfig\".\n\x15Phon\
     eAmbientLightData\x12\x15\n\x06si_lux\x18\x01\x20\x01(\x02R\x05siLux\"\
     \x19\n\x17PhoneAmbientLightConfig\"%\n\x11PhonePressureData\x12\x10\n\
-    \x03hpa\x18\x01\x20\x01(\x02R\x03hpa\"\x15\n\x13PhonePressureConfig*Z\n\
+    \x03hpa\x18\x01\x20\x01(\x02R\x03hpa\"\x15\n\x13PhonePressureConfig\"X\n\
+    \x12PhoneStreamingData\x12\x16\n\x06status\x18\x01\x20\x01(\tR\x06status\
+    \x12\x10\n\x03fps\x18\x02\x20\x01(\x02R\x03fps\x12\x18\n\x07bitrate\x18\
+    \x03\x20\x01(\x02R\x07bitrate\"^\n\x14PhoneStreamingConfig\x12\x1c\n\tac\
+    tivated\x18\x01\x20\x01(\x08R\tactivated\x12\x10\n\x03url\x18\x02\x20\
+    \x01(\tR\x03url\x12\x16\n\x06camera\x18\x03\x20\x01(\x05R\x06camera*Z\n\
     \tActorType\x12\x15\n\x11MANUAL_USER_ACTOR\x10\0\x12\x12\n\x0eDURATION_A\
     CTOR\x10\x01\x12\x0f\n\x0bALARM_ACTOR\x10\x02\x12\x11\n\rVIRTUAL_ACTOR\
     \x10\x03*\x90\x01\n\x0fCalibrationStep\x12\x15\n\x11READY_CALIBRATION\

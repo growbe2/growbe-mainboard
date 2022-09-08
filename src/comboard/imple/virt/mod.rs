@@ -6,7 +6,6 @@ use crate::comboard::imple::interface::{ModuleStateChangeEvent, ModuleValueValid
 use crate::comboard::imple::channel::*;
 
 use serde::{Deserialize, Serialize};
-use serde_json::Result;
 
 
 fn default_index() -> i32 {
@@ -36,7 +35,7 @@ struct VirtualScenario {
 }
 
 
-fn get_config(config: &String) -> Result<VirtualScenario>  {
+fn get_config(config: &String) -> serde_json::Result<VirtualScenario>  {
     let file = std::fs::File::open(config).expect(config);
     let scenario: VirtualScenario = serde_json::from_reader(file)?;
     Ok(scenario)
@@ -48,7 +47,7 @@ pub struct VirtualComboardClient {
 
 impl super::interface::ComboardClient for VirtualComboardClient {
 
-    fn run(&self, receiver_config: Receiver<crate::comboard::imple::channel::ModuleConfig>) -> tokio::task::JoinHandle<()> {
+    fn run(&self, receiver_config: Receiver<crate::comboard::imple::channel::ModuleConfig>) -> tokio::task::JoinHandle<Result<(), ()>> {
 
         let sender_value = CHANNEL_VALUE.0.lock().unwrap().clone();
         let sender_state = CHANNEL_STATE.0.lock().unwrap().clone();
@@ -127,6 +126,8 @@ impl super::interface::ComboardClient for VirtualComboardClient {
             }
 
             log::info!("end of current scenario virtual comboard");
+
+            Ok(())
         });
     }
 }
