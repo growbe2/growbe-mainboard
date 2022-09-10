@@ -71,8 +71,7 @@ impl ComboardSenderMapReference {
 		let addr = module_addr.to_string();
 
 		if let Some(sender) = &self.map.lock().unwrap().get(&addr) {
-			sender.send(module_config);
-			return Ok(());
+			return sender.send(module_config).map_err(|_| ());
 		}
 
 		return Err(());
@@ -85,7 +84,7 @@ impl ComboardSenderMapReference {
 			return Ok((*sender).clone());
 		}
 
-		log::error!("failed to get send {}", addr);
+		log::error!("failed to get sender {}", addr);
 		return Err(());
 	}
 }

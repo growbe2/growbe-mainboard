@@ -49,7 +49,7 @@ impl super::interface::ModuleValueValidator for AAPValidator {
         return Ok(());
     }
     
-    fn apply_parse_config(&mut self, port: i32, _t: char, data: std::sync::Arc<Vec<u8>>,
+    fn apply_parse_config(&mut self, port: i32, _t: &str, data: std::sync::Arc<Vec<u8>>,
         sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::channel::ModuleConfig>,
         map_handler: & mut std::collections::HashMap<String, tokio_util::sync::CancellationToken>
     ) -> Result<(Box<dyn protobuf::Message>, crate::comboard::imple::channel::ModuleConfig), super::interface::ModuleError> {

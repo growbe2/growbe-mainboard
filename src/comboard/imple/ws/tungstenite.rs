@@ -5,12 +5,18 @@ use url::Url;
 
 use tungstenite::connect;
 
-use crate::comboard::imple::channel::{comboard_send_state, comboard_send_value};
+use crate::{comboard::imple::channel::{comboard_send_state, comboard_send_value}, id::get};
 
 #[derive(Serialize, Deserialize)]
 pub struct WebSocketMessage {
     pub topic: String,
     pub payload: String,
+}
+
+impl WebSocketMessage {
+    fn new(topic: &str, payload: &str) -> Self {
+        WebSocketMessage { topic: topic.to_string(), payload: payload.to_string() }
+    }
 }
 
 const TOPIC_MODULE_ID: &str = "READ_MODULE_ID";
@@ -21,7 +27,7 @@ fn send_module_state(module_id: &String, supported_modules: &Vec<String>, url: &
         let id = module_type.clone() + module_id;
         comboard_send_state(
             "ws".to_string(),
-            url.to_string(),
+            url.host_str().unwrap().to_string(),
             i as i32,
             id.clone(),
             state,
@@ -46,8 +52,17 @@ fn handle_device_loop(
     let mut module_id: String = "".to_string();
     let mut supported_modules: Vec<String> = vec![];
 
+
+    let msg = WebSocketMessage::new("MAINBOARD_ID", &get());
+
+    if let Err(err) = ws_stream.write_message(tungstenite::Message::Text(serde_json::to_string(&msg).unwrap())) {
+        log::error!("failed to send mainboard id to module : {:?}", err);
+        return Err(());
+    }
+
     loop {
-        if let Ok(data) = ws_stream.read_message() {
+        match ws_stream.read_message() {
+            Ok(data) => {
             let data = data.into_data();
             match serde_json::from_slice::<WebSocketMessage>(&data) {
                 Ok(message) => {
@@ -75,7 +90,7 @@ fn handle_device_loop(
                     if data[0] <= 10 {
                         comboard_send_value(
                             "ws".to_string(),
-                            url.to_string(),
+                            url.host_str().unwrap().to_string(),
                             data[0] as i32,
                             data[1..data.len()].to_vec(),
                         )
@@ -85,21 +100,26 @@ fn handle_device_loop(
                     }
                 }
             }
-        } else {
-            log::debug!("error try_next websocket");
-            if supported_modules.len() > 0 {
-                send_module_state(&module_id, &supported_modules, &url, false);
+
             }
-            return Err(());
+            Err(err) => {
+                log::debug!("error try_next websocket {:?}", err.to_string());
+                if supported_modules.len() > 0 {
+                    send_module_state(&module_id, &supported_modules, &url, false);
+                }
+                return Err(());
+            }
         }
+
         if let Ok(value) = receiver_config.try_recv() {
-            println!("VAUE {}", value.port);
             // TODO fix size and copy into buffer
             let mut data = vec![value.port as u8];
             data.append(&mut value.data.clone());
         
-            if let Err(_) = ws_stream.write_message(tungstenite::Message::Binary(vec![])) {
+            if let Err(_) = ws_stream.write_message(tungstenite::Message::Binary(data)) {
                 println!("Failed to write message");
+            } else {
+                log::warn!("sending config to websocket successfuly");
             }
 
         }
@@ -127,7 +147,7 @@ impl crate::comboard::imple::interface::ComboardClient for WSComboardClient {
                 match handle_device_loop(url.clone(), &receiver) {
                     Ok(_) => {}
                     Err(_) => {
-                        log::debug!("waiting to connect on {}", url.to_string());
+                        //log::debug!("waiting to connect on {}", url.to_string());
                     }
                 }
 

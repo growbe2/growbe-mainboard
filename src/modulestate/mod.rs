@@ -7,6 +7,7 @@ pub mod ppo;
 pub mod pac;
 pub mod pal;
 pub mod ppr;
+pub mod pcs;
 pub mod store;
 pub mod relay;
 pub mod interface;
@@ -26,7 +27,7 @@ use std::sync::{Mutex, Arc};
 use std::sync::mpsc::{Receiver, Sender,};
 use aab::AABValidator;
 
-use self::{relay::virtual_relay::handler::on_module_state_changed_virtual_relays, pac::PACValidator, ppo::PPOValidator, ppr::PPRValidator, pal::PALValidator};
+use self::{relay::virtual_relay::handler::on_module_state_changed_virtual_relays, pac::PACValidator, ppo::PPOValidator, ppr::PPRValidator, pal::PALValidator, pcs::PCSValidator};
 
 lazy_static! {
     pub static ref CHANNEL_MODULE_STATE_CMD: (Mutex<Sender<ModuleStateCmd>>, Mutex<Receiver<ModuleStateCmd>>) = {
@@ -78,23 +79,25 @@ impl MainboardModuleStateManager {
     }
 }
 
-fn get_module_validator(module_type: char, ) -> Result<Box<dyn interface::ModuleValueValidator>, interface::ModuleError> {
-    if module_type == 'A' {
+fn get_module_validator(module_type: &str ) -> Result<Box<dyn interface::ModuleValueValidator>, interface::ModuleError> {
+    if module_type == "AAA" {
         return Ok(Box::new(aaa::AAAValidator::new()));
-    } else if module_type == 'S' {
+    } else if module_type == "AAS" {
         return Ok(Box::new(aas::AASValidator::new()));
-    } else if module_type == 'P' {
+    } else if module_type == "AAP" {
         return Ok(Box::new(aap::AAPValidator::new()));
-    } else if module_type == 'B' {
+    } else if module_type == "AAB" {
         return Ok(Box::new(AABValidator::new()));
-    } else if module_type == 'C' {
+    } else if module_type == "PAC" {
         return Ok(Box::new(PACValidator::new()));
-    } else if module_type == 'O' {
+    } else if module_type == "PPO" {
         return Ok(Box::new(PPOValidator::new()));
-    } else if module_type == 'R' {
+    } else if module_type == "PPR" {
         return Ok(Box::new(PPRValidator::new()));
-    } else if module_type == 'L' {
+    } else if module_type == "PAL" {
         return Ok(Box::new(PALValidator::new()));
+    } else if module_type == "PCS" {
+        return Ok(Box::new(PCSValidator::new()));
     } else {
         return Err(interface::ModuleError::new().message("cannot find validator for module type".to_string()));
     }
@@ -153,7 +156,7 @@ fn handle_module_state(
                 return;
             }
             log::debug!("module connected {} at {}", state.id.as_str(), state.port);
-            let t = state.id.chars().nth(2).unwrap();
+            let t = &state.id[..3];
             let validator_result = get_module_validator(t);
             if validator_result.is_err() {
                 //log::error!("{}", validator_result.unwrap_err().message);
@@ -176,7 +179,6 @@ fn handle_module_state(
 
             let config = store.get_module_config(&state.id);
             if config.is_some() {
-
                 // TODO implement fonction to handle not byte but structure directly
                 let module_mut_ref = manager.connected_module.get_mut(state.id.as_str()).unwrap();
                 let bytes = Arc::new(config.unwrap().write_to_bytes().unwrap());
@@ -290,18 +292,20 @@ fn handle_module_config(
 
     if let Some(module_ref) = module_ref_option {
 
-        let t = module_ref.id.chars().nth(2).unwrap();
+        let t = &module_ref.id[..3];
 
-        let sender_config = sender_config.get_sender(ComboardAddr { imple: module_ref.board.clone(), addr: module_ref.board_addr.clone() }).unwrap();
-
-        match module_ref.validator.apply_parse_config(module_ref.port, t, data, &sender_config, &mut module_ref.handler_map) {
-            Ok((config, config_comboard)) => {
-                store.store_module_config(&id, config);
-                sender_config.send(config_comboard).unwrap();
-            },
-            Err(e) => log::error!("{}", e)
+        if let Ok(sender_config) = sender_config.get_sender(ComboardAddr { imple: module_ref.board.clone(), addr: module_ref.board_addr.clone() }) {
+            match module_ref.validator.apply_parse_config(module_ref.port, t, data, &sender_config, &mut module_ref.handler_map) {
+                Ok((config, config_comboard)) => {
+                    store.store_module_config(&id, config);
+                    sender_config.send(config_comboard).unwrap();
+                },
+                Err(e) => log::error!("{}", e)
+            }
+            tokio::task::spawn(async {});
+        } else {
+            return Err(interface::ModuleError::sender_not_found(&id))
         }
-        tokio::task::spawn(async {});
     } else {
         return Err(interface::ModuleError::not_found(&id));
     }

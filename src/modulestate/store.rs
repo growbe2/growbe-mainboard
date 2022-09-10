@@ -1,6 +1,6 @@
 use std::sync::{Arc, Mutex};
 
-use crate::protos::module::{RelayModuleConfig, WCModuleConfig, SOILModuleConfig};
+use crate::protos::module::{RelayModuleConfig, WCModuleConfig, SOILModuleConfig, PhoneStreamingConfig};
 use crate::store::database;
 use protobuf::Message;
 
@@ -17,26 +17,33 @@ impl ModuleStateStore {
         &self,
         id: &String,
     ) -> Option<Box<dyn Message>> {
-        let item = match id.chars().nth(2).unwrap() {
-            'P' => {
+        let module_type = &id[..3];
+        let item = match module_type {
+            "AAP" => {
                 let result = self.get_module_config_inner(id, RelayModuleConfig::parse_from_bytes);
                 if let Ok(d) = result {
                     Ok(Box::new(d) as Box<dyn Message>)
                 } else { Err(super::interface::ModuleError::new()) }
             },
-            'B' => {
+            "AAB" => {
                 let result = self.get_module_config_inner(id, WCModuleConfig::parse_from_bytes);
                 log::debug!("{:?}", result);
                 if let Ok(d) = result {
                     Ok(Box::new(d) as Box<dyn Message>)
                 } else { Err(super::interface::ModuleError::new())}
             },
-            'S' => {
+            "AAS" => {
                 let result = self.get_module_config_inner(id, SOILModuleConfig::parse_from_bytes);
                 if let Ok(config) = result {
                     Ok(Box::new(config) as Box<dyn Message>)
                 } else { Err(super::interface::ModuleError::new())}
             },
+            "PCS" => {
+                let result = self.get_module_config_inner(id, PhoneStreamingConfig::parse_from_bytes);
+                if let Ok(config) = result {
+                    Ok(Box::new(config) as Box<dyn Message>)
+                } else { Err(super::interface::ModuleError::new())}
+            }
             _ => Err(super::interface::ModuleError::new())
         };
         if item.is_ok() {

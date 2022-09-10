@@ -9865,7 +9865,7 @@ impl ::protobuf::reflect::ProtobufValue for PhonePressureConfig {
 #[derive(PartialEq,Clone,Default)]
 pub struct PhoneStreamingData {
     // message fields
-    pub status: ::std::string::String,
+    pub status: PhoneStreamingStatus,
     pub fps: f32,
     pub bitrate: f32,
     // special fields
@@ -9884,30 +9884,19 @@ impl PhoneStreamingData {
         ::std::default::Default::default()
     }
 
-    // string status = 1;
+    // .PhoneStreamingStatus status = 1;
 
 
-    pub fn get_status(&self) -> &str {
-        &self.status
+    pub fn get_status(&self) -> PhoneStreamingStatus {
+        self.status
     }
     pub fn clear_status(&mut self) {
-        self.status.clear();
+        self.status = PhoneStreamingStatus::STOPPED;
     }
 
     // Param is passed by value, moved
-    pub fn set_status(&mut self, v: ::std::string::String) {
+    pub fn set_status(&mut self, v: PhoneStreamingStatus) {
         self.status = v;
-    }
-
-    // Mutable pointer to the field.
-    // If field is not initialized, it is initialized with default value first.
-    pub fn mut_status(&mut self) -> &mut ::std::string::String {
-        &mut self.status
-    }
-
-    // Take field
-    pub fn take_status(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.status, ::std::string::String::new())
     }
 
     // float fps = 2;
@@ -9951,7 +9940,7 @@ impl ::protobuf::Message for PhoneStreamingData {
             let (field_number, wire_type) = is.read_tag_unpack()?;
             match field_number {
                 1 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.status)?;
+                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.status, 1, &mut self.unknown_fields)?
                 },
                 2 => {
                     if wire_type != ::protobuf::wire_format::WireTypeFixed32 {
@@ -9979,8 +9968,8 @@ impl ::protobuf::Message for PhoneStreamingData {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
-        if !self.status.is_empty() {
-            my_size += ::protobuf::rt::string_size(1, &self.status);
+        if self.status != PhoneStreamingStatus::STOPPED {
+            my_size += ::protobuf::rt::enum_size(1, self.status);
         }
         if self.fps != 0. {
             my_size += 5;
@@ -9994,8 +9983,8 @@ impl ::protobuf::Message for PhoneStreamingData {
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if !self.status.is_empty() {
-            os.write_string(1, &self.status)?;
+        if self.status != PhoneStreamingStatus::STOPPED {
+            os.write_enum(1, ::protobuf::ProtobufEnum::value(&self.status))?;
         }
         if self.fps != 0. {
             os.write_float(2, self.fps)?;
@@ -10041,7 +10030,7 @@ impl ::protobuf::Message for PhoneStreamingData {
         static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
         descriptor.get(|| {
             let mut fields = ::std::vec::Vec::new();
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<PhoneStreamingStatus>>(
                 "status",
                 |m: &PhoneStreamingData| { &m.status },
                 |m: &mut PhoneStreamingData| { &mut m.status },
@@ -10072,7 +10061,7 @@ impl ::protobuf::Message for PhoneStreamingData {
 
 impl ::protobuf::Clear for PhoneStreamingData {
     fn clear(&mut self) {
-        self.status.clear();
+        self.status = PhoneStreamingStatus::STOPPED;
         self.fps = 0.;
         self.bitrate = 0.;
         self.unknown_fields.clear();
@@ -10096,7 +10085,13 @@ pub struct PhoneStreamingConfig {
     // message fields
     pub activated: bool,
     pub url: ::std::string::String,
-    pub camera: i32,
+    pub camera: PhoneStreamingCamera,
+    pub light: bool,
+    pub audio: bool,
+    pub autoFocus: bool,
+    pub stabilization: bool,
+    pub faceDetection: bool,
+    pub zoom: i32,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -10154,19 +10149,109 @@ impl PhoneStreamingConfig {
         ::std::mem::replace(&mut self.url, ::std::string::String::new())
     }
 
-    // int32 camera = 3;
+    // .PhoneStreamingCamera camera = 3;
 
 
-    pub fn get_camera(&self) -> i32 {
+    pub fn get_camera(&self) -> PhoneStreamingCamera {
         self.camera
     }
     pub fn clear_camera(&mut self) {
-        self.camera = 0;
+        self.camera = PhoneStreamingCamera::BACK;
     }
 
     // Param is passed by value, moved
-    pub fn set_camera(&mut self, v: i32) {
+    pub fn set_camera(&mut self, v: PhoneStreamingCamera) {
         self.camera = v;
+    }
+
+    // bool light = 4;
+
+
+    pub fn get_light(&self) -> bool {
+        self.light
+    }
+    pub fn clear_light(&mut self) {
+        self.light = false;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_light(&mut self, v: bool) {
+        self.light = v;
+    }
+
+    // bool audio = 5;
+
+
+    pub fn get_audio(&self) -> bool {
+        self.audio
+    }
+    pub fn clear_audio(&mut self) {
+        self.audio = false;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_audio(&mut self, v: bool) {
+        self.audio = v;
+    }
+
+    // bool autoFocus = 6;
+
+
+    pub fn get_autoFocus(&self) -> bool {
+        self.autoFocus
+    }
+    pub fn clear_autoFocus(&mut self) {
+        self.autoFocus = false;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_autoFocus(&mut self, v: bool) {
+        self.autoFocus = v;
+    }
+
+    // bool stabilization = 7;
+
+
+    pub fn get_stabilization(&self) -> bool {
+        self.stabilization
+    }
+    pub fn clear_stabilization(&mut self) {
+        self.stabilization = false;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_stabilization(&mut self, v: bool) {
+        self.stabilization = v;
+    }
+
+    // bool faceDetection = 8;
+
+
+    pub fn get_faceDetection(&self) -> bool {
+        self.faceDetection
+    }
+    pub fn clear_faceDetection(&mut self) {
+        self.faceDetection = false;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_faceDetection(&mut self, v: bool) {
+        self.faceDetection = v;
+    }
+
+    // int32 zoom = 9;
+
+
+    pub fn get_zoom(&self) -> i32 {
+        self.zoom
+    }
+    pub fn clear_zoom(&mut self) {
+        self.zoom = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_zoom(&mut self, v: i32) {
+        self.zoom = v;
     }
 }
 
@@ -10190,11 +10275,49 @@ impl ::protobuf::Message for PhoneStreamingConfig {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.url)?;
                 },
                 3 => {
+                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.camera, 3, &mut self.unknown_fields)?
+                },
+                4 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_bool()?;
+                    self.light = tmp;
+                },
+                5 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_bool()?;
+                    self.audio = tmp;
+                },
+                6 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_bool()?;
+                    self.autoFocus = tmp;
+                },
+                7 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_bool()?;
+                    self.stabilization = tmp;
+                },
+                8 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_bool()?;
+                    self.faceDetection = tmp;
+                },
+                9 => {
                     if wire_type != ::protobuf::wire_format::WireTypeVarint {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
                     let tmp = is.read_int32()?;
-                    self.camera = tmp;
+                    self.zoom = tmp;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -10214,8 +10337,26 @@ impl ::protobuf::Message for PhoneStreamingConfig {
         if !self.url.is_empty() {
             my_size += ::protobuf::rt::string_size(2, &self.url);
         }
-        if self.camera != 0 {
-            my_size += ::protobuf::rt::value_size(3, self.camera, ::protobuf::wire_format::WireTypeVarint);
+        if self.camera != PhoneStreamingCamera::BACK {
+            my_size += ::protobuf::rt::enum_size(3, self.camera);
+        }
+        if self.light != false {
+            my_size += 2;
+        }
+        if self.audio != false {
+            my_size += 2;
+        }
+        if self.autoFocus != false {
+            my_size += 2;
+        }
+        if self.stabilization != false {
+            my_size += 2;
+        }
+        if self.faceDetection != false {
+            my_size += 2;
+        }
+        if self.zoom != 0 {
+            my_size += ::protobuf::rt::value_size(9, self.zoom, ::protobuf::wire_format::WireTypeVarint);
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -10229,8 +10370,26 @@ impl ::protobuf::Message for PhoneStreamingConfig {
         if !self.url.is_empty() {
             os.write_string(2, &self.url)?;
         }
-        if self.camera != 0 {
-            os.write_int32(3, self.camera)?;
+        if self.camera != PhoneStreamingCamera::BACK {
+            os.write_enum(3, ::protobuf::ProtobufEnum::value(&self.camera))?;
+        }
+        if self.light != false {
+            os.write_bool(4, self.light)?;
+        }
+        if self.audio != false {
+            os.write_bool(5, self.audio)?;
+        }
+        if self.autoFocus != false {
+            os.write_bool(6, self.autoFocus)?;
+        }
+        if self.stabilization != false {
+            os.write_bool(7, self.stabilization)?;
+        }
+        if self.faceDetection != false {
+            os.write_bool(8, self.faceDetection)?;
+        }
+        if self.zoom != 0 {
+            os.write_int32(9, self.zoom)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -10280,10 +10439,40 @@ impl ::protobuf::Message for PhoneStreamingConfig {
                 |m: &PhoneStreamingConfig| { &m.url },
                 |m: &mut PhoneStreamingConfig| { &mut m.url },
             ));
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt32>(
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<PhoneStreamingCamera>>(
                 "camera",
                 |m: &PhoneStreamingConfig| { &m.camera },
                 |m: &mut PhoneStreamingConfig| { &mut m.camera },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBool>(
+                "light",
+                |m: &PhoneStreamingConfig| { &m.light },
+                |m: &mut PhoneStreamingConfig| { &mut m.light },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBool>(
+                "audio",
+                |m: &PhoneStreamingConfig| { &m.audio },
+                |m: &mut PhoneStreamingConfig| { &mut m.audio },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBool>(
+                "autoFocus",
+                |m: &PhoneStreamingConfig| { &m.autoFocus },
+                |m: &mut PhoneStreamingConfig| { &mut m.autoFocus },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBool>(
+                "stabilization",
+                |m: &PhoneStreamingConfig| { &m.stabilization },
+                |m: &mut PhoneStreamingConfig| { &mut m.stabilization },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBool>(
+                "faceDetection",
+                |m: &PhoneStreamingConfig| { &m.faceDetection },
+                |m: &mut PhoneStreamingConfig| { &mut m.faceDetection },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt32>(
+                "zoom",
+                |m: &PhoneStreamingConfig| { &m.zoom },
+                |m: &mut PhoneStreamingConfig| { &mut m.zoom },
             ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<PhoneStreamingConfig>(
                 "PhoneStreamingConfig",
@@ -10303,7 +10492,13 @@ impl ::protobuf::Clear for PhoneStreamingConfig {
     fn clear(&mut self) {
         self.activated = false;
         self.url.clear();
-        self.camera = 0;
+        self.camera = PhoneStreamingCamera::BACK;
+        self.light = false;
+        self.audio = false;
+        self.autoFocus = false;
+        self.stabilization = false;
+        self.faceDetection = false;
+        self.zoom = 0;
         self.unknown_fields.clear();
     }
 }
@@ -10603,6 +10798,106 @@ impl ::protobuf::reflect::ProtobufValue for RelayOutletMode {
     }
 }
 
+#[derive(Clone,PartialEq,Eq,Debug,Hash)]
+pub enum PhoneStreamingStatus {
+    STOPPED = 0,
+    RUNNING = 1,
+}
+
+impl ::protobuf::ProtobufEnum for PhoneStreamingStatus {
+    fn value(&self) -> i32 {
+        *self as i32
+    }
+
+    fn from_i32(value: i32) -> ::std::option::Option<PhoneStreamingStatus> {
+        match value {
+            0 => ::std::option::Option::Some(PhoneStreamingStatus::STOPPED),
+            1 => ::std::option::Option::Some(PhoneStreamingStatus::RUNNING),
+            _ => ::std::option::Option::None
+        }
+    }
+
+    fn values() -> &'static [Self] {
+        static values: &'static [PhoneStreamingStatus] = &[
+            PhoneStreamingStatus::STOPPED,
+            PhoneStreamingStatus::RUNNING,
+        ];
+        values
+    }
+
+    fn enum_descriptor_static() -> &'static ::protobuf::reflect::EnumDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::EnumDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            ::protobuf::reflect::EnumDescriptor::new_pb_name::<PhoneStreamingStatus>("PhoneStreamingStatus", file_descriptor_proto())
+        })
+    }
+}
+
+impl ::std::marker::Copy for PhoneStreamingStatus {
+}
+
+impl ::std::default::Default for PhoneStreamingStatus {
+    fn default() -> Self {
+        PhoneStreamingStatus::STOPPED
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for PhoneStreamingStatus {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Enum(::protobuf::ProtobufEnum::descriptor(self))
+    }
+}
+
+#[derive(Clone,PartialEq,Eq,Debug,Hash)]
+pub enum PhoneStreamingCamera {
+    BACK = 0,
+    FRONT = 1,
+}
+
+impl ::protobuf::ProtobufEnum for PhoneStreamingCamera {
+    fn value(&self) -> i32 {
+        *self as i32
+    }
+
+    fn from_i32(value: i32) -> ::std::option::Option<PhoneStreamingCamera> {
+        match value {
+            0 => ::std::option::Option::Some(PhoneStreamingCamera::BACK),
+            1 => ::std::option::Option::Some(PhoneStreamingCamera::FRONT),
+            _ => ::std::option::Option::None
+        }
+    }
+
+    fn values() -> &'static [Self] {
+        static values: &'static [PhoneStreamingCamera] = &[
+            PhoneStreamingCamera::BACK,
+            PhoneStreamingCamera::FRONT,
+        ];
+        values
+    }
+
+    fn enum_descriptor_static() -> &'static ::protobuf::reflect::EnumDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::EnumDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            ::protobuf::reflect::EnumDescriptor::new_pb_name::<PhoneStreamingCamera>("PhoneStreamingCamera", file_descriptor_proto())
+        })
+    }
+}
+
+impl ::std::marker::Copy for PhoneStreamingCamera {
+}
+
+impl ::std::default::Default for PhoneStreamingCamera {
+    fn default() -> Self {
+        PhoneStreamingCamera::BACK
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for PhoneStreamingCamera {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Enum(::protobuf::ProtobufEnum::descriptor(self))
+    }
+}
+
 static file_descriptor_proto_data: &'static [u8] = b"\
     \n\x0cmodule.proto\"K\n\x05Actor\x12\x1e\n\x04type\x18\x01\x20\x01(\x0e2\
     \n.ActorTypeR\x04type\x12\x0e\n\x02id\x18\x02\x20\x01(\tR\x02id\x12\x12\
@@ -10720,26 +11015,33 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x03\x20\x01(\x02R\x02gz\"\x19\n\x17PhoneAccelerationConfig\".\n\x15Phon\
     eAmbientLightData\x12\x15\n\x06si_lux\x18\x01\x20\x01(\x02R\x05siLux\"\
     \x19\n\x17PhoneAmbientLightConfig\"%\n\x11PhonePressureData\x12\x10\n\
-    \x03hpa\x18\x01\x20\x01(\x02R\x03hpa\"\x15\n\x13PhonePressureConfig\"X\n\
-    \x12PhoneStreamingData\x12\x16\n\x06status\x18\x01\x20\x01(\tR\x06status\
-    \x12\x10\n\x03fps\x18\x02\x20\x01(\x02R\x03fps\x12\x18\n\x07bitrate\x18\
-    \x03\x20\x01(\x02R\x07bitrate\"^\n\x14PhoneStreamingConfig\x12\x1c\n\tac\
-    tivated\x18\x01\x20\x01(\x08R\tactivated\x12\x10\n\x03url\x18\x02\x20\
-    \x01(\tR\x03url\x12\x16\n\x06camera\x18\x03\x20\x01(\x05R\x06camera*Z\n\
-    \tActorType\x12\x15\n\x11MANUAL_USER_ACTOR\x10\0\x12\x12\n\x0eDURATION_A\
-    CTOR\x10\x01\x12\x0f\n\x0bALARM_ACTOR\x10\x02\x12\x11\n\rVIRTUAL_ACTOR\
-    \x10\x03*\x90\x01\n\x0fCalibrationStep\x12\x15\n\x11READY_CALIBRATION\
-    \x10\0\x12\x13\n\x0fLOW_CALIBRATION\x10\x01\x12\x14\n\x10HIGH_CALIBRATIO\
-    N\x10\x02\x12\x15\n\x11ERROR_CALIBRATION\x10\x03\x12$\n\x20WAITING_CONFI\
-    RMATION_CALIBRATION\x10\x04*y\n\x15CalibrationStepStatus\x12\x1b\n\x17IN\
-    SUFFISANT_DATA_STATUS\x10\0\x12\x17\n\x13ENOUGHT_DATA_STATUS\x10\x01\x12\
-    \x10\n\x0cERROR_STATUS\x10\x02\x12\x18\n\x14AWAITING_STEP_STATUS\x10\x03\
-    *r\n\x10CalibrationError\x12\x0e\n\nNONE_ERROR\x10\0\x12\x19\n\x15ALREAD\
-    Y_STARTED_ERROR\x10\x01\x12\x17\n\x13INSTABLE_DATA_ERROR\x10\x02\x12\x1a\
-    \n\x16NOT_ENOUGHT_DATA_ERROR\x10\x03*@\n\x0fRelayOutletMode\x12\n\n\x06M\
-    ANUAL\x10\0\x12\t\n\x05ALARM\x10\x01\x12\x0b\n\x07VIRTUAL\x10\x02\x12\t\
-    \n\x05CYCLE\x10\x03B+\n)ca.berlingoqc.growbe_android_module.protob\x06pr\
-    oto3\
+    \x03hpa\x18\x01\x20\x01(\x02R\x03hpa\"\x15\n\x13PhonePressureConfig\"o\n\
+    \x12PhoneStreamingData\x12-\n\x06status\x18\x01\x20\x01(\x0e2\x15.PhoneS\
+    treamingStatusR\x06status\x12\x10\n\x03fps\x18\x02\x20\x01(\x02R\x03fps\
+    \x12\x18\n\x07bitrate\x18\x03\x20\x01(\x02R\x07bitrate\"\x9f\x02\n\x14Ph\
+    oneStreamingConfig\x12\x1c\n\tactivated\x18\x01\x20\x01(\x08R\tactivated\
+    \x12\x10\n\x03url\x18\x02\x20\x01(\tR\x03url\x12-\n\x06camera\x18\x03\
+    \x20\x01(\x0e2\x15.PhoneStreamingCameraR\x06camera\x12\x14\n\x05light\
+    \x18\x04\x20\x01(\x08R\x05light\x12\x14\n\x05audio\x18\x05\x20\x01(\x08R\
+    \x05audio\x12\x1c\n\tautoFocus\x18\x06\x20\x01(\x08R\tautoFocus\x12$\n\r\
+    stabilization\x18\x07\x20\x01(\x08R\rstabilization\x12$\n\rfaceDetection\
+    \x18\x08\x20\x01(\x08R\rfaceDetection\x12\x12\n\x04zoom\x18\t\x20\x01(\
+    \x05R\x04zoom*Z\n\tActorType\x12\x15\n\x11MANUAL_USER_ACTOR\x10\0\x12\
+    \x12\n\x0eDURATION_ACTOR\x10\x01\x12\x0f\n\x0bALARM_ACTOR\x10\x02\x12\
+    \x11\n\rVIRTUAL_ACTOR\x10\x03*\x90\x01\n\x0fCalibrationStep\x12\x15\n\
+    \x11READY_CALIBRATION\x10\0\x12\x13\n\x0fLOW_CALIBRATION\x10\x01\x12\x14\
+    \n\x10HIGH_CALIBRATION\x10\x02\x12\x15\n\x11ERROR_CALIBRATION\x10\x03\
+    \x12$\n\x20WAITING_CONFIRMATION_CALIBRATION\x10\x04*y\n\x15CalibrationSt\
+    epStatus\x12\x1b\n\x17INSUFFISANT_DATA_STATUS\x10\0\x12\x17\n\x13ENOUGHT\
+    _DATA_STATUS\x10\x01\x12\x10\n\x0cERROR_STATUS\x10\x02\x12\x18\n\x14AWAI\
+    TING_STEP_STATUS\x10\x03*r\n\x10CalibrationError\x12\x0e\n\nNONE_ERROR\
+    \x10\0\x12\x19\n\x15ALREADY_STARTED_ERROR\x10\x01\x12\x17\n\x13INSTABLE_\
+    DATA_ERROR\x10\x02\x12\x1a\n\x16NOT_ENOUGHT_DATA_ERROR\x10\x03*@\n\x0fRe\
+    layOutletMode\x12\n\n\x06MANUAL\x10\0\x12\t\n\x05ALARM\x10\x01\x12\x0b\n\
+    \x07VIRTUAL\x10\x02\x12\t\n\x05CYCLE\x10\x03*0\n\x14PhoneStreamingStatus\
+    \x12\x0b\n\x07STOPPED\x10\0\x12\x0b\n\x07RUNNING\x10\x01*+\n\x14PhoneStr\
+    eamingCamera\x12\x08\n\x04BACK\x10\0\x12\t\n\x05FRONT\x10\x01B+\n)ca.ber\
+    lingoqc.growbe_android_module.protob\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

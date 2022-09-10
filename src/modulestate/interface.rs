@@ -6,6 +6,7 @@ impl ModuleValueParsable for crate::protos::module::ModuleData {}
 
 
 pub const MODULE_NOT_FOUND: u32 = 404;
+pub const SENDER_NOT_FOUND: u32 = 405;
 pub const CMD_NOT_SUPPORTED: u32 = 400;
 
 #[derive(Debug, Clone)]
@@ -33,6 +34,10 @@ impl ModuleError {
             port: -1,
             status: MODULE_NOT_FOUND,
         };
+    }
+
+    pub fn sender_not_found(module_id: &str) -> ModuleError {
+        return ModuleError { message: String::from("sender not found"), module_id: module_id.to_string(), port: -1, status: SENDER_NOT_FOUND }
     }
 
     pub fn message(mut self, message: String) -> ModuleError {
@@ -121,7 +126,7 @@ pub trait ModuleValueValidator: Downcast {
     ) -> Result<Option<Vec<ModuleStateCmd>>, ModuleError>;
 
     // need to be option result
-    fn apply_parse_config(&mut self, port: i32, t: char, data: std::sync::Arc<Vec<u8>>,
+    fn apply_parse_config(&mut self, port: i32, t: &str, data: std::sync::Arc<Vec<u8>>,
         sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::channel::ModuleConfig>,
         map_handler: & mut std::collections::HashMap<String, tokio_util::sync::CancellationToken>,
     ) -> Result<(Box<dyn protobuf::Message>, crate::comboard::imple::channel::ModuleConfig), ModuleError>;
