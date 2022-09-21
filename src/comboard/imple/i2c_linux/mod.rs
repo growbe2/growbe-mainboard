@@ -116,7 +116,7 @@ pub struct I2CLinuxComboardClient {
 }
 
 impl super::interface::ComboardClient for I2CLinuxComboardClient {
-    fn run(&self, receiver_config: Receiver<crate::comboard::imple::channel::ModuleConfig>) -> tokio::task::JoinHandle<()>  {
+    fn run(&self, receiver_config: Receiver<crate::comboard::imple::channel::ModuleConfig>) -> tokio::task::JoinHandle<Result<(), ()>>  {
         let str_config: Vec<String> = self.config_comboard.config.clone().split(":").map(|x| x.to_string()).collect();
 
         let device = str_config.get(0).unwrap().clone();
@@ -152,6 +152,7 @@ impl super::interface::ComboardClient for I2CLinuxComboardClient {
                 comboard_loop_body(starting_port, ending_port);
             }
          }
+         Ok(())
         });
     }
 }

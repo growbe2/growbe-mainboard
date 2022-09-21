@@ -9863,11 +9863,872 @@ impl ::protobuf::reflect::ProtobufValue for PhonePressureConfig {
 }
 
 #[derive(PartialEq,Clone,Default)]
+pub struct Point {
+    // message fields
+    pub x: i32,
+    pub y: i32,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a Point {
+    fn default() -> &'a Point {
+        <Point as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl Point {
+    pub fn new() -> Point {
+        ::std::default::Default::default()
+    }
+
+    // int32 x = 1;
+
+
+    pub fn get_x(&self) -> i32 {
+        self.x
+    }
+    pub fn clear_x(&mut self) {
+        self.x = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_x(&mut self, v: i32) {
+        self.x = v;
+    }
+
+    // int32 y = 2;
+
+
+    pub fn get_y(&self) -> i32 {
+        self.y
+    }
+    pub fn clear_y(&mut self) {
+        self.y = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_y(&mut self, v: i32) {
+        self.y = v;
+    }
+}
+
+impl ::protobuf::Message for Point {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_int32()?;
+                    self.x = tmp;
+                },
+                2 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_int32()?;
+                    self.y = tmp;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if self.x != 0 {
+            my_size += ::protobuf::rt::value_size(1, self.x, ::protobuf::wire_format::WireTypeVarint);
+        }
+        if self.y != 0 {
+            my_size += ::protobuf::rt::value_size(2, self.y, ::protobuf::wire_format::WireTypeVarint);
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if self.x != 0 {
+            os.write_int32(1, self.x)?;
+        }
+        if self.y != 0 {
+            os.write_int32(2, self.y)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> Point {
+        Point::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt32>(
+                "x",
+                |m: &Point| { &m.x },
+                |m: &mut Point| { &mut m.x },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt32>(
+                "y",
+                |m: &Point| { &m.y },
+                |m: &mut Point| { &mut m.y },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<Point>(
+                "Point",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static Point {
+        static instance: ::protobuf::rt::LazyV2<Point> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(Point::new)
+    }
+}
+
+impl ::protobuf::Clear for Point {
+    fn clear(&mut self) {
+        self.x = 0;
+        self.y = 0;
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for Point {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for Point {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
+pub struct Rect {
+    // message fields
+    pub top: i32,
+    pub right: i32,
+    pub bottom: i32,
+    pub left: i32,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a Rect {
+    fn default() -> &'a Rect {
+        <Rect as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl Rect {
+    pub fn new() -> Rect {
+        ::std::default::Default::default()
+    }
+
+    // int32 top = 1;
+
+
+    pub fn get_top(&self) -> i32 {
+        self.top
+    }
+    pub fn clear_top(&mut self) {
+        self.top = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_top(&mut self, v: i32) {
+        self.top = v;
+    }
+
+    // int32 right = 2;
+
+
+    pub fn get_right(&self) -> i32 {
+        self.right
+    }
+    pub fn clear_right(&mut self) {
+        self.right = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_right(&mut self, v: i32) {
+        self.right = v;
+    }
+
+    // int32 bottom = 3;
+
+
+    pub fn get_bottom(&self) -> i32 {
+        self.bottom
+    }
+    pub fn clear_bottom(&mut self) {
+        self.bottom = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_bottom(&mut self, v: i32) {
+        self.bottom = v;
+    }
+
+    // int32 left = 4;
+
+
+    pub fn get_left(&self) -> i32 {
+        self.left
+    }
+    pub fn clear_left(&mut self) {
+        self.left = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_left(&mut self, v: i32) {
+        self.left = v;
+    }
+}
+
+impl ::protobuf::Message for Rect {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_int32()?;
+                    self.top = tmp;
+                },
+                2 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_int32()?;
+                    self.right = tmp;
+                },
+                3 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_int32()?;
+                    self.bottom = tmp;
+                },
+                4 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_int32()?;
+                    self.left = tmp;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if self.top != 0 {
+            my_size += ::protobuf::rt::value_size(1, self.top, ::protobuf::wire_format::WireTypeVarint);
+        }
+        if self.right != 0 {
+            my_size += ::protobuf::rt::value_size(2, self.right, ::protobuf::wire_format::WireTypeVarint);
+        }
+        if self.bottom != 0 {
+            my_size += ::protobuf::rt::value_size(3, self.bottom, ::protobuf::wire_format::WireTypeVarint);
+        }
+        if self.left != 0 {
+            my_size += ::protobuf::rt::value_size(4, self.left, ::protobuf::wire_format::WireTypeVarint);
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if self.top != 0 {
+            os.write_int32(1, self.top)?;
+        }
+        if self.right != 0 {
+            os.write_int32(2, self.right)?;
+        }
+        if self.bottom != 0 {
+            os.write_int32(3, self.bottom)?;
+        }
+        if self.left != 0 {
+            os.write_int32(4, self.left)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> Rect {
+        Rect::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt32>(
+                "top",
+                |m: &Rect| { &m.top },
+                |m: &mut Rect| { &mut m.top },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt32>(
+                "right",
+                |m: &Rect| { &m.right },
+                |m: &mut Rect| { &mut m.right },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt32>(
+                "bottom",
+                |m: &Rect| { &m.bottom },
+                |m: &mut Rect| { &mut m.bottom },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt32>(
+                "left",
+                |m: &Rect| { &m.left },
+                |m: &mut Rect| { &mut m.left },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<Rect>(
+                "Rect",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static Rect {
+        static instance: ::protobuf::rt::LazyV2<Rect> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(Rect::new)
+    }
+}
+
+impl ::protobuf::Clear for Rect {
+    fn clear(&mut self) {
+        self.top = 0;
+        self.right = 0;
+        self.bottom = 0;
+        self.left = 0;
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for Rect {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for Rect {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
+pub struct CameraFace {
+    // message fields
+    pub id: i32,
+    pub score: i32,
+    pub rect: ::protobuf::SingularPtrField<Rect>,
+    pub mouth: ::protobuf::SingularPtrField<Point>,
+    pub leftEye: ::protobuf::SingularPtrField<Point>,
+    pub rightEye: ::protobuf::SingularPtrField<Point>,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a CameraFace {
+    fn default() -> &'a CameraFace {
+        <CameraFace as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl CameraFace {
+    pub fn new() -> CameraFace {
+        ::std::default::Default::default()
+    }
+
+    // int32 id = 1;
+
+
+    pub fn get_id(&self) -> i32 {
+        self.id
+    }
+    pub fn clear_id(&mut self) {
+        self.id = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_id(&mut self, v: i32) {
+        self.id = v;
+    }
+
+    // int32 score = 2;
+
+
+    pub fn get_score(&self) -> i32 {
+        self.score
+    }
+    pub fn clear_score(&mut self) {
+        self.score = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_score(&mut self, v: i32) {
+        self.score = v;
+    }
+
+    // .Rect rect = 3;
+
+
+    pub fn get_rect(&self) -> &Rect {
+        self.rect.as_ref().unwrap_or_else(|| <Rect as ::protobuf::Message>::default_instance())
+    }
+    pub fn clear_rect(&mut self) {
+        self.rect.clear();
+    }
+
+    pub fn has_rect(&self) -> bool {
+        self.rect.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_rect(&mut self, v: Rect) {
+        self.rect = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_rect(&mut self) -> &mut Rect {
+        if self.rect.is_none() {
+            self.rect.set_default();
+        }
+        self.rect.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_rect(&mut self) -> Rect {
+        self.rect.take().unwrap_or_else(|| Rect::new())
+    }
+
+    // .Point mouth = 4;
+
+
+    pub fn get_mouth(&self) -> &Point {
+        self.mouth.as_ref().unwrap_or_else(|| <Point as ::protobuf::Message>::default_instance())
+    }
+    pub fn clear_mouth(&mut self) {
+        self.mouth.clear();
+    }
+
+    pub fn has_mouth(&self) -> bool {
+        self.mouth.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_mouth(&mut self, v: Point) {
+        self.mouth = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_mouth(&mut self) -> &mut Point {
+        if self.mouth.is_none() {
+            self.mouth.set_default();
+        }
+        self.mouth.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_mouth(&mut self) -> Point {
+        self.mouth.take().unwrap_or_else(|| Point::new())
+    }
+
+    // .Point leftEye = 5;
+
+
+    pub fn get_leftEye(&self) -> &Point {
+        self.leftEye.as_ref().unwrap_or_else(|| <Point as ::protobuf::Message>::default_instance())
+    }
+    pub fn clear_leftEye(&mut self) {
+        self.leftEye.clear();
+    }
+
+    pub fn has_leftEye(&self) -> bool {
+        self.leftEye.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_leftEye(&mut self, v: Point) {
+        self.leftEye = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_leftEye(&mut self) -> &mut Point {
+        if self.leftEye.is_none() {
+            self.leftEye.set_default();
+        }
+        self.leftEye.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_leftEye(&mut self) -> Point {
+        self.leftEye.take().unwrap_or_else(|| Point::new())
+    }
+
+    // .Point rightEye = 6;
+
+
+    pub fn get_rightEye(&self) -> &Point {
+        self.rightEye.as_ref().unwrap_or_else(|| <Point as ::protobuf::Message>::default_instance())
+    }
+    pub fn clear_rightEye(&mut self) {
+        self.rightEye.clear();
+    }
+
+    pub fn has_rightEye(&self) -> bool {
+        self.rightEye.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_rightEye(&mut self, v: Point) {
+        self.rightEye = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_rightEye(&mut self) -> &mut Point {
+        if self.rightEye.is_none() {
+            self.rightEye.set_default();
+        }
+        self.rightEye.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_rightEye(&mut self) -> Point {
+        self.rightEye.take().unwrap_or_else(|| Point::new())
+    }
+}
+
+impl ::protobuf::Message for CameraFace {
+    fn is_initialized(&self) -> bool {
+        for v in &self.rect {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        for v in &self.mouth {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        for v in &self.leftEye {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        for v in &self.rightEye {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_int32()?;
+                    self.id = tmp;
+                },
+                2 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_int32()?;
+                    self.score = tmp;
+                },
+                3 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.rect)?;
+                },
+                4 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.mouth)?;
+                },
+                5 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.leftEye)?;
+                },
+                6 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.rightEye)?;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if self.id != 0 {
+            my_size += ::protobuf::rt::value_size(1, self.id, ::protobuf::wire_format::WireTypeVarint);
+        }
+        if self.score != 0 {
+            my_size += ::protobuf::rt::value_size(2, self.score, ::protobuf::wire_format::WireTypeVarint);
+        }
+        if let Some(ref v) = self.rect.as_ref() {
+            let len = v.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        }
+        if let Some(ref v) = self.mouth.as_ref() {
+            let len = v.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        }
+        if let Some(ref v) = self.leftEye.as_ref() {
+            let len = v.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        }
+        if let Some(ref v) = self.rightEye.as_ref() {
+            let len = v.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if self.id != 0 {
+            os.write_int32(1, self.id)?;
+        }
+        if self.score != 0 {
+            os.write_int32(2, self.score)?;
+        }
+        if let Some(ref v) = self.rect.as_ref() {
+            os.write_tag(3, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        }
+        if let Some(ref v) = self.mouth.as_ref() {
+            os.write_tag(4, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        }
+        if let Some(ref v) = self.leftEye.as_ref() {
+            os.write_tag(5, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        }
+        if let Some(ref v) = self.rightEye.as_ref() {
+            os.write_tag(6, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> CameraFace {
+        CameraFace::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt32>(
+                "id",
+                |m: &CameraFace| { &m.id },
+                |m: &mut CameraFace| { &mut m.id },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt32>(
+                "score",
+                |m: &CameraFace| { &m.score },
+                |m: &mut CameraFace| { &mut m.score },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<Rect>>(
+                "rect",
+                |m: &CameraFace| { &m.rect },
+                |m: &mut CameraFace| { &mut m.rect },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<Point>>(
+                "mouth",
+                |m: &CameraFace| { &m.mouth },
+                |m: &mut CameraFace| { &mut m.mouth },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<Point>>(
+                "leftEye",
+                |m: &CameraFace| { &m.leftEye },
+                |m: &mut CameraFace| { &mut m.leftEye },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<Point>>(
+                "rightEye",
+                |m: &CameraFace| { &m.rightEye },
+                |m: &mut CameraFace| { &mut m.rightEye },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<CameraFace>(
+                "CameraFace",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static CameraFace {
+        static instance: ::protobuf::rt::LazyV2<CameraFace> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(CameraFace::new)
+    }
+}
+
+impl ::protobuf::Clear for CameraFace {
+    fn clear(&mut self) {
+        self.id = 0;
+        self.score = 0;
+        self.rect.clear();
+        self.mouth.clear();
+        self.leftEye.clear();
+        self.rightEye.clear();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for CameraFace {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for CameraFace {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
 pub struct PhoneStreamingData {
     // message fields
     pub status: PhoneStreamingStatus,
     pub fps: f32,
     pub bitrate: f32,
+    pub faces: ::protobuf::RepeatedField<CameraFace>,
+    pub error: ::std::string::String,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -9928,10 +10789,66 @@ impl PhoneStreamingData {
     pub fn set_bitrate(&mut self, v: f32) {
         self.bitrate = v;
     }
+
+    // repeated .CameraFace faces = 4;
+
+
+    pub fn get_faces(&self) -> &[CameraFace] {
+        &self.faces
+    }
+    pub fn clear_faces(&mut self) {
+        self.faces.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_faces(&mut self, v: ::protobuf::RepeatedField<CameraFace>) {
+        self.faces = v;
+    }
+
+    // Mutable pointer to the field.
+    pub fn mut_faces(&mut self) -> &mut ::protobuf::RepeatedField<CameraFace> {
+        &mut self.faces
+    }
+
+    // Take field
+    pub fn take_faces(&mut self) -> ::protobuf::RepeatedField<CameraFace> {
+        ::std::mem::replace(&mut self.faces, ::protobuf::RepeatedField::new())
+    }
+
+    // string error = 5;
+
+
+    pub fn get_error(&self) -> &str {
+        &self.error
+    }
+    pub fn clear_error(&mut self) {
+        self.error.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_error(&mut self, v: ::std::string::String) {
+        self.error = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_error(&mut self) -> &mut ::std::string::String {
+        &mut self.error
+    }
+
+    // Take field
+    pub fn take_error(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.error, ::std::string::String::new())
+    }
 }
 
 impl ::protobuf::Message for PhoneStreamingData {
     fn is_initialized(&self) -> bool {
+        for v in &self.faces {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
         true
     }
 
@@ -9956,6 +10873,12 @@ impl ::protobuf::Message for PhoneStreamingData {
                     let tmp = is.read_float()?;
                     self.bitrate = tmp;
                 },
+                4 => {
+                    ::protobuf::rt::read_repeated_message_into(wire_type, is, &mut self.faces)?;
+                },
+                5 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.error)?;
+                },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
                 },
@@ -9977,6 +10900,13 @@ impl ::protobuf::Message for PhoneStreamingData {
         if self.bitrate != 0. {
             my_size += 5;
         }
+        for value in &self.faces {
+            let len = value.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        };
+        if !self.error.is_empty() {
+            my_size += ::protobuf::rt::string_size(5, &self.error);
+        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -9991,6 +10921,14 @@ impl ::protobuf::Message for PhoneStreamingData {
         }
         if self.bitrate != 0. {
             os.write_float(3, self.bitrate)?;
+        }
+        for v in &self.faces {
+            os.write_tag(4, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        };
+        if !self.error.is_empty() {
+            os.write_string(5, &self.error)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -10045,6 +10983,16 @@ impl ::protobuf::Message for PhoneStreamingData {
                 |m: &PhoneStreamingData| { &m.bitrate },
                 |m: &mut PhoneStreamingData| { &mut m.bitrate },
             ));
+            fields.push(::protobuf::reflect::accessor::make_repeated_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<CameraFace>>(
+                "faces",
+                |m: &PhoneStreamingData| { &m.faces },
+                |m: &mut PhoneStreamingData| { &mut m.faces },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "error",
+                |m: &PhoneStreamingData| { &m.error },
+                |m: &mut PhoneStreamingData| { &mut m.error },
+            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<PhoneStreamingData>(
                 "PhoneStreamingData",
                 fields,
@@ -10064,6 +11012,8 @@ impl ::protobuf::Clear for PhoneStreamingData {
         self.status = PhoneStreamingStatus::STOPPED;
         self.fps = 0.;
         self.bitrate = 0.;
+        self.faces.clear();
+        self.error.clear();
         self.unknown_fields.clear();
     }
 }
@@ -10084,6 +11034,7 @@ impl ::protobuf::reflect::ProtobufValue for PhoneStreamingData {
 pub struct PhoneStreamingConfig {
     // message fields
     pub activated: bool,
+    pub output: PhoneStreamingOutput,
     pub url: ::std::string::String,
     pub camera: PhoneStreamingCamera,
     pub light: bool,
@@ -10123,7 +11074,22 @@ impl PhoneStreamingConfig {
         self.activated = v;
     }
 
-    // string url = 2;
+    // .PhoneStreamingOutput output = 2;
+
+
+    pub fn get_output(&self) -> PhoneStreamingOutput {
+        self.output
+    }
+    pub fn clear_output(&mut self) {
+        self.output = PhoneStreamingOutput::STREAM;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_output(&mut self, v: PhoneStreamingOutput) {
+        self.output = v;
+    }
+
+    // string url = 3;
 
 
     pub fn get_url(&self) -> &str {
@@ -10149,7 +11115,7 @@ impl PhoneStreamingConfig {
         ::std::mem::replace(&mut self.url, ::std::string::String::new())
     }
 
-    // .PhoneStreamingCamera camera = 3;
+    // .PhoneStreamingCamera camera = 4;
 
 
     pub fn get_camera(&self) -> PhoneStreamingCamera {
@@ -10164,7 +11130,7 @@ impl PhoneStreamingConfig {
         self.camera = v;
     }
 
-    // bool light = 4;
+    // bool light = 5;
 
 
     pub fn get_light(&self) -> bool {
@@ -10179,7 +11145,7 @@ impl PhoneStreamingConfig {
         self.light = v;
     }
 
-    // bool audio = 5;
+    // bool audio = 6;
 
 
     pub fn get_audio(&self) -> bool {
@@ -10194,7 +11160,7 @@ impl PhoneStreamingConfig {
         self.audio = v;
     }
 
-    // bool autoFocus = 6;
+    // bool autoFocus = 7;
 
 
     pub fn get_autoFocus(&self) -> bool {
@@ -10209,7 +11175,7 @@ impl PhoneStreamingConfig {
         self.autoFocus = v;
     }
 
-    // bool stabilization = 7;
+    // bool stabilization = 8;
 
 
     pub fn get_stabilization(&self) -> bool {
@@ -10224,7 +11190,7 @@ impl PhoneStreamingConfig {
         self.stabilization = v;
     }
 
-    // bool faceDetection = 8;
+    // bool faceDetection = 9;
 
 
     pub fn get_faceDetection(&self) -> bool {
@@ -10239,7 +11205,7 @@ impl PhoneStreamingConfig {
         self.faceDetection = v;
     }
 
-    // int32 zoom = 9;
+    // int32 zoom = 10;
 
 
     pub fn get_zoom(&self) -> i32 {
@@ -10272,47 +11238,50 @@ impl ::protobuf::Message for PhoneStreamingConfig {
                     self.activated = tmp;
                 },
                 2 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.url)?;
+                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.output, 2, &mut self.unknown_fields)?
                 },
                 3 => {
-                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.camera, 3, &mut self.unknown_fields)?
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.url)?;
                 },
                 4 => {
-                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
-                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
-                    }
-                    let tmp = is.read_bool()?;
-                    self.light = tmp;
+                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.camera, 4, &mut self.unknown_fields)?
                 },
                 5 => {
                     if wire_type != ::protobuf::wire_format::WireTypeVarint {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
                     let tmp = is.read_bool()?;
-                    self.audio = tmp;
+                    self.light = tmp;
                 },
                 6 => {
                     if wire_type != ::protobuf::wire_format::WireTypeVarint {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
                     let tmp = is.read_bool()?;
-                    self.autoFocus = tmp;
+                    self.audio = tmp;
                 },
                 7 => {
                     if wire_type != ::protobuf::wire_format::WireTypeVarint {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
                     let tmp = is.read_bool()?;
-                    self.stabilization = tmp;
+                    self.autoFocus = tmp;
                 },
                 8 => {
                     if wire_type != ::protobuf::wire_format::WireTypeVarint {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
                     let tmp = is.read_bool()?;
-                    self.faceDetection = tmp;
+                    self.stabilization = tmp;
                 },
                 9 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_bool()?;
+                    self.faceDetection = tmp;
+                },
+                10 => {
                     if wire_type != ::protobuf::wire_format::WireTypeVarint {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
@@ -10334,11 +11303,14 @@ impl ::protobuf::Message for PhoneStreamingConfig {
         if self.activated != false {
             my_size += 2;
         }
+        if self.output != PhoneStreamingOutput::STREAM {
+            my_size += ::protobuf::rt::enum_size(2, self.output);
+        }
         if !self.url.is_empty() {
-            my_size += ::protobuf::rt::string_size(2, &self.url);
+            my_size += ::protobuf::rt::string_size(3, &self.url);
         }
         if self.camera != PhoneStreamingCamera::BACK {
-            my_size += ::protobuf::rt::enum_size(3, self.camera);
+            my_size += ::protobuf::rt::enum_size(4, self.camera);
         }
         if self.light != false {
             my_size += 2;
@@ -10356,7 +11328,7 @@ impl ::protobuf::Message for PhoneStreamingConfig {
             my_size += 2;
         }
         if self.zoom != 0 {
-            my_size += ::protobuf::rt::value_size(9, self.zoom, ::protobuf::wire_format::WireTypeVarint);
+            my_size += ::protobuf::rt::value_size(10, self.zoom, ::protobuf::wire_format::WireTypeVarint);
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -10367,29 +11339,32 @@ impl ::protobuf::Message for PhoneStreamingConfig {
         if self.activated != false {
             os.write_bool(1, self.activated)?;
         }
+        if self.output != PhoneStreamingOutput::STREAM {
+            os.write_enum(2, ::protobuf::ProtobufEnum::value(&self.output))?;
+        }
         if !self.url.is_empty() {
-            os.write_string(2, &self.url)?;
+            os.write_string(3, &self.url)?;
         }
         if self.camera != PhoneStreamingCamera::BACK {
-            os.write_enum(3, ::protobuf::ProtobufEnum::value(&self.camera))?;
+            os.write_enum(4, ::protobuf::ProtobufEnum::value(&self.camera))?;
         }
         if self.light != false {
-            os.write_bool(4, self.light)?;
+            os.write_bool(5, self.light)?;
         }
         if self.audio != false {
-            os.write_bool(5, self.audio)?;
+            os.write_bool(6, self.audio)?;
         }
         if self.autoFocus != false {
-            os.write_bool(6, self.autoFocus)?;
+            os.write_bool(7, self.autoFocus)?;
         }
         if self.stabilization != false {
-            os.write_bool(7, self.stabilization)?;
+            os.write_bool(8, self.stabilization)?;
         }
         if self.faceDetection != false {
-            os.write_bool(8, self.faceDetection)?;
+            os.write_bool(9, self.faceDetection)?;
         }
         if self.zoom != 0 {
-            os.write_int32(9, self.zoom)?;
+            os.write_int32(10, self.zoom)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -10433,6 +11408,11 @@ impl ::protobuf::Message for PhoneStreamingConfig {
                 "activated",
                 |m: &PhoneStreamingConfig| { &m.activated },
                 |m: &mut PhoneStreamingConfig| { &mut m.activated },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<PhoneStreamingOutput>>(
+                "output",
+                |m: &PhoneStreamingConfig| { &m.output },
+                |m: &mut PhoneStreamingConfig| { &mut m.output },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "url",
@@ -10491,6 +11471,7 @@ impl ::protobuf::Message for PhoneStreamingConfig {
 impl ::protobuf::Clear for PhoneStreamingConfig {
     fn clear(&mut self) {
         self.activated = false;
+        self.output = PhoneStreamingOutput::STREAM;
         self.url.clear();
         self.camera = PhoneStreamingCamera::BACK;
         self.light = false;
@@ -10802,6 +11783,7 @@ impl ::protobuf::reflect::ProtobufValue for RelayOutletMode {
 pub enum PhoneStreamingStatus {
     STOPPED = 0,
     RUNNING = 1,
+    ERROR = 2,
 }
 
 impl ::protobuf::ProtobufEnum for PhoneStreamingStatus {
@@ -10813,6 +11795,7 @@ impl ::protobuf::ProtobufEnum for PhoneStreamingStatus {
         match value {
             0 => ::std::option::Option::Some(PhoneStreamingStatus::STOPPED),
             1 => ::std::option::Option::Some(PhoneStreamingStatus::RUNNING),
+            2 => ::std::option::Option::Some(PhoneStreamingStatus::ERROR),
             _ => ::std::option::Option::None
         }
     }
@@ -10821,6 +11804,7 @@ impl ::protobuf::ProtobufEnum for PhoneStreamingStatus {
         static values: &'static [PhoneStreamingStatus] = &[
             PhoneStreamingStatus::STOPPED,
             PhoneStreamingStatus::RUNNING,
+            PhoneStreamingStatus::ERROR,
         ];
         values
     }
@@ -10893,6 +11877,59 @@ impl ::std::default::Default for PhoneStreamingCamera {
 }
 
 impl ::protobuf::reflect::ProtobufValue for PhoneStreamingCamera {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Enum(::protobuf::ProtobufEnum::descriptor(self))
+    }
+}
+
+#[derive(Clone,PartialEq,Eq,Debug,Hash)]
+pub enum PhoneStreamingOutput {
+    STREAM = 0,
+    RECORD = 1,
+    STREAM_N_RECORD = 2,
+}
+
+impl ::protobuf::ProtobufEnum for PhoneStreamingOutput {
+    fn value(&self) -> i32 {
+        *self as i32
+    }
+
+    fn from_i32(value: i32) -> ::std::option::Option<PhoneStreamingOutput> {
+        match value {
+            0 => ::std::option::Option::Some(PhoneStreamingOutput::STREAM),
+            1 => ::std::option::Option::Some(PhoneStreamingOutput::RECORD),
+            2 => ::std::option::Option::Some(PhoneStreamingOutput::STREAM_N_RECORD),
+            _ => ::std::option::Option::None
+        }
+    }
+
+    fn values() -> &'static [Self] {
+        static values: &'static [PhoneStreamingOutput] = &[
+            PhoneStreamingOutput::STREAM,
+            PhoneStreamingOutput::RECORD,
+            PhoneStreamingOutput::STREAM_N_RECORD,
+        ];
+        values
+    }
+
+    fn enum_descriptor_static() -> &'static ::protobuf::reflect::EnumDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::EnumDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            ::protobuf::reflect::EnumDescriptor::new_pb_name::<PhoneStreamingOutput>("PhoneStreamingOutput", file_descriptor_proto())
+        })
+    }
+}
+
+impl ::std::marker::Copy for PhoneStreamingOutput {
+}
+
+impl ::std::default::Default for PhoneStreamingOutput {
+    fn default() -> Self {
+        PhoneStreamingOutput::STREAM
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for PhoneStreamingOutput {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Enum(::protobuf::ProtobufEnum::descriptor(self))
     }
@@ -11015,33 +12052,47 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x03\x20\x01(\x02R\x02gz\"\x19\n\x17PhoneAccelerationConfig\".\n\x15Phon\
     eAmbientLightData\x12\x15\n\x06si_lux\x18\x01\x20\x01(\x02R\x05siLux\"\
     \x19\n\x17PhoneAmbientLightConfig\"%\n\x11PhonePressureData\x12\x10\n\
-    \x03hpa\x18\x01\x20\x01(\x02R\x03hpa\"\x15\n\x13PhonePressureConfig\"o\n\
-    \x12PhoneStreamingData\x12-\n\x06status\x18\x01\x20\x01(\x0e2\x15.PhoneS\
-    treamingStatusR\x06status\x12\x10\n\x03fps\x18\x02\x20\x01(\x02R\x03fps\
-    \x12\x18\n\x07bitrate\x18\x03\x20\x01(\x02R\x07bitrate\"\x9f\x02\n\x14Ph\
-    oneStreamingConfig\x12\x1c\n\tactivated\x18\x01\x20\x01(\x08R\tactivated\
-    \x12\x10\n\x03url\x18\x02\x20\x01(\tR\x03url\x12-\n\x06camera\x18\x03\
-    \x20\x01(\x0e2\x15.PhoneStreamingCameraR\x06camera\x12\x14\n\x05light\
-    \x18\x04\x20\x01(\x08R\x05light\x12\x14\n\x05audio\x18\x05\x20\x01(\x08R\
-    \x05audio\x12\x1c\n\tautoFocus\x18\x06\x20\x01(\x08R\tautoFocus\x12$\n\r\
-    stabilization\x18\x07\x20\x01(\x08R\rstabilization\x12$\n\rfaceDetection\
-    \x18\x08\x20\x01(\x08R\rfaceDetection\x12\x12\n\x04zoom\x18\t\x20\x01(\
-    \x05R\x04zoom*Z\n\tActorType\x12\x15\n\x11MANUAL_USER_ACTOR\x10\0\x12\
-    \x12\n\x0eDURATION_ACTOR\x10\x01\x12\x0f\n\x0bALARM_ACTOR\x10\x02\x12\
-    \x11\n\rVIRTUAL_ACTOR\x10\x03*\x90\x01\n\x0fCalibrationStep\x12\x15\n\
-    \x11READY_CALIBRATION\x10\0\x12\x13\n\x0fLOW_CALIBRATION\x10\x01\x12\x14\
-    \n\x10HIGH_CALIBRATION\x10\x02\x12\x15\n\x11ERROR_CALIBRATION\x10\x03\
-    \x12$\n\x20WAITING_CONFIRMATION_CALIBRATION\x10\x04*y\n\x15CalibrationSt\
-    epStatus\x12\x1b\n\x17INSUFFISANT_DATA_STATUS\x10\0\x12\x17\n\x13ENOUGHT\
-    _DATA_STATUS\x10\x01\x12\x10\n\x0cERROR_STATUS\x10\x02\x12\x18\n\x14AWAI\
-    TING_STEP_STATUS\x10\x03*r\n\x10CalibrationError\x12\x0e\n\nNONE_ERROR\
-    \x10\0\x12\x19\n\x15ALREADY_STARTED_ERROR\x10\x01\x12\x17\n\x13INSTABLE_\
-    DATA_ERROR\x10\x02\x12\x1a\n\x16NOT_ENOUGHT_DATA_ERROR\x10\x03*@\n\x0fRe\
-    layOutletMode\x12\n\n\x06MANUAL\x10\0\x12\t\n\x05ALARM\x10\x01\x12\x0b\n\
-    \x07VIRTUAL\x10\x02\x12\t\n\x05CYCLE\x10\x03*0\n\x14PhoneStreamingStatus\
-    \x12\x0b\n\x07STOPPED\x10\0\x12\x0b\n\x07RUNNING\x10\x01*+\n\x14PhoneStr\
-    eamingCamera\x12\x08\n\x04BACK\x10\0\x12\t\n\x05FRONT\x10\x01B+\n)ca.ber\
-    lingoqc.growbe_android_module.protob\x06proto3\
+    \x03hpa\x18\x01\x20\x01(\x02R\x03hpa\"\x15\n\x13PhonePressureConfig\"#\n\
+    \x05Point\x12\x0c\n\x01x\x18\x01\x20\x01(\x05R\x01x\x12\x0c\n\x01y\x18\
+    \x02\x20\x01(\x05R\x01y\"Z\n\x04Rect\x12\x10\n\x03top\x18\x01\x20\x01(\
+    \x05R\x03top\x12\x14\n\x05right\x18\x02\x20\x01(\x05R\x05right\x12\x16\n\
+    \x06bottom\x18\x03\x20\x01(\x05R\x06bottom\x12\x12\n\x04left\x18\x04\x20\
+    \x01(\x05R\x04left\"\xb1\x01\n\nCameraFace\x12\x0e\n\x02id\x18\x01\x20\
+    \x01(\x05R\x02id\x12\x14\n\x05score\x18\x02\x20\x01(\x05R\x05score\x12\
+    \x19\n\x04rect\x18\x03\x20\x01(\x0b2\x05.RectR\x04rect\x12\x1c\n\x05mout\
+    h\x18\x04\x20\x01(\x0b2\x06.PointR\x05mouth\x12\x20\n\x07leftEye\x18\x05\
+    \x20\x01(\x0b2\x06.PointR\x07leftEye\x12\"\n\x08rightEye\x18\x06\x20\x01\
+    (\x0b2\x06.PointR\x08rightEye\"\xa8\x01\n\x12PhoneStreamingData\x12-\n\
+    \x06status\x18\x01\x20\x01(\x0e2\x15.PhoneStreamingStatusR\x06status\x12\
+    \x10\n\x03fps\x18\x02\x20\x01(\x02R\x03fps\x12\x18\n\x07bitrate\x18\x03\
+    \x20\x01(\x02R\x07bitrate\x12!\n\x05faces\x18\x04\x20\x03(\x0b2\x0b.Came\
+    raFaceR\x05faces\x12\x14\n\x05error\x18\x05\x20\x01(\tR\x05error\"\xce\
+    \x02\n\x14PhoneStreamingConfig\x12\x1c\n\tactivated\x18\x01\x20\x01(\x08\
+    R\tactivated\x12-\n\x06output\x18\x02\x20\x01(\x0e2\x15.PhoneStreamingOu\
+    tputR\x06output\x12\x10\n\x03url\x18\x03\x20\x01(\tR\x03url\x12-\n\x06ca\
+    mera\x18\x04\x20\x01(\x0e2\x15.PhoneStreamingCameraR\x06camera\x12\x14\n\
+    \x05light\x18\x05\x20\x01(\x08R\x05light\x12\x14\n\x05audio\x18\x06\x20\
+    \x01(\x08R\x05audio\x12\x1c\n\tautoFocus\x18\x07\x20\x01(\x08R\tautoFocu\
+    s\x12$\n\rstabilization\x18\x08\x20\x01(\x08R\rstabilization\x12$\n\rfac\
+    eDetection\x18\t\x20\x01(\x08R\rfaceDetection\x12\x12\n\x04zoom\x18\n\
+    \x20\x01(\x05R\x04zoom*Z\n\tActorType\x12\x15\n\x11MANUAL_USER_ACTOR\x10\
+    \0\x12\x12\n\x0eDURATION_ACTOR\x10\x01\x12\x0f\n\x0bALARM_ACTOR\x10\x02\
+    \x12\x11\n\rVIRTUAL_ACTOR\x10\x03*\x90\x01\n\x0fCalibrationStep\x12\x15\
+    \n\x11READY_CALIBRATION\x10\0\x12\x13\n\x0fLOW_CALIBRATION\x10\x01\x12\
+    \x14\n\x10HIGH_CALIBRATION\x10\x02\x12\x15\n\x11ERROR_CALIBRATION\x10\
+    \x03\x12$\n\x20WAITING_CONFIRMATION_CALIBRATION\x10\x04*y\n\x15Calibrati\
+    onStepStatus\x12\x1b\n\x17INSUFFISANT_DATA_STATUS\x10\0\x12\x17\n\x13ENO\
+    UGHT_DATA_STATUS\x10\x01\x12\x10\n\x0cERROR_STATUS\x10\x02\x12\x18\n\x14\
+    AWAITING_STEP_STATUS\x10\x03*r\n\x10CalibrationError\x12\x0e\n\nNONE_ERR\
+    OR\x10\0\x12\x19\n\x15ALREADY_STARTED_ERROR\x10\x01\x12\x17\n\x13INSTABL\
+    E_DATA_ERROR\x10\x02\x12\x1a\n\x16NOT_ENOUGHT_DATA_ERROR\x10\x03*@\n\x0f\
+    RelayOutletMode\x12\n\n\x06MANUAL\x10\0\x12\t\n\x05ALARM\x10\x01\x12\x0b\
+    \n\x07VIRTUAL\x10\x02\x12\t\n\x05CYCLE\x10\x03*;\n\x14PhoneStreamingStat\
+    us\x12\x0b\n\x07STOPPED\x10\0\x12\x0b\n\x07RUNNING\x10\x01\x12\t\n\x05ER\
+    ROR\x10\x02*+\n\x14PhoneStreamingCamera\x12\x08\n\x04BACK\x10\0\x12\t\n\
+    \x05FRONT\x10\x01*C\n\x14PhoneStreamingOutput\x12\n\n\x06STREAM\x10\0\
+    \x12\n\n\x06RECORD\x10\x01\x12\x13\n\x0fSTREAM_N_RECORD\x10\x02B+\n)ca.b\
+    erlingoqc.growbe_android_module.protob\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

@@ -151,7 +151,7 @@ impl crate::comboard::imple::interface::ComboardClient for WSComboardClient {
                     }
                 }
 
-                tokio::time::sleep(tokio::time::Duration::from_millis(3000)).await;
+                tokio::time::sleep(tokio::time::Duration::from_millis(5000)).await;
             }
         });
     }
