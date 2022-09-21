@@ -1,13 +1,10 @@
+use std::sync::mpsc::Receiver;
+
 
 pub static I2C_BOARD_ID: &'static str = "i2c";
 pub static I2C_VIRT_ID: &'static str = "virt";
 pub static I2C_BLE_ID: &'static str = "ble";
 
-#[repr(C)]
-pub struct Module_Config {
-    pub port: cty::c_int,
-    pub buffer: [cty::uint8_t; 8],
-}
 
 pub struct ModuleStateChangeEvent {
     pub board: String,
@@ -29,5 +26,5 @@ pub struct ComboardClientConfig {
 }
 
 pub trait ComboardClient {
-	fn run(&self) -> tokio::task::JoinHandle<()>;
+	fn run(&self, receiver_config: Receiver<super::channel::ModuleConfig>) -> tokio::task::JoinHandle<Result<(), ()>>;
 }

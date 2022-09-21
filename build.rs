@@ -1,7 +1,6 @@
 extern crate protoc_rust;
 
 use std::path::Path;
-use std::process::Command;
 
 fn main() {
     let path_proto = Path::new("./proto/module.proto");
@@ -18,12 +17,18 @@ fn main() {
             .run()
             .expect("Running protoc failed.");
     }
-    Command::new("./scripts/rust_env.sh")
-        .arg("make")
-        .arg("-C")
-        .arg("./drivers")
-        .output()
-        .expect("Failed to compile C");
+    #[cfg(feature = "com_i2c")]
+    {
 
-    println!("cargo:rustc-link-search=./drivers");
+        use std::process::Command;
+        
+        Command::new("./scripts/rust_env.sh")
+            .arg("make")
+            .arg("-C")
+            .arg("./drivers")
+            .output()
+            .expect("Failed to compile C");
+
+        println!("cargo:rustc-link-search=./drivers");
+    }
 }

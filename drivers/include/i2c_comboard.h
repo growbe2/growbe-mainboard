@@ -13,7 +13,7 @@ typedef void (*rs_cb_module_state_changed)(int32_t port, const char* id, bool st
 typedef void (*rs_cb_module_value_validation)(int32_t port, uint8_t buffer[512]);
 typedef void (*rs_cb_module_config_queue)(Module_Config* config);
 
-void comboard_loop_body();
+void comboard_loop_body(int32_t starting_port, int32_t ending_port);
 int init(const char* device);
 int32_t register_callback_comboard(rs_cb_module_state_changed, rs_cb_module_value_validation, rs_cb_module_config_queue);
 

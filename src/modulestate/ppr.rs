@@ -20,16 +20,16 @@ impl super::interface::ModuleValueParsable for PhonePressureData {}
 
 impl super::interface::ModuleValueValidator for PPRValidator {
     fn convert_to_value(&mut self, value_event: &crate::comboard::imple::interface::ModuleValueValidationEvent) -> Result<Box<dyn super::interface::ModuleValueParsable>, super::interface::ModuleError> {
-        if let Ok(data )= PhonePressureData::parse_from_bytes(&value_event.buffer) {
-            return Ok(Box::new(data));
+        match PhonePressureData::parse_from_bytes(&value_event.buffer) {
+            Ok(data) => Ok(Box::new(data)),
+            Err(err) => Err(ModuleError::new().message(err.to_string()))
         }
-        return Err(ModuleError::new());
     }
     
-    fn apply_parse_config(&mut self, _port: i32, _t: char, _data: std::sync::Arc<Vec<u8>>, 
-        _sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::interface::Module_Config>,
+    fn apply_parse_config(&mut self, _port: i32, _t: &str, _data: std::sync::Arc<Vec<u8>>, 
+        _sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::channel::ModuleConfig>,
         _map_handler: & mut std::collections::HashMap<String, tokio_util::sync::CancellationToken>
-    ) -> Result<(Box<dyn protobuf::Message>, crate::comboard::imple::interface::Module_Config), super::interface::ModuleError> {
+    ) -> Result<(Box<dyn protobuf::Message>, crate::comboard::imple::channel::ModuleConfig), super::interface::ModuleError> {
         Err(super::interface::ModuleError::new())
     }
 

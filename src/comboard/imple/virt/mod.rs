@@ -1,10 +1,11 @@
 
+use std::sync::mpsc::Receiver;
+
 use crate::comboard::imple::interface::{ModuleStateChangeEvent, ModuleValueValidationEvent, I2C_VIRT_ID};
 
 use crate::comboard::imple::channel::*;
 
 use serde::{Deserialize, Serialize};
-use serde_json::Result;
 
 
 fn default_index() -> i32 {
@@ -34,7 +35,7 @@ struct VirtualScenario {
 }
 
 
-fn get_config(config: &String) -> Result<VirtualScenario>  {
+fn get_config(config: &String) -> serde_json::Result<VirtualScenario>  {
     let file = std::fs::File::open(config).expect(config);
     let scenario: VirtualScenario = serde_json::from_reader(file)?;
     Ok(scenario)
@@ -46,7 +47,7 @@ pub struct VirtualComboardClient {
 
 impl super::interface::ComboardClient for VirtualComboardClient {
 
-    fn run(&self) -> tokio::task::JoinHandle<()> {
+    fn run(&self, receiver_config: Receiver<crate::comboard::imple::channel::ModuleConfig>) -> tokio::task::JoinHandle<Result<(), ()>> {
 
         let sender_value = CHANNEL_VALUE.0.lock().unwrap().clone();
         let sender_state = CHANNEL_STATE.0.lock().unwrap().clone();
@@ -59,21 +60,21 @@ impl super::interface::ComboardClient for VirtualComboardClient {
             let mut i: usize = 0;
             let mut waiting: Option<std::time::Instant> = None;
 
-            let receiver_config = CHANNEL_CONFIG_I2C.1.lock().unwrap();
+            // TODO reable with new channel
             while i < config.actions.len() {
 
                 // check if we have event to process config change
                 let config_request = receiver_config.try_recv();
                 if config_request.is_ok() {
                     let config = config_request.unwrap();
-                    log::debug!("virtual comboard apply config {:?}", config.buffer);
+                    log::debug!("virtual comboard apply config {:?}", config.data);
 
                     sender_value.send(
                         ModuleValueValidationEvent{
                             board: I2C_VIRT_ID.to_string(),
                             board_addr: config_board.clone(),
                             port: config.port,
-                            buffer: Vec::from(config.buffer)
+                            buffer: config.data
                         }
                     ).unwrap();
                 }
@@ -125,6 +126,8 @@ impl super::interface::ComboardClient for VirtualComboardClient {
             }
 
             log::info!("end of current scenario virtual comboard");
+
+            Ok(())
         });
     }
 }

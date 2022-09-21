@@ -1050,7 +1050,8 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     ue\x18\x05\x20\x01(\rR\x0ccurrentValue\x12$\n\rpreviousValue\x18\x06\x20\
     \x01(\rR\rpreviousValue*S\n\tAlarmZone\x12\n\n\x06UNKNOW\x10\0\x12\n\n\
     \x06MIDDLE\x10\x01\x12\x0c\n\x08VERY_LOW\x10\x02\x12\x07\n\x03LOW\x10\
-    \x03\x12\x08\n\x04HIGH\x10\x04\x12\r\n\tVERY_HIGH\x10\x05b\x06proto3\
+    \x03\x12\x08\n\x04HIGH\x10\x04\x12\r\n\tVERY_HIGH\x10\x05B+\n)ca.berling\
+    oqc.growbe_android_module.protob\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

@@ -14,6 +14,7 @@ pub fn get_field_from_table<T>(
 		[id],
 		|r| r.get(0)
 	)?;
+	// TODO : fixe possible error there if i changed the config proto def
 	return Ok(id2(&v).unwrap());
 }
 

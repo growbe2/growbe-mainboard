@@ -1291,7 +1291,8 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x0b\n\x07PARSING\x10\0\x12\x11\n\rMODULE_CONFIG\x10\x01\x12\x14\n\x10MA\
     INBOARD_CONFIG\x10\x02\x12\x0b\n\x07RTC_SET\x10\x03\x12\x10\n\x0cSYNC_RE\
     QUEST\x10\x04\x12\r\n\tADD_ALARM\x10\n\x12\x10\n\x0cREMOVE_ALARM\x10\x0b\
-    \x12\x0b\n\x07RESTART\x10\x0cb\x06proto3\
+    \x12\x0b\n\x07RESTART\x10\x0cB+\n)ca.berlingoqc.growbe_android_module.pr\
+    otob\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

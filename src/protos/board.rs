@@ -2914,7 +2914,8 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x07\x20\x03(\x0b2\x0f.ComboardConfigR\tcomboards\x12)\n\x06server\x18\
     \x04\x20\x01(\x0b2\x11.HttpServerConfigR\x06server\x12%\n\x06logger\x18\
     \x05\x20\x01(\x0b2\r.LoggerConfigR\x06logger\x12&\n\x06update\x18\x06\
-    \x20\x01(\x0b2\x0e.UpdaterConfigR\x06updateb\x06proto3\
+    \x20\x01(\x0b2\x0e.UpdaterConfigR\x06updateB+\n)ca.berlingoqc.growbe_and\
+    roid_module.protob\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

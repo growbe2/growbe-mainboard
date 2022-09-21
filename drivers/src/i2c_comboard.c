@@ -458,12 +458,12 @@ int init(const char* device) {
 }
 
 
-void comboard_loop_body() {
+void comboard_loop_body(int32_t starting_port, int32_t ending_port) {
 	static uint8_t da[512];
 
 	int data_read = -1;
 
-    for (char comport = 0; comport < 8; ++comport)
+    for (char comport = starting_port; comport < ending_port; ++comport)
     {
     	I2cComLib_SingleReadPortModuleInfo(comport);
     }
@@ -472,7 +472,7 @@ void comboard_loop_body() {
 
 	callback_config_queue(&config);
 
-	for (int comport = 0; comport < 8; ++comport) {
+	for (int comport = starting_port; comport < ending_port; ++comport) {
 		data_read = -1;
 		if (module_ports[comport].connected == true) {
 			I2cComLib_EnableComPort(comport);

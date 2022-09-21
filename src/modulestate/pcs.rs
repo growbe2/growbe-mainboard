@@ -1,36 +1,44 @@
 use protobuf::Message;
 
-use crate::protos::module::PhoneAmbientLightData;
+use crate::protos::module::{PhoneStreamingData, PhoneStreamingConfig};
 
 use super::interface::ModuleError;
 
 
-pub struct PALValidator {}
+pub struct PCSValidator {}
 
-impl PALValidator {
-    pub fn new() -> PALValidator {
-        return PALValidator {
+impl PCSValidator {
+    pub fn new() -> PCSValidator {
+        return PCSValidator {
         };
     } 
 }
 
-impl super::interface::ModuleValue for PhoneAmbientLightData {}
+impl super::interface::ModuleValue for PhoneStreamingData {}
 
-impl super::interface::ModuleValueParsable for PhoneAmbientLightData {}
+impl super::interface::ModuleValueParsable for PhoneStreamingData {}
 
-impl super::interface::ModuleValueValidator for PALValidator {
+impl super::interface::ModuleValueValidator for PCSValidator {
     fn convert_to_value(&mut self, value_event: &crate::comboard::imple::interface::ModuleValueValidationEvent) -> Result<Box<dyn super::interface::ModuleValueParsable>, super::interface::ModuleError> {
-        if let Ok(data )= PhoneAmbientLightData::parse_from_bytes(&value_event.buffer) {
-            return Ok(Box::new(data));
+        match PhoneStreamingData::parse_from_bytes(&value_event.buffer) {
+            Ok(data) => Ok(Box::new(data)),
+            Err(err) => Err(ModuleError::new().message(err.to_string()))
         }
-        return Err(ModuleError::new());
     }
     
-    fn apply_parse_config(&mut self, _port: i32, _t: &str, _data: std::sync::Arc<Vec<u8>>, 
-        _sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::channel::ModuleConfig>,
+    fn apply_parse_config(&mut self, port: i32, _t: &str, data: std::sync::Arc<Vec<u8>>, 
+        sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::channel::ModuleConfig>,
         _map_handler: & mut std::collections::HashMap<String, tokio_util::sync::CancellationToken>
     ) -> Result<(Box<dyn protobuf::Message>, crate::comboard::imple::channel::ModuleConfig), super::interface::ModuleError> {
-        Err(super::interface::ModuleError::new())
+		let config: Box<PhoneStreamingConfig> = Box::new(PhoneStreamingConfig::parse_from_bytes(&data).map_err(|e| super::interface::ModuleError::new().message(e.to_string()))?);
+
+		return Ok((
+			config,
+			crate::comboard::imple::channel::ModuleConfig{
+				port: port,
+				data: data.to_vec()
+			}
+		));
     }
 
     fn remove_config(&mut self) -> Result<(), super::interface::ModuleError> {
