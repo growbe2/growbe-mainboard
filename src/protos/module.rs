@@ -8690,6 +8690,10 @@ pub struct PhonePositionData {
     // message fields
     pub lat: f32,
     pub log: f32,
+    pub accuracy: f32,
+    pub altitude: f64,
+    pub bearing: f32,
+    pub speed: f32,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -8735,6 +8739,66 @@ impl PhonePositionData {
     pub fn set_log(&mut self, v: f32) {
         self.log = v;
     }
+
+    // float accuracy = 3;
+
+
+    pub fn get_accuracy(&self) -> f32 {
+        self.accuracy
+    }
+    pub fn clear_accuracy(&mut self) {
+        self.accuracy = 0.;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_accuracy(&mut self, v: f32) {
+        self.accuracy = v;
+    }
+
+    // double altitude = 4;
+
+
+    pub fn get_altitude(&self) -> f64 {
+        self.altitude
+    }
+    pub fn clear_altitude(&mut self) {
+        self.altitude = 0.;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_altitude(&mut self, v: f64) {
+        self.altitude = v;
+    }
+
+    // float bearing = 5;
+
+
+    pub fn get_bearing(&self) -> f32 {
+        self.bearing
+    }
+    pub fn clear_bearing(&mut self) {
+        self.bearing = 0.;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_bearing(&mut self, v: f32) {
+        self.bearing = v;
+    }
+
+    // float speed = 7;
+
+
+    pub fn get_speed(&self) -> f32 {
+        self.speed
+    }
+    pub fn clear_speed(&mut self) {
+        self.speed = 0.;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_speed(&mut self, v: f32) {
+        self.speed = v;
+    }
 }
 
 impl ::protobuf::Message for PhonePositionData {
@@ -8760,6 +8824,34 @@ impl ::protobuf::Message for PhonePositionData {
                     let tmp = is.read_float()?;
                     self.log = tmp;
                 },
+                3 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeFixed32 {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_float()?;
+                    self.accuracy = tmp;
+                },
+                4 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeFixed64 {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_double()?;
+                    self.altitude = tmp;
+                },
+                5 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeFixed32 {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_float()?;
+                    self.bearing = tmp;
+                },
+                7 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeFixed32 {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_float()?;
+                    self.speed = tmp;
+                },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
                 },
@@ -8778,6 +8870,18 @@ impl ::protobuf::Message for PhonePositionData {
         if self.log != 0. {
             my_size += 5;
         }
+        if self.accuracy != 0. {
+            my_size += 5;
+        }
+        if self.altitude != 0. {
+            my_size += 9;
+        }
+        if self.bearing != 0. {
+            my_size += 5;
+        }
+        if self.speed != 0. {
+            my_size += 5;
+        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -8789,6 +8893,18 @@ impl ::protobuf::Message for PhonePositionData {
         }
         if self.log != 0. {
             os.write_float(2, self.log)?;
+        }
+        if self.accuracy != 0. {
+            os.write_float(3, self.accuracy)?;
+        }
+        if self.altitude != 0. {
+            os.write_double(4, self.altitude)?;
+        }
+        if self.bearing != 0. {
+            os.write_float(5, self.bearing)?;
+        }
+        if self.speed != 0. {
+            os.write_float(7, self.speed)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -8838,6 +8954,26 @@ impl ::protobuf::Message for PhonePositionData {
                 |m: &PhonePositionData| { &m.log },
                 |m: &mut PhonePositionData| { &mut m.log },
             ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeFloat>(
+                "accuracy",
+                |m: &PhonePositionData| { &m.accuracy },
+                |m: &mut PhonePositionData| { &mut m.accuracy },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeDouble>(
+                "altitude",
+                |m: &PhonePositionData| { &m.altitude },
+                |m: &mut PhonePositionData| { &mut m.altitude },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeFloat>(
+                "bearing",
+                |m: &PhonePositionData| { &m.bearing },
+                |m: &mut PhonePositionData| { &mut m.bearing },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeFloat>(
+                "speed",
+                |m: &PhonePositionData| { &m.speed },
+                |m: &mut PhonePositionData| { &mut m.speed },
+            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<PhonePositionData>(
                 "PhonePositionData",
                 fields,
@@ -8856,6 +8992,10 @@ impl ::protobuf::Clear for PhonePositionData {
     fn clear(&mut self) {
         self.lat = 0.;
         self.log = 0.;
+        self.accuracy = 0.;
+        self.altitude = 0.;
+        self.bearing = 0.;
+        self.speed = 0.;
         self.unknown_fields.clear();
     }
 }
@@ -12045,54 +12185,57 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     mp0\x12(\n\x05pump1\x18\x06\x20\x01(\x0b2\x12.RelayOutletConfigR\x05pump\
     1\x12(\n\x05pump2\x18\x07\x20\x01(\x0b2\x12.RelayOutletConfigR\x05pump2\
     \x12(\n\x05pump3\x18\x08\x20\x01(\x0b2\x12.RelayOutletConfigR\x05pump3\"\
-    7\n\x11PhonePositionData\x12\x10\n\x03lat\x18\x01\x20\x01(\x02R\x03lat\
-    \x12\x10\n\x03log\x18\x02\x20\x01(\x02R\x03log\"\x15\n\x13PhonePositionC\
-    onfig\"G\n\x15PhoneAccelerationData\x12\x0e\n\x02gx\x18\x01\x20\x01(\x02\
-    R\x02gx\x12\x0e\n\x02gy\x18\x02\x20\x01(\x02R\x02gy\x12\x0e\n\x02gz\x18\
-    \x03\x20\x01(\x02R\x02gz\"\x19\n\x17PhoneAccelerationConfig\".\n\x15Phon\
-    eAmbientLightData\x12\x15\n\x06si_lux\x18\x01\x20\x01(\x02R\x05siLux\"\
-    \x19\n\x17PhoneAmbientLightConfig\"%\n\x11PhonePressureData\x12\x10\n\
-    \x03hpa\x18\x01\x20\x01(\x02R\x03hpa\"\x15\n\x13PhonePressureConfig\"#\n\
-    \x05Point\x12\x0c\n\x01x\x18\x01\x20\x01(\x05R\x01x\x12\x0c\n\x01y\x18\
-    \x02\x20\x01(\x05R\x01y\"Z\n\x04Rect\x12\x10\n\x03top\x18\x01\x20\x01(\
-    \x05R\x03top\x12\x14\n\x05right\x18\x02\x20\x01(\x05R\x05right\x12\x16\n\
-    \x06bottom\x18\x03\x20\x01(\x05R\x06bottom\x12\x12\n\x04left\x18\x04\x20\
-    \x01(\x05R\x04left\"\xb1\x01\n\nCameraFace\x12\x0e\n\x02id\x18\x01\x20\
-    \x01(\x05R\x02id\x12\x14\n\x05score\x18\x02\x20\x01(\x05R\x05score\x12\
-    \x19\n\x04rect\x18\x03\x20\x01(\x0b2\x05.RectR\x04rect\x12\x1c\n\x05mout\
-    h\x18\x04\x20\x01(\x0b2\x06.PointR\x05mouth\x12\x20\n\x07leftEye\x18\x05\
-    \x20\x01(\x0b2\x06.PointR\x07leftEye\x12\"\n\x08rightEye\x18\x06\x20\x01\
-    (\x0b2\x06.PointR\x08rightEye\"\xa8\x01\n\x12PhoneStreamingData\x12-\n\
-    \x06status\x18\x01\x20\x01(\x0e2\x15.PhoneStreamingStatusR\x06status\x12\
-    \x10\n\x03fps\x18\x02\x20\x01(\x02R\x03fps\x12\x18\n\x07bitrate\x18\x03\
-    \x20\x01(\x02R\x07bitrate\x12!\n\x05faces\x18\x04\x20\x03(\x0b2\x0b.Came\
-    raFaceR\x05faces\x12\x14\n\x05error\x18\x05\x20\x01(\tR\x05error\"\xce\
-    \x02\n\x14PhoneStreamingConfig\x12\x1c\n\tactivated\x18\x01\x20\x01(\x08\
-    R\tactivated\x12-\n\x06output\x18\x02\x20\x01(\x0e2\x15.PhoneStreamingOu\
-    tputR\x06output\x12\x10\n\x03url\x18\x03\x20\x01(\tR\x03url\x12-\n\x06ca\
-    mera\x18\x04\x20\x01(\x0e2\x15.PhoneStreamingCameraR\x06camera\x12\x14\n\
-    \x05light\x18\x05\x20\x01(\x08R\x05light\x12\x14\n\x05audio\x18\x06\x20\
-    \x01(\x08R\x05audio\x12\x1c\n\tautoFocus\x18\x07\x20\x01(\x08R\tautoFocu\
-    s\x12$\n\rstabilization\x18\x08\x20\x01(\x08R\rstabilization\x12$\n\rfac\
-    eDetection\x18\t\x20\x01(\x08R\rfaceDetection\x12\x12\n\x04zoom\x18\n\
-    \x20\x01(\x05R\x04zoom*Z\n\tActorType\x12\x15\n\x11MANUAL_USER_ACTOR\x10\
-    \0\x12\x12\n\x0eDURATION_ACTOR\x10\x01\x12\x0f\n\x0bALARM_ACTOR\x10\x02\
-    \x12\x11\n\rVIRTUAL_ACTOR\x10\x03*\x90\x01\n\x0fCalibrationStep\x12\x15\
-    \n\x11READY_CALIBRATION\x10\0\x12\x13\n\x0fLOW_CALIBRATION\x10\x01\x12\
-    \x14\n\x10HIGH_CALIBRATION\x10\x02\x12\x15\n\x11ERROR_CALIBRATION\x10\
-    \x03\x12$\n\x20WAITING_CONFIRMATION_CALIBRATION\x10\x04*y\n\x15Calibrati\
-    onStepStatus\x12\x1b\n\x17INSUFFISANT_DATA_STATUS\x10\0\x12\x17\n\x13ENO\
-    UGHT_DATA_STATUS\x10\x01\x12\x10\n\x0cERROR_STATUS\x10\x02\x12\x18\n\x14\
-    AWAITING_STEP_STATUS\x10\x03*r\n\x10CalibrationError\x12\x0e\n\nNONE_ERR\
-    OR\x10\0\x12\x19\n\x15ALREADY_STARTED_ERROR\x10\x01\x12\x17\n\x13INSTABL\
-    E_DATA_ERROR\x10\x02\x12\x1a\n\x16NOT_ENOUGHT_DATA_ERROR\x10\x03*@\n\x0f\
-    RelayOutletMode\x12\n\n\x06MANUAL\x10\0\x12\t\n\x05ALARM\x10\x01\x12\x0b\
-    \n\x07VIRTUAL\x10\x02\x12\t\n\x05CYCLE\x10\x03*;\n\x14PhoneStreamingStat\
-    us\x12\x0b\n\x07STOPPED\x10\0\x12\x0b\n\x07RUNNING\x10\x01\x12\t\n\x05ER\
-    ROR\x10\x02*+\n\x14PhoneStreamingCamera\x12\x08\n\x04BACK\x10\0\x12\t\n\
-    \x05FRONT\x10\x01*C\n\x14PhoneStreamingOutput\x12\n\n\x06STREAM\x10\0\
-    \x12\n\n\x06RECORD\x10\x01\x12\x13\n\x0fSTREAM_N_RECORD\x10\x02B+\n)ca.b\
-    erlingoqc.growbe_android_module.protob\x06proto3\
+    \x9f\x01\n\x11PhonePositionData\x12\x10\n\x03lat\x18\x01\x20\x01(\x02R\
+    \x03lat\x12\x10\n\x03log\x18\x02\x20\x01(\x02R\x03log\x12\x1a\n\x08accur\
+    acy\x18\x03\x20\x01(\x02R\x08accuracy\x12\x1a\n\x08altitude\x18\x04\x20\
+    \x01(\x01R\x08altitude\x12\x18\n\x07bearing\x18\x05\x20\x01(\x02R\x07bea\
+    ring\x12\x14\n\x05speed\x18\x07\x20\x01(\x02R\x05speed\"\x15\n\x13PhoneP\
+    ositionConfig\"G\n\x15PhoneAccelerationData\x12\x0e\n\x02gx\x18\x01\x20\
+    \x01(\x02R\x02gx\x12\x0e\n\x02gy\x18\x02\x20\x01(\x02R\x02gy\x12\x0e\n\
+    \x02gz\x18\x03\x20\x01(\x02R\x02gz\"\x19\n\x17PhoneAccelerationConfig\".\
+    \n\x15PhoneAmbientLightData\x12\x15\n\x06si_lux\x18\x01\x20\x01(\x02R\
+    \x05siLux\"\x19\n\x17PhoneAmbientLightConfig\"%\n\x11PhonePressureData\
+    \x12\x10\n\x03hpa\x18\x01\x20\x01(\x02R\x03hpa\"\x15\n\x13PhonePressureC\
+    onfig\"#\n\x05Point\x12\x0c\n\x01x\x18\x01\x20\x01(\x05R\x01x\x12\x0c\n\
+    \x01y\x18\x02\x20\x01(\x05R\x01y\"Z\n\x04Rect\x12\x10\n\x03top\x18\x01\
+    \x20\x01(\x05R\x03top\x12\x14\n\x05right\x18\x02\x20\x01(\x05R\x05right\
+    \x12\x16\n\x06bottom\x18\x03\x20\x01(\x05R\x06bottom\x12\x12\n\x04left\
+    \x18\x04\x20\x01(\x05R\x04left\"\xb1\x01\n\nCameraFace\x12\x0e\n\x02id\
+    \x18\x01\x20\x01(\x05R\x02id\x12\x14\n\x05score\x18\x02\x20\x01(\x05R\
+    \x05score\x12\x19\n\x04rect\x18\x03\x20\x01(\x0b2\x05.RectR\x04rect\x12\
+    \x1c\n\x05mouth\x18\x04\x20\x01(\x0b2\x06.PointR\x05mouth\x12\x20\n\x07l\
+    eftEye\x18\x05\x20\x01(\x0b2\x06.PointR\x07leftEye\x12\"\n\x08rightEye\
+    \x18\x06\x20\x01(\x0b2\x06.PointR\x08rightEye\"\xa8\x01\n\x12PhoneStream\
+    ingData\x12-\n\x06status\x18\x01\x20\x01(\x0e2\x15.PhoneStreamingStatusR\
+    \x06status\x12\x10\n\x03fps\x18\x02\x20\x01(\x02R\x03fps\x12\x18\n\x07bi\
+    trate\x18\x03\x20\x01(\x02R\x07bitrate\x12!\n\x05faces\x18\x04\x20\x03(\
+    \x0b2\x0b.CameraFaceR\x05faces\x12\x14\n\x05error\x18\x05\x20\x01(\tR\
+    \x05error\"\xce\x02\n\x14PhoneStreamingConfig\x12\x1c\n\tactivated\x18\
+    \x01\x20\x01(\x08R\tactivated\x12-\n\x06output\x18\x02\x20\x01(\x0e2\x15\
+    .PhoneStreamingOutputR\x06output\x12\x10\n\x03url\x18\x03\x20\x01(\tR\
+    \x03url\x12-\n\x06camera\x18\x04\x20\x01(\x0e2\x15.PhoneStreamingCameraR\
+    \x06camera\x12\x14\n\x05light\x18\x05\x20\x01(\x08R\x05light\x12\x14\n\
+    \x05audio\x18\x06\x20\x01(\x08R\x05audio\x12\x1c\n\tautoFocus\x18\x07\
+    \x20\x01(\x08R\tautoFocus\x12$\n\rstabilization\x18\x08\x20\x01(\x08R\rs\
+    tabilization\x12$\n\rfaceDetection\x18\t\x20\x01(\x08R\rfaceDetection\
+    \x12\x12\n\x04zoom\x18\n\x20\x01(\x05R\x04zoom*Z\n\tActorType\x12\x15\n\
+    \x11MANUAL_USER_ACTOR\x10\0\x12\x12\n\x0eDURATION_ACTOR\x10\x01\x12\x0f\
+    \n\x0bALARM_ACTOR\x10\x02\x12\x11\n\rVIRTUAL_ACTOR\x10\x03*\x90\x01\n\
+    \x0fCalibrationStep\x12\x15\n\x11READY_CALIBRATION\x10\0\x12\x13\n\x0fLO\
+    W_CALIBRATION\x10\x01\x12\x14\n\x10HIGH_CALIBRATION\x10\x02\x12\x15\n\
+    \x11ERROR_CALIBRATION\x10\x03\x12$\n\x20WAITING_CONFIRMATION_CALIBRATION\
+    \x10\x04*y\n\x15CalibrationStepStatus\x12\x1b\n\x17INSUFFISANT_DATA_STAT\
+    US\x10\0\x12\x17\n\x13ENOUGHT_DATA_STATUS\x10\x01\x12\x10\n\x0cERROR_STA\
+    TUS\x10\x02\x12\x18\n\x14AWAITING_STEP_STATUS\x10\x03*r\n\x10Calibration\
+    Error\x12\x0e\n\nNONE_ERROR\x10\0\x12\x19\n\x15ALREADY_STARTED_ERROR\x10\
+    \x01\x12\x17\n\x13INSTABLE_DATA_ERROR\x10\x02\x12\x1a\n\x16NOT_ENOUGHT_D\
+    ATA_ERROR\x10\x03*@\n\x0fRelayOutletMode\x12\n\n\x06MANUAL\x10\0\x12\t\n\
+    \x05ALARM\x10\x01\x12\x0b\n\x07VIRTUAL\x10\x02\x12\t\n\x05CYCLE\x10\x03*\
+    ;\n\x14PhoneStreamingStatus\x12\x0b\n\x07STOPPED\x10\0\x12\x0b\n\x07RUNN\
+    ING\x10\x01\x12\t\n\x05ERROR\x10\x02*+\n\x14PhoneStreamingCamera\x12\x08\
+    \n\x04BACK\x10\0\x12\t\n\x05FRONT\x10\x01*C\n\x14PhoneStreamingOutput\
+    \x12\n\n\x06STREAM\x10\0\x12\n\n\x06RECORD\x10\x01\x12\x13\n\x0fSTREAM_N\
+    _RECORD\x10\x02B+\n)ca.berlingoqc.growbe_android_module.protob\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;
