@@ -12362,6 +12362,1661 @@ impl ::protobuf::reflect::ProtobufValue for ComputerStreamingState {
     }
 }
 
+#[derive(PartialEq,Clone,Default)]
+pub struct ComputerStatsConfig {
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a ComputerStatsConfig {
+    fn default() -> &'a ComputerStatsConfig {
+        <ComputerStatsConfig as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl ComputerStatsConfig {
+    pub fn new() -> ComputerStatsConfig {
+        ::std::default::Default::default()
+    }
+}
+
+impl ::protobuf::Message for ComputerStatsConfig {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> ComputerStatsConfig {
+        ComputerStatsConfig::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let fields = ::std::vec::Vec::new();
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<ComputerStatsConfig>(
+                "ComputerStatsConfig",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static ComputerStatsConfig {
+        static instance: ::protobuf::rt::LazyV2<ComputerStatsConfig> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(ComputerStatsConfig::new)
+    }
+}
+
+impl ::protobuf::Clear for ComputerStatsConfig {
+    fn clear(&mut self) {
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for ComputerStatsConfig {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for ComputerStatsConfig {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
+pub struct CpuData {
+    // message fields
+    pub user: f32,
+    pub nice: f32,
+    pub system: f32,
+    pub interrupt: f32,
+    pub idle: f32,
+    pub temp: f32,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a CpuData {
+    fn default() -> &'a CpuData {
+        <CpuData as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl CpuData {
+    pub fn new() -> CpuData {
+        ::std::default::Default::default()
+    }
+
+    // float user = 1;
+
+
+    pub fn get_user(&self) -> f32 {
+        self.user
+    }
+    pub fn clear_user(&mut self) {
+        self.user = 0.;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_user(&mut self, v: f32) {
+        self.user = v;
+    }
+
+    // float nice = 2;
+
+
+    pub fn get_nice(&self) -> f32 {
+        self.nice
+    }
+    pub fn clear_nice(&mut self) {
+        self.nice = 0.;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_nice(&mut self, v: f32) {
+        self.nice = v;
+    }
+
+    // float system = 3;
+
+
+    pub fn get_system(&self) -> f32 {
+        self.system
+    }
+    pub fn clear_system(&mut self) {
+        self.system = 0.;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_system(&mut self, v: f32) {
+        self.system = v;
+    }
+
+    // float interrupt = 4;
+
+
+    pub fn get_interrupt(&self) -> f32 {
+        self.interrupt
+    }
+    pub fn clear_interrupt(&mut self) {
+        self.interrupt = 0.;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_interrupt(&mut self, v: f32) {
+        self.interrupt = v;
+    }
+
+    // float idle = 5;
+
+
+    pub fn get_idle(&self) -> f32 {
+        self.idle
+    }
+    pub fn clear_idle(&mut self) {
+        self.idle = 0.;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_idle(&mut self, v: f32) {
+        self.idle = v;
+    }
+
+    // float temp = 6;
+
+
+    pub fn get_temp(&self) -> f32 {
+        self.temp
+    }
+    pub fn clear_temp(&mut self) {
+        self.temp = 0.;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_temp(&mut self, v: f32) {
+        self.temp = v;
+    }
+}
+
+impl ::protobuf::Message for CpuData {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeFixed32 {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_float()?;
+                    self.user = tmp;
+                },
+                2 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeFixed32 {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_float()?;
+                    self.nice = tmp;
+                },
+                3 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeFixed32 {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_float()?;
+                    self.system = tmp;
+                },
+                4 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeFixed32 {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_float()?;
+                    self.interrupt = tmp;
+                },
+                5 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeFixed32 {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_float()?;
+                    self.idle = tmp;
+                },
+                6 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeFixed32 {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_float()?;
+                    self.temp = tmp;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if self.user != 0. {
+            my_size += 5;
+        }
+        if self.nice != 0. {
+            my_size += 5;
+        }
+        if self.system != 0. {
+            my_size += 5;
+        }
+        if self.interrupt != 0. {
+            my_size += 5;
+        }
+        if self.idle != 0. {
+            my_size += 5;
+        }
+        if self.temp != 0. {
+            my_size += 5;
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if self.user != 0. {
+            os.write_float(1, self.user)?;
+        }
+        if self.nice != 0. {
+            os.write_float(2, self.nice)?;
+        }
+        if self.system != 0. {
+            os.write_float(3, self.system)?;
+        }
+        if self.interrupt != 0. {
+            os.write_float(4, self.interrupt)?;
+        }
+        if self.idle != 0. {
+            os.write_float(5, self.idle)?;
+        }
+        if self.temp != 0. {
+            os.write_float(6, self.temp)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> CpuData {
+        CpuData::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeFloat>(
+                "user",
+                |m: &CpuData| { &m.user },
+                |m: &mut CpuData| { &mut m.user },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeFloat>(
+                "nice",
+                |m: &CpuData| { &m.nice },
+                |m: &mut CpuData| { &mut m.nice },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeFloat>(
+                "system",
+                |m: &CpuData| { &m.system },
+                |m: &mut CpuData| { &mut m.system },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeFloat>(
+                "interrupt",
+                |m: &CpuData| { &m.interrupt },
+                |m: &mut CpuData| { &mut m.interrupt },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeFloat>(
+                "idle",
+                |m: &CpuData| { &m.idle },
+                |m: &mut CpuData| { &mut m.idle },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeFloat>(
+                "temp",
+                |m: &CpuData| { &m.temp },
+                |m: &mut CpuData| { &mut m.temp },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<CpuData>(
+                "CpuData",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static CpuData {
+        static instance: ::protobuf::rt::LazyV2<CpuData> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(CpuData::new)
+    }
+}
+
+impl ::protobuf::Clear for CpuData {
+    fn clear(&mut self) {
+        self.user = 0.;
+        self.nice = 0.;
+        self.system = 0.;
+        self.interrupt = 0.;
+        self.idle = 0.;
+        self.temp = 0.;
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for CpuData {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for CpuData {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
+pub struct CpuLoadData {
+    // message fields
+    pub one: f32,
+    pub five: f32,
+    pub fifteen: f32,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a CpuLoadData {
+    fn default() -> &'a CpuLoadData {
+        <CpuLoadData as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl CpuLoadData {
+    pub fn new() -> CpuLoadData {
+        ::std::default::Default::default()
+    }
+
+    // float one = 1;
+
+
+    pub fn get_one(&self) -> f32 {
+        self.one
+    }
+    pub fn clear_one(&mut self) {
+        self.one = 0.;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_one(&mut self, v: f32) {
+        self.one = v;
+    }
+
+    // float five = 2;
+
+
+    pub fn get_five(&self) -> f32 {
+        self.five
+    }
+    pub fn clear_five(&mut self) {
+        self.five = 0.;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_five(&mut self, v: f32) {
+        self.five = v;
+    }
+
+    // float fifteen = 3;
+
+
+    pub fn get_fifteen(&self) -> f32 {
+        self.fifteen
+    }
+    pub fn clear_fifteen(&mut self) {
+        self.fifteen = 0.;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_fifteen(&mut self, v: f32) {
+        self.fifteen = v;
+    }
+}
+
+impl ::protobuf::Message for CpuLoadData {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeFixed32 {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_float()?;
+                    self.one = tmp;
+                },
+                2 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeFixed32 {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_float()?;
+                    self.five = tmp;
+                },
+                3 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeFixed32 {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_float()?;
+                    self.fifteen = tmp;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if self.one != 0. {
+            my_size += 5;
+        }
+        if self.five != 0. {
+            my_size += 5;
+        }
+        if self.fifteen != 0. {
+            my_size += 5;
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if self.one != 0. {
+            os.write_float(1, self.one)?;
+        }
+        if self.five != 0. {
+            os.write_float(2, self.five)?;
+        }
+        if self.fifteen != 0. {
+            os.write_float(3, self.fifteen)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> CpuLoadData {
+        CpuLoadData::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeFloat>(
+                "one",
+                |m: &CpuLoadData| { &m.one },
+                |m: &mut CpuLoadData| { &mut m.one },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeFloat>(
+                "five",
+                |m: &CpuLoadData| { &m.five },
+                |m: &mut CpuLoadData| { &mut m.five },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeFloat>(
+                "fifteen",
+                |m: &CpuLoadData| { &m.fifteen },
+                |m: &mut CpuLoadData| { &mut m.fifteen },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<CpuLoadData>(
+                "CpuLoadData",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static CpuLoadData {
+        static instance: ::protobuf::rt::LazyV2<CpuLoadData> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(CpuLoadData::new)
+    }
+}
+
+impl ::protobuf::Clear for CpuLoadData {
+    fn clear(&mut self) {
+        self.one = 0.;
+        self.five = 0.;
+        self.fifteen = 0.;
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for CpuLoadData {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for CpuLoadData {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
+pub struct MemoryData {
+    // message fields
+    pub total: f32,
+    pub free: f32,
+    pub platform: f32,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a MemoryData {
+    fn default() -> &'a MemoryData {
+        <MemoryData as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl MemoryData {
+    pub fn new() -> MemoryData {
+        ::std::default::Default::default()
+    }
+
+    // float total = 1;
+
+
+    pub fn get_total(&self) -> f32 {
+        self.total
+    }
+    pub fn clear_total(&mut self) {
+        self.total = 0.;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_total(&mut self, v: f32) {
+        self.total = v;
+    }
+
+    // float free = 2;
+
+
+    pub fn get_free(&self) -> f32 {
+        self.free
+    }
+    pub fn clear_free(&mut self) {
+        self.free = 0.;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_free(&mut self, v: f32) {
+        self.free = v;
+    }
+
+    // float platform = 3;
+
+
+    pub fn get_platform(&self) -> f32 {
+        self.platform
+    }
+    pub fn clear_platform(&mut self) {
+        self.platform = 0.;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_platform(&mut self, v: f32) {
+        self.platform = v;
+    }
+}
+
+impl ::protobuf::Message for MemoryData {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeFixed32 {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_float()?;
+                    self.total = tmp;
+                },
+                2 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeFixed32 {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_float()?;
+                    self.free = tmp;
+                },
+                3 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeFixed32 {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_float()?;
+                    self.platform = tmp;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if self.total != 0. {
+            my_size += 5;
+        }
+        if self.free != 0. {
+            my_size += 5;
+        }
+        if self.platform != 0. {
+            my_size += 5;
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if self.total != 0. {
+            os.write_float(1, self.total)?;
+        }
+        if self.free != 0. {
+            os.write_float(2, self.free)?;
+        }
+        if self.platform != 0. {
+            os.write_float(3, self.platform)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> MemoryData {
+        MemoryData::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeFloat>(
+                "total",
+                |m: &MemoryData| { &m.total },
+                |m: &mut MemoryData| { &mut m.total },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeFloat>(
+                "free",
+                |m: &MemoryData| { &m.free },
+                |m: &mut MemoryData| { &mut m.free },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeFloat>(
+                "platform",
+                |m: &MemoryData| { &m.platform },
+                |m: &mut MemoryData| { &mut m.platform },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<MemoryData>(
+                "MemoryData",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static MemoryData {
+        static instance: ::protobuf::rt::LazyV2<MemoryData> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(MemoryData::new)
+    }
+}
+
+impl ::protobuf::Clear for MemoryData {
+    fn clear(&mut self) {
+        self.total = 0.;
+        self.free = 0.;
+        self.platform = 0.;
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for MemoryData {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for MemoryData {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
+pub struct PowerData {
+    // message fields
+    pub power: f32,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a PowerData {
+    fn default() -> &'a PowerData {
+        <PowerData as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl PowerData {
+    pub fn new() -> PowerData {
+        ::std::default::Default::default()
+    }
+
+    // float power = 1;
+
+
+    pub fn get_power(&self) -> f32 {
+        self.power
+    }
+    pub fn clear_power(&mut self) {
+        self.power = 0.;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_power(&mut self, v: f32) {
+        self.power = v;
+    }
+}
+
+impl ::protobuf::Message for PowerData {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeFixed32 {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_float()?;
+                    self.power = tmp;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if self.power != 0. {
+            my_size += 5;
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if self.power != 0. {
+            os.write_float(1, self.power)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> PowerData {
+        PowerData::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeFloat>(
+                "power",
+                |m: &PowerData| { &m.power },
+                |m: &mut PowerData| { &mut m.power },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<PowerData>(
+                "PowerData",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static PowerData {
+        static instance: ::protobuf::rt::LazyV2<PowerData> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(PowerData::new)
+    }
+}
+
+impl ::protobuf::Clear for PowerData {
+    fn clear(&mut self) {
+        self.power = 0.;
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for PowerData {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for PowerData {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
+pub struct NetworkData {
+    // message fields
+    pub rx_bytes: f32,
+    pub tx_bytes: f32,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a NetworkData {
+    fn default() -> &'a NetworkData {
+        <NetworkData as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl NetworkData {
+    pub fn new() -> NetworkData {
+        ::std::default::Default::default()
+    }
+
+    // float rx_bytes = 1;
+
+
+    pub fn get_rx_bytes(&self) -> f32 {
+        self.rx_bytes
+    }
+    pub fn clear_rx_bytes(&mut self) {
+        self.rx_bytes = 0.;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_rx_bytes(&mut self, v: f32) {
+        self.rx_bytes = v;
+    }
+
+    // float tx_bytes = 2;
+
+
+    pub fn get_tx_bytes(&self) -> f32 {
+        self.tx_bytes
+    }
+    pub fn clear_tx_bytes(&mut self) {
+        self.tx_bytes = 0.;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_tx_bytes(&mut self, v: f32) {
+        self.tx_bytes = v;
+    }
+}
+
+impl ::protobuf::Message for NetworkData {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeFixed32 {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_float()?;
+                    self.rx_bytes = tmp;
+                },
+                2 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeFixed32 {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_float()?;
+                    self.tx_bytes = tmp;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if self.rx_bytes != 0. {
+            my_size += 5;
+        }
+        if self.tx_bytes != 0. {
+            my_size += 5;
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if self.rx_bytes != 0. {
+            os.write_float(1, self.rx_bytes)?;
+        }
+        if self.tx_bytes != 0. {
+            os.write_float(2, self.tx_bytes)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> NetworkData {
+        NetworkData::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeFloat>(
+                "rx_bytes",
+                |m: &NetworkData| { &m.rx_bytes },
+                |m: &mut NetworkData| { &mut m.rx_bytes },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeFloat>(
+                "tx_bytes",
+                |m: &NetworkData| { &m.tx_bytes },
+                |m: &mut NetworkData| { &mut m.tx_bytes },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<NetworkData>(
+                "NetworkData",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static NetworkData {
+        static instance: ::protobuf::rt::LazyV2<NetworkData> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(NetworkData::new)
+    }
+}
+
+impl ::protobuf::Clear for NetworkData {
+    fn clear(&mut self) {
+        self.rx_bytes = 0.;
+        self.tx_bytes = 0.;
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for NetworkData {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for NetworkData {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
+pub struct ComputerStatsData {
+    // message fields
+    pub uptime: f32,
+    pub cpu: ::protobuf::SingularPtrField<CpuData>,
+    pub loadavg: ::protobuf::SingularPtrField<CpuLoadData>,
+    pub swap: ::protobuf::SingularPtrField<MemoryData>,
+    pub memory: ::protobuf::SingularPtrField<MemoryData>,
+    pub netifs: ::protobuf::RepeatedField<NetworkData>,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a ComputerStatsData {
+    fn default() -> &'a ComputerStatsData {
+        <ComputerStatsData as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl ComputerStatsData {
+    pub fn new() -> ComputerStatsData {
+        ::std::default::Default::default()
+    }
+
+    // float uptime = 1;
+
+
+    pub fn get_uptime(&self) -> f32 {
+        self.uptime
+    }
+    pub fn clear_uptime(&mut self) {
+        self.uptime = 0.;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_uptime(&mut self, v: f32) {
+        self.uptime = v;
+    }
+
+    // .CpuData cpu = 2;
+
+
+    pub fn get_cpu(&self) -> &CpuData {
+        self.cpu.as_ref().unwrap_or_else(|| <CpuData as ::protobuf::Message>::default_instance())
+    }
+    pub fn clear_cpu(&mut self) {
+        self.cpu.clear();
+    }
+
+    pub fn has_cpu(&self) -> bool {
+        self.cpu.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_cpu(&mut self, v: CpuData) {
+        self.cpu = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_cpu(&mut self) -> &mut CpuData {
+        if self.cpu.is_none() {
+            self.cpu.set_default();
+        }
+        self.cpu.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_cpu(&mut self) -> CpuData {
+        self.cpu.take().unwrap_or_else(|| CpuData::new())
+    }
+
+    // .CpuLoadData loadavg = 3;
+
+
+    pub fn get_loadavg(&self) -> &CpuLoadData {
+        self.loadavg.as_ref().unwrap_or_else(|| <CpuLoadData as ::protobuf::Message>::default_instance())
+    }
+    pub fn clear_loadavg(&mut self) {
+        self.loadavg.clear();
+    }
+
+    pub fn has_loadavg(&self) -> bool {
+        self.loadavg.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_loadavg(&mut self, v: CpuLoadData) {
+        self.loadavg = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_loadavg(&mut self) -> &mut CpuLoadData {
+        if self.loadavg.is_none() {
+            self.loadavg.set_default();
+        }
+        self.loadavg.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_loadavg(&mut self) -> CpuLoadData {
+        self.loadavg.take().unwrap_or_else(|| CpuLoadData::new())
+    }
+
+    // .MemoryData swap = 4;
+
+
+    pub fn get_swap(&self) -> &MemoryData {
+        self.swap.as_ref().unwrap_or_else(|| <MemoryData as ::protobuf::Message>::default_instance())
+    }
+    pub fn clear_swap(&mut self) {
+        self.swap.clear();
+    }
+
+    pub fn has_swap(&self) -> bool {
+        self.swap.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_swap(&mut self, v: MemoryData) {
+        self.swap = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_swap(&mut self) -> &mut MemoryData {
+        if self.swap.is_none() {
+            self.swap.set_default();
+        }
+        self.swap.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_swap(&mut self) -> MemoryData {
+        self.swap.take().unwrap_or_else(|| MemoryData::new())
+    }
+
+    // .MemoryData memory = 5;
+
+
+    pub fn get_memory(&self) -> &MemoryData {
+        self.memory.as_ref().unwrap_or_else(|| <MemoryData as ::protobuf::Message>::default_instance())
+    }
+    pub fn clear_memory(&mut self) {
+        self.memory.clear();
+    }
+
+    pub fn has_memory(&self) -> bool {
+        self.memory.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_memory(&mut self, v: MemoryData) {
+        self.memory = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_memory(&mut self) -> &mut MemoryData {
+        if self.memory.is_none() {
+            self.memory.set_default();
+        }
+        self.memory.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_memory(&mut self) -> MemoryData {
+        self.memory.take().unwrap_or_else(|| MemoryData::new())
+    }
+
+    // repeated .NetworkData netifs = 6;
+
+
+    pub fn get_netifs(&self) -> &[NetworkData] {
+        &self.netifs
+    }
+    pub fn clear_netifs(&mut self) {
+        self.netifs.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_netifs(&mut self, v: ::protobuf::RepeatedField<NetworkData>) {
+        self.netifs = v;
+    }
+
+    // Mutable pointer to the field.
+    pub fn mut_netifs(&mut self) -> &mut ::protobuf::RepeatedField<NetworkData> {
+        &mut self.netifs
+    }
+
+    // Take field
+    pub fn take_netifs(&mut self) -> ::protobuf::RepeatedField<NetworkData> {
+        ::std::mem::replace(&mut self.netifs, ::protobuf::RepeatedField::new())
+    }
+}
+
+impl ::protobuf::Message for ComputerStatsData {
+    fn is_initialized(&self) -> bool {
+        for v in &self.cpu {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        for v in &self.loadavg {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        for v in &self.swap {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        for v in &self.memory {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        for v in &self.netifs {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeFixed32 {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_float()?;
+                    self.uptime = tmp;
+                },
+                2 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.cpu)?;
+                },
+                3 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.loadavg)?;
+                },
+                4 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.swap)?;
+                },
+                5 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.memory)?;
+                },
+                6 => {
+                    ::protobuf::rt::read_repeated_message_into(wire_type, is, &mut self.netifs)?;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if self.uptime != 0. {
+            my_size += 5;
+        }
+        if let Some(ref v) = self.cpu.as_ref() {
+            let len = v.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        }
+        if let Some(ref v) = self.loadavg.as_ref() {
+            let len = v.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        }
+        if let Some(ref v) = self.swap.as_ref() {
+            let len = v.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        }
+        if let Some(ref v) = self.memory.as_ref() {
+            let len = v.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        }
+        for value in &self.netifs {
+            let len = value.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        };
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if self.uptime != 0. {
+            os.write_float(1, self.uptime)?;
+        }
+        if let Some(ref v) = self.cpu.as_ref() {
+            os.write_tag(2, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        }
+        if let Some(ref v) = self.loadavg.as_ref() {
+            os.write_tag(3, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        }
+        if let Some(ref v) = self.swap.as_ref() {
+            os.write_tag(4, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        }
+        if let Some(ref v) = self.memory.as_ref() {
+            os.write_tag(5, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        }
+        for v in &self.netifs {
+            os.write_tag(6, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        };
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> ComputerStatsData {
+        ComputerStatsData::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeFloat>(
+                "uptime",
+                |m: &ComputerStatsData| { &m.uptime },
+                |m: &mut ComputerStatsData| { &mut m.uptime },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<CpuData>>(
+                "cpu",
+                |m: &ComputerStatsData| { &m.cpu },
+                |m: &mut ComputerStatsData| { &mut m.cpu },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<CpuLoadData>>(
+                "loadavg",
+                |m: &ComputerStatsData| { &m.loadavg },
+                |m: &mut ComputerStatsData| { &mut m.loadavg },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<MemoryData>>(
+                "swap",
+                |m: &ComputerStatsData| { &m.swap },
+                |m: &mut ComputerStatsData| { &mut m.swap },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<MemoryData>>(
+                "memory",
+                |m: &ComputerStatsData| { &m.memory },
+                |m: &mut ComputerStatsData| { &mut m.memory },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_repeated_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<NetworkData>>(
+                "netifs",
+                |m: &ComputerStatsData| { &m.netifs },
+                |m: &mut ComputerStatsData| { &mut m.netifs },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<ComputerStatsData>(
+                "ComputerStatsData",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static ComputerStatsData {
+        static instance: ::protobuf::rt::LazyV2<ComputerStatsData> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(ComputerStatsData::new)
+    }
+}
+
+impl ::protobuf::Clear for ComputerStatsData {
+    fn clear(&mut self) {
+        self.uptime = 0.;
+        self.cpu.clear();
+        self.loadavg.clear();
+        self.swap.clear();
+        self.memory.clear();
+        self.netifs.clear();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for ComputerStatsData {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for ComputerStatsData {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
 pub enum ActorType {
     MANUAL_USER_ACTOR = 0,
@@ -12953,25 +14608,43 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x20\x01(\tR\x06camera\x12-\n\x06output\x18\x03\x20\x01(\x0e2\x15.PhoneS\
     treamingOutputR\x06output\x12\x10\n\x03url\x18\x04\x20\x01(\tR\x03url\
     \x12\x1c\n\targuments\x18\x05\x20\x03(\tR\targuments\"2\n\x16ComputerStr\
-    eamingState\x12\x18\n\x07cameras\x18\x01\x20\x03(\tR\x07cameras*Z\n\tAct\
-    orType\x12\x15\n\x11MANUAL_USER_ACTOR\x10\0\x12\x12\n\x0eDURATION_ACTOR\
-    \x10\x01\x12\x0f\n\x0bALARM_ACTOR\x10\x02\x12\x11\n\rVIRTUAL_ACTOR\x10\
-    \x03*\x90\x01\n\x0fCalibrationStep\x12\x15\n\x11READY_CALIBRATION\x10\0\
-    \x12\x13\n\x0fLOW_CALIBRATION\x10\x01\x12\x14\n\x10HIGH_CALIBRATION\x10\
-    \x02\x12\x15\n\x11ERROR_CALIBRATION\x10\x03\x12$\n\x20WAITING_CONFIRMATI\
-    ON_CALIBRATION\x10\x04*y\n\x15CalibrationStepStatus\x12\x1b\n\x17INSUFFI\
-    SANT_DATA_STATUS\x10\0\x12\x17\n\x13ENOUGHT_DATA_STATUS\x10\x01\x12\x10\
-    \n\x0cERROR_STATUS\x10\x02\x12\x18\n\x14AWAITING_STEP_STATUS\x10\x03*r\n\
-    \x10CalibrationError\x12\x0e\n\nNONE_ERROR\x10\0\x12\x19\n\x15ALREADY_ST\
-    ARTED_ERROR\x10\x01\x12\x17\n\x13INSTABLE_DATA_ERROR\x10\x02\x12\x1a\n\
-    \x16NOT_ENOUGHT_DATA_ERROR\x10\x03*@\n\x0fRelayOutletMode\x12\n\n\x06MAN\
-    UAL\x10\0\x12\t\n\x05ALARM\x10\x01\x12\x0b\n\x07VIRTUAL\x10\x02\x12\t\n\
-    \x05CYCLE\x10\x03*;\n\x14PhoneStreamingStatus\x12\x0b\n\x07STOPPED\x10\0\
-    \x12\x0b\n\x07RUNNING\x10\x01\x12\t\n\x05ERROR\x10\x02*+\n\x14PhoneStrea\
-    mingCamera\x12\x08\n\x04BACK\x10\0\x12\t\n\x05FRONT\x10\x01*C\n\x14Phone\
-    StreamingOutput\x12\n\n\x06STREAM\x10\0\x12\n\n\x06RECORD\x10\x01\x12\
-    \x13\n\x0fSTREAM_N_RECORD\x10\x02B+\n)ca.berlingoqc.growbe_android_modul\
-    e.protob\x06proto3\
+    eamingState\x12\x18\n\x07cameras\x18\x01\x20\x03(\tR\x07cameras\"\x15\n\
+    \x13ComputerStatsConfig\"\x8f\x01\n\x07CpuData\x12\x12\n\x04user\x18\x01\
+    \x20\x01(\x02R\x04user\x12\x12\n\x04nice\x18\x02\x20\x01(\x02R\x04nice\
+    \x12\x16\n\x06system\x18\x03\x20\x01(\x02R\x06system\x12\x1c\n\tinterrup\
+    t\x18\x04\x20\x01(\x02R\tinterrupt\x12\x12\n\x04idle\x18\x05\x20\x01(\
+    \x02R\x04idle\x12\x12\n\x04temp\x18\x06\x20\x01(\x02R\x04temp\"M\n\x0bCp\
+    uLoadData\x12\x10\n\x03one\x18\x01\x20\x01(\x02R\x03one\x12\x12\n\x04fiv\
+    e\x18\x02\x20\x01(\x02R\x04five\x12\x18\n\x07fifteen\x18\x03\x20\x01(\
+    \x02R\x07fifteen\"R\n\nMemoryData\x12\x14\n\x05total\x18\x01\x20\x01(\
+    \x02R\x05total\x12\x12\n\x04free\x18\x02\x20\x01(\x02R\x04free\x12\x1a\n\
+    \x08platform\x18\x03\x20\x01(\x02R\x08platform\"!\n\tPowerData\x12\x14\n\
+    \x05power\x18\x01\x20\x01(\x02R\x05power\"C\n\x0bNetworkData\x12\x19\n\
+    \x08rx_bytes\x18\x01\x20\x01(\x02R\x07rxBytes\x12\x19\n\x08tx_bytes\x18\
+    \x02\x20\x01(\x02R\x07txBytes\"\xdb\x01\n\x11ComputerStatsData\x12\x16\n\
+    \x06uptime\x18\x01\x20\x01(\x02R\x06uptime\x12\x1a\n\x03cpu\x18\x02\x20\
+    \x01(\x0b2\x08.CpuDataR\x03cpu\x12&\n\x07loadavg\x18\x03\x20\x01(\x0b2\
+    \x0c.CpuLoadDataR\x07loadavg\x12\x1f\n\x04swap\x18\x04\x20\x01(\x0b2\x0b\
+    .MemoryDataR\x04swap\x12#\n\x06memory\x18\x05\x20\x01(\x0b2\x0b.MemoryDa\
+    taR\x06memory\x12$\n\x06netifs\x18\x06\x20\x03(\x0b2\x0c.NetworkDataR\
+    \x06netifs*Z\n\tActorType\x12\x15\n\x11MANUAL_USER_ACTOR\x10\0\x12\x12\n\
+    \x0eDURATION_ACTOR\x10\x01\x12\x0f\n\x0bALARM_ACTOR\x10\x02\x12\x11\n\rV\
+    IRTUAL_ACTOR\x10\x03*\x90\x01\n\x0fCalibrationStep\x12\x15\n\x11READY_CA\
+    LIBRATION\x10\0\x12\x13\n\x0fLOW_CALIBRATION\x10\x01\x12\x14\n\x10HIGH_C\
+    ALIBRATION\x10\x02\x12\x15\n\x11ERROR_CALIBRATION\x10\x03\x12$\n\x20WAIT\
+    ING_CONFIRMATION_CALIBRATION\x10\x04*y\n\x15CalibrationStepStatus\x12\
+    \x1b\n\x17INSUFFISANT_DATA_STATUS\x10\0\x12\x17\n\x13ENOUGHT_DATA_STATUS\
+    \x10\x01\x12\x10\n\x0cERROR_STATUS\x10\x02\x12\x18\n\x14AWAITING_STEP_ST\
+    ATUS\x10\x03*r\n\x10CalibrationError\x12\x0e\n\nNONE_ERROR\x10\0\x12\x19\
+    \n\x15ALREADY_STARTED_ERROR\x10\x01\x12\x17\n\x13INSTABLE_DATA_ERROR\x10\
+    \x02\x12\x1a\n\x16NOT_ENOUGHT_DATA_ERROR\x10\x03*@\n\x0fRelayOutletMode\
+    \x12\n\n\x06MANUAL\x10\0\x12\t\n\x05ALARM\x10\x01\x12\x0b\n\x07VIRTUAL\
+    \x10\x02\x12\t\n\x05CYCLE\x10\x03*;\n\x14PhoneStreamingStatus\x12\x0b\n\
+    \x07STOPPED\x10\0\x12\x0b\n\x07RUNNING\x10\x01\x12\t\n\x05ERROR\x10\x02*\
+    +\n\x14PhoneStreamingCamera\x12\x08\n\x04BACK\x10\0\x12\t\n\x05FRONT\x10\
+    \x01*C\n\x14PhoneStreamingOutput\x12\n\n\x06STREAM\x10\0\x12\n\n\x06RECO\
+    RD\x10\x01\x12\x13\n\x0fSTREAM_N_RECORD\x10\x02B+\n)ca.berlingoqc.growbe\
+    _android_module.protob\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

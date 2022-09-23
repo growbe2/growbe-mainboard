@@ -17,5 +17,7 @@ lazy_static = "1.4.0"
 tokio-tungstenite = { version = "*" }
 futures-util = { version = "*" }
 
+systemstat = "=0.2.0"
+
 [build-dependencies]
 protoc-rust = "2.25.2"

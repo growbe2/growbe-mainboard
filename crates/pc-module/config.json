@@ -5,7 +5,7 @@
 	},
 	"modules": [
 		{
-			"name": "CCS",
+			"name": "CSS",
 			"port": 0
 		}
 	]
