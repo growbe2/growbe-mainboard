@@ -1,5 +1,5 @@
-/target
-/vendor
+target/
+vendor/
 /drivers/*.a
 /drivers/*.o
 .vscode/launch.json

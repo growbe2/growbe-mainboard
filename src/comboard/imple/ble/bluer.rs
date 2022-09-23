@@ -52,8 +52,6 @@ async fn find_our_service(device: &Device, config: &Option<Vec<String>>) -> Resu
 				return Ok(Some(characterisitcs));
 			}
 		}
-
-		println!("FAFA");
 	}
 
 	return Ok(None);

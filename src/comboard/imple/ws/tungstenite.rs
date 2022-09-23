@@ -1,4 +1,4 @@
-use std::sync::mpsc::Receiver;
+use std::{sync::mpsc::Receiver, str::from_utf8};
 
 use serde::{Deserialize, Serialize};
 use url::Url;
@@ -63,18 +63,24 @@ fn handle_device_loop(
     loop {
         match ws_stream.read_message() {
             Ok(data) => {
+            //if (data.is_ping() || data.is_pong()) { continue; }
             let data = data.into_data();
             match serde_json::from_slice::<WebSocketMessage>(&data) {
                 Ok(message) => {
                     match message.topic.as_str() {
                         TOPIC_MODULE_ID => {
                             module_id = message.payload.clone();
+                            log::info!("module_id {:?}", module_id);
                         }
                         TOPIC_MODULES => {
                             supported_modules =
                                 message.payload.split(";").map(|x| x.to_string()).collect();
+
+                            log::info!("supportedmodule_id {:?}", module_id);
                         }
-                        _ => {}
+                        _ => {
+                            log::info!("DADADADAD");
+                        }
                     }
 
                     if !connected && module_id != "" && supported_modules.len() > 0 {
@@ -87,7 +93,7 @@ fn handle_device_loop(
                     if module_id.is_empty() {
                         continue;
                     }
-                    if data[0] <= 10 {
+                    if data.len() > 0 && data[0] <= 10 {
                         comboard_send_value(
                             "ws".to_string(),
                             url.host_str().unwrap().to_string(),
@@ -96,7 +102,7 @@ fn handle_device_loop(
                         )
                         .unwrap();
                     } else {
-                        log::error!("error parsing json : {:?}", err);
+                        //log::error!("error parsing json : {:?}", err);
                     }
                 }
             }

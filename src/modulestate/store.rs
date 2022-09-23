@@ -1,6 +1,6 @@
 use std::sync::{Arc, Mutex};
 
-use crate::protos::module::{RelayModuleConfig, WCModuleConfig, SOILModuleConfig, PhoneStreamingConfig};
+use crate::protos::module::{RelayModuleConfig, WCModuleConfig, SOILModuleConfig, PhoneStreamingConfig, ComputerStreamingConfig};
 use crate::store::database;
 use protobuf::Message;
 
@@ -27,7 +27,6 @@ impl ModuleStateStore {
             },
             "AAB" => {
                 let result = self.get_module_config_inner(id, WCModuleConfig::parse_from_bytes);
-                log::debug!("{:?}", result);
                 if let Ok(d) = result {
                     Ok(Box::new(d) as Box<dyn Message>)
                 } else { Err(super::interface::ModuleError::new())}
@@ -40,6 +39,12 @@ impl ModuleStateStore {
             },
             "PCS" => {
                 let result = self.get_module_config_inner(id, PhoneStreamingConfig::parse_from_bytes);
+                if let Ok(config) = result {
+                    Ok(Box::new(config) as Box<dyn Message>)
+                } else { Err(super::interface::ModuleError::new())}
+            },
+            "CCS" => {
+                let result = self.get_module_config_inner(id, ComputerStreamingConfig::parse_from_bytes);
                 if let Ok(config) = result {
                     Ok(Box::new(config) as Box<dyn Message>)
                 } else { Err(super::interface::ModuleError::new())}

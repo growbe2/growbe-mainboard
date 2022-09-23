@@ -8,6 +8,9 @@ pub mod pac;
 pub mod pal;
 pub mod ppr;
 pub mod pcs;
+pub mod ccs;
+pub mod css;
+
 pub mod store;
 pub mod relay;
 pub mod interface;
@@ -27,7 +30,7 @@ use std::sync::{Mutex, Arc};
 use std::sync::mpsc::{Receiver, Sender,};
 use aab::AABValidator;
 
-use self::{relay::virtual_relay::handler::on_module_state_changed_virtual_relays, pac::PACValidator, ppo::PPOValidator, ppr::PPRValidator, pal::PALValidator, pcs::PCSValidator};
+use self::{relay::virtual_relay::handler::on_module_state_changed_virtual_relays, pac::PACValidator, ppo::PPOValidator, ppr::PPRValidator, pal::PALValidator, pcs::PCSValidator, ccs::CCSValidator, css::CSSValidator};
 
 lazy_static! {
     pub static ref CHANNEL_MODULE_STATE_CMD: (Mutex<Sender<ModuleStateCmd>>, Mutex<Receiver<ModuleStateCmd>>) = {
@@ -98,6 +101,10 @@ fn get_module_validator(module_type: &str ) -> Result<Box<dyn interface::ModuleV
         return Ok(Box::new(PALValidator::new()));
     } else if module_type == "PCS" {
         return Ok(Box::new(PCSValidator::new()));
+    } else if module_type == "CCS" {
+        return Ok(Box::new(CCSValidator::new()));
+    } else if module_type == "CSS" {
+        return Ok(Box::new(CSSValidator::new()));
     } else {
         return Err(interface::ModuleError::new().message("cannot find validator for module type".to_string()));
     }
@@ -297,8 +304,8 @@ fn handle_module_config(
         if let Ok(sender_config) = sender_config.get_sender(ComboardAddr { imple: module_ref.board.clone(), addr: module_ref.board_addr.clone() }) {
             match module_ref.validator.apply_parse_config(module_ref.port, t, data, &sender_config, &mut module_ref.handler_map) {
                 Ok((config, config_comboard)) => {
-                    store.store_module_config(&id, config);
                     sender_config.send(config_comboard).unwrap();
+                    store.store_module_config(&id, config);
                 },
                 Err(e) => log::error!("{}", e)
             }
