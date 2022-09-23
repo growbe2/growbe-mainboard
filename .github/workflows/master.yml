@@ -20,8 +20,12 @@ jobs:
         run: ./scripts/rust_env.sh cargo test
       - name: Build ARMv7
         run: ./scripts/rust_env.sh make -C ./drivers clean && ./scripts/rust_env.sh make -C ./drivers CC=arm-linux-gnueabihf-gcc && COMMIT=$(git rev-parse --short "$GITHUB_SHA") ./scripts/rust_env.sh cargo build --target armv7-unknown-linux-gnueabihf --release
+      - name: Build ARMv7 pc-module
+        run: ./scripts/rust_env.sh bash -c "COMMIT=$(git rev-parse --short "$GITHUB_SHA") cargo build -p growbe-pc-module --target armv7-unknown-linux-gnueabihf --release"
+      - name: Build pc-module linux
+        run: ./scripts/rust_env.sh bash -c "COMMIT=$(git rev-parse --short "$GITHUB_SHA") cargo build -p growbe-pc-module --release"
       - name: Create release folder
-        run: mkdir -p release && cp ./target/armv7-unknown-linux-gnueabihf/release/growbe-mainboard ./release/growbe-mainboard-arm-linux
+        run: mkdir -p release && cp ./target/armv7-unknown-linux-gnueabihf/release/growbe-mainboard ./release/growbe-mainboard-arm-linux && cp ./target/armv7-unknown-linux-gnueabihf/release/growbe-mainboard ./release/growbe-pc-module-arm-linux && cp ./target/release/growbe-pc-module ./release/growbe-pc-module-x86-linux
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"

@@ -7,6 +7,10 @@
 		{
 			"name": "CSS",
 			"port": 0
+		},
+		{
+			"name": "CCS",
+			"port": 1
 		}
 	]
 }
