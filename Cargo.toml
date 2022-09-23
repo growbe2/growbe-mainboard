@@ -15,6 +15,9 @@ http_server = ["warp"]
 pi = ["com_ws", "com_i2c"]
 pc = ["com_ws"]
 
+[workspace]
+members = [ "crates/*" ]
+
 
 [dependencies]
 chrono = "0.4.0"

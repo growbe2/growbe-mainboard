@@ -1,0 +1,12 @@
+{
+	"id": "123400000",
+	"logger": {
+		"target": "growbe_pc_module"
+	},
+	"modules": [
+		{
+			"name": "CCS",
+			"port": 0
+		}
+	]
+}
