@@ -1,6 +1,6 @@
 use std::sync::mpsc::Sender;
 
-use crate::{protos::{board::{HelloWord, RunningComboard,}}, mainboardstate::config::get_configuration_proto};
+use crate::{protos::{board::{HelloWord, RunningComboard,}}, mainboardstate::config::get_configuration_proto, plateform::uname::get_host_information};
 
 const VERSION: &'static str = env!("CARGO_PKG_VERSION");
 const SNAPSHOT_COMMIT: Option<&'static str> = option_env!("COMMIT");
@@ -16,6 +16,7 @@ pub async fn task_hello_world(
     let mut hello = get_hello_world();
     let config = get_configuration_proto();
     hello.boards = running_boards.try_into().unwrap();
+    hello.set_host(get_host_information());
     log::info!("hello world starting with version {}", hello.version);
     sender.send((String::from("/hello"), Box::new(hello))).unwrap();
     sender.send((String::from("/config"), Box::new(config))).unwrap();

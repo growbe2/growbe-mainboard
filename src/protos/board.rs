@@ -176,12 +176,382 @@ impl ::protobuf::reflect::ProtobufValue for GrowbeMainboardConfig {
 }
 
 #[derive(PartialEq,Clone,Default)]
+pub struct HostInformation {
+    // message fields
+    pub hostname: ::std::string::String,
+    pub kernel: ::std::string::String,
+    pub kernelVersion: ::std::string::String,
+    pub architecture: ::std::string::String,
+    pub os: ::std::string::String,
+    pub deviceType: ::std::string::String,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a HostInformation {
+    fn default() -> &'a HostInformation {
+        <HostInformation as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl HostInformation {
+    pub fn new() -> HostInformation {
+        ::std::default::Default::default()
+    }
+
+    // string hostname = 1;
+
+
+    pub fn get_hostname(&self) -> &str {
+        &self.hostname
+    }
+    pub fn clear_hostname(&mut self) {
+        self.hostname.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_hostname(&mut self, v: ::std::string::String) {
+        self.hostname = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_hostname(&mut self) -> &mut ::std::string::String {
+        &mut self.hostname
+    }
+
+    // Take field
+    pub fn take_hostname(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.hostname, ::std::string::String::new())
+    }
+
+    // string kernel = 2;
+
+
+    pub fn get_kernel(&self) -> &str {
+        &self.kernel
+    }
+    pub fn clear_kernel(&mut self) {
+        self.kernel.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_kernel(&mut self, v: ::std::string::String) {
+        self.kernel = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_kernel(&mut self) -> &mut ::std::string::String {
+        &mut self.kernel
+    }
+
+    // Take field
+    pub fn take_kernel(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.kernel, ::std::string::String::new())
+    }
+
+    // string kernelVersion = 3;
+
+
+    pub fn get_kernelVersion(&self) -> &str {
+        &self.kernelVersion
+    }
+    pub fn clear_kernelVersion(&mut self) {
+        self.kernelVersion.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_kernelVersion(&mut self, v: ::std::string::String) {
+        self.kernelVersion = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_kernelVersion(&mut self) -> &mut ::std::string::String {
+        &mut self.kernelVersion
+    }
+
+    // Take field
+    pub fn take_kernelVersion(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.kernelVersion, ::std::string::String::new())
+    }
+
+    // string architecture = 4;
+
+
+    pub fn get_architecture(&self) -> &str {
+        &self.architecture
+    }
+    pub fn clear_architecture(&mut self) {
+        self.architecture.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_architecture(&mut self, v: ::std::string::String) {
+        self.architecture = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_architecture(&mut self) -> &mut ::std::string::String {
+        &mut self.architecture
+    }
+
+    // Take field
+    pub fn take_architecture(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.architecture, ::std::string::String::new())
+    }
+
+    // string os = 5;
+
+
+    pub fn get_os(&self) -> &str {
+        &self.os
+    }
+    pub fn clear_os(&mut self) {
+        self.os.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_os(&mut self, v: ::std::string::String) {
+        self.os = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_os(&mut self) -> &mut ::std::string::String {
+        &mut self.os
+    }
+
+    // Take field
+    pub fn take_os(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.os, ::std::string::String::new())
+    }
+
+    // string deviceType = 6;
+
+
+    pub fn get_deviceType(&self) -> &str {
+        &self.deviceType
+    }
+    pub fn clear_deviceType(&mut self) {
+        self.deviceType.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_deviceType(&mut self, v: ::std::string::String) {
+        self.deviceType = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_deviceType(&mut self) -> &mut ::std::string::String {
+        &mut self.deviceType
+    }
+
+    // Take field
+    pub fn take_deviceType(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.deviceType, ::std::string::String::new())
+    }
+}
+
+impl ::protobuf::Message for HostInformation {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.hostname)?;
+                },
+                2 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.kernel)?;
+                },
+                3 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.kernelVersion)?;
+                },
+                4 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.architecture)?;
+                },
+                5 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.os)?;
+                },
+                6 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.deviceType)?;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if !self.hostname.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.hostname);
+        }
+        if !self.kernel.is_empty() {
+            my_size += ::protobuf::rt::string_size(2, &self.kernel);
+        }
+        if !self.kernelVersion.is_empty() {
+            my_size += ::protobuf::rt::string_size(3, &self.kernelVersion);
+        }
+        if !self.architecture.is_empty() {
+            my_size += ::protobuf::rt::string_size(4, &self.architecture);
+        }
+        if !self.os.is_empty() {
+            my_size += ::protobuf::rt::string_size(5, &self.os);
+        }
+        if !self.deviceType.is_empty() {
+            my_size += ::protobuf::rt::string_size(6, &self.deviceType);
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if !self.hostname.is_empty() {
+            os.write_string(1, &self.hostname)?;
+        }
+        if !self.kernel.is_empty() {
+            os.write_string(2, &self.kernel)?;
+        }
+        if !self.kernelVersion.is_empty() {
+            os.write_string(3, &self.kernelVersion)?;
+        }
+        if !self.architecture.is_empty() {
+            os.write_string(4, &self.architecture)?;
+        }
+        if !self.os.is_empty() {
+            os.write_string(5, &self.os)?;
+        }
+        if !self.deviceType.is_empty() {
+            os.write_string(6, &self.deviceType)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> HostInformation {
+        HostInformation::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "hostname",
+                |m: &HostInformation| { &m.hostname },
+                |m: &mut HostInformation| { &mut m.hostname },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "kernel",
+                |m: &HostInformation| { &m.kernel },
+                |m: &mut HostInformation| { &mut m.kernel },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "kernelVersion",
+                |m: &HostInformation| { &m.kernelVersion },
+                |m: &mut HostInformation| { &mut m.kernelVersion },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "architecture",
+                |m: &HostInformation| { &m.architecture },
+                |m: &mut HostInformation| { &mut m.architecture },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "os",
+                |m: &HostInformation| { &m.os },
+                |m: &mut HostInformation| { &mut m.os },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "deviceType",
+                |m: &HostInformation| { &m.deviceType },
+                |m: &mut HostInformation| { &mut m.deviceType },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<HostInformation>(
+                "HostInformation",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static HostInformation {
+        static instance: ::protobuf::rt::LazyV2<HostInformation> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(HostInformation::new)
+    }
+}
+
+impl ::protobuf::Clear for HostInformation {
+    fn clear(&mut self) {
+        self.hostname.clear();
+        self.kernel.clear();
+        self.kernelVersion.clear();
+        self.architecture.clear();
+        self.os.clear();
+        self.deviceType.clear();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for HostInformation {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for HostInformation {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
 pub struct HelloWord {
     // message fields
     pub version: ::std::string::String,
     pub cloudVersion: ::std::string::String,
     pub RTC: ::std::string::String,
     pub boards: ::protobuf::RepeatedField<RunningComboard>,
+    pub host: ::protobuf::SingularPtrField<HostInformation>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -300,11 +670,49 @@ impl HelloWord {
     pub fn take_boards(&mut self) -> ::protobuf::RepeatedField<RunningComboard> {
         ::std::mem::replace(&mut self.boards, ::protobuf::RepeatedField::new())
     }
+
+    // .HostInformation host = 5;
+
+
+    pub fn get_host(&self) -> &HostInformation {
+        self.host.as_ref().unwrap_or_else(|| <HostInformation as ::protobuf::Message>::default_instance())
+    }
+    pub fn clear_host(&mut self) {
+        self.host.clear();
+    }
+
+    pub fn has_host(&self) -> bool {
+        self.host.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_host(&mut self, v: HostInformation) {
+        self.host = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_host(&mut self) -> &mut HostInformation {
+        if self.host.is_none() {
+            self.host.set_default();
+        }
+        self.host.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_host(&mut self) -> HostInformation {
+        self.host.take().unwrap_or_else(|| HostInformation::new())
+    }
 }
 
 impl ::protobuf::Message for HelloWord {
     fn is_initialized(&self) -> bool {
         for v in &self.boards {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        for v in &self.host {
             if !v.is_initialized() {
                 return false;
             }
@@ -327,6 +735,9 @@ impl ::protobuf::Message for HelloWord {
                 },
                 4 => {
                     ::protobuf::rt::read_repeated_message_into(wire_type, is, &mut self.boards)?;
+                },
+                5 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.host)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -353,6 +764,10 @@ impl ::protobuf::Message for HelloWord {
             let len = value.compute_size();
             my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
         };
+        if let Some(ref v) = self.host.as_ref() {
+            let len = v.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -373,6 +788,11 @@ impl ::protobuf::Message for HelloWord {
             os.write_raw_varint32(v.get_cached_size())?;
             v.write_to_with_cached_sizes(os)?;
         };
+        if let Some(ref v) = self.host.as_ref() {
+            os.write_tag(5, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
     }
@@ -431,6 +851,11 @@ impl ::protobuf::Message for HelloWord {
                 |m: &HelloWord| { &m.boards },
                 |m: &mut HelloWord| { &mut m.boards },
             ));
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<HostInformation>>(
+                "host",
+                |m: &HelloWord| { &m.host },
+                |m: &mut HelloWord| { &mut m.host },
+            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<HelloWord>(
                 "HelloWord",
                 fields,
@@ -451,6 +876,7 @@ impl ::protobuf::Clear for HelloWord {
         self.cloudVersion.clear();
         self.RTC.clear();
         self.boards.clear();
+        self.host.clear();
         self.unknown_fields.clear();
     }
 }
@@ -2887,35 +3313,40 @@ impl ::protobuf::reflect::ProtobufValue for MainboardConfig {
 
 static file_descriptor_proto_data: &'static [u8] = b"\
     \n\x0bboard.proto\"9\n\x15GrowbeMainboardConfig\x12\x20\n\x0bhearthBeath\
-    \x18\x01\x20\x01(\x05R\x0bhearthBeath\"\x85\x01\n\tHelloWord\x12\x18\n\
-    \x07version\x18\x01\x20\x01(\tR\x07version\x12\"\n\x0ccloudVersion\x18\
-    \x02\x20\x01(\tR\x0ccloudVersion\x12\x10\n\x03RTC\x18\x03\x20\x01(\tR\
-    \x03RTC\x12(\n\x06boards\x18\x04\x20\x03(\x0b2\x10.RunningComboardR\x06b\
-    oards\"D\n\x0eVersionRelease\x12\x18\n\x07version\x18\x01\x20\x01(\tR\
-    \x07version\x12\x18\n\x07channel\x18\x02\x20\x01(\tR\x07channel\"G\n\rUp\
-    dateExecute\x12\x18\n\x07version\x18\x01\x20\x01(\tR\x07version\x12\x1c\
-    \n\trestarted\x18\x02\x20\x01(\x08R\trestarted\"\x10\n\x0eRestartRequest\
-    \"_\n\x0fLocalConnection\x12\x12\n\x04ssid\x18\x01\x20\x01(\tR\x04ssid\
-    \x12\x20\n\x0bsignalLevel\x18\x02\x20\x01(\x05R\x0bsignalLevel\x12\x16\n\
-    \x06ipAddr\x18\x03\x20\x01(\tR\x06ipAddr\"2\n\nMQTTConfig\x12\x10\n\x03u\
-    rl\x18\x01\x20\x01(\tR\x03url\x12\x12\n\x04port\x18\x02\x20\x01(\x05R\
-    \x04port\">\n\x0eComboardConfig\x12\x16\n\x06config\x18\x01\x20\x01(\tR\
-    \x06config\x12\x14\n\x05imple\x18\x02\x20\x01(\tR\x05imple\";\n\x0fRunni\
-    ngComboard\x12\x14\n\x05imple\x18\x01\x20\x01(\tR\x05imple\x12\x12\n\x04\
-    addr\x18\x02\x20\x01(\tR\x04addr\":\n\x10HttpServerConfig\x12\x12\n\x04a\
-    ddr\x18\x01\x20\x01(\tR\x04addr\x12\x12\n\x04port\x18\x02\x20\x01(\x05R\
-    \x04port\"&\n\x0cLoggerConfig\x12\x16\n\x06target\x18\x01\x20\x01(\tR\
-    \x06target\"a\n\rUpdaterConfig\x12\x1e\n\nautoupdate\x18\x01\x20\x01(\
-    \x08R\nautoupdate\x12\x18\n\x07channel\x18\x02\x20\x01(\tR\x07channel\
-    \x12\x16\n\x06reboot\x18\x03\x20\x01(\x08R\x06reboot\"\x98\x02\n\x0fMain\
-    boardConfig\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\x1f\n\x04mqtt\
-    \x18\x02\x20\x01(\x0b2\x0b.MQTTConfigR\x04mqtt\x12+\n\x08comboard\x18\
-    \x03\x20\x01(\x0b2\x0f.ComboardConfigR\x08comboard\x12-\n\tcomboards\x18\
-    \x07\x20\x03(\x0b2\x0f.ComboardConfigR\tcomboards\x12)\n\x06server\x18\
-    \x04\x20\x01(\x0b2\x11.HttpServerConfigR\x06server\x12%\n\x06logger\x18\
-    \x05\x20\x01(\x0b2\r.LoggerConfigR\x06logger\x12&\n\x06update\x18\x06\
-    \x20\x01(\x0b2\x0e.UpdaterConfigR\x06updateB+\n)ca.berlingoqc.growbe_and\
-    roid_module.protob\x06proto3\
+    \x18\x01\x20\x01(\x05R\x0bhearthBeath\"\xbf\x01\n\x0fHostInformation\x12\
+    \x1a\n\x08hostname\x18\x01\x20\x01(\tR\x08hostname\x12\x16\n\x06kernel\
+    \x18\x02\x20\x01(\tR\x06kernel\x12$\n\rkernelVersion\x18\x03\x20\x01(\tR\
+    \rkernelVersion\x12\"\n\x0carchitecture\x18\x04\x20\x01(\tR\x0carchitect\
+    ure\x12\x0e\n\x02os\x18\x05\x20\x01(\tR\x02os\x12\x1e\n\ndeviceType\x18\
+    \x06\x20\x01(\tR\ndeviceType\"\xab\x01\n\tHelloWord\x12\x18\n\x07version\
+    \x18\x01\x20\x01(\tR\x07version\x12\"\n\x0ccloudVersion\x18\x02\x20\x01(\
+    \tR\x0ccloudVersion\x12\x10\n\x03RTC\x18\x03\x20\x01(\tR\x03RTC\x12(\n\
+    \x06boards\x18\x04\x20\x03(\x0b2\x10.RunningComboardR\x06boards\x12$\n\
+    \x04host\x18\x05\x20\x01(\x0b2\x10.HostInformationR\x04host\"D\n\x0eVers\
+    ionRelease\x12\x18\n\x07version\x18\x01\x20\x01(\tR\x07version\x12\x18\n\
+    \x07channel\x18\x02\x20\x01(\tR\x07channel\"G\n\rUpdateExecute\x12\x18\n\
+    \x07version\x18\x01\x20\x01(\tR\x07version\x12\x1c\n\trestarted\x18\x02\
+    \x20\x01(\x08R\trestarted\"\x10\n\x0eRestartRequest\"_\n\x0fLocalConnect\
+    ion\x12\x12\n\x04ssid\x18\x01\x20\x01(\tR\x04ssid\x12\x20\n\x0bsignalLev\
+    el\x18\x02\x20\x01(\x05R\x0bsignalLevel\x12\x16\n\x06ipAddr\x18\x03\x20\
+    \x01(\tR\x06ipAddr\"2\n\nMQTTConfig\x12\x10\n\x03url\x18\x01\x20\x01(\tR\
+    \x03url\x12\x12\n\x04port\x18\x02\x20\x01(\x05R\x04port\">\n\x0eComboard\
+    Config\x12\x16\n\x06config\x18\x01\x20\x01(\tR\x06config\x12\x14\n\x05im\
+    ple\x18\x02\x20\x01(\tR\x05imple\";\n\x0fRunningComboard\x12\x14\n\x05im\
+    ple\x18\x01\x20\x01(\tR\x05imple\x12\x12\n\x04addr\x18\x02\x20\x01(\tR\
+    \x04addr\":\n\x10HttpServerConfig\x12\x12\n\x04addr\x18\x01\x20\x01(\tR\
+    \x04addr\x12\x12\n\x04port\x18\x02\x20\x01(\x05R\x04port\"&\n\x0cLoggerC\
+    onfig\x12\x16\n\x06target\x18\x01\x20\x01(\tR\x06target\"a\n\rUpdaterCon\
+    fig\x12\x1e\n\nautoupdate\x18\x01\x20\x01(\x08R\nautoupdate\x12\x18\n\
+    \x07channel\x18\x02\x20\x01(\tR\x07channel\x12\x16\n\x06reboot\x18\x03\
+    \x20\x01(\x08R\x06reboot\"\x98\x02\n\x0fMainboardConfig\x12\x0e\n\x02id\
+    \x18\x01\x20\x01(\tR\x02id\x12\x1f\n\x04mqtt\x18\x02\x20\x01(\x0b2\x0b.M\
+    QTTConfigR\x04mqtt\x12+\n\x08comboard\x18\x03\x20\x01(\x0b2\x0f.Comboard\
+    ConfigR\x08comboard\x12-\n\tcomboards\x18\x07\x20\x03(\x0b2\x0f.Comboard\
+    ConfigR\tcomboards\x12)\n\x06server\x18\x04\x20\x01(\x0b2\x11.HttpServer\
+    ConfigR\x06server\x12%\n\x06logger\x18\x05\x20\x01(\x0b2\r.LoggerConfigR\
+    \x06logger\x12&\n\x06update\x18\x06\x20\x01(\x0b2\x0e.UpdaterConfigR\x06\
+    updateB+\n)ca.berlingoqc.growbe_android_module.protob\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

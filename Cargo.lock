@@ -807,6 +807,7 @@ dependencies = [
  "tokio-stream",
  "tokio-util 0.6.9",
  "tungstenite",
+ "uname",
  "url",
  "uuid 1.1.2",
  "warp",
@@ -2524,6 +2525,14 @@ name = "typenum"
 version = "1.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b63708a265f51345575b27fe43f9500ad611579e764c79edbc2037b1121959ec"
+
+[[package]]
+name = "uname"
+version = "0.1.1"
+source = "git+https://github.com/icorderi/rust-uname#6d5a027fe201775b46a0daff12ccc40ad4520e8a"
+dependencies = [
+ "libc",
+]
 
 [[package]]
 name = "unicase"

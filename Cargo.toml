@@ -33,6 +33,7 @@ tokio = { version = "1.14", features = ["full", "time", "rt-multi-thread"] }
 tokio-util = "0.6.9"
 regex = "1.5"
 
+
 nix = { version = "0.23.0", optional = false }
 
 cty = { version = "0.2.2", optional = true }
@@ -53,7 +54,11 @@ tokio-stream = { version = "0.1.9", features = ["sync"], optional = true }
 [target.'cfg(any(target_os = "macos", target_os = "windows"))'.dependencies]
 btleplug = { version = "0.10", features = ["serde"], optional = true }
 
+[target.'cfg(target_os = "macos")'.dependencies]
+uname = { git = "https://github.com/icorderi/rust-uname" , optional = false }
+
 [target.'cfg(target_os = "linux")'.dependencies]
+uname = { git = "https://github.com/icorderi/rust-uname" , optional = false }
 bluer = {version = "0.15.0", features = ["bluetoothd"], optional = true}
 # for gpio
 rppal = { version = "0.13.1", optional = true }

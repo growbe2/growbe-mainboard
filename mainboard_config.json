@@ -1,17 +1,13 @@
 {
-	"id": "56837D",
+	"id": "837DAA",
 	"mqtt": {
-		"url": "broker.dev.growbe.ca",
-		"port": 1884
+		"url": "mainboard.growbe.ca",
+		"port": 30045
 	},
 	"comboards": [
 		{
 			"config": "./virtual-comboard.json",
 			"imple": "virt"
-		},
-		{
-			"config": "192.168.2.11",
-			"imple": "ws"
 		}
 	],
 	"server": {
