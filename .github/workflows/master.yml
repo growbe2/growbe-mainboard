@@ -35,7 +35,7 @@ jobs:
           files: |
             ./release/*
       - name: Send notification to the growbe-cloud
-        run: docker run --env API_URL=${{secrets.API_URL}} --env SSO_URL=${{secrets.SSO_URL}} --env PASSWORD=${{secrets.PASSWORD}} --env EMAIL=${{secrets.EMAIL}} docker.pkg.github.com/growbe2/growbe-cloud/growbe-cloud:1.2.5-SNAPSHOT-060422-03h-c5cba69 node ./dist/growbe-version.js latest
+        run: docker run --env API_URL=${{secrets.API_URL}} --env SSO_URL=${{secrets.SSO_URL}} --env PASSWORD=${{secrets.PASSWORD}} --env EMAIL=${{secrets.EMAIL}} docker.pkg.github.com/growbe2/growbe-cloud/growbe-cloud:1.2.9 node ./dist/growbe-version.js latest
       - name: Notify
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
