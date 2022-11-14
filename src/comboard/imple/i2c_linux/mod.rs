@@ -129,8 +129,10 @@ impl super::interface::ComboardClient for I2CLinuxComboardClient {
 
         log::info!("Starting comboard with config {} {}:{}", device, starting_port, ending_port);
 
-        PIHatControl::enable().unwrap();
-        PIHatControl::enable_led_hat();
+        match PIHatControl::enable() {
+            Ok(_) => PIHatControl::enable_led_hat(),
+            Err(_) => {}
+        }
 
         return tokio::spawn(async move {
          unsafe {
