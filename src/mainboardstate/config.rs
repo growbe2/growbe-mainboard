@@ -13,10 +13,12 @@ impl crate::modulestate::interface::ModuleValueParsable for crate::protos::board
 
 fn get_config_path() -> String {
 	let args: Vec<String> = std::env::args().collect();
-    if args.len() == 1 ||  args[1].is_empty() {
-        panic!("config not passed as args[1]");
+	// Last argument is always config if it's a file
+	let index = args.len() - 1;
+    if args.len() == 0 ||  args[index].is_empty() {
+        panic!("config not passed as last argument");
     }
-	return args[1].clone()
+	return args[index].clone()
 }
 
 fn get_default_comboards() -> Vec<crate::comboard::config::ComboardConfig> {
@@ -32,11 +34,16 @@ fn get_default_comboard() -> crate::comboard::config::ComboardConfig {
 
 lazy_static::lazy_static! {
 	pub static ref CONFIG: MainboardProcessConfig = {
-	    return get(&get_config_path()).unwrap();
+	    return match get(&get_config_path()) {
+			Ok(config) => config,
+			Err(_) => {
+				return MainboardProcessConfig::default();
+			}
+		}
 	};
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Default)]
 pub struct MainboardProcessConfig {
     #[serde(default)] 
 	pub id: String,
@@ -55,9 +62,9 @@ pub struct MainboardProcessConfig {
 }
 
 
-pub fn get(config: &String) -> Result<MainboardProcessConfig, serde_json::Error>  {
-    let file = std::fs::File::open(config).expect("Error open file");
-    let scenario: MainboardProcessConfig = serde_json::from_reader(file)?;
+pub fn get(config: &String) -> Result<MainboardProcessConfig, ()>  {
+    let file = std::fs::File::open(config).map_err(|_| ())?;
+    let scenario: MainboardProcessConfig = serde_json::from_reader(file).map_err(|_| ())?;
     Ok(scenario)
 }
 

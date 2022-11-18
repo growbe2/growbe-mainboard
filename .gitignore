@@ -8,3 +8,6 @@ release/
 .idea
 *.sqlite
 proto/
+log_http.py
+.gitignore
+docker/config.mak

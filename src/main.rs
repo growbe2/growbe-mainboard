@@ -12,14 +12,18 @@ mod store;
 mod plateform;
 mod utils;
 mod server;
+mod cmd;
 
 use std::sync::{Mutex, Arc, mpsc::channel};
 
 use crate::{comboard::imple::channel::{ComboardConfigChannelManager, ComboardAddr}, protos::board::RunningComboard};
 
-
 #[tokio::main(flavor = "multi_thread")]
 async fn main() {
+
+    if let Some(()) = cmd::handle_command_line_arguments() {
+        return;
+    }
 
     logger::setup_log();
 

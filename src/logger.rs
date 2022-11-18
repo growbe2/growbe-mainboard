@@ -7,7 +7,7 @@ pub fn default_logger() -> LoggerConfig {
 	}
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Default)]
 pub struct LoggerConfig {
 	pub target: String,
     #[serde(default)] 

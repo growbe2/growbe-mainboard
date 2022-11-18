@@ -7,7 +7,7 @@ fn get_default_reboot() -> bool {
     false
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Default)]
 pub struct UpdateConfig {
     pub autoupdate: bool,
     pub channel: String,
