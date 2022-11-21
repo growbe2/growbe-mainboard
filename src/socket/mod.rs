@@ -336,8 +336,6 @@ pub fn socket_task(
                     client.publish(get_topic_prefix("/heartbeath"), QoS::ExactlyOnce, false, payload).unwrap();
 
                     last_send_instant = Instant::now();
-
-                    log::debug!("sending hearthbeath");
                }
             }
         }    
