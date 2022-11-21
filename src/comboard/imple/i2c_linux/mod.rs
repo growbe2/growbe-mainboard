@@ -9,18 +9,24 @@ use crate::comboard::imple::interface::{ModuleStateChangeEvent, ModuleValueValid
 
 use self::channel::{CHANNEL_CONFIG_I2C, Module_Config};
 
+use regex::Regex;
 use tokio::select;
 use rppal::gpio::Gpio;
 
 
-extern fn callback_state_changed(port: i32, id: *const ::std::os::raw::c_char, state: bool) -> () {
+lazy_static::lazy_static! {
+    static ref I2C_DEVICE_INDEX: Regex = Regex::new("i2c-([0-9])").unwrap();
+}
+
+
+extern fn callback_state_changed(device: i32, port: i32, id: *const ::std::os::raw::c_char, state: bool) -> () {
     let c_str: &CStr = unsafe { CStr::from_ptr(id) };
     let str_slice = c_str.to_str().unwrap();
 
     CHANNEL_STATE.0.lock().unwrap().send(
         ModuleStateChangeEvent{
             board: "i2c".to_string(),
-            board_addr: "/dev/i2c-1".to_string(),
+            board_addr: format!("/dev/i2c-{}", device),
             port: port,
             id: String::from(str_slice),
             state: state,
@@ -28,18 +34,18 @@ extern fn callback_state_changed(port: i32, id: *const ::std::os::raw::c_char, s
     ).unwrap();
 }
 
-extern fn callback_value_validation(port: i32, buffer: &[u8; 512]) -> () {
+extern fn callback_value_validation(device: i32, port: i32, buffer: &[u8; 512]) -> () {
     CHANNEL_VALUE.0.lock().unwrap().send(
         ModuleValueValidationEvent{
             port: port,
             board: "i2c".to_string(),
-            board_addr: "/dev/i2c-1".to_string(),
+            board_addr: format!("/dev/i2c-{}", device),
             buffer: buffer.to_vec(),
         }
     ).unwrap();
 }
 
-extern fn callback_config(config: *mut channel::Module_Config) {
+extern fn callback_config(device: i32, config: *mut channel::Module_Config) {
     if !config.is_null() {
         let value = CHANNEL_CONFIG_I2C.1.lock().unwrap().try_recv();
         if value.is_ok() {
@@ -61,13 +67,13 @@ extern fn callback_config(config: *mut channel::Module_Config) {
 #[link(name="mainboard_driver")]
 extern "C" {
     fn register_callback_comboard(
-        cb: extern fn(i32,*const ::std::os::raw::c_char,bool) -> (),
-        cb1: extern fn(i32, &[u8; 512]),
-        cb2: extern fn( *mut channel::Module_Config)
+        cb: extern fn(i32, i32,*const ::std::os::raw::c_char,bool) -> (),
+        cb1: extern fn(i32, i32, &[u8; 512]),
+        cb2: extern fn(i32, *mut channel::Module_Config)
     );
 
     // starting 
-    fn comboard_loop_body(starting_port: i32, ending_port: i32);
+    fn comboard_loop_body(device: i32, starting_port: i32, ending_port: i32);
     fn init(device: *const ::std::os::raw::c_char) -> i32;
 }
 
@@ -127,7 +133,19 @@ impl super::interface::ComboardClient for I2CLinuxComboardClient {
 
         let c = std::ffi::CString::new(device.as_str()).unwrap();
 
-        log::info!("Starting comboard with config {} {}:{}", device, starting_port, ending_port);
+        let device_index: i32 = if let Some(matches) = I2C_DEVICE_INDEX.captures(device.as_str()) {
+            println!("{:?}", matches);
+            if let Some(matc) = matches.get(1) {
+                matc.as_str().parse::<i32>().unwrap()
+            } else {
+                1
+            }
+        } else {
+            1
+        };
+
+
+        log::info!("Starting comboard with config {} {} {}:{}", device, device_index, starting_port, ending_port);
 
         match PIHatControl::enable() {
             Ok(_) => PIHatControl::enable_led_hat(),
@@ -151,7 +169,7 @@ impl super::interface::ComboardClient for I2CLinuxComboardClient {
                     }).unwrap();
                 }
 
-                comboard_loop_body(starting_port, ending_port);
+                comboard_loop_body(device_index, starting_port, ending_port);
             }
          }
          Ok(())

@@ -368,7 +368,7 @@ void I2cComLib_EnableSoloLed(char comPort,enum portstate PortState,enum overwrit
 
 int i = 0;
 
-void I2cComLib_SingleReadPortModuleInfo(char comPort) //PREMIERE FONCTION QUI VA CHERCHER LES INFOS DE LA MEMOIRE DES MODULEs
+void I2cComLib_SingleReadPortModuleInfo(int32_t device_index, char comPort) //PREMIERE FONCTION QUI VA CHERCHER LES INFOS DE LA MEMOIRE DES MODULEs
 {
 
 	bool result = false;
@@ -388,12 +388,12 @@ void I2cComLib_SingleReadPortModuleInfo(char comPort) //PREMIERE FONCTION QUI VA
 		if(result == true)
 		{
 			I2cComLib_EnableSoloLed(comPort,ONLINE,STAYACTIVEOTHER, GREEN);
-			callback_state_changed(comPort, info->id, true);
+			callback_state_changed(device_index, comPort, info->id, true);
 		}
 		else
 		{
 			I2cComLib_EnableSoloLed(comPort,OFFLINE,STAYACTIVEOTHER, YELLOW);
-			callback_state_changed(comPort, info->id, false);
+			callback_state_changed(device_index, comPort, info->id, false);
 		}
 	}
 }
@@ -458,19 +458,19 @@ int init(const char* device) {
 }
 
 
-void comboard_loop_body(int32_t starting_port, int32_t ending_port) {
+void comboard_loop_body(int32_t device_index, int32_t starting_port, int32_t ending_port) {
 	static uint8_t da[512];
 
 	int data_read = -1;
 
     for (char comport = starting_port; comport < ending_port; ++comport)
     {
-    	I2cComLib_SingleReadPortModuleInfo(comport);
+    	I2cComLib_SingleReadPortModuleInfo(device_index, comport);
     }
 
 	Module_Config config;
 
-	callback_config_queue(&config);
+	callback_config_queue(device_index, &config);
 
 	for (int comport = starting_port; comport < ending_port; ++comport) {
 		data_read = -1;
@@ -519,7 +519,7 @@ void comboard_loop_body(int32_t starting_port, int32_t ending_port) {
 				}
 			}
 			if (data_read > -1) {
-				callback_value_validation(comport, da);
+				callback_value_validation(device_index, comport, da);
 			}
 
 			I2cComLib_CloseAllComPort();
