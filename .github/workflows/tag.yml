@@ -19,9 +19,11 @@ jobs:
       - name: Download vendors
         run: ./scripts/rust_env.sh cargo vendor && ./scripts/rust_env.sh make -C ./drivers
       - name: Build ARMv7
-        run: ./scripts/rust_env.sh make -C ./drivers clean && ./scripts/rust_env.sh make -C ./drivers CC=arm-linux-gnueabihf-gcc && ./scripts/rust_env.sh cargo build --target armv7-unknown-linux-gnueabihf --release
+        run: ./scripts/rust_env.sh make -C ./drivers clean && ./scripts/rust_env.sh make -C ./drivers CC=arm-linux-gnueabihf-gcc && ./scripts/rust_env.sh cargo build --target armv7-unknown-linux-gnueabihf --release --features "pi"
+      - name: Build x86
+        run: ./scripts/rust_env.sh cargo build --release --features "pc"
       - name: Create release folder
-        run: mkdir -p release && cp ./target/armv7-unknown-linux-gnueabihf/release/growbe-mainboard ./release/growbe-mainboard-arm-linux
+        run: mkdir -p release && cp ./target/armv7-unknown-linux-gnueabihf/release/growbe-mainboard ./release/growbe-mainboard-arm-linux && cp ./target/release/growbe-mainboard ./release/growbe-mainboard-x86-linux
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
@@ -31,7 +33,9 @@ jobs:
         id: tag
         run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
       - name: Send notification to the growbe-cloud
-        run: docker run --env API_URL=http://api.growbe.ca --env SSO_URL=https://auth.growbe.ca --env PASSWORD=${{secrets.PASSWORD}} --env EMAIL=${{secrets.EMAIL}} docker.pkg.github.com/growbe2/growbe-cloud/growbe-cloud:1.2.5-SNAPSHOT-060422-03h-c5cba69 node ./dist/growbe-version.js ${{ steps.tag.outputs.result  }}
+        run: .github/notify-version.sh
+        env:
+          TOKEN: ${{ secrets.TOKEN }}
       - name: Notify
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
