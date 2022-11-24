@@ -1,5 +1,6 @@
 
 pub mod mqtt;
+pub mod http;
 
 
 use std::sync::mpsc::{Receiver};
@@ -56,6 +57,14 @@ fn on_set_rtc(_topic_name: String, _data: Arc<Vec<u8>>) -> Result<Option<(String
 fn on_update(_topic_name: String, data: Arc<Vec<u8>>) -> Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError> {
     let payload = crate::protos::board::VersionRelease::parse_from_bytes(&data).unwrap();
     let update_executed_result = crate::mainboardstate::update::handle_version_update(&payload);
+    if let Some(update_executed) = update_executed_result {
+        return Ok(Some((format!("/growbe/{}/updated", crate::id::get()), update_executed.write_to_bytes().unwrap(), true)));
+    }
+    return Ok(None);
+}
+
+fn on_update_request(_topic_name: String, _data: Arc<Vec<u8>>) -> Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError> {
+    let update_executed_result = crate::mainboardstate::update::handle_version_update_request();
     if let Some(update_executed) = update_executed_result {
         return Ok(Some((format!("/growbe/{}/updated", crate::id::get()), update_executed.write_to_bytes().unwrap(), true)));
     }
@@ -167,6 +176,13 @@ pub fn socket_task(
             regex: "update",
             action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
             handler: on_update,
+            not_prefix: true,
+        },
+        MqttHandler{
+            subscription: "/update/request".to_string(),
+            regex: "update/request",
+            action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
+            handler: on_update_request,
             not_prefix: true,
         }
     );

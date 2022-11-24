@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use super::update::{UpdateConfig, get_default_update_config};
 use crate::server::config::get_default_server_config;
+use crate::socket::http::{get_default_api_config, APIConfig};
 use crate::logger::{LoggerConfig, default_logger};
 
 use crate::protos::{board::{MainboardConfig, MQTTConfig, HttpServerConfig, LoggerConfig as ProtoLoggerConfig, UpdaterConfig, ComboardConfig}};
@@ -59,6 +60,8 @@ pub struct MainboardProcessConfig {
 	pub logger: LoggerConfig,
 	#[serde(default = "get_default_update_config")]
 	pub update: UpdateConfig,
+    #[serde(default = "get_default_api_config")]
+    pub api: APIConfig,
 }
 
 
@@ -95,7 +98,8 @@ pub fn rewrite_configuration(config: MainboardConfig) -> () {
 			autoupdate: config.update.get_ref().autoupdate,
 			channel: config.update.get_ref().channel.clone(),
 			reboot: config.update.get_ref().reboot,
-		}
+		},
+		api: APIConfig { url: "https://api.growbe.ca".to_string() }
 	};
 
 	let d = serde_json::to_string_pretty(&config_json).unwrap();

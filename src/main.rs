@@ -18,6 +18,8 @@ use std::sync::{Mutex, Arc, mpsc::channel};
 
 use crate::{comboard::imple::channel::{ComboardConfigChannelManager, ComboardAddr}, protos::board::RunningComboard};
 
+use crate::mainboardstate::update::autoupdate;
+
 #[tokio::main(flavor = "multi_thread")]
 async fn main() {
 
@@ -28,6 +30,8 @@ async fn main() {
     logger::setup_log();
 
     log::info!("starting mainboard with id {}", id::get());
+
+    autoupdate();
 
     // Initializing database
     let conn_database = Arc::new(Mutex::new(store::database::init()));
