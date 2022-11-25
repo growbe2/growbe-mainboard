@@ -807,6 +807,7 @@ dependencies = [
  "cty",
  "env_logger",
  "futures 0.3.21",
+ "growbe_shared",
  "lazy_static",
  "log",
  "nix 0.23.0",
@@ -835,6 +836,7 @@ version = "0.1.11"
 dependencies = [
  "env_logger",
  "futures-util",
+ "growbe_shared",
  "lazy_static",
  "log",
  "protobuf",
@@ -844,6 +846,16 @@ dependencies = [
  "systemstat",
  "tokio 1.20.1",
  "tokio-tungstenite",
+]
+
+[[package]]
+name = "growbe_shared"
+version = "0.2.0"
+dependencies = [
+ "env_logger",
+ "lazy_static",
+ "log",
+ "serde",
 ]
 
 [[package]]

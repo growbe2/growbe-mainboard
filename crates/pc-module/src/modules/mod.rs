@@ -8,7 +8,7 @@ pub mod ccs;
 pub mod css;
 
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Default)]
 pub struct Module {
 	pub name: String,
 	pub port: i32,

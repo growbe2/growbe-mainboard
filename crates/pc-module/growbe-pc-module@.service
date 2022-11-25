@@ -1,0 +1,14 @@
+[Unit] 
+Description=Growbe pc module process for config %i
+After=network-online.target init-config.service
+StartLimitIntervalSec=0 
+
+[Service] 
+Type=simple 
+Restart=always 
+RestartSec=1
+WorkingDirectory=/opt/growbe
+ExecStart=/opt/growbe/growbe-pc-module ./%i.json
+
+[Install] 
+WantedBy=multi-user.target

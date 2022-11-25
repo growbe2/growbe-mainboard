@@ -4,7 +4,6 @@ use serde::{Deserialize, Serialize};
 use super::update::{UpdateConfig, get_default_update_config};
 use crate::server::config::get_default_server_config;
 use crate::socket::http::{get_default_api_config, APIConfig};
-use crate::logger::{LoggerConfig, default_logger};
 
 use crate::protos::{board::{MainboardConfig, MQTTConfig, HttpServerConfig, LoggerConfig as ProtoLoggerConfig, UpdaterConfig, ComboardConfig}};
 
@@ -12,14 +11,11 @@ impl crate::modulestate::interface::ModuleValue for crate::protos::board::Mainbo
 impl crate::modulestate::interface::ModuleValueParsable for crate::protos::board::MainboardConfig {}
 
 
-fn get_config_path() -> String {
-	let args: Vec<String> = std::env::args().collect();
-	// Last argument is always config if it's a file
-	let index = args.len() - 1;
-    if args.len() == 0 ||  args[index].is_empty() {
-        panic!("config not passed as last argument");
-    }
-	return args[index].clone()
+pub fn default_logger() -> growbe_shared::logger::LoggerConfig {
+	return growbe_shared::logger::LoggerConfig{
+		target: String::from("growbe_mainboard=warn"),
+		systemd: false,
+	}
 }
 
 fn get_default_comboards() -> Vec<crate::comboard::config::ComboardConfig> {
@@ -35,7 +31,7 @@ fn get_default_comboard() -> crate::comboard::config::ComboardConfig {
 
 lazy_static::lazy_static! {
 	pub static ref CONFIG: MainboardProcessConfig = {
-	    return match get(&get_config_path()) {
+	    return match get(&growbe_shared::config::get_config_path()) {
 			Ok(config) => config,
 			Err(_) => {
 				return MainboardProcessConfig::default();
@@ -57,7 +53,7 @@ pub struct MainboardProcessConfig {
     #[serde(default = "get_default_server_config")] 
 	pub server: crate::server::config::HttpServerConfig,
 	#[serde(default = "default_logger")]
-	pub logger: LoggerConfig,
+	pub logger: growbe_shared::logger::LoggerConfig,
 	#[serde(default = "get_default_update_config")]
 	pub update: UpdateConfig,
     #[serde(default = "get_default_api_config")]
@@ -73,7 +69,7 @@ pub fn get(config: &String) -> Result<MainboardProcessConfig, ()>  {
 
 
 pub fn rewrite_configuration(config: MainboardConfig) -> () {
-	let config_path = get_config_path();
+	let config_path = growbe_shared::config::get_config_path();
 
 	let config_json = MainboardProcessConfig{
 		id: config.id,
@@ -90,7 +86,7 @@ pub fn rewrite_configuration(config: MainboardConfig) -> () {
 			addr: config.server.get_ref().addr.clone(),
 			port: config.server.get_ref().port as u16,
 		},
-		logger: LoggerConfig{
+		logger: growbe_shared::logger::LoggerConfig{
 			target: config.logger.get_ref().target.clone(),
 			systemd: true,
 		},

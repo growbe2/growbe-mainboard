@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 pub const MSG_READ_MODULE_ID: &str = "READ_MODULE_ID";
 pub const MSG_READ_SUPPORTED_MODULES: &str = "READ_SUPPORTED_MODULES";
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Default)]
 pub struct WSServerConfig {
     pub addr: String,
     pub port: u16,

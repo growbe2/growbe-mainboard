@@ -45,7 +45,7 @@ struct MqttHandler {
 }
 
 fn get_topic_prefix(subtopic: & str) -> String {
-    return format!("/growbe/{}{}",crate::id::get(), subtopic);
+    return format!("/growbe/{}{}",growbe_shared::id::get(), subtopic);
 }
 
 fn on_set_rtc(_topic_name: String, _data: Arc<Vec<u8>>) -> Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError> {
@@ -58,7 +58,7 @@ fn on_update(_topic_name: String, data: Arc<Vec<u8>>) -> Result<Option<(String, 
     let payload = crate::protos::board::VersionRelease::parse_from_bytes(&data).unwrap();
     let update_executed_result = crate::mainboardstate::update::handle_version_update(&payload);
     if let Some(update_executed) = update_executed_result {
-        return Ok(Some((format!("/growbe/{}/updated", crate::id::get()), update_executed.write_to_bytes().unwrap(), true)));
+        return Ok(Some((format!("/growbe/{}/updated", growbe_shared::id::get()), update_executed.write_to_bytes().unwrap(), true)));
     }
     return Ok(None);
 }
@@ -66,7 +66,7 @@ fn on_update(_topic_name: String, data: Arc<Vec<u8>>) -> Result<Option<(String, 
 fn on_update_request(_topic_name: String, _data: Arc<Vec<u8>>) -> Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError> {
     let update_executed_result = crate::mainboardstate::update::handle_version_update_request();
     if let Some(update_executed) = update_executed_result {
-        return Ok(Some((format!("/growbe/{}/updated", crate::id::get()), update_executed.write_to_bytes().unwrap(), true)));
+        return Ok(Some((format!("/growbe/{}/updated", growbe_shared::id::get()), update_executed.write_to_bytes().unwrap(), true)));
     }
     return Ok(None);
 }
@@ -101,12 +101,12 @@ fn on_reboot(_topic_name: String, _data: Arc<Vec<u8>>) -> Result<Option<(String,
 
 fn on_helloworld(_topic_name: String, _data: Arc<Vec<u8>>) -> Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError> {
     let hello_world = crate::mainboardstate::hello_world::get_hello_world();
-    return Ok(Some((format!("/growbe/{}/hello", crate::id::get()), hello_world.write_to_bytes().unwrap(), true)));
+    return Ok(Some((format!("/growbe/{}/hello", growbe_shared::id::get()), hello_world.write_to_bytes().unwrap(), true)));
 }
 
 fn on_localconnection(_topic_name: String, _data: Arc<Vec<u8>>) -> Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError> {
     let local_connection = crate::mainboardstate::localconnection::get_local_connection();
-    return Ok(Some((format!("/growbe/{}/localconnection", crate::id::get()), local_connection.write_to_bytes().unwrap(), true)));
+    return Ok(Some((format!("/growbe/{}/localconnection", growbe_shared::id::get()), local_connection.write_to_bytes().unwrap(), true)));
 }
 
 fn on_setconfig(_topic_name: String, data: Arc<Vec<u8>>) -> Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError> {
@@ -204,7 +204,7 @@ pub fn socket_task(
         ("statusCalibration", true, ActionCode::SYNC_REQUEST)
     ];
 
-    let id_client = format!("pi-{}", crate::id::get());
+    let id_client = format!("pi-{}", growbe_shared::id::get());
 
 
     let (sender_action_response, receiver_action_response) = std::sync::mpsc::channel::<crate::protos::message::ActionResponse>();
@@ -232,13 +232,13 @@ pub fn socket_task(
             if handler.not_prefix {
                 client.subscribe(handler.subscription.as_str(),  QoS::ExactlyOnce).unwrap();
             } else {
-                client.subscribe(format!("/growbe/{}{}", crate::id::get(), handler.subscription),  QoS::ExactlyOnce).unwrap();
+                client.subscribe(format!("/growbe/{}{}", growbe_shared::id::get(), handler.subscription),  QoS::ExactlyOnce).unwrap();
             }
         });
 
         mapping_module.iter().for_each(|handler| {
             let suffix = if handler.1 == true { "/+" } else { "" };
-            let topic = format!("/growbe/{}/board/{}{}", crate::id::get(), handler.0, suffix);
+            let topic = format!("/growbe/{}/board/{}{}", growbe_shared::id::get(), handler.0, suffix);
             client.subscribe(topic,  QoS::ExactlyOnce).unwrap();
         });
 
@@ -320,18 +320,18 @@ pub fn socket_task(
                         },
                         Notification::Reconnection => {
                             log::warn!("mqtt reconnection");
-                            handlers.iter().for_each(|handler| client.subscribe(format!("/growbe/{}{}", crate::id::get(), handler.subscription),  QoS::ExactlyOnce).unwrap());
+                            handlers.iter().for_each(|handler| client.subscribe(format!("/growbe/{}{}", growbe_shared::id::get(), handler.subscription),  QoS::ExactlyOnce).unwrap());
                             handlers.iter().for_each(|handler| {
                                 if handler.not_prefix {
                                     client.subscribe(handler.subscription.as_str(),  QoS::ExactlyOnce).unwrap();
                                 } else {
-                                    client.subscribe(format!("/growbe/{}{}", crate::id::get(), handler.subscription),  QoS::ExactlyOnce).unwrap();
+                                    client.subscribe(format!("/growbe/{}{}", growbe_shared::id::get(), handler.subscription),  QoS::ExactlyOnce).unwrap();
                                 }
                             });
 
                             mapping_module.iter().for_each(|handler| {
                                 let suffix = if handler.1 == true { "/+" } else { "" };
-                                let topic = format!("/growbe/{}/board/{}{}", crate::id::get(), handler.0, suffix);
+                                let topic = format!("/growbe/{}/board/{}{}", growbe_shared::id::get(), handler.0, suffix);
                                 
                                 client.subscribe(topic,  QoS::ExactlyOnce).unwrap();
                             });

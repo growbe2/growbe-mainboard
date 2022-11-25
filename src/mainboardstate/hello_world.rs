@@ -2,7 +2,7 @@ use std::sync::mpsc::Sender;
 
 use crate::{protos::{board::{HelloWord, RunningComboard,}}, mainboardstate::config::get_configuration_proto, plateform::uname::get_host_information};
 
-use super::version::VERSION;
+use growbe_shared::version::VERSION;
 
 impl crate::modulestate::interface::ModuleValue for crate::protos::board::HelloWord {}
 impl crate::modulestate::interface::ModuleValueParsable for crate::protos::board::HelloWord {}

@@ -4,15 +4,12 @@ extern crate lazy_static;
 mod protos;
 mod comboard;
 mod socket;
-mod logger;
-mod id;
 mod mainboardstate;
 mod modulestate;
 mod store;
 mod plateform;
 mod utils;
 mod server;
-mod cmd;
 
 use std::sync::{Mutex, Arc, mpsc::channel};
 
@@ -23,13 +20,13 @@ use crate::mainboardstate::update::autoupdate;
 #[tokio::main(flavor = "multi_thread")]
 async fn main() {
 
-    if let Some(()) = cmd::handle_command_line_arguments() {
+    if let Some(()) = growbe_shared::cmd::handle_command_line_arguments() {
         return;
     }
 
-    logger::setup_log();
+    growbe_shared::logger::setup_log(&crate::mainboardstate::config::CONFIG.logger);
 
-    log::info!("starting mainboard with id {}", id::get());
+    log::info!("starting mainboard with id {}", growbe_shared::id::get());
 
     autoupdate();
 

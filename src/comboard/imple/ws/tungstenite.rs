@@ -5,7 +5,7 @@ use url::Url;
 
 use tungstenite::connect;
 
-use crate::{comboard::imple::channel::{comboard_send_state, comboard_send_value}, id::get};
+use crate::{comboard::imple::channel::{comboard_send_state, comboard_send_value}};
 
 #[derive(Serialize, Deserialize)]
 pub struct WebSocketMessage {
@@ -53,7 +53,7 @@ fn handle_device_loop(
     let mut supported_modules: Vec<String> = vec![];
 
 
-    let msg = WebSocketMessage::new("MAINBOARD_ID", &get());
+    let msg = WebSocketMessage::new("MAINBOARD_ID", &growbe_shared::id::get());
 
     if let Err(err) = ws_stream.write_message(tungstenite::Message::Text(serde_json::to_string(&msg).unwrap())) {
         log::error!("failed to send mainboard id to module : {:?}", err);

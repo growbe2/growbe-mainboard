@@ -4,7 +4,7 @@ use std::io::Write;
 use std::sync::mpsc::channel;
 use std::time::Duration;
 
-use crate::mainboardstate::version::VERSION;
+use growbe_shared::version::VERSION;
 use crate::socket::http::get_token;
 use crate::socket::http::get_api_url;
 

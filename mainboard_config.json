@@ -1,14 +1,17 @@
 {
-	"id": "837DAA",
 	"mqtt": {
 		"url": "mainboard.growbe.ca",
 		"port": 30045
 	},
 	"comboards": [
-		{
-			"config": "./virtual-comboard.json",
-			"imple": "virt"
-		}
+        {
+            "config": "localhost",
+            "imple": "ws"
+        },
+        {
+            "config": "192.168.2.25",
+            "imple": "ws"
+        }
 	],
 	"server": {
 		"addr": "0.0.0.0",
@@ -18,7 +21,7 @@
 		"target": "growbe_mainboard"
 	},
 	"update": {
-		"autoupdate": true,
+		"autoupdate": false,
 		"channel": "dev",
 		"reboot": false
 	}

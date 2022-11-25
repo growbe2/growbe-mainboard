@@ -2,12 +2,7 @@ use serde::{Deserialize, Serialize,};
 
 use std::io::Write;
 
-pub fn default_logger() -> LoggerConfig {
-	return LoggerConfig{
-		target: String::from("growbe_mainboard=warn"),
-		systemd: false,
-	}
-}
+
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct LoggerConfig {
@@ -17,9 +12,9 @@ pub struct LoggerConfig {
 }
 
 
-pub fn setup_log() {
+pub fn setup_log(config: &LoggerConfig) {
 	env_logger::Builder::from_env(
-		env_logger::Env::default().default_filter_or(crate::mainboardstate::config::CONFIG.logger.target.as_str())
+	env_logger::Env::default().default_filter_or(config.target.as_str())
 	)
 	.format(|buf, record| writeln!(buf, "[{} {}]: {}", record.target(), record.level(), record.args()))
 	.init();

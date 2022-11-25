@@ -1,5 +1,5 @@
 
-use std::{time::Duration, process::id};
+use std::{time::Duration};
 
 use tokio::net::TcpListener;
 use tokio_tungstenite::tungstenite::Message;
@@ -8,10 +8,9 @@ use crate::{config::CONFIG, modules::{Module, get_module_client}, channel::{Modu
 use futures_util::{future, pin_mut, stream::TryStreamExt, StreamExt, SinkExt};
 
 mod config;
-mod id;
-mod logger;
 mod modules;
 mod ws;
+mod id;
 mod channel;
 mod protos;
 
@@ -19,7 +18,9 @@ mod protos;
 
 #[tokio::main(flavor = "multi_thread")]
 async fn main() {
-    logger::setup_log();
+	if let Some(()) = growbe_shared::cmd::handle_command_line_arguments() { return; }
+
+    growbe_shared::logger::setup_log(&config::CONFIG.logger);
 
     log::info!("starting module with id {}", id::get());
 
