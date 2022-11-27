@@ -114,7 +114,7 @@ pub trait ModuleValueValidator: Downcast {
     // need to be option result
     fn convert_to_value(&mut self, value_event: &crate::comboard::imple::interface::ModuleValueValidationEvent) -> Result<Box<dyn ModuleValueParsable>, ModuleError>;
 
-    fn have_data_change(&self, current: &Box<dyn ModuleValueParsable>, last: &Box<dyn ModuleValueParsable>) -> (bool, Vec<super::alarm::model::ValueChange<i32>>);
+    fn have_data_change(&self, current: &Box<dyn ModuleValueParsable>, last: &Box<dyn ModuleValueParsable>) -> (bool, Vec<super::alarm::model::ValueChange<f32>>);
 
     fn handle_command_validator(
         &mut self,

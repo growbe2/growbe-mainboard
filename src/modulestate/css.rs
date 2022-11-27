@@ -37,7 +37,7 @@ impl super::interface::ModuleValueValidator for CSSValidator {
         return Ok(());
     }
 
-    fn have_data_change(&self, _current: &Box<dyn crate::modulestate::interface::ModuleValueParsable>, _last: &Box<dyn crate::modulestate::interface::ModuleValueParsable>) -> (bool, Vec<super::alarm::model::ValueChange<i32>>) {
+    fn have_data_change(&self, _current: &Box<dyn crate::modulestate::interface::ModuleValueParsable>, _last: &Box<dyn crate::modulestate::interface::ModuleValueParsable>) -> (bool, Vec<super::alarm::model::ValueChange<f32>>) {
         return (true, vec![]);
     }
 

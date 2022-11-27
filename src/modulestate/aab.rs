@@ -101,7 +101,7 @@ impl super::interface::ModuleValueValidator for AABValidator {
         ));
     }
 
-    fn have_data_change(&self, current: &Box<dyn crate::modulestate::interface::ModuleValueParsable>, last: &Box<dyn crate::modulestate::interface::ModuleValueParsable>) -> (bool, Vec<super::alarm::model::ValueChange<i32>>) {
+    fn have_data_change(&self, current: &Box<dyn crate::modulestate::interface::ModuleValueParsable>, last: &Box<dyn crate::modulestate::interface::ModuleValueParsable>) -> (bool, Vec<super::alarm::model::ValueChange<f32>>) {
         let current = current.as_any().downcast_ref::<WCModuleData>().unwrap();
         let last = last.as_any().downcast_ref::<WCModuleData>().unwrap();
 

@@ -26,8 +26,8 @@
 #[derive(PartialEq,Clone,Default)]
 pub struct AlarmZoneValue {
     // message fields
-    pub value: u32,
-    pub offset: u32,
+    pub value: f32,
+    pub offset: f32,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -44,33 +44,33 @@ impl AlarmZoneValue {
         ::std::default::Default::default()
     }
 
-    // uint32 value = 1;
+    // float value = 1;
 
 
-    pub fn get_value(&self) -> u32 {
+    pub fn get_value(&self) -> f32 {
         self.value
     }
     pub fn clear_value(&mut self) {
-        self.value = 0;
+        self.value = 0.;
     }
 
     // Param is passed by value, moved
-    pub fn set_value(&mut self, v: u32) {
+    pub fn set_value(&mut self, v: f32) {
         self.value = v;
     }
 
-    // uint32 offset = 2;
+    // float offset = 2;
 
 
-    pub fn get_offset(&self) -> u32 {
+    pub fn get_offset(&self) -> f32 {
         self.offset
     }
     pub fn clear_offset(&mut self) {
-        self.offset = 0;
+        self.offset = 0.;
     }
 
     // Param is passed by value, moved
-    pub fn set_offset(&mut self, v: u32) {
+    pub fn set_offset(&mut self, v: f32) {
         self.offset = v;
     }
 }
@@ -85,17 +85,17 @@ impl ::protobuf::Message for AlarmZoneValue {
             let (field_number, wire_type) = is.read_tag_unpack()?;
             match field_number {
                 1 => {
-                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                    if wire_type != ::protobuf::wire_format::WireTypeFixed32 {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
-                    let tmp = is.read_uint32()?;
+                    let tmp = is.read_float()?;
                     self.value = tmp;
                 },
                 2 => {
-                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                    if wire_type != ::protobuf::wire_format::WireTypeFixed32 {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
-                    let tmp = is.read_uint32()?;
+                    let tmp = is.read_float()?;
                     self.offset = tmp;
                 },
                 _ => {
@@ -110,11 +110,11 @@ impl ::protobuf::Message for AlarmZoneValue {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
-        if self.value != 0 {
-            my_size += ::protobuf::rt::value_size(1, self.value, ::protobuf::wire_format::WireTypeVarint);
+        if self.value != 0. {
+            my_size += 5;
         }
-        if self.offset != 0 {
-            my_size += ::protobuf::rt::value_size(2, self.offset, ::protobuf::wire_format::WireTypeVarint);
+        if self.offset != 0. {
+            my_size += 5;
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -122,11 +122,11 @@ impl ::protobuf::Message for AlarmZoneValue {
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if self.value != 0 {
-            os.write_uint32(1, self.value)?;
+        if self.value != 0. {
+            os.write_float(1, self.value)?;
         }
-        if self.offset != 0 {
-            os.write_uint32(2, self.offset)?;
+        if self.offset != 0. {
+            os.write_float(2, self.offset)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -166,12 +166,12 @@ impl ::protobuf::Message for AlarmZoneValue {
         static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
         descriptor.get(|| {
             let mut fields = ::std::vec::Vec::new();
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint32>(
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeFloat>(
                 "value",
                 |m: &AlarmZoneValue| { &m.value },
                 |m: &mut AlarmZoneValue| { &mut m.value },
             ));
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint32>(
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeFloat>(
                 "offset",
                 |m: &AlarmZoneValue| { &m.offset },
                 |m: &mut AlarmZoneValue| { &mut m.offset },
@@ -192,8 +192,8 @@ impl ::protobuf::Message for AlarmZoneValue {
 
 impl ::protobuf::Clear for AlarmZoneValue {
     fn clear(&mut self) {
-        self.value = 0;
-        self.offset = 0;
+        self.value = 0.;
+        self.offset = 0.;
         self.unknown_fields.clear();
     }
 }
@@ -646,8 +646,9 @@ pub struct FieldAlarmEvent {
     pub property: ::std::string::String,
     pub previousZone: AlarmZone,
     pub currentZone: AlarmZone,
-    pub currentValue: u32,
-    pub previousValue: u32,
+    pub currentValue: f32,
+    pub previousValue: f32,
+    pub changedAt: u32,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -746,34 +747,49 @@ impl FieldAlarmEvent {
         self.currentZone = v;
     }
 
-    // uint32 currentValue = 5;
+    // float currentValue = 5;
 
 
-    pub fn get_currentValue(&self) -> u32 {
+    pub fn get_currentValue(&self) -> f32 {
         self.currentValue
     }
     pub fn clear_currentValue(&mut self) {
-        self.currentValue = 0;
+        self.currentValue = 0.;
     }
 
     // Param is passed by value, moved
-    pub fn set_currentValue(&mut self, v: u32) {
+    pub fn set_currentValue(&mut self, v: f32) {
         self.currentValue = v;
     }
 
-    // uint32 previousValue = 6;
+    // float previousValue = 6;
 
 
-    pub fn get_previousValue(&self) -> u32 {
+    pub fn get_previousValue(&self) -> f32 {
         self.previousValue
     }
     pub fn clear_previousValue(&mut self) {
-        self.previousValue = 0;
+        self.previousValue = 0.;
     }
 
     // Param is passed by value, moved
-    pub fn set_previousValue(&mut self, v: u32) {
+    pub fn set_previousValue(&mut self, v: f32) {
         self.previousValue = v;
+    }
+
+    // uint32 changedAt = 7;
+
+
+    pub fn get_changedAt(&self) -> u32 {
+        self.changedAt
+    }
+    pub fn clear_changedAt(&mut self) {
+        self.changedAt = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_changedAt(&mut self, v: u32) {
+        self.changedAt = v;
     }
 }
 
@@ -799,18 +815,25 @@ impl ::protobuf::Message for FieldAlarmEvent {
                     ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.currentZone, 4, &mut self.unknown_fields)?
                 },
                 5 => {
-                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                    if wire_type != ::protobuf::wire_format::WireTypeFixed32 {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
-                    let tmp = is.read_uint32()?;
+                    let tmp = is.read_float()?;
                     self.currentValue = tmp;
                 },
                 6 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeFixed32 {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_float()?;
+                    self.previousValue = tmp;
+                },
+                7 => {
                     if wire_type != ::protobuf::wire_format::WireTypeVarint {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
                     let tmp = is.read_uint32()?;
-                    self.previousValue = tmp;
+                    self.changedAt = tmp;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -836,11 +859,14 @@ impl ::protobuf::Message for FieldAlarmEvent {
         if self.currentZone != AlarmZone::UNKNOW {
             my_size += ::protobuf::rt::enum_size(4, self.currentZone);
         }
-        if self.currentValue != 0 {
-            my_size += ::protobuf::rt::value_size(5, self.currentValue, ::protobuf::wire_format::WireTypeVarint);
+        if self.currentValue != 0. {
+            my_size += 5;
         }
-        if self.previousValue != 0 {
-            my_size += ::protobuf::rt::value_size(6, self.previousValue, ::protobuf::wire_format::WireTypeVarint);
+        if self.previousValue != 0. {
+            my_size += 5;
+        }
+        if self.changedAt != 0 {
+            my_size += ::protobuf::rt::value_size(7, self.changedAt, ::protobuf::wire_format::WireTypeVarint);
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -860,11 +886,14 @@ impl ::protobuf::Message for FieldAlarmEvent {
         if self.currentZone != AlarmZone::UNKNOW {
             os.write_enum(4, ::protobuf::ProtobufEnum::value(&self.currentZone))?;
         }
-        if self.currentValue != 0 {
-            os.write_uint32(5, self.currentValue)?;
+        if self.currentValue != 0. {
+            os.write_float(5, self.currentValue)?;
         }
-        if self.previousValue != 0 {
-            os.write_uint32(6, self.previousValue)?;
+        if self.previousValue != 0. {
+            os.write_float(6, self.previousValue)?;
+        }
+        if self.changedAt != 0 {
+            os.write_uint32(7, self.changedAt)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -924,15 +953,20 @@ impl ::protobuf::Message for FieldAlarmEvent {
                 |m: &FieldAlarmEvent| { &m.currentZone },
                 |m: &mut FieldAlarmEvent| { &mut m.currentZone },
             ));
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint32>(
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeFloat>(
                 "currentValue",
                 |m: &FieldAlarmEvent| { &m.currentValue },
                 |m: &mut FieldAlarmEvent| { &mut m.currentValue },
             ));
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint32>(
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeFloat>(
                 "previousValue",
                 |m: &FieldAlarmEvent| { &m.previousValue },
                 |m: &mut FieldAlarmEvent| { &mut m.previousValue },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint32>(
+                "changedAt",
+                |m: &FieldAlarmEvent| { &m.changedAt },
+                |m: &mut FieldAlarmEvent| { &mut m.changedAt },
             ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<FieldAlarmEvent>(
                 "FieldAlarmEvent",
@@ -954,8 +988,9 @@ impl ::protobuf::Clear for FieldAlarmEvent {
         self.property.clear();
         self.previousZone = AlarmZone::UNKNOW;
         self.currentZone = AlarmZone::UNKNOW;
-        self.currentValue = 0;
-        self.previousValue = 0;
+        self.currentValue = 0.;
+        self.previousValue = 0.;
+        self.changedAt = 0;
         self.unknown_fields.clear();
     }
 }
@@ -1036,22 +1071,23 @@ impl ::protobuf::reflect::ProtobufValue for AlarmZone {
 
 static file_descriptor_proto_data: &'static [u8] = b"\
     \n\x0balarm.proto\">\n\x0eAlarmZoneValue\x12\x14\n\x05value\x18\x01\x20\
-    \x01(\rR\x05value\x12\x16\n\x06offset\x18\x02\x20\x01(\rR\x06offset\"\
-    \xe4\x01\n\nFieldAlarm\x12\x1a\n\x08moduleId\x18\x01\x20\x01(\tR\x08modu\
-    leId\x12\x1a\n\x08property\x18\x02\x20\x01(\tR\x08property\x12)\n\x07ver\
-    yLow\x18\x03\x20\x01(\x0b2\x0f.AlarmZoneValueR\x07veryLow\x12!\n\x03low\
-    \x18\x04\x20\x01(\x0b2\x0f.AlarmZoneValueR\x03low\x12#\n\x04high\x18\x05\
-    \x20\x01(\x0b2\x0f.AlarmZoneValueR\x04high\x12+\n\x08veryHigh\x18\x06\
-    \x20\x01(\x0b2\x0f.AlarmZoneValueR\x08veryHigh\"\xf1\x01\n\x0fFieldAlarm\
-    Event\x12\x1a\n\x08moduleId\x18\x01\x20\x01(\tR\x08moduleId\x12\x1a\n\
-    \x08property\x18\x02\x20\x01(\tR\x08property\x12.\n\x0cpreviousZone\x18\
-    \x03\x20\x01(\x0e2\n.AlarmZoneR\x0cpreviousZone\x12,\n\x0bcurrentZone\
-    \x18\x04\x20\x01(\x0e2\n.AlarmZoneR\x0bcurrentZone\x12\"\n\x0ccurrentVal\
-    ue\x18\x05\x20\x01(\rR\x0ccurrentValue\x12$\n\rpreviousValue\x18\x06\x20\
-    \x01(\rR\rpreviousValue*S\n\tAlarmZone\x12\n\n\x06UNKNOW\x10\0\x12\n\n\
-    \x06MIDDLE\x10\x01\x12\x0c\n\x08VERY_LOW\x10\x02\x12\x07\n\x03LOW\x10\
-    \x03\x12\x08\n\x04HIGH\x10\x04\x12\r\n\tVERY_HIGH\x10\x05B+\n)ca.berling\
-    oqc.growbe_android_module.protob\x06proto3\
+    \x01(\x02R\x05value\x12\x16\n\x06offset\x18\x02\x20\x01(\x02R\x06offset\
+    \"\xe4\x01\n\nFieldAlarm\x12\x1a\n\x08moduleId\x18\x01\x20\x01(\tR\x08mo\
+    duleId\x12\x1a\n\x08property\x18\x02\x20\x01(\tR\x08property\x12)\n\x07v\
+    eryLow\x18\x03\x20\x01(\x0b2\x0f.AlarmZoneValueR\x07veryLow\x12!\n\x03lo\
+    w\x18\x04\x20\x01(\x0b2\x0f.AlarmZoneValueR\x03low\x12#\n\x04high\x18\
+    \x05\x20\x01(\x0b2\x0f.AlarmZoneValueR\x04high\x12+\n\x08veryHigh\x18\
+    \x06\x20\x01(\x0b2\x0f.AlarmZoneValueR\x08veryHigh\"\x8f\x02\n\x0fFieldA\
+    larmEvent\x12\x1a\n\x08moduleId\x18\x01\x20\x01(\tR\x08moduleId\x12\x1a\
+    \n\x08property\x18\x02\x20\x01(\tR\x08property\x12.\n\x0cpreviousZone\
+    \x18\x03\x20\x01(\x0e2\n.AlarmZoneR\x0cpreviousZone\x12,\n\x0bcurrentZon\
+    e\x18\x04\x20\x01(\x0e2\n.AlarmZoneR\x0bcurrentZone\x12\"\n\x0ccurrentVa\
+    lue\x18\x05\x20\x01(\x02R\x0ccurrentValue\x12$\n\rpreviousValue\x18\x06\
+    \x20\x01(\x02R\rpreviousValue\x12\x1c\n\tchangedAt\x18\x07\x20\x01(\rR\t\
+    changedAt*S\n\tAlarmZone\x12\n\n\x06UNKNOW\x10\0\x12\n\n\x06MIDDLE\x10\
+    \x01\x12\x0c\n\x08VERY_LOW\x10\x02\x12\x07\n\x03LOW\x10\x03\x12\x08\n\
+    \x04HIGH\x10\x04\x12\r\n\tVERY_HIGH\x10\x05B+\n)ca.berlingoqc.growbe_and\
+    roid_module.protob\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

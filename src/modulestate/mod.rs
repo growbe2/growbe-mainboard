@@ -190,8 +190,16 @@ fn handle_module_state(
                 let module_mut_ref = manager.connected_module.get_mut(state.id.as_str()).unwrap();
                 let bytes = Arc::new(config.unwrap().write_to_bytes().unwrap());
 
-                let sender_config = sender_comboard_config.get_sender(ComboardAddr { imple: module_mut_ref.board.clone(), addr: module_mut_ref.board_addr.clone() }).unwrap();
-                match module_mut_ref.validator.apply_parse_config(state.port, t, bytes, &sender_config, &mut module_mut_ref.handler_map) {
+                let sender_config = sender_comboard_config
+                    .get_sender(
+                        ComboardAddr { 
+                            imple: module_mut_ref.board.clone(),
+                            addr: module_mut_ref.board_addr.clone()
+                        }).unwrap();
+                match module_mut_ref.validator
+                    .apply_parse_config(
+                        state.port, t, bytes, &sender_config,
+                        &mut module_mut_ref.handler_map) {
                     Ok((_config, config_comboard)) => sender_config.send(config_comboard).unwrap(),
                     Err(e) => log::error!("validation error {}", e),
                 }
@@ -204,8 +212,8 @@ fn handle_module_state(
             if let Ok(mut alarms) = alarms_result {
                 log::info!("loading {} alarms for {}", alarms.len(), state.id.as_str());
                 for _n in 0..alarms.len() {
-                    let alarm = alarms.pop().unwrap();
-                    alarm_validator.register_field_alarm(alarm).unwrap();
+                    let (alarm, state) = alarms.pop().unwrap();
+                    alarm_validator.register_field_alarm(alarm, state).unwrap();
                 }
             }
     }
@@ -223,18 +231,19 @@ fn handle_module_state(
         if let Ok(mut alarms) = alarms_result {
             log::info!("removing {} alarms for {}", alarms.len(), state.id.as_str());
             for _n in 0..alarms.len() {
-                let alarm = alarms.pop().unwrap();
+                let (alarm,_) = alarms.pop().unwrap();
                 alarm_validator.deregister_field_alarm(alarm).unwrap();
             }
         }
    }
 }
 
-fn handle_module_value(
+fn handle_module_value<'a>(
     manager: & mut MainboardModuleStateManager,
     value: & ModuleValueValidationEvent,
     sender_socket: & Sender<(String, Box<dyn interface::ModuleValueParsable>)>,
     alarm_validator: & mut alarm::validator::AlarmFieldValidator,
+    alarm_store: &alarm::store::ModuleAlarmStore,
 ) -> () {
     let reference_connected_module_option = manager.get_module_at_index_mut(&value.board, &value.board_addr, value.port);
     if reference_connected_module_option.is_none() {
@@ -260,21 +269,24 @@ fn handle_module_value(
                     if let Ok(previous_value) = reference_connected_module.validator.convert_to_value(value) {
                         reference_connected_module.last_value = Some(previous_value);
 
-                        log::debug!("data have changed for {}", reference_connected_module.id.as_str());
+                        log::debug!("data have changed for {} len {}", reference_connected_module.id.as_str(), change.1.len());
 
                         if change.1.len() > 0 {
-                            let module_value_change = alarm::model::ModuleValueChange::<i32>{
+                            let module_value_change = alarm::model::ModuleValueChange::<f32>{
                                 module_id: reference_connected_module.id.clone(),
                                 changes: change.1
                             };
                             alarm_validator.on_module_value_change(&module_value_change).iter()
-                                .map(|event| Box::new(event))
-                                .for_each(|event| sender_socket.send((format!("/m/{}/alarm", event.moduleId), Box::new(event.clone_me()))).unwrap());
+                                .for_each(|(event, state)| { 
+                                    sender_socket.send((format!("/m/{}/alarm", event.moduleId), Box::new(event.clone_me()))).unwrap();
+                                    alarm_store.update_alarm_state(event.moduleId.as_str(), event.property.as_str(), &state).unwrap();
+                                });
                         }
                     }
                 }
             } else {
                 on_change(sensor_value);
+
                 if let Ok(previous_value) = reference_connected_module.validator.convert_to_value(value) {
                     reference_connected_module.last_value = Some(previous_value);
                 }
@@ -360,7 +372,7 @@ fn handle_add_alarm(
 ) -> Result<(), interface::ModuleError>  {
     let field_alarm = FieldAlarm::parse_from_bytes(&data).unwrap();
     alarm_store.add_alarm_field(&field_alarm).unwrap();
-    alarm_validator.register_field_alarm(field_alarm).unwrap();
+    alarm_validator.register_field_alarm(field_alarm, None).unwrap();
 
     return Ok(());
 }
@@ -373,7 +385,7 @@ fn handle_update_alarm(
 ) -> Result<(), interface::ModuleError>  {
     let field_alarm = FieldAlarm::parse_from_bytes(&data).unwrap();
     alarm_store.update_alarm_field(&field_alarm).unwrap();
-    alarm_validator.register_field_alarm(field_alarm).unwrap();
+    alarm_validator.register_field_alarm(field_alarm, None).unwrap();
 
     return Ok(());
 }
@@ -520,7 +532,7 @@ pub fn module_state_task(
                 let receive = receiver_value.try_recv();
                 if receive.is_ok() {
                     let value = receive.unwrap();
-                    handle_module_value(& mut manager, &value, &sender_socket, &mut alarm_validator);
+                    handle_module_value(& mut manager, &value, &sender_socket, &mut alarm_validator, &alarm_store);
                 }
             }
             {

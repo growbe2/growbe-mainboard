@@ -174,6 +174,11 @@ pub fn init() -> Connection {
 		[]
 	).unwrap();
 
+    conn.execute(
+        "ALTER TABLE module_field_alarm ADD COLUMN state BLOB DEFAULT null",
+        []
+    ).unwrap_or_default();
+
 	conn.execute(
 		"CREATE TABLE IF NOT EXISTS virtual_relay (
 			id	TEXT PRIMARY KEY,

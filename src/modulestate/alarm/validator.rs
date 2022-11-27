@@ -1,14 +1,15 @@
-use std::collections::HashMap;
-
 use crate::{modulestate::interface::ModuleError};
 use crate::protos::alarm::{FieldAlarm, FieldAlarmEvent, AlarmZone, AlarmZoneValue};
 use super::model::{ModuleValueChange, ModuleAlarmState};
 
+use std::collections::HashMap;
+
 
 pub struct StoreAlarmItem {
     pub field_alarm: FieldAlarm,
-    pub state: ModuleAlarmState<i32>,
+    pub state: ModuleAlarmState<f32>,
 }
+
 
 // AlarmFieldValidator is the class that validate 
 // the alarm state and trigger alarm when needed
@@ -24,11 +25,11 @@ impl AlarmFieldValidator {
         }
     }
 
-    fn get_value_zone(current: i32, low: &AlarmZoneValue, high: &AlarmZoneValue, current_zone: AlarmZone) -> AlarmZone {
-        let low_alarm = low.value as i32;
-        let low_offset = low.offset as i32;
-        let high_alarm = high.value as i32;
-        let high_offset = high.offset as i32;
+    fn get_value_zone(current: f32, low: &AlarmZoneValue, high: &AlarmZoneValue, current_zone: AlarmZone) -> AlarmZone {
+        let low_alarm = low.value;
+        let low_offset = low.offset;
+        let high_alarm = high.value;
+        let high_offset = high.offset;
 
         if current_zone == AlarmZone::MIDDLE {
             if current >= high_alarm + high_offset {
@@ -68,19 +69,25 @@ impl AlarmFieldValidator {
         }
     }
 
-    pub fn register_field_alarm(& mut self, alarm: FieldAlarm) -> Result<(), ModuleError> {
+    pub fn register_field_alarm(& mut self, alarm: FieldAlarm, state: Option<super::model::ModuleAlarmState<f32>>) -> Result<(), ModuleError> {
         let id = self.get_id(&alarm.moduleId, &alarm.property);
 
         log::info!("registering alarm on {}", id.as_str());
 
-        self.maps.insert(id, StoreAlarmItem{
-            state: ModuleAlarmState::<i32> {
+        let state = if let Some(state) = state {
+            state
+        } else {
+             ModuleAlarmState::<f32> {
                 property: alarm.property.clone(),
-                current_value: 0,
-                previous_value: 0,
-                last_diff: 0,
+                current_value: 0.,
+                previous_value: 0.,
+                last_diff: 0.,
                 zone: crate::protos::alarm::AlarmZone::UNKNOW
-            },
+            }
+        };
+
+        self.maps.insert(id, StoreAlarmItem{
+            state,
             field_alarm: alarm,
         });
 
@@ -89,38 +96,36 @@ impl AlarmFieldValidator {
     }
 
     pub fn on_module_value_change(
-        & mut self, change: &ModuleValueChange<i32>
-    ) -> Vec<FieldAlarmEvent> {
+        & mut self, change: &ModuleValueChange<f32>,
+    ) -> Vec<(FieldAlarmEvent, ModuleAlarmState<f32>)> {
 
-        let thise_change: Vec<FieldAlarmEvent> = change.changes.iter().filter_map(|value| {
+        log::info!("Got change {:?} {:?}", change.module_id.as_str(), change.changes.len());
+
+        return change.changes.iter().filter_map(|value| {
             let result = self.get_store_item(&change.module_id, &value.property);
             if let Some(item) = result {
-
                 let new_zone = AlarmFieldValidator::get_value_zone(value.current_value, item.field_alarm.get_low(), item.field_alarm.get_high(),item.state.zone);
 
+
                 if new_zone != AlarmZone::UNKNOW && new_zone != item.state.zone {
-                    log::debug!("transition from {:?} to {:?} {} {}", item.state.zone, new_zone, value.current_value, value.previous_value);
                     let mut event = FieldAlarmEvent::new();
                     event.property = value.property.clone();
-                    event.previousValue = item.state.previous_value as u32;
+                    event.previousValue = item.state.previous_value;
                     event.previousZone = item.state.zone;
-                    event.currentValue = value.current_value as u32;
+                    event.currentValue = value.current_value;
                     event.currentZone = new_zone;
                     event.moduleId = change.module_id.clone();
 
                     item.state.current_value = value.current_value;
                     item.state.zone = new_zone;
 
-                    return Some(event);
+                    return Some((event, item.state.clone()));
                 }
 
                 item.state.previous_value = value.current_value;
            }
-            return None;
+           return None;
         }).collect();
-
-
-        thise_change
     }
 
     fn get_store_item(& mut self, module_id: &String, property: &String) -> Option<& mut StoreAlarmItem>  {
@@ -143,30 +148,31 @@ mod tests {
     use super::*;
     use crate::protos::alarm::{FieldAlarm, AlarmZoneValue};
 
-    fn get_value_change(current: i32) -> ModuleValueChange<i32> {
-        ModuleValueChange::<i32>{
+
+    fn get_value_change(current: f32) -> ModuleValueChange<f32> {
+        ModuleValueChange::<f32>{
             module_id: "ABC".to_string(),
-            changes: vec![crate::modulestate::alarm::model::ValueChange::<i32>{
+            changes: vec![crate::modulestate::alarm::model::ValueChange::<f32>{
                 property: "p0".to_string(),
                 current_value: current,
-                previous_value: 0,
+                previous_value: 0.,
             }]
         }
     }
 
-    fn get_alarm(low_value: i32, high_value: i32, offset: i32) -> FieldAlarm {
+    fn get_alarm(low_value: f32, high_value: f32, offset: f32) -> FieldAlarm {
         let mut alarm = FieldAlarm::new();
         alarm.moduleId = "ABC".to_string();
         alarm.property = "p0".to_string();
 
         let mut low = AlarmZoneValue::new();
-        low.value = low_value as u32;
-        low.offset = offset as u32;
+        low.value = low_value;
+        low.offset = offset;
         alarm.low = protobuf::SingularPtrField::some(low);
 
         let mut high = AlarmZoneValue::new();
-        high.value = high_value as u32;
-        high.offset = offset as u32;
+        high.value = high_value;
+        high.offset = offset;
         alarm.high = protobuf::SingularPtrField::some(high);
 
 
@@ -177,7 +183,7 @@ mod tests {
     fn value_change_when_no_field_register_does_nothing() {
         let mut validator = AlarmFieldValidator::new();
 
-        let change = get_value_change(0 );
+        let change = get_value_change(0. );
 
         let events = validator.on_module_value_change(&change);
 
@@ -188,31 +194,32 @@ mod tests {
     fn value_change_high_no_multiple_trigger() {
         let mut validator = AlarmFieldValidator::new();
 
-        let alarm_field = get_alarm(30, 70, 3);
+        let alarm_field = get_alarm(30., 70., 3.);
 
-        let values = vec![30, 30, 32, 40, 50, 60, 70, 71, 72, 73, 72, 69, 70, 69, 70, 69, 68, 68, 67, 50, 50];
+        let values: Vec<f32> = vec![30., 30., 32., 40., 50., 60., 70., 71., 72., 73., 72., 69., 70., 69., 70., 69., 68., 68., 67., 50., 50.];
 
-        validator.register_field_alarm(alarm_field).unwrap();
+        validator.register_field_alarm(alarm_field, None).unwrap();
 
         let events: Vec<FieldAlarmEvent> = values.iter()
             .map(|x| validator.on_module_value_change(&get_value_change(*x)))
             .flat_map(|x| x)
+            .map(|x| x.0)
             .collect();
         
 
         assert_eq!(events.len(), 4);
 
         assert_eq!(events[0].currentZone, AlarmZone::LOW);
-        assert_eq!(events[0].previousValue, 0);
-        assert_eq!(events[0].currentValue, 30);
+        assert_eq!(events[0].previousValue, 0.);
+        assert_eq!(events[0].currentValue, 30.);
 
         assert_eq!(events[1].currentZone, AlarmZone::MIDDLE);
-        assert_eq!(events[1].previousValue, 32);
-        assert_eq!(events[1].currentValue, 40);
+        assert_eq!(events[1].previousValue, 32.);
+        assert_eq!(events[1].currentValue, 40.);
 
         assert_eq!(events[2].currentZone, AlarmZone::HIGH);
-        assert_eq!(events[2].previousValue, 72);
-        assert_eq!(events[2].currentValue, 73);
+        assert_eq!(events[2].previousValue, 72.);
+        assert_eq!(events[2].currentValue, 73.);
  
         assert_eq!(events[3].currentZone, AlarmZone::MIDDLE);
  
@@ -223,15 +230,16 @@ mod tests {
     fn value_change_low_no_multiple_trigger() {
         let mut validator = AlarmFieldValidator::new();
 
-        let alarm_field = get_alarm(30, 70, 3);
+        let alarm_field = get_alarm(30., 70., 3.);
 
-        let values = vec![50, 50 , 44, 54 , 23, 53, 31, 31, 30, 29, 28, 28, 28, 27, 26, 26, 24, 30, 31, 34];
+        let values: Vec<f32> = vec![50., 50., 44., 54., 23., 53., 31., 31., 30., 29., 28., 28., 28., 27., 26., 26., 24., 30., 31., 34.];
 
-        validator.register_field_alarm(alarm_field).unwrap();
+        validator.register_field_alarm(alarm_field, None).unwrap();
 
         let events: Vec<FieldAlarmEvent> = values.iter()
             .map(|x| validator.on_module_value_change(&get_value_change(*x)))
             .flat_map(|x| x)
+            .map(|x| x.0)
             .collect();
         
 

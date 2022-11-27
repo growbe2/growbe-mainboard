@@ -20,12 +20,15 @@ impl ModuleAlarmStore {
         };
     }
 
-    pub fn get_alarm_for_module(&self, module_id: &String) -> Result<Vec<FieldAlarm>, ModuleError> {
+    pub fn get_alarm_for_module(&self, module_id: &String) -> Result<Vec<(FieldAlarm, Option<super::model::ModuleAlarmState<f32>>)>, ModuleError> {
         let conn = self.conn.lock().unwrap();
-        let mut stmt = conn.prepare("SELECT config FROM module_field_alarm WHERE id = ?").unwrap();
+        let mut stmt = conn.prepare("SELECT config, state FROM module_field_alarm WHERE id = ?").unwrap();
         let vec_alarms = stmt.query_map([module_id.as_str()], |row| {
             let buffer: Vec<u8> = row.get(0).unwrap();
-            Ok(FieldAlarm::parse_from_bytes(&buffer).unwrap())
+            let buffer_state: Option<Vec<u8>> = row.get(1).unwrap();
+            let buffer_state = buffer_state.unwrap_or_default();
+            let state = if buffer_state.len() > 0 { Some(serde_json::from_slice(&buffer_state).unwrap()) } else { None };
+            Ok((FieldAlarm::parse_from_bytes(&buffer).unwrap(), state))
         }).unwrap().map(|i| i.unwrap()).collect();
         Ok(vec_alarms)
     }
@@ -34,6 +37,14 @@ impl ModuleAlarmStore {
         store_field_from_table_combine_key(&self.conn, "module_field_alarm", &alarm.moduleId.clone(), &alarm.property.clone(), alarm.write_to_bytes().unwrap());
         Ok(())
     }
+
+    pub fn update_alarm_state(&self, module_id: &str, property: &str, alarm_state: &super::model::ModuleAlarmState<f32>) -> Result<(), ModuleError> {
+        let payload = serde_json::to_vec(&alarm_state)
+            .map_err(|x| { log::error!("failed serialize module alarm state {:?}", x); return ModuleError::new()})?;
+        store_update_property_combine_key(&self.conn, "module_field_alarm", "state", module_id, property, payload);
+        Ok(())
+    }
+
 
     pub fn update_alarm_field(&self, alarm: &FieldAlarm) -> Result<(), ModuleError> {
         store_update_property_combine_key(&self.conn, "module_field_alarm", "config", &alarm.moduleId.clone(), &alarm.property.clone(), alarm.write_to_bytes().unwrap());
@@ -47,12 +58,10 @@ impl ModuleAlarmStore {
 }
 
 
-
 #[cfg(test)]
 mod tests {
 
     use super::*;
-    use rusqlite::{params};
     use std::sync::{Mutex, Arc};
     use crate::store::database::nbr_entry;
     use crate::protos::alarm::FieldAlarm;
@@ -72,7 +81,7 @@ mod tests {
     fn clear_store(store: &ModuleAlarmStore) {
         store.conn.lock().unwrap().execute(
             "DELETE FROM module_field_alarm",
-            params![]
+            []
         ).unwrap();
     }
 
@@ -87,6 +96,35 @@ mod tests {
         store.add_alarm_field(&field_alarm).unwrap();
 
         assert_eq!(nbr_entry(&store.conn, "module_field_alarm"), 1);
+
+        clear_store(&store);
+    }
+
+    #[test]
+    fn store_alarm_fiend_update_state() {
+        let store = get_store();
+
+        let mut field_alarm = FieldAlarm::new();
+        field_alarm.moduleId = MODULE_ID.to_string();
+        field_alarm.property = PROPERTY.to_string();
+
+        store.add_alarm_field(&field_alarm).unwrap();
+
+
+        let mut state = crate::modulestate::alarm::model::ModuleAlarmState::<f32>::default();
+        state.current_value = 5.;
+
+        store.update_alarm_state(
+            field_alarm.moduleId.as_str(),
+            field_alarm.property.as_str(),&state).unwrap();
+
+        let alarms = store.get_alarm_for_module(&field_alarm.moduleId).unwrap();
+
+        let (_field_alarm, state) = alarms.get(0).unwrap();
+
+        let state = state.as_ref().unwrap();
+
+        assert_eq!(state.current_value, 5.);
 
         clear_store(&store);
     }

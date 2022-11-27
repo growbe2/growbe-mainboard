@@ -94,35 +94,35 @@ impl super::interface::ModuleValueValidator for AASValidator {
         ));
     }
 
-    fn have_data_change(&self, current: &Box<dyn crate::modulestate::interface::ModuleValueParsable>, last: &Box<dyn crate::modulestate::interface::ModuleValueParsable>) -> (bool, Vec<super::alarm::model::ValueChange<i32>>) {
+    fn have_data_change(&self, current: &Box<dyn crate::modulestate::interface::ModuleValueParsable>, last: &Box<dyn crate::modulestate::interface::ModuleValueParsable>) -> (bool, Vec<super::alarm::model::ValueChange<f32>>) {
         let current = current.as_any().downcast_ref::<SOILModuleData>().unwrap();
         let last = last.as_any().downcast_ref::<SOILModuleData>().unwrap();
 
         let mut vec = Vec::new();
 
         if difference_of(current.p0, last.p0, 1) {
-            vec.push(super::alarm::model::ValueChange::<i32>{property: "p0".to_string(), current_value: current.p0, previous_value: last.p0});
+            vec.push(super::alarm::model::ValueChange::<f32>{property: "p0".to_string(), current_value: current.p0 as f32, previous_value: last.p0 as f32});
         }
         if difference_of(current.p1, last.p1, 1) {
-            vec.push(super::alarm::model::ValueChange::<i32>{property: "p1".to_string(), current_value: current.p1, previous_value: last.p1});
+            vec.push(super::alarm::model::ValueChange::<f32>{property: "p1".to_string(), current_value: current.p1 as f32, previous_value: last.p1 as f32});
         }
         if difference_of(current.p2, last.p2, 1) {
-            vec.push(super::alarm::model::ValueChange::<i32>{property: "p2".to_string(), current_value: current.p2, previous_value: last.p2});
+            vec.push(super::alarm::model::ValueChange::<f32>{property: "p2".to_string(), current_value: current.p2 as f32, previous_value: last.p2 as f32});
         }
         if difference_of(current.p3, last.p3, 1) {
-            vec.push(super::alarm::model::ValueChange::<i32>{property: "p3".to_string(), current_value: current.p3, previous_value: last.p3});
+            vec.push(super::alarm::model::ValueChange::<f32>{property: "p3".to_string(), current_value: current.p3 as f32, previous_value: last.p3 as f32});
         }
         if difference_of(current.p4, last.p4, 1) {
-            vec.push(super::alarm::model::ValueChange::<i32>{property: "p4".to_string(), current_value: current.p4, previous_value: last.p4});
+            vec.push(super::alarm::model::ValueChange::<f32>{property: "p4".to_string(), current_value: current.p4 as f32, previous_value: last.p4 as f32});
         }
         if difference_of(current.p5, last.p5, 1) {
-            vec.push(super::alarm::model::ValueChange::<i32>{property: "p5".to_string(), current_value: current.p5, previous_value: last.p5});
+            vec.push(super::alarm::model::ValueChange::<f32>{property: "p5".to_string(), current_value: current.p5 as f32, previous_value: last.p5 as f32});
         }
         if difference_of(current.p6, last.p6, 1) {
-            vec.push(super::alarm::model::ValueChange::<i32>{property: "p6".to_string(), current_value: current.p6, previous_value: last.p6});
+            vec.push(super::alarm::model::ValueChange::<f32>{property: "p6".to_string(), current_value: current.p6 as f32, previous_value: last.p6 as f32});
         }
         if difference_of(current.p7, last.p7, 1) {
-            vec.push(super::alarm::model::ValueChange::<i32>{property: "p7".to_string(), current_value: current.p7, previous_value: last.p7});
+            vec.push(super::alarm::model::ValueChange::<f32>{property: "p7".to_string(), current_value: current.p7 as f32, previous_value: last.p7 as f32});
         }
         if difference_of(current.timestamp, last.timestamp, 60) {
             return (true, vec);
