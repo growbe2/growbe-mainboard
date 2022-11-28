@@ -4,7 +4,6 @@ pub trait ModuleValueParsable: ModuleValue + protobuf::Message {}
 impl ModuleValue for crate::protos::module::ModuleData {}
 impl ModuleValueParsable for crate::protos::module::ModuleData {}
 
-
 pub const MODULE_NOT_FOUND: u32 = 404;
 pub const SENDER_NOT_FOUND: u32 = 405;
 pub const CMD_NOT_SUPPORTED: u32 = 400;
@@ -19,7 +18,7 @@ pub struct ModuleError {
 
 impl ModuleError {
     pub fn new() -> ModuleError {
-        return ModuleError{
+        return ModuleError {
             message: String::from(""),
             module_id: String::from(""),
             port: -1,
@@ -27,8 +26,8 @@ impl ModuleError {
         };
     }
 
-    pub fn not_found(module_id: &str)  -> ModuleError {
-        return ModuleError{
+    pub fn not_found(module_id: &str) -> ModuleError {
+        return ModuleError {
             message: String::from("module not found"),
             module_id: module_id.to_string(),
             port: -1,
@@ -37,12 +36,17 @@ impl ModuleError {
     }
 
     pub fn sender_not_found(module_id: &str) -> ModuleError {
-        return ModuleError { message: String::from("sender not found"), module_id: module_id.to_string(), port: -1, status: SENDER_NOT_FOUND }
+        return ModuleError {
+            message: String::from("sender not found"),
+            module_id: module_id.to_string(),
+            port: -1,
+            status: SENDER_NOT_FOUND,
+        };
     }
 
     pub fn message(mut self, message: String) -> ModuleError {
-       self.message = message;
-       self 
+        self.message = message;
+        self
     }
 
     pub fn status(mut self, status: u32) -> ModuleError {
@@ -61,7 +65,6 @@ impl ModuleError {
     }*/
 }
 
-
 pub struct ModuleStateCmd {
     pub cmd: &'static str,
     pub topic: String,
@@ -71,38 +74,38 @@ pub struct ModuleStateCmd {
 
 impl std::fmt::Display for ModuleError {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "[{}] at {} : {}", self.module_id, self.port, self.message.as_str())
+        write!(
+            f,
+            "[{}] at {} : {}",
+            self.module_id,
+            self.port,
+            self.message.as_str()
+        )
     }
 }
 
 pub trait Downcast {
-    fn as_any (self: &'_ Self)
-      -> &'_ dyn std::any::Any
+    fn as_any(self: &'_ Self) -> &'_ dyn std::any::Any
     where
-        Self : 'static,
-    ;
+        Self: 'static;
 
-    fn as_any_mut (self: &'_ mut Self)
-      -> &'_ mut dyn std::any::Any
+    fn as_any_mut(self: &'_ mut Self) -> &'_ mut dyn std::any::Any
     where
-        Self : 'static,
-    ;
+        Self: 'static;
 
     // others if needed
 }
 impl<T> Downcast for T {
-    fn as_any (self: &'_ Self)
-      -> &'_ dyn std::any::Any
+    fn as_any(self: &'_ Self) -> &'_ dyn std::any::Any
     where
-        Self : 'static,
+        Self: 'static,
     {
         self
     }
 
-    fn as_any_mut (self: &'_ mut Self)
-      -> &'_ mut dyn std::any::Any
+    fn as_any_mut(self: &'_ mut Self) -> &'_ mut dyn std::any::Any
     where
-        Self : 'static,
+        Self: 'static,
     {
         self
     }
@@ -112,9 +115,16 @@ impl<T> Downcast for T {
 
 pub trait ModuleValueValidator: Downcast {
     // need to be option result
-    fn convert_to_value(&mut self, value_event: &crate::comboard::imple::interface::ModuleValueValidationEvent) -> Result<Box<dyn ModuleValueParsable>, ModuleError>;
+    fn convert_to_value(
+        &mut self,
+        value_event: &crate::comboard::imple::interface::ModuleValueValidationEvent,
+    ) -> Result<Box<dyn ModuleValueParsable>, ModuleError>;
 
-    fn have_data_change(&self, current: &Box<dyn ModuleValueParsable>, last: &Box<dyn ModuleValueParsable>) -> (bool, Vec<super::alarm::model::ValueChange<f32>>);
+    fn have_data_change(
+        &self,
+        current: &Box<dyn ModuleValueParsable>,
+        last: &Box<dyn ModuleValueParsable>,
+    ) -> (bool, Vec<super::alarm::model::ValueChange<f32>>);
 
     fn handle_command_validator(
         &mut self,
@@ -122,14 +132,26 @@ pub trait ModuleValueValidator: Downcast {
         module_id: &String,
         data: std::sync::Arc<Vec<u8>>,
         sender_response: &std::sync::mpsc::Sender<crate::protos::message::ActionResponse>,
-        sender_socket: & std::sync::mpsc::Sender<(String, Box<dyn ModuleValueParsable>)>,
+        sender_socket: &std::sync::mpsc::Sender<(String, Box<dyn ModuleValueParsable>)>,
     ) -> Result<Option<Vec<ModuleStateCmd>>, ModuleError>;
 
     // need to be option result
-    fn apply_parse_config(&mut self, port: i32, t: &str, data: std::sync::Arc<Vec<u8>>,
-        sender_comboard_config: & std::sync::mpsc::Sender<crate::comboard::imple::channel::ModuleConfig>,
-        map_handler: & mut std::collections::HashMap<String, tokio_util::sync::CancellationToken>,
-    ) -> Result<(Box<dyn protobuf::Message>, crate::comboard::imple::channel::ModuleConfig), ModuleError>;
+    fn apply_parse_config(
+        &mut self,
+        port: i32,
+        t: &str,
+        data: std::sync::Arc<Vec<u8>>,
+        sender_comboard_config: &std::sync::mpsc::Sender<
+            crate::comboard::imple::channel::ModuleConfig,
+        >,
+        map_handler: &mut std::collections::HashMap<String, tokio_util::sync::CancellationToken>,
+    ) -> Result<
+        (
+            Box<dyn protobuf::Message>,
+            crate::comboard::imple::channel::ModuleConfig,
+        ),
+        ModuleError,
+    >;
 
     fn remove_config(&mut self) -> Result<(), ModuleError>;
 }

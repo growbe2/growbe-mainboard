@@ -1,10 +1,7 @@
-
-#[cfg(any(target_os = "macos", target_os = "windows"))]
-pub mod btleplug;
 #[cfg(target_os = "linux")]
 pub mod bluer;
-
-
+#[cfg(any(target_os = "macos", target_os = "windows"))]
+pub mod btleplug;
 
 use lazy_static::lazy_static;
 use uuid::Uuid;
@@ -12,7 +9,8 @@ use uuid::Uuid;
 use super::interface::ComboardClientConfig;
 
 const GROWBE_ANDROID_MODULE_SERVICE: Uuid = uuid::Uuid::from_u128(0xFEEDC0DE00002);
-const AND_SUPPORTED_MODULES_ID_CHARACTERISTIC: Uuid = uuid::uuid!("00000000-0000-0000-0000-ffff00000000");
+const AND_SUPPORTED_MODULES_ID_CHARACTERISTIC: Uuid =
+    uuid::uuid!("00000000-0000-0000-0000-ffff00000000");
 const AND_MODULE_ID_CHARACTERISTIC: Uuid = uuid::uuid!("00000000-0000-0000-0000-ffff00000002");
 const AND_POSITION_CHARACTERISTIC: Uuid = uuid::uuid!("00000000-0000-0000-0000-ffff00000003");
 const AND_ACCELERATION_CHARACTERISTIC: Uuid = uuid::uuid!("00000000-0000-0000-0000-ffff00000004");
@@ -28,12 +26,11 @@ lazy_static! {
     ];
 }
 
-
 #[derive(Debug)]
 pub struct BLEConnectedModule {
     pub id: String,
     pub activated_modules: Vec<String>,
-    pub supported_modules: Vec<String>
+    pub supported_modules: Vec<String>,
 }
 
 pub struct BLEComboardClient {
@@ -46,5 +43,7 @@ pub fn get_devices(str: String) -> Option<Vec<String>> {
 }
 
 pub fn get_ble_comboard(config: String) -> Box<BLEComboardClient> {
-    return Box::new(BLEComboardClient{config_comboard: ComboardClientConfig { config: config }});
+    return Box::new(BLEComboardClient {
+        config_comboard: ComboardClientConfig { config: config },
+    });
 }

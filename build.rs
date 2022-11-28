@@ -19,9 +19,8 @@ fn main() {
     }
     #[cfg(feature = "com_i2c")]
     {
-
         use std::process::Command;
-        
+
         Command::new("./scripts/rust_env.sh")
             .arg("make")
             .arg("-C")

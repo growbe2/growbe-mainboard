@@ -1,12 +1,12 @@
-
 use std::sync::mpsc::Receiver;
 
-use crate::comboard::imple::interface::{ModuleStateChangeEvent, ModuleValueValidationEvent, I2C_VIRT_ID};
+use crate::comboard::imple::interface::{
+    ModuleStateChangeEvent, ModuleValueValidationEvent, I2C_VIRT_ID,
+};
 
 use crate::comboard::imple::channel::*;
 
 use serde::{Deserialize, Serialize};
-
 
 fn default_index() -> i32 {
     return -1;
@@ -15,17 +15,17 @@ fn default_index() -> i32 {
 #[derive(Serialize, Deserialize)]
 struct VirtualScenarioItem {
     pub event_type: String,
-    #[serde(default)] 
+    #[serde(default)]
     pub port: i32,
-    #[serde(default)] 
+    #[serde(default)]
     pub id: String,
-    #[serde(default)] 
+    #[serde(default)]
     pub state: bool,
-    #[serde(default)] 
+    #[serde(default)]
     pub buffer: Vec<u8>,
-    #[serde(default = "default_index")] 
+    #[serde(default = "default_index")]
     pub return_index: i32,
-    #[serde(default)] 
+    #[serde(default)]
     pub timeout: u64, // in milliseconds
 }
 
@@ -34,24 +34,24 @@ struct VirtualScenario {
     pub actions: Vec<VirtualScenarioItem>,
 }
 
-
-fn get_config(config: &String) -> serde_json::Result<VirtualScenario>  {
+fn get_config(config: &String) -> serde_json::Result<VirtualScenario> {
     let file = std::fs::File::open(config).expect(config);
     let scenario: VirtualScenario = serde_json::from_reader(file)?;
     Ok(scenario)
 }
 
 pub struct VirtualComboardClient {
-    pub config_comboard: super::interface::ComboardClientConfig
+    pub config_comboard: super::interface::ComboardClientConfig,
 }
 
 impl super::interface::ComboardClient for VirtualComboardClient {
-
-    fn run(&self, receiver_config: Receiver<crate::comboard::imple::channel::ModuleConfig>) -> tokio::task::JoinHandle<Result<(), ()>> {
-
+    fn run(
+        &self,
+        receiver_config: Receiver<crate::comboard::imple::channel::ModuleConfig>,
+    ) -> tokio::task::JoinHandle<Result<(), ()>> {
         let sender_value = CHANNEL_VALUE.0.lock().unwrap().clone();
         let sender_state = CHANNEL_STATE.0.lock().unwrap().clone();
-        
+
         let config_board = self.config_comboard.config.clone();
 
         return tokio::spawn(async move {
@@ -62,49 +62,51 @@ impl super::interface::ComboardClient for VirtualComboardClient {
 
             // TODO reable with new channel
             while i < config.actions.len() {
-
                 // check if we have event to process config change
                 let config_request = receiver_config.try_recv();
                 if config_request.is_ok() {
                     let config = config_request.unwrap();
                     log::debug!("virtual comboard apply config {:?}", config.data);
 
-                    sender_value.send(
-                        ModuleValueValidationEvent{
+                    sender_value
+                        .send(ModuleValueValidationEvent {
                             board: I2C_VIRT_ID.to_string(),
                             board_addr: config_board.clone(),
                             port: config.port,
-                            buffer: config.data
-                        }
-                    ).unwrap();
+                            buffer: config.data,
+                        })
+                        .unwrap();
                 }
 
                 if waiting.is_none() {
-                    match config.actions[i].event_type.as_str() { 
+                    match config.actions[i].event_type.as_str() {
                         "state" => {
-                            sender_state.send(
-                                ModuleStateChangeEvent{
+                            sender_state
+                                .send(ModuleStateChangeEvent {
                                     board: I2C_VIRT_ID.to_string(),
                                     board_addr: config_board.clone(),
                                     port: config.actions[i].port,
                                     id: config.actions[i].id.clone(),
                                     state: config.actions[i].state,
-                                }
-                            ).unwrap();
-                        },
+                                })
+                                .unwrap();
+                        }
                         "value" => {
                             let new_buffer = config.actions[i].buffer.clone();
-                            sender_value.send(
-                                ModuleValueValidationEvent{
+                            sender_value
+                                .send(ModuleValueValidationEvent {
                                     board: I2C_VIRT_ID.to_string(),
                                     board_addr: config_board.clone(),
                                     port: config.actions[i].port,
                                     buffer: new_buffer,
-                            }
-                            ).unwrap();
-                        },
+                                })
+                                .unwrap();
+                        }
                         _ => {
-                            log::error!("invalid event type for action : {}", config.actions[i].event_type);
+                            log::error!(
+                                "invalid event type for action : {}",
+                                config.actions[i].event_type
+                            );
                         }
                     }
 
@@ -114,12 +116,15 @@ impl super::interface::ComboardClient for VirtualComboardClient {
                     }
 
                     if config.actions[i].return_index > -1 {
-                        i = config.actions[i].return_index as usize; 
+                        i = config.actions[i].return_index as usize;
                     } else {
                         i += 1;
                     }
                 } else {
-                    if waiting.is_some() && waiting.unwrap().elapsed() > std::time::Duration::from_millis(config.actions[i].timeout) {
+                    if waiting.is_some()
+                        && waiting.unwrap().elapsed()
+                            > std::time::Duration::from_millis(config.actions[i].timeout)
+                    {
                         waiting = None;
                     }
                 }

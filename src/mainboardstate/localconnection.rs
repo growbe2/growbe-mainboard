@@ -1,14 +1,19 @@
-use std::sync::mpsc::Sender;
 use crate::protos::board::LocalConnection;
+use std::sync::mpsc::Sender;
 
 impl crate::modulestate::interface::ModuleValue for crate::protos::board::LocalConnection {}
 impl crate::modulestate::interface::ModuleValueParsable for crate::protos::board::LocalConnection {}
 
 pub async fn task_local_connection(
-    sender: Sender<(String, Box<dyn crate::modulestate::interface::ModuleValueParsable>)>,
+    sender: Sender<(
+        String,
+        Box<dyn crate::modulestate::interface::ModuleValueParsable>,
+    )>,
 ) -> () {
     let local_connection = get_local_connection();
-    sender.send((String::from("/localconnection"), Box::new(local_connection))).unwrap();
+    sender
+        .send((String::from("/localconnection"), Box::new(local_connection)))
+        .unwrap();
 }
 
 pub fn get_local_connection() -> LocalConnection {

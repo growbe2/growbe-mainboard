@@ -1,10 +1,9 @@
-use std::sync::{Mutex};
-use std::sync::mpsc::{Sender, Receiver};
+use std::sync::mpsc::{Receiver, Sender};
+use std::sync::Mutex;
 
 use cty::{c_int, uint8_t};
 
 use crate::comboard::imple::channel::mutex_channel;
-
 
 #[repr(C)]
 pub struct Module_Config {
@@ -13,6 +12,5 @@ pub struct Module_Config {
 }
 
 lazy_static::lazy_static! {
-	pub static ref CHANNEL_CONFIG_I2C:(Mutex<Sender<Module_Config>>, Mutex<Receiver<Module_Config>>) = mutex_channel();
+    pub static ref CHANNEL_CONFIG_I2C:(Mutex<Sender<Module_Config>>, Mutex<Receiver<Module_Config>>) = mutex_channel();
 }
-

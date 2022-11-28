@@ -1,18 +1,16 @@
 pub mod alarm;
-pub mod cycle;
 pub mod configure;
+pub mod cycle;
 pub mod duration;
-pub mod virtual_relay;
 pub mod physical_relay;
+pub mod virtual_relay;
 
-use crate::protos::module::{RelayOutletData};
+use crate::protos::module::RelayOutletData;
 use protobuf::SingularPtrField;
-
 
 fn f(i: &usize, x: &mut [u8], value: u8) {
     x[*i] = value;
 }
-
 
 pub fn get_outlet_data(value: u8) -> SingularPtrField<RelayOutletData> {
     let mut data = RelayOutletData::new();
@@ -24,11 +22,9 @@ pub fn get_outlet_data(value: u8) -> SingularPtrField<RelayOutletData> {
     return SingularPtrField::some(data);
 }
 
-
 pub trait State {
-    fn set_state(&mut self, state: u8) -> Result<(),()>;
+    fn set_state(&mut self, state: u8) -> Result<(), ()>;
 }
-
 
 pub trait Relay: State + Send {
     fn id(&self) -> String;
@@ -36,5 +32,5 @@ pub trait Relay: State + Send {
 }
 
 pub trait BatchRelay: Relay {
-    fn execute(&self,) -> Result<(),()>;
+    fn execute(&self) -> Result<(), ()>;
 }

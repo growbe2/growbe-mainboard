@@ -3,32 +3,33 @@ use std::collections::HashMap;
 
 use std::sync::mpsc::Receiver;
 
-use tokio::select;
-use tokio_stream::StreamExt;
 use btleplug::api::{
-    Central, Manager as _, Peripheral, ScanFilter, CentralEvent,
-    CentralEvent::DeviceDisconnected
+    Central, CentralEvent, CentralEvent::DeviceDisconnected, Manager as _, Peripheral, ScanFilter,
 };
 use btleplug::platform::Manager;
+use tokio::select;
+use tokio_stream::StreamExt;
 
 use super::{
-	get_devices,
-	BLEComboardClient,
-	BLEConnectedModule,
-	GROWBE_ANDROID_MODULE_SERVICE,
-	AND_SUPPORTED_MODULES_ID_CHARACTERISTIC,
-	AND_MODULE_CHARACTERISTICS,
-	AND_MODULE_ID_CHARACTERISTIC
+    get_devices, BLEComboardClient, BLEConnectedModule, AND_MODULE_CHARACTERISTICS,
+    AND_MODULE_ID_CHARACTERISTIC, AND_SUPPORTED_MODULES_ID_CHARACTERISTIC,
+    GROWBE_ANDROID_MODULE_SERVICE,
 };
 
-
-use crate::comboard::imple::channel::{comboard_send_value, comboard_send_state};
+use crate::comboard::imple::channel::{comboard_send_state, comboard_send_value};
 
 fn on_module_disconnect(d: &PeripheralId, modules: &mut HashMap<PeripheralId, BLEConnectedModule>) {
     if let Some(module) = modules.get(d) {
         for (i, m) in module.activated_modules.iter().enumerate() {
             let module_id = m.clone() + &module.id;
-            comboard_send_state("ble".to_string(), "0".to_string(), i as i32, module_id, false).unwrap();
+            comboard_send_state(
+                "ble".to_string(),
+                "0".to_string(),
+                i as i32,
+                module_id,
+                false,
+            )
+            .unwrap();
         }
     }
     modules.remove(&d);
@@ -41,7 +42,6 @@ async fn read_connected_modules(
     let peripherals = adapter.peripherals().await.unwrap();
 
     'peripheral: for peripheral in peripherals.iter() {
-        
         if let Some(module) = modules.get(&peripheral.id()) {
             select! {
                 _ =  peripheral.discover_services() => {},
@@ -65,7 +65,7 @@ async fn read_connected_modules(
                 found_service = true;
                 for characteristic in service.characteristics {
                     let value = select! {
-                        v = peripheral.read(&characteristic) => { 
+                        v = peripheral.read(&characteristic) => {
                             if let Ok(value) = v {
                                 value
                             } else {
@@ -91,7 +91,13 @@ async fn read_connected_modules(
 
                     for (i, v) in AND_MODULE_CHARACTERISTICS.iter().enumerate() {
                         if *v == characteristic.uuid {
-                            comboard_send_value("ble".to_string(), "0".to_string(), i as i32, value.clone()).unwrap();
+                            comboard_send_value(
+                                "ble".to_string(),
+                                "0".to_string(),
+                                i as i32,
+                                value.clone(),
+                            )
+                            .unwrap();
                         }
                     }
                 }
@@ -100,10 +106,8 @@ async fn read_connected_modules(
             if !found_service {
                 log::error!("service cant be found anymore")
             }
-
-       }
+        }
     }
-
 }
 
 async fn try_find_growbe_module(
@@ -114,14 +118,14 @@ async fn try_find_growbe_module(
 ) {
     // TRY TO FIND GROWBE MODULE
     let peripherals = adapter.peripherals().await.unwrap();
-    
+
     for peripheral in peripherals.iter() {
         let already_is_connected = peripheral.is_connected().await.unwrap();
 
         if modules.contains_key(&peripheral.id()) || not_modules.contains_key(&peripheral.id()) {
             continue;
         }
-        
+
         if let Some(addrs) = config {
             let addr = peripheral.address().to_string();
             if let Some(_) = addrs.iter().find(|&x| addr.eq(x)) {
@@ -132,9 +136,9 @@ async fn try_find_growbe_module(
 
         log::info!(
             "try connection with {:?} is connected: {:?}",
-            peripheral.id(), already_is_connected
+            peripheral.id(),
+            already_is_connected
         );
-
 
         // Regarde s'il est pas deja connecter ou si pas deja ignorer
         if !already_is_connected {
@@ -163,7 +167,8 @@ async fn try_find_growbe_module(
         };
         log::info!(
             "Now connected ({:?}) to peripheral {:?}...",
-            is_connected, peripheral.id()
+            is_connected,
+            peripheral.id()
         );
         peripheral.discover_services().await.unwrap();
 
@@ -180,10 +185,10 @@ async fn try_find_growbe_module(
 
             log::info!(
                 "Service UUID {}, primary: {}",
-                service.uuid, service.primary
+                service.uuid,
+                service.primary
             );
             for characteristic in service.characteristics {
-
                 if characteristic.uuid == AND_MODULE_ID_CHARACTERISTIC {
                     let value = select! {
                         v = peripheral.read(&characteristic) => {
@@ -211,22 +216,43 @@ async fn try_find_growbe_module(
 
                     };
                     let str = std::str::from_utf8(&value).unwrap().to_string();
-                    let split_str =  str.split(";");
+                    let split_str = str.split(";");
                     supported_module = split_str.into_iter().map(|x| x.to_string()).collect();
                 }
             }
         }
         if is_and_module {
-            log::info!("Adding module {:?} with sub-modules : {:?}", module_id.clone(), supported_module);
-            modules.insert(peripheral.id(), BLEConnectedModule {id: module_id.clone(), activated_modules: supported_module.clone(), supported_modules: supported_module.clone() });
+            log::info!(
+                "Adding module {:?} with sub-modules : {:?}",
+                module_id.clone(),
+                supported_module
+            );
+            modules.insert(
+                peripheral.id(),
+                BLEConnectedModule {
+                    id: module_id.clone(),
+                    activated_modules: supported_module.clone(),
+                    supported_modules: supported_module.clone(),
+                },
+            );
             for (i, module_type) in supported_module.iter().enumerate() {
                 let id = module_type.clone() + &module_id;
-                comboard_send_state("ble".to_string(), "0".to_string(), i as i32, id.clone(), true).unwrap();
+                comboard_send_state(
+                    "ble".to_string(),
+                    "0".to_string(),
+                    i as i32,
+                    id.clone(),
+                    true,
+                )
+                .unwrap();
             }
         } else {
             // not_modules.insert(peripheral.id(), 0);
             if !already_is_connected && is_connected {
-                log::info!("Disconnecting from peripheral this is not a android module {:?}...", peripheral.id());
+                log::info!(
+                    "Disconnecting from peripheral this is not a android module {:?}...",
+                    peripheral.id()
+                );
                 peripheral
                     .disconnect()
                     .await
@@ -236,10 +262,11 @@ async fn try_find_growbe_module(
     }
 }
 
-
-
 impl crate::comboard::imple::interface::ComboardClient for BLEComboardClient {
-    fn run(&self, receiver_config: Receiver<crate::comboard::imple::channel::ModuleConfig>) -> tokio::task::JoinHandle<()> {
+    fn run(
+        &self,
+        receiver_config: Receiver<crate::comboard::imple::channel::ModuleConfig>,
+    ) -> tokio::task::JoinHandle<()> {
         let devices = get_devices(self.config_comboard.config.clone());
 
         return tokio::spawn(async move {
@@ -255,7 +282,7 @@ impl crate::comboard::imple::interface::ComboardClient for BLEComboardClient {
 
             // Map with the modules connected that i read data from
             let mut modules: HashMap<PeripheralId, BLEConnectedModule> = HashMap::new();
-            // Map for the module 
+            // Map for the module
             let mut not_modules: HashMap<PeripheralId, i32> = HashMap::new();
 
             log::debug!(
@@ -269,7 +296,10 @@ impl crate::comboard::imple::interface::ComboardClient for BLEComboardClient {
 
             let mut i = 0;
 
-            let mut events = adapter.events().await.unwrap().filter(|x| match x { CentralEvent::DeviceDisconnected(d) => true, _ => false});
+            let mut events = adapter.events().await.unwrap().filter(|x| match x {
+                CentralEvent::DeviceDisconnected(d) => true,
+                _ => false,
+            });
 
             loop {
                 select! {

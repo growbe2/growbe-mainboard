@@ -14,6 +14,8 @@ jobs:
         run: docker login https://docker.pkg.github.com -u berlingoqc -p $GITHUB_ACCESS_TOKEN
         env:
           GITHUB_ACCESS_TOKEN: ${{ secrets.PAT }}
+      - name: Validation formating
+        run: ./scripts/rust_env.sh cargo fmt --all -- --check
       - name: Download vendors
         run: ./scripts/rust_env.sh cargo vendor && ./scripts/rust_env.sh make -C ./drivers
       - name: Build x86

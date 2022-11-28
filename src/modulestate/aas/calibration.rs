@@ -1,26 +1,22 @@
-
+use crate::protos::module::{
+    CalibrationError, CalibrationStep, CalibrationStepStatus, SOILCalibrationStepEvent,
+    SOILModuleConfig,
+};
 use crate::protos::module::{SOILModuleData, SOILProbeConfig};
-use crate::protos::module::{CalibrationError, CalibrationStep, CalibrationStepStatus, SOILModuleConfig, SOILCalibrationStepEvent};
 
 impl crate::modulestate::interface::ModuleValue for SOILCalibrationStepEvent {}
 impl crate::modulestate::interface::ModuleValueParsable for SOILCalibrationStepEvent {}
 
 #[derive(Debug, Clone)]
-pub struct CalibrationEx {
-
-}
+pub struct CalibrationEx {}
 
 impl CalibrationEx {
     fn new() -> CalibrationEx {
-        return CalibrationEx{};
+        return CalibrationEx {};
     }
 }
 
-
-pub fn get_value_property_with_calibration(
-    value: i32,
-    config: &SOILProbeConfig,
-) -> i32 {
+pub fn get_value_property_with_calibration(value: i32, config: &SOILProbeConfig) -> i32 {
     if value < 100 {
         return -1;
     }
@@ -66,13 +62,11 @@ pub struct CalibrationProcess {
     pub values_high: Vec<SOILModuleData>,
 }
 
-
 // While the calibration processs is processing the module
 // will stop producing the data to the rest of the application
 impl CalibrationProcess {
-
     pub fn new() -> Self {
-        return CalibrationProcess{
+        return CalibrationProcess {
             previous_step: CalibrationStep::READY_CALIBRATION,
             current_step: CalibrationStep::READY_CALIBRATION,
             state: CalibrationStepStatus::AWAITING_STEP_STATUS,
@@ -107,8 +101,12 @@ impl CalibrationProcess {
         event.set_status(self.state);
         event.set_step(self.current_step);
         event.set_erro(self.ex);
-        self.values_low.iter().for_each(|v| event.low.push(v.clone()));
-        self.values_high.iter().for_each(|v| event.high.push(v.clone()));
+        self.values_low
+            .iter()
+            .for_each(|v| event.low.push(v.clone()));
+        self.values_high
+            .iter()
+            .for_each(|v| event.high.push(v.clone()));
         return event;
     }
 
@@ -123,7 +121,7 @@ impl CalibrationProcess {
     }
 
     // return the config
-    pub fn terminate(&self) -> Result<SOILModuleConfig, CalibrationEx>  {
+    pub fn terminate(&self) -> Result<SOILModuleConfig, CalibrationEx> {
         if self.current_step == CalibrationStep::WAITING_CONFIRMATION_CALIBRATION {
             let mut config = SOILModuleConfig::new();
 
@@ -141,14 +139,19 @@ impl CalibrationProcess {
 
             return Ok(config);
         }
-        return Err(CalibrationEx::new())
+        return Err(CalibrationEx::new());
     }
 
-    fn handle_property_config(&self, property: &mut SOILProbeConfig, value_low: i32, value_high: i32) -> () {
+    fn handle_property_config(
+        &self,
+        property: &mut SOILProbeConfig,
+        value_low: i32,
+        value_high: i32,
+    ) -> () {
         property.set_low(value_low);
         property.set_high(value_high);
     }
-    
+
     fn average_values(&self, values: &Vec<SOILModuleData>) -> SOILModuleData {
         let mut data = SOILModuleData::new();
         let len = values.len() as i32;
@@ -196,14 +199,15 @@ mod tests {
 
     #[test]
     fn calibration_process_succesful() {
+        let values_low: Vec<SOILModuleData> = vec![[24, 24, 24, 24, 0, 0, 0, 0]]
+            .iter()
+            .map(from_tuple)
+            .collect();
 
-        let values_low: Vec<SOILModuleData> = vec![
-            [24,24,24,24,0,0,0,0]
-        ].iter().map(from_tuple).collect();
-
-        let values_high: Vec<SOILModuleData> = vec![
-            [300,300,300,300,0,0,0,0]
-        ].iter().map(from_tuple).collect();
+        let values_high: Vec<SOILModuleData> = vec![[300, 300, 300, 300, 0, 0, 0, 0]]
+            .iter()
+            .map(from_tuple)
+            .collect();
 
         let mut process = CalibrationProcess::new();
 
@@ -211,9 +215,9 @@ mod tests {
 
         process.start_record(CalibrationStep::LOW_CALIBRATION);
 
-            values_low.iter().for_each(|x| {
-                process.on_value(x.clone());
-            });
+        values_low.iter().for_each(|x| {
+            process.on_value(x.clone());
+        });
 
         process.stop_record();
 
@@ -221,13 +225,16 @@ mod tests {
 
         process.start_record(CalibrationStep::HIGH_CALIBRATION);
 
-            values_high.iter().for_each(|x| {
-                process.on_value(x.clone());
-            });
+        values_high.iter().for_each(|x| {
+            process.on_value(x.clone());
+        });
 
         process.stop_record();
 
-        assert_eq!(process.current_step, CalibrationStep::WAITING_CONFIRMATION_CALIBRATION);
+        assert_eq!(
+            process.current_step,
+            CalibrationStep::WAITING_CONFIRMATION_CALIBRATION
+        );
 
         process.terminate().unwrap();
     }

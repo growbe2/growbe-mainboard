@@ -23,7 +23,7 @@ fn get_timeout_alarm(current_mins: i32, day_mins: i32, night_mins: i32) -> (i32,
         ((night_mins - current_mins), true)
     } else {
         ((((24 * 60) - current_mins) + day_mins), false)
-    }
+    };
 }
 
 pub fn set_alarm_relay(
@@ -53,7 +53,6 @@ pub fn set_alarm_relay(
         );
 
         loop {
-
             let current_minute = get_current_min();
             let (timeout, day) = get_timeout_alarm(current_minute, day_mins, night_mins);
             let value = if day { 1 } else { 0 };
@@ -78,20 +77,19 @@ pub fn set_alarm_relay(
     });
 }
 
-
 #[cfg(test)]
 mod tests {
 
     use super::*;
 
-    #[test] 
+    #[test]
     fn valid_alarm_values() {
-        let values: Vec<(i32,i32,i32,i32,bool)> = vec![
+        let values: Vec<(i32, i32, i32, i32, bool)> = vec![
             // OPEN , CLOSE , CURRENT , EXPECTED SLEEP , IS_DAY
             (600, 800, 700, 100, true),
             (360, 0, 800, 700, true),
             (360, 0, 100, 260, false),
-            (360, 100, 800, 800, true)
+            (360, 100, 800, 800, true),
         ];
 
         for value in values.iter() {
@@ -100,6 +98,5 @@ mod tests {
             assert_eq!(timeout, value.3);
             assert_eq!(day, value.4);
         }
-   }
-
+    }
 }

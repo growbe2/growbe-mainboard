@@ -1,20 +1,18 @@
 use serde::{Deserialize, Serialize};
-use std::process::Command;
 use std::io::Write;
+use std::process::Command;
 use std::sync::mpsc::channel;
 use std::time::Duration;
 
-use growbe_shared::version::VERSION;
-use crate::socket::http::get_token;
 use crate::socket::http::get_api_url;
+use crate::socket::http::get_token;
+use growbe_shared::version::VERSION;
 
 use super::config::CONFIG;
-
 
 fn get_default_reboot() -> bool {
     false
 }
-
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct MainboardUpdateMessage {
@@ -27,30 +25,35 @@ pub struct MainboardUpdateMessage {
 pub struct UpdateConfig {
     pub autoupdate: bool,
     pub channel: String,
-	#[serde(default = "get_default_reboot")]
+    #[serde(default = "get_default_reboot")]
     pub reboot: bool,
 }
 
 pub fn get_default_update_config() -> UpdateConfig {
-    return UpdateConfig{
+    return UpdateConfig {
         autoupdate: false,
         channel: "".to_string(),
         reboot: true,
     };
 }
 
-// download the wanted version 
+// download the wanted version
 pub fn download_version(version: &String) -> () {
     let asset_name = "growbe-mainboard-arm-linux";
 
-    let version = if version.contains("-") { "latest" } else { version.as_str() };
+    let version = if version.contains("-") {
+        "latest"
+    } else {
+        version.as_str()
+    };
 
     let output = Command::new("bash")
         .current_dir("/opt/growbe/")
         .arg("/opt/growbe/download.sh")
         .arg(version)
         .arg(asset_name)
-        .output().unwrap();
+        .output()
+        .unwrap();
 
     std::io::stdout().write_all(&output.stdout).unwrap();
     std::io::stderr().write_all(&output.stderr).unwrap();
@@ -63,7 +66,8 @@ pub fn replace_version(_version: &String) -> () {
         .current_dir("/opt/growbe/")
         .arg(asset_name)
         .arg("growbe-mainboard")
-        .output().unwrap();
+        .output()
+        .unwrap();
 
     log::info!("update complete , restart the process to take effect");
 }
@@ -73,19 +77,18 @@ pub fn get_latest_version() -> String {
 
     tokio::task::spawn(async move {
         let client = reqwest::Client::new();
-        let body_result = client.get(get_api_url("/growbe-mainboard/version".to_string()))
+        let body_result = client
+            .get(get_api_url("/growbe-mainboard/version".to_string()))
             .query(&[("channel", CONFIG.update.channel.as_str())])
-            .bearer_auth(get_token()).send().await;
+            .bearer_auth(get_token())
+            .send()
+            .await;
         let version = match body_result {
-            Ok(body) => {
-                match body.json::<MainboardUpdateMessage>().await {
-                    Ok(body) => {
-                        body.version
-                    },
-                    Err(err) => {
-                        log::debug!("{:?}", err);
-                        "".to_string()
-                    }
+            Ok(body) => match body.json::<MainboardUpdateMessage>().await {
+                Ok(body) => body.version,
+                Err(err) => {
+                    log::debug!("{:?}", err);
+                    "".to_string()
                 }
             },
             Err(err) => {
@@ -104,12 +107,14 @@ pub fn update_available() -> Option<String> {
     if version != "" {
         let my_version = VERSION.to_string();
 
-        return if version.eq(&my_version) { None } else { 
+        return if version.eq(&my_version) {
+            None
+        } else {
             log::info!("new version available {} replacing {}", version, my_version);
             Some(version)
         };
     }
-    return None
+    return None;
 }
 
 pub fn autoupdate() {
@@ -145,8 +150,9 @@ pub fn handle_version_update_request() -> Option<crate::protos::board::UpdateExe
     return None;
 }
 
-
-pub fn handle_version_update(payload: &crate::protos::board::VersionRelease) -> Option<crate::protos::board::UpdateExecute> {
+pub fn handle_version_update(
+    payload: &crate::protos::board::VersionRelease,
+) -> Option<crate::protos::board::UpdateExecute> {
     let update_config = &crate::mainboardstate::config::CONFIG.update;
 
     if update_config.autoupdate == true {

@@ -17,6 +17,7 @@ pub struct SysInfo {
     pub ram_unused: u64,
 }
 
+#[allow(dead_code)]
 pub fn get_sys_info() -> SysInfo {
     let mut buf = [0u8; 64];
     let hostname = nix::unistd::gethostname(&mut buf).unwrap();

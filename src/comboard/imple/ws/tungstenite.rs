@@ -1,11 +1,11 @@
-use std::{sync::mpsc::Receiver, str::from_utf8};
+use std::sync::mpsc::Receiver;
 
 use serde::{Deserialize, Serialize};
 use url::Url;
 
 use tungstenite::connect;
 
-use crate::{comboard::imple::channel::{comboard_send_state, comboard_send_value}};
+use crate::comboard::imple::channel::{comboard_send_state, comboard_send_value};
 
 #[derive(Serialize, Deserialize)]
 pub struct WebSocketMessage {
@@ -15,7 +15,10 @@ pub struct WebSocketMessage {
 
 impl WebSocketMessage {
     fn new(topic: &str, payload: &str) -> Self {
-        WebSocketMessage { topic: topic.to_string(), payload: payload.to_string() }
+        WebSocketMessage {
+            topic: topic.to_string(),
+            payload: payload.to_string(),
+        }
     }
 }
 
@@ -52,10 +55,11 @@ fn handle_device_loop(
     let mut module_id: String = "".to_string();
     let mut supported_modules: Vec<String> = vec![];
 
-
     let msg = WebSocketMessage::new("MAINBOARD_ID", &growbe_shared::id::get());
 
-    if let Err(err) = ws_stream.write_message(tungstenite::Message::Text(serde_json::to_string(&msg).unwrap())) {
+    if let Err(err) = ws_stream.write_message(tungstenite::Message::Text(
+        serde_json::to_string(&msg).unwrap(),
+    )) {
         log::error!("failed to send mainboard id to module : {:?}", err);
         return Err(());
     }
@@ -63,50 +67,47 @@ fn handle_device_loop(
     loop {
         match ws_stream.read_message() {
             Ok(data) => {
-            //if (data.is_ping() || data.is_pong()) { continue; }
-            let data = data.into_data();
-            match serde_json::from_slice::<WebSocketMessage>(&data) {
-                Ok(message) => {
-                    match message.topic.as_str() {
-                        TOPIC_MODULE_ID => {
-                            module_id = message.payload.clone();
-                            log::info!("module_id {:?}", module_id);
-                        }
-                        TOPIC_MODULES => {
-                            supported_modules =
-                                message.payload.split(";").map(|x| x.to_string()).collect();
+                //if (data.is_ping() || data.is_pong()) { continue; }
+                let data = data.into_data();
+                match serde_json::from_slice::<WebSocketMessage>(&data) {
+                    Ok(message) => {
+                        match message.topic.as_str() {
+                            TOPIC_MODULE_ID => {
+                                module_id = message.payload.clone();
+                                log::info!("module_id {:?}", module_id);
+                            }
+                            TOPIC_MODULES => {
+                                supported_modules =
+                                    message.payload.split(";").map(|x| x.to_string()).collect();
 
-                            log::info!("supportedmodule_id {:?}", module_id);
+                                log::info!("supportedmodule_id {:?}", module_id);
+                            }
+                            _ => {
+                                log::info!("DADADADAD");
+                            }
                         }
-                        _ => {
-                            log::info!("DADADADAD");
+
+                        if !connected && module_id != "" && supported_modules.len() > 0 {
+                            connected = true;
+                            send_module_state(&module_id, &supported_modules, &url, true);
                         }
                     }
-
-                    if !connected && module_id != "" && supported_modules.len() > 0 {
-                        connected = true;
-                        send_module_state(&module_id, &supported_modules, &url, true);
+                    Err(_err) => {
+                        // Regarde si on est un message protobuf;
+                        if module_id.is_empty() {
+                            continue;
+                        }
+                        if data.len() > 0 && data[0] <= 10 {
+                            comboard_send_value(
+                                "ws".to_string(),
+                                url.host_str().unwrap().to_string(),
+                                data[0] as i32,
+                                data[1..data.len()].to_vec(),
+                            )
+                            .unwrap();
+                        }
                     }
                 }
-                Err(err) => {
-                    // Regarde si on est un message protobuf;
-                    if module_id.is_empty() {
-                        continue;
-                    }
-                    if data.len() > 0 && data[0] <= 10 {
-                        comboard_send_value(
-                            "ws".to_string(),
-                            url.host_str().unwrap().to_string(),
-                            data[0] as i32,
-                            data[1..data.len()].to_vec(),
-                        )
-                        .unwrap();
-                    } else {
-                        //log::error!("error parsing json : {:?}", err);
-                    }
-                }
-            }
-
             }
             Err(err) => {
                 log::debug!("error try_next websocket {:?}", err.to_string());
@@ -121,13 +122,12 @@ fn handle_device_loop(
             // TODO fix size and copy into buffer
             let mut data = vec![value.port as u8];
             data.append(&mut value.data.clone());
-        
+
             if let Err(_) = ws_stream.write_message(tungstenite::Message::Binary(data)) {
                 println!("Failed to write message");
             } else {
                 log::warn!("sending config to websocket successfuly");
             }
-
         }
     }
 }

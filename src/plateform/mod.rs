@@ -1,6 +1,6 @@
-pub mod sysinfo;
-pub mod process;
 pub mod net;
-pub mod wifi;
+pub mod process;
 pub mod restart;
+pub mod sysinfo;
 pub mod uname;
+pub mod wifi;

@@ -1,4 +1,3 @@
-
 use std::sync::{Arc, Mutex};
 
 use tokio_util::sync::CancellationToken;
@@ -17,9 +16,7 @@ pub struct VirtualRelayStore {
  * of the virtual relay
  */
 impl VirtualRelayStore {
-    pub fn new(
-        conn: Arc<Mutex<rusqlite::Connection>>,
-    ) -> Self {
+    pub fn new(conn: Arc<Mutex<rusqlite::Connection>>) -> Self {
         VirtualRelayStore {
             conn: conn,
             virtual_relay_maps: std::collections::HashMap::new(),
@@ -52,7 +49,13 @@ impl VirtualRelayStore {
      * store_relay store the relay definition in the local store, throw error if already existings
      */
     pub fn store_relay(&self, config: &crate::protos::module::VirtualRelay) -> Result<(), ()> {
-        crate::store::database::store_field_from_table(&self.conn, "virtual_relay", &String::from(config.get_name()), "relay", Box::new(config.clone()));
+        crate::store::database::store_field_from_table(
+            &self.conn,
+            "virtual_relay",
+            &String::from(config.get_name()),
+            "relay",
+            Box::new(config.clone()),
+        );
         return Ok(());
     }
 
@@ -61,7 +64,7 @@ impl VirtualRelayStore {
      * stopping if existing
      * removing from database
      */
-     pub fn remove_relay(&mut self, id: &str) {
+    pub fn remove_relay(&mut self, id: &str) {
         self.stop_virtual_relay(id);
         crate::store::database::store_delete_key(&self.conn, "virtual_relay", id);
     }
@@ -69,19 +72,41 @@ impl VirtualRelayStore {
     /*
      * get_stores_relays return the list of virtual_relay existing in the database
      */
-    pub fn get_stored_relays(&self,) -> Result<Vec<(crate::protos::module::VirtualRelay, Option<crate::protos::module::RelayOutletConfig>)>, ()> {
+    pub fn get_stored_relays(
+        &self,
+    ) -> Result<
+        Vec<(
+            crate::protos::module::VirtualRelay,
+            Option<crate::protos::module::RelayOutletConfig>,
+        )>,
+        (),
+    > {
         return crate::store::database::get_fields_from_table(
-            &self.conn, "virtual_relay", "relay", "config",
-        crate::protos::module::VirtualRelay::parse_from_bytes, crate::protos::module::RelayOutletConfig::parse_from_bytes
-        ).map_err(|_x| ());
+            &self.conn,
+            "virtual_relay",
+            "relay",
+            "config",
+            crate::protos::module::VirtualRelay::parse_from_bytes,
+            crate::protos::module::RelayOutletConfig::parse_from_bytes,
+        )
+        .map_err(|_x| ());
     }
 
     /*
      * store_relay_config , store the config of a relay
      */
-    pub fn store_relay_config(&self, id: &str, config: &crate::protos::module::RelayOutletConfig) -> Result<(), ()> {
-        crate::store::database::store_update_property(&self.conn, "virtual_relay", "config", id, Box::new(config.clone()));
+    pub fn store_relay_config(
+        &self,
+        id: &str,
+        config: &crate::protos::module::RelayOutletConfig,
+    ) -> Result<(), ()> {
+        crate::store::database::store_update_property(
+            &self.conn,
+            "virtual_relay",
+            "config",
+            id,
+            Box::new(config.clone()),
+        );
         return Ok(());
     }
-
 }

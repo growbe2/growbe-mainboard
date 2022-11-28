@@ -1,15 +1,12 @@
-
 use std::process::Command;
-
 
 pub fn get_currnet_ssid() -> String {
     let result = Command::new("iwgetid").args(["-r"]).output();
     return match result {
         Ok(value) => String::from_utf8_lossy(&value.stdout).to_string(),
-        Err(_e) => String::from("")
+        Err(_e) => String::from(""),
     };
 }
-
 
 pub fn get_curret_ssid_strength() -> i32 {
     // TODO implementation is shit , should return a struct with most of the info that
@@ -23,7 +20,7 @@ pub fn get_curret_ssid_strength() -> i32 {
         lines.next();
 
         // error ici parfois
-        if let Some(wlan_line) = lines.next(){
+        if let Some(wlan_line) = lines.next() {
             let mut elements = wlan_line.split_whitespace();
             elements.next();
             elements.next();
