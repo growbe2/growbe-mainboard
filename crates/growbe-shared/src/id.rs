@@ -1,6 +1,5 @@
 use std::fs::DirEntry;
 
-
 lazy_static::lazy_static! {
     static ref ID: std::sync::Mutex<String> = std::sync::Mutex::new(get_id().unwrap());
 }
@@ -29,7 +28,7 @@ fn get_id() -> Result<String, ()> {
             if let Some(path) = paths.iter().find(|x| {
                 return x.file_name().eq("wlan0");
             }) {
-                return read_id(path.file_name().to_str().unwrap())
+                return read_id(path.file_name().to_str().unwrap());
             }
             // TODO: filter bad interface like vpn
             for path in paths.iter().rev() {
@@ -39,11 +38,13 @@ fn get_id() -> Result<String, ()> {
             }
             log::error!("cannot get first entry from network interface");
             return Err(());
-        },
-        Err(err) => { log::error!("cannot list network interface to determined id: {}", err); return Err(()); }
+        }
+        Err(err) => {
+            log::error!("cannot list network interface to determined id: {}", err);
+            return Err(());
+        }
     }
 }
-
 
 pub fn get() -> String {
     return ID.lock().unwrap().clone();

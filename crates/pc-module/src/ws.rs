@@ -9,7 +9,6 @@ pub struct WSServerConfig {
     pub port: u16,
 }
 
-
 #[derive(Serialize, Deserialize)]
 pub struct WebSocketMessage {
     pub topic: String,
@@ -17,15 +16,14 @@ pub struct WebSocketMessage {
 }
 
 impl ToString for WSServerConfig {
-	fn to_string(&self) -> String {
-		format!("{}:{}", self.addr, self.port)
-	}	
+    fn to_string(&self) -> String {
+        format!("{}:{}", self.addr, self.port)
+    }
 }
 
-
 pub fn default_server_config() -> WSServerConfig {
-    return WSServerConfig{
+    return WSServerConfig {
         addr: String::from("0.0.0.0"),
-        port: 5000
-    }
+        port: 5000,
+    };
 }
