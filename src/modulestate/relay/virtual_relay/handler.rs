@@ -128,7 +128,9 @@ pub fn handle_apply_config_virtual_relay(
     store_virtual_relay: &mut VirtualRelayStore,
     manager: &mut crate::modulestate::MainboardModuleStateManager,
 ) -> Result<(), ModuleError> {
-    let id = crate::utils::mqtt::last_element_path(topic);
+    let id = crate::utils::mqtt::last_element_path(topic).ok_or(
+        ModuleError::new().message("failed to get last element from mqtt topic".to_string()),
+    )?;
 
     let config = crate::protos::module::RelayOutletConfig::parse_from_bytes(&data).unwrap();
 
@@ -155,7 +157,9 @@ pub fn handle_delete_virtual_relay(
     store_virtual_relay: &mut VirtualRelayStore,
     manager: &mut crate::modulestate::MainboardModuleStateManager,
 ) -> Result<(), ModuleError> {
-    let id = crate::utils::mqtt::last_element_path(topic);
+    let id = crate::utils::mqtt::last_element_path(topic).ok_or(
+        ModuleError::new().message("failed to get last element from mqtt topic".to_string()),
+    )?;
 
     return delete_virtual_relay(
         &id,

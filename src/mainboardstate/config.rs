@@ -105,7 +105,9 @@ pub fn rewrite_configuration(config: MainboardConfig) -> () {
 
     tokio::task::spawn(async move {
         tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
-        crate::plateform::restart::restart_process();
+        if let Err(err) = crate::plateform::restart::restart_process() {
+            log::error!("restart_process failed : {:?}", err);
+        }
     });
     tokio::task::spawn(async {});
 }

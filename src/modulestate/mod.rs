@@ -16,6 +16,7 @@ pub mod interface;
 pub mod relay;
 pub mod store;
 
+use self::interface::ModuleError;
 use crate::comboard::imple::channel::*;
 use crate::comboard::imple::interface::{ModuleStateChangeEvent, ModuleValueValidationEvent};
 use crate::protos::alarm::FieldAlarm;
@@ -381,7 +382,10 @@ fn handle_module_config(
     _sender_socket: &Sender<(String, Box<dyn interface::ModuleValueParsable>)>,
     store: &store::ModuleStateStore,
 ) -> Result<(), interface::ModuleError> {
-    let id = crate::utils::mqtt::last_element_path(topic);
+    let id = crate::utils::mqtt::last_element_path(topic).ok_or(
+        ModuleError::new().message("failed to get last element from mqtt topic".to_string()),
+    )?;
+
     let module_ref_option = manager.connected_module.get_mut(id.as_str());
 
     if let Some(module_ref) = module_ref_option {
@@ -423,7 +427,9 @@ fn handle_remove_module_config(
     _sender_socket: &Sender<(String, Box<dyn interface::ModuleValueParsable>)>,
     store: &store::ModuleStateStore,
 ) -> Result<(), interface::ModuleError> {
-    let id = crate::utils::mqtt::last_element_path(topic);
+    let id = crate::utils::mqtt::last_element_path(topic).ok_or(
+        ModuleError::new().message("failed to get last element from mqtt topic".to_string()),
+    )?;
     let module_ref_option = manager.connected_module.get_mut(id.as_str());
     if let Some(module_ref) = module_ref_option {
         module_ref.validator.remove_config().unwrap();

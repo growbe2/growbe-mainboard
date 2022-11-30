@@ -21,27 +21,37 @@ use crate::mainboardstate::update::autoupdate;
 
 #[tokio::main(flavor = "multi_thread")]
 async fn main() {
+    // Check if we try to run a command , if stop program to prevent the main thread to start
     if let Some(()) = growbe_shared::cmd::handle_command_line_arguments() {
         return;
     }
 
+    // starting main thread
+
     growbe_shared::logger::setup_log(&crate::mainboardstate::config::CONFIG.logger);
 
     log::info!("starting mainboard with id {}", growbe_shared::id::get());
+
+    // try to perform an autoupdate if the feature is started
 
     autoupdate();
 
     // Initializing database
     let conn_database = Arc::new(Mutex::new(store::database::init()));
 
+    // Get the list of running comboards
     let boards = comboard::get_comboard_client();
 
+    // Create the channel to send the data to the socket thread
     let (sender_socket, receiver_socket) =
         channel::<(String, Box<dyn modulestate::interface::ModuleValueParsable>)>();
 
+    // Create sender copy to give to some starting task
     let sender_socket_hello = sender_socket.clone();
     let sender_socket_localconnection = sender_socket.clone();
 
+    // Create the ComboardConfigChannelManager use to keep the state of all running comboards
+    // threads
     let mut config_channel_manager = ComboardConfigChannelManager::new();
 
     // Create the task to run the comboard
@@ -68,7 +78,7 @@ async fn main() {
     );
 
     // Run the hello world task to start the application
-    mainboardstate::hello_world::task_hello_world(
+    if let Err(err) = mainboardstate::hello_world::task_hello_world(
         sender_socket_hello,
         boards
             .iter()
@@ -79,9 +89,10 @@ async fn main() {
             })
             .collect(),
     )
-    .await;
+    .await { log::error!("task_hello_world {:?}", err); }
 
-    mainboardstate::localconnection::task_local_connection(sender_socket_localconnection).await;
+    if let Err(err) = mainboardstate::localconnection::task_local_connection(sender_socket_localconnection)
+        .await { log::error!("task_local_connection : {:?}", err)}
 
     #[cfg(feature = "http_server")]
     let server_task = server::http::get_server(&crate::mainboardstate::config::CONFIG.server);

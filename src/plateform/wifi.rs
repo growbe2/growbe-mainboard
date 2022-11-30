@@ -1,14 +1,17 @@
 use std::process::Command;
 
-pub fn get_currnet_ssid() -> String {
+use crate::mainboardstate::error::MainboardError;
+
+pub fn get_currnet_ssid() -> Result<String, MainboardError> {
     let result = Command::new("iwgetid").args(["-r"]).output();
+
     return match result {
-        Ok(value) => String::from_utf8_lossy(&value.stdout).to_string(),
-        Err(_e) => String::from(""),
+        Ok(value) => Ok(String::from_utf8_lossy(&value.stdout).to_string()),
+        Err(err) => Err(MainboardError::from_error(err.to_string())),
     };
 }
 
-pub fn get_curret_ssid_strength() -> i32 {
+pub fn get_curret_ssid_strength() -> Result<i32, MainboardError> {
     // TODO implementation is shit , should return a struct with most of the info that
     // i can gather and search in file lines for row matching ssid
     // let ssid = get_currnet_ssid();
@@ -29,13 +32,11 @@ pub fn get_curret_ssid_strength() -> i32 {
             let strength_str = elements.next().unwrap().replace(".", "");
             let strength = strength_str.parse::<i32>().unwrap();
 
-            return strength;
-        } else {
-            log::error!("failed to get lines for wlan");
+            return Ok(strength);
         }
 
-        return -1;
+        return Err(MainboardError::from_error("failed to get lines for wlan".to_string()));
     }
 
-    return 0;
+    return Err(MainboardError::from_error("failed to read /proc/net/wireless".to_string()));
 }

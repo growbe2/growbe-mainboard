@@ -94,7 +94,9 @@ fn on_update_request(
 fn restart_task() {
     tokio::task::spawn(async move {
         tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
-        crate::plateform::restart::restart_process();
+        if let Err(err) = crate::plateform::restart::restart_process() {
+            log::error!("failed to restart_process {:?}", err);
+        }
     });
 }
 
@@ -110,7 +112,9 @@ fn on_restart(
 fn reboot_task() {
     tokio::task::spawn(async move {
         tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
-        crate::plateform::restart::restart_host();
+        if let Err(err) = crate::plateform::restart::restart_host() {
+            log::error!("failed to restart_process {:?}", err);
+        }
     });
 }
 
