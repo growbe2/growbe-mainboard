@@ -20,7 +20,18 @@ impl MainboardError {
             message: "failed to send payload to mpsc sender".to_string(),
         };
     }
-    
+
+    pub fn from_sqlite_err(err: rusqlite::Error) -> Self {
+        return Self {
+            message: err.to_string(),
+        };
+    }
+
+    pub fn from_protobuf_err(err: protobuf::ProtobufError) -> Self {
+        return Self {
+            message: err.to_string()
+        };
+    }
 
     // BUILDER METHODS
 
@@ -33,4 +44,18 @@ impl MainboardError {
         self
     }
 
+}
+
+impl From<rusqlite::Error> for MainboardError {
+    fn from(value: rusqlite::Error) -> Self {
+         return Self {
+            message: value.to_string(),
+        };
+    }
+}
+
+impl From<protobuf::ProtobufError> for MainboardError {
+    fn from(value: protobuf::ProtobufError) -> Self {
+        return Self { message: value.to_string() }
+    }
 }

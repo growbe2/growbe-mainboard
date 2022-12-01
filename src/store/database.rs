@@ -1,19 +1,24 @@
 use rusqlite::{params, Connection, Result};
 use std::sync::{Arc, Mutex};
 
+use crate::mainboardstate::error::MainboardError;
+
+fn lock_conn(conn: &Arc<Mutex<Connection>>) -> Result<std::sync::MutexGuard<'_, rusqlite::Connection>, MainboardError> {
+    return conn.try_lock().map_err(|err| MainboardError::from_error(err.to_string()));
+}
+
 pub fn get_field_from_table<T>(
     conn: &Arc<Mutex<Connection>>,
     table_name: &'static str,
     id: &String,
     id2: for<'r> fn(&'r [u8]) -> std::result::Result<T, protobuf::ProtobufError>,
-) -> Result<T, rusqlite::Error> {
-    let v: Vec<u8> = conn.try_lock().unwrap().query_row(
+) -> Result<T, MainboardError> {
+    let v: Vec<u8> = lock_conn(&conn)?.query_row(
         (format!("SELECT config FROM {} WHERE id = ?", table_name)).as_str(),
         [id],
         |r| r.get(0),
     )?;
-    // TODO : fixe possible error there if i changed the config proto def
-    return Ok(id2(&v).unwrap());
+    return id2(&v).map_err(|x| MainboardError::from_protobuf_err(x));
 }
 
 pub fn get_fields_from_table<T, D>(
@@ -23,20 +28,25 @@ pub fn get_fields_from_table<T, D>(
     property2: &'static str,
     id2: for<'r> fn(&'r [u8]) -> std::result::Result<T, protobuf::ProtobufError>,
     id3: for<'r> fn(&'r [u8]) -> std::result::Result<D, protobuf::ProtobufError>,
-) -> Result<Vec<(T, Option<D>)>, rusqlite::Error> {
-    let lock_conn = conn.lock().unwrap();
+) -> Result<Vec<(T, Option<D>)>, MainboardError> {
+    let lock_conn = lock_conn(&conn)?;
     let mut statement = lock_conn
         .prepare((format!("SELECT {}, {} FROM {}", property, property2, table_name)).as_str())
-        .unwrap();
+        .map_err(|err| MainboardError::from_sqlite_err(err))?;
 
-    return Ok(statement
+    return statement
         .query_map([], |row| {
-            let buffer_p1: Vec<u8> = row.get(0).unwrap();
-            let buffer_p2_result: Result<Vec<u8>, ()> = row.get(1).map_err(|_x| ());
+            let buffer_p1: Vec<u8> = row.get(0)?;
+            let buffer_p2_result: Result<Vec<u8>, rusqlite::Error> = row.get(1);
 
             let option_d = if let Ok(buffer_p2) = buffer_p2_result {
                 if buffer_p2.len() > 0 {
-                    Some(id3(&buffer_p2).unwrap())
+                    if let Ok(v) = id3(&buffer_p2) {
+                        Some(v)
+                    } else {
+                        log::error!("failed to parse id3 {}", property2);
+                        None
+                    }
                 } else {
                     None
                 }
@@ -44,12 +54,14 @@ pub fn get_fields_from_table<T, D>(
                 None
             };
 
-            let v = (id2(&buffer_p1).unwrap(), option_d);
-            Ok(v)
-        })
-        .unwrap()
-        .map(|x| x.unwrap())
-        .collect());
+            if let Ok(v) = id2(&buffer_p1) {
+                Ok((v, option_d))
+            } else {
+                Err(rusqlite::Error::InvalidColumnName("failed to parse id2 column".to_string()))
+            }
+        })?
+        .map(|x| x.map_err(|x| MainboardError::from_sqlite_err(x)))
+        .collect();
 }
 
 pub fn store_field_from_table(
@@ -58,8 +70,8 @@ pub fn store_field_from_table(
     id: &String,
     property: &'static str,
     data: Box<dyn protobuf::Message>,
-) -> () {
-    let payload = data.write_to_bytes().unwrap();
+) -> Result<(), MainboardError> {
+    let payload = data.write_to_bytes()?;
     let update = conn
         .lock()
         .unwrap()
@@ -78,6 +90,7 @@ pub fn store_field_from_table(
             )
             .unwrap();
     }
+    Ok(())
 }
 
 pub fn store_field_from_table_combine_key(

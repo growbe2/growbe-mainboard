@@ -1,5 +1,6 @@
 use std::sync::{Arc, Mutex};
 
+use crate::mainboardstate::error::MainboardError;
 use crate::protos::module::{
     ComputerStreamingConfig, PhoneStreamingConfig, RelayModuleConfig, SOILModuleConfig,
     WCModuleConfig,
@@ -80,7 +81,7 @@ impl ModuleStateStore {
         &self,
         id: &String,
         id2: for<'r> fn(&'r [u8]) -> std::result::Result<T, protobuf::ProtobufError>,
-    ) -> Result<T, rusqlite::Error> {
+    ) -> Result<T, MainboardError> {
         return database::get_field_from_table(&self.conn, "module_config", id, id2);
     }
 
