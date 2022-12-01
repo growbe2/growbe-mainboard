@@ -55,5 +55,7 @@ jobs:
         with:
           recreate: true
           path: code-coverage-results.md
+      - name: Validate
+        run: ls -la vendor/ && sudo chmod -R 0777 vendor/
       - name: Build ARMv7
         run: ./scripts/rust_env.sh make -C ./drivers clean && ./scripts/rust_env.sh make -C ./drivers CC=arm-linux-gnueabihf-gcc && ENV_FILE="./docker/arm.env" COMMIT=$(git rev-parse --short "$GITHUB_SHA") ./scripts/rust_env.sh cargo build --target armv7-unknown-linux-gnueabihf --release
