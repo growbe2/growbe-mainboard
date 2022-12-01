@@ -2,6 +2,8 @@ use std::sync::{Arc, Mutex};
 
 use tokio_util::sync::CancellationToken;
 
+use crate::mainboardstate::error::MainboardError;
+
 use super::virtual_relay::VirtualRelay;
 use protobuf::Message;
 
@@ -18,7 +20,7 @@ pub struct VirtualRelayStore {
 impl VirtualRelayStore {
     pub fn new(conn: Arc<Mutex<rusqlite::Connection>>) -> Self {
         VirtualRelayStore {
-            conn: conn,
+            conn,
             virtual_relay_maps: std::collections::HashMap::new(),
             cancellation_token_maps: std::collections::HashMap::new(),
         }
@@ -48,15 +50,14 @@ impl VirtualRelayStore {
     /*
      * store_relay store the relay definition in the local store, throw error if already existings
      */
-    pub fn store_relay(&self, config: &crate::protos::module::VirtualRelay) -> Result<(), ()> {
-        crate::store::database::store_field_from_table(
+    pub fn store_relay(&self, config: &crate::protos::module::VirtualRelay) -> Result<(), MainboardError> {
+        return crate::store::database::store_field_from_table(
             &self.conn,
             "virtual_relay",
             &String::from(config.get_name()),
             "relay",
             Box::new(config.clone()),
         );
-        return Ok(());
     }
 
     /*
@@ -79,7 +80,7 @@ impl VirtualRelayStore {
             crate::protos::module::VirtualRelay,
             Option<crate::protos::module::RelayOutletConfig>,
         )>,
-        (),
+        MainboardError
     > {
         return crate::store::database::get_fields_from_table(
             &self.conn,
@@ -88,8 +89,7 @@ impl VirtualRelayStore {
             "config",
             crate::protos::module::VirtualRelay::parse_from_bytes,
             crate::protos::module::RelayOutletConfig::parse_from_bytes,
-        )
-        .map_err(|_x| ());
+        );
     }
 
     /*

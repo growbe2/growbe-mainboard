@@ -404,7 +404,7 @@ fn handle_module_config(
             ) {
                 Ok((config, config_comboard)) => {
                     sender_config.send(config_comboard).unwrap();
-                    store.store_module_config(&id, config);
+                    store.store_module_config(&id, config).unwrap();
                 }
                 Err(e) => log::error!("{}", e),
             }

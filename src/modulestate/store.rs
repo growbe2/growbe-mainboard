@@ -85,8 +85,8 @@ impl ModuleStateStore {
         return database::get_field_from_table(&self.conn, "module_config", id, id2);
     }
 
-    pub fn store_module_config(&self, id: &String, config: Box<dyn protobuf::Message>) -> () {
+    pub fn store_module_config(&self, id: &String, config: Box<dyn protobuf::Message>) -> Result<(), MainboardError> {
         log::debug!("store module config {}", id);
-        database::store_field_from_table(&self.conn, "module_config", id, "config", config);
+        return database::store_field_from_table(&self.conn, "module_config", id, "config", config);
     }
 }
