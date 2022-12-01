@@ -34,7 +34,8 @@ jobs:
             ${{ runner.os }}-build-
             ${{ runner.os }}-
       - name: Download vendors
-        run: ./scripts/rust_env.sh cargo vendor && ./scripts/rust_env.sh make -C ./drivers
+        if: steps.cache-cargo.outputs.cache-hit != 'true'
+        run: ./scripts/rust_env.sh cargo vendor
       - name: Run UT
         run: ENV_FILE="./docker/coverage.env" ./scripts/rust_env.sh cargo test && ./scripts/rust_env.sh coverage.sh
       - name: Code Coverage Report
