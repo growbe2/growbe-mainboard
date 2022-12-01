@@ -50,4 +50,4 @@ jobs:
           recreate: true
           path: code-coverage-results.md
       - name: Build ARMv7
-        run: ./scripts/rust_env.sh make -C ./drivers clean && ./scripts/rust_env.sh make -C ./drivers CC=arm-linux-gnueabihf-gcc && COMMIT=$(git rev-parse --short "$GITHUB_SHA") ./scripts/rust_env.sh cargo build --target armv7-unknown-linux-gnueabihf --release
+        run: ./scripts/rust_env.sh make -C ./drivers clean && ./scripts/rust_env.sh make -C ./drivers CC=arm-linux-gnueabihf-gcc && ENV_FILE="./docker/arm.env" COMMIT=$(git rev-parse --short "$GITHUB_SHA") ./scripts/rust_env.sh cargo build --target armv7-unknown-linux-gnueabihf --release
