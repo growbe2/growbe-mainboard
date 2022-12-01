@@ -14,14 +14,20 @@ jobs:
         run: docker login https://docker.pkg.github.com -u berlingoqc -p $GITHUB_ACCESS_TOKEN
         env:
           GITHUB_ACCESS_TOKEN: ${{ secrets.PAT }}
-      - name: Cache vendors
-        id: cache-vendors
+      - name: Cache cargo
+        id: cache-cargo
         uses: actions/cache@v3
         env:
-          cache-name: cache-vendors
+          cache-name: cache-cargo
         with:
           # npm cache files are stored in `~/.npm` on Linux/macOS
-          path: ./vendors
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+            vendor/
           key: ${{ runner.os }}-build-${{ env.cache-name }}
           restore-keys: |
             ${{ runner.os }}-build-${{ env.cache-name }}-
