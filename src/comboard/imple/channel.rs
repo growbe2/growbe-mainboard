@@ -3,6 +3,8 @@ use std::sync::mpsc::{Receiver, Sender};
 use std::sync::Arc;
 use std::sync::{mpsc::channel, Mutex};
 
+use crate::mainboardstate::error::MainboardError;
+
 use super::interface::{ModuleStateChangeEvent, ModuleValueValidationEvent};
 
 pub fn mutex_channel<T>() -> (Mutex<Sender<T>>, Mutex<Receiver<T>>) {
@@ -95,15 +97,14 @@ impl ComboardSenderMapReference {
     }
     */
 
-    pub fn get_sender(&self, module_addr: ComboardAddr) -> Result<Sender<ModuleConfig>, ()> {
+    pub fn get_sender(&self, module_addr: ComboardAddr) -> Result<Sender<ModuleConfig>, MainboardError> {
         let addr = module_addr.to_string();
 
         if let Some(sender) = &self.map.lock().unwrap().get(&addr) {
             return Ok((*sender).clone());
         }
 
-        log::error!("failed to get sender {}", addr);
-        return Err(());
+        return Err(MainboardError::not_found("comboard_sender", addr.as_str()));
     }
 }
 

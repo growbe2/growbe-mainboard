@@ -19,6 +19,7 @@ pub mod store;
 use self::interface::ModuleError;
 use crate::comboard::imple::channel::*;
 use crate::comboard::imple::interface::{ModuleStateChangeEvent, ModuleValueValidationEvent};
+use crate::mainboardstate::error::MainboardError;
 use crate::protos::alarm::FieldAlarm;
 use aab::AABValidator;
 use interface::ModuleStateCmd;
@@ -97,7 +98,7 @@ impl MainboardModuleStateManager {
 
 fn get_module_validator(
     module_type: &str,
-) -> Result<Box<dyn interface::ModuleValueValidator>, interface::ModuleError> {
+) -> Result<Box<dyn interface::ModuleValueValidator>, MainboardError> {
     if module_type == "AAA" {
         return Ok(Box::new(aaa::AAAValidator::new()));
     } else if module_type == "AAS" {
@@ -121,7 +122,7 @@ fn get_module_validator(
     } else if module_type == "CSS" {
         return Ok(Box::new(CSSValidator::new()));
     } else {
-        return Err(interface::ModuleError::new()
+        return Err(MainboardError::new()
             .message("cannot find validator for module type".to_string()));
     }
 }
@@ -143,19 +144,18 @@ fn send_module_state(
     board: &String,
     board_addr: &String,
     sender_socket: &Sender<(String, Box<dyn interface::ModuleValueParsable>)>,
-) -> () {
+) -> Result<(), MainboardError> {
     let mut send_state = crate::protos::module::ModuleData::new();
     send_state.id = String::from(id);
     send_state.plug = state;
     send_state.atIndex = port;
     send_state.board = board.clone();
     send_state.boardAddr = board_addr.clone();
-    if let Err(err) = sender_socket.send((
+    sender_socket.send((
         String::from(format!("/m/{}/state", id)),
         Box::new(send_state),
-    )) {
-        log::error!("error sending message for module state {:?}", err);
-    }
+    ))?;
+    Ok(())
 }
 
 #[inline]
@@ -167,7 +167,7 @@ fn handle_module_state(
     store: &store::ModuleStateStore,
     alarm_validator: &mut alarm::validator::AlarmFieldValidator,
     alarm_store: &alarm::store::ModuleAlarmStore,
-) -> () {
+) -> Result<(), MainboardError> {
     if !valid_module_id(&state.id) {
         if state.state == true {
             log::error!(
@@ -176,23 +176,18 @@ fn handle_module_state(
                 state.state
             );
         }
-        return;
+        return Err(MainboardError::from_error(format!("id receive is invalid {}", state.id)));
     }
     if state.state == true {
+        // VALIDATE ID AND REGISER CONNECTER Module
+        //
         let type_character_option = state.id.chars().nth(2);
         if type_character_option.is_none() {
-            log::error!("module without id just connected on port {}", state.port);
-            return;
+            return Err(MainboardError::from_error(format!("module without id just connect on port {}", state.port)));
         }
         log::debug!("module connected {} at {}", state.id.as_str(), state.port);
         let t = &state.id[..3];
-        let validator_result = get_module_validator(t);
-        if validator_result.is_err() {
-            //log::error!("{}", validator_result.unwrap_err().message);
-            log::error!("cannot find a validator for module {}", state.id);
-            return;
-        }
-        let validator = validator_result.unwrap();
+        let validator = get_module_validator(t)?;
         manager.connected_module.insert(
             state.id.clone(),
             MainboardConnectedModule {
@@ -202,53 +197,70 @@ fn handle_module_state(
                 board_addr: state.board_addr.clone(),
                 handler_map: std::collections::HashMap::new(),
                 last_value: None,
-                validator: validator,
+                validator,
             },
         );
 
-        send_module_state(
+        // SEND THE STATE TO THE CLOUD
+        if let Err(err) = send_module_state(
             state.id.as_str(),
             state.port,
             true,
             &state.board,
             &state.board_addr,
             sender_socket,
-        );
+        ) {
+            log::error!("failed to send module state : {:?}", err);
+        }
 
+
+        // BLOCK TO APPLY CONFIG
+        //
         let config = store.get_module_config(&state.id);
         if config.is_some() {
             // TODO implement fonction to handle not byte but structure directly
-            let module_mut_ref = manager.connected_module.get_mut(state.id.as_str()).unwrap();
-            let bytes = Arc::new(config.unwrap().write_to_bytes().unwrap());
+            if let Some(module_mut_ref) = manager.connected_module.get_mut(state.id.as_str()) {
+                let bytes = Arc::new(config.unwrap().write_to_bytes().unwrap());
 
-            let sender_config = sender_comboard_config
-                .get_sender(ComboardAddr {
-                    imple: module_mut_ref.board.clone(),
-                    addr: module_mut_ref.board_addr.clone(),
-                })
-                .unwrap();
-            match module_mut_ref.validator.apply_parse_config(
-                state.port,
-                t,
-                bytes,
-                &sender_config,
-                &mut module_mut_ref.handler_map,
-            ) {
-                Ok((_config, config_comboard)) => sender_config.send(config_comboard).unwrap(),
-                Err(e) => log::error!("validation error {}", e),
+                let sender_config = sender_comboard_config
+                    .get_sender(ComboardAddr {
+                        imple: module_mut_ref.board.clone(),
+                        addr: module_mut_ref.board_addr.clone(),
+                    })?;
+                match module_mut_ref.validator.apply_parse_config(
+                    state.port,
+                    t,
+                    bytes,
+                    &sender_config,
+                    &mut module_mut_ref.handler_map,
+                ) {
+                    Ok((_config, config_comboard)) => sender_config.send(config_comboard).unwrap(),
+                    // TODO: Send message to cloud saying we failed to apply config
+                    Err(e) => log::error!("validation error to apply the config {}", e),
+                }
+                tokio::task::spawn(async {});
+            } else {
+                // TODO: Send message to cloud saying we failed to apply config
+                log::error!("failed to get module_ref to apply config");
             }
-            tokio::task::spawn(async {});
-        } else {
-            log::warn!("cannot retrieve a config for {}", state.id);
         }
 
-        let alarms_result = alarm_store.get_alarm_for_module(&state.id.clone());
-        if let Ok(mut alarms) = alarms_result {
-            log::info!("loading {} alarms for {}", alarms.len(), state.id.as_str());
-            for _n in 0..alarms.len() {
-                let (alarm, state) = alarms.pop().unwrap();
-                alarm_validator.register_field_alarm(alarm, state).unwrap();
-            }
+        // BLOCK TO HANDLE ALARMS
+        //
+        match alarm_store.get_alarm_for_module(&state.id.clone()) {
+            Ok(mut alarms) => {
+                log::info!("loading {} alarms for {}", alarms.len(), state.id.as_str());
+                for _n in 0..alarms.len() {
+                    if let Some((alarm, state)) = alarms.pop() {
+                        if let Err(err) = alarm_validator.register_field_alarm(alarm, state) {
+                            log::error!("failed to register alarm : {:?}", err);
+                        }
+                    } else {
+                        log::error!("failed to get next alarm in list");
+                    }
+                }
+            },
+            Err(err) => log::error!("failed to get alarms for modules : {:?}", err),
         }
     }
     if state.state == false {
@@ -260,31 +272,40 @@ fn handle_module_state(
         // remove from module map
         let connected_module = manager.connected_module.remove(state.id.as_str());
         // clear task
-        if connected_module.is_some() {
+        if let Some(connected_module) = connected_module {
             connected_module
-                .unwrap()
                 .handler_map
                 .iter()
                 .for_each(|module| module.1.cancel());
-            send_module_state(
+
+            if let Err(err) = send_module_state(
                 state.id.as_str(),
                 state.port,
                 false,
                 &state.board,
                 &state.board_addr,
                 sender_socket,
-            );
-        }
-        // clear alarm
-        let alarms_result = alarm_store.get_alarm_for_module(&state.id.clone());
-        if let Ok(mut alarms) = alarms_result {
-            log::info!("removing {} alarms for {}", alarms.len(), state.id.as_str());
-            for _n in 0..alarms.len() {
-                let (alarm, _) = alarms.pop().unwrap();
-                alarm_validator.deregister_field_alarm(alarm).unwrap();
+            ) {
+                log::error!("failed to send module state {:?}", err);
             }
+
+            let alarms_result = alarm_store.get_alarm_for_module(&state.id.clone());
+            if let Ok(mut alarms) = alarms_result {
+                log::info!("removing {} alarms for {}", alarms.len(), state.id.as_str());
+                for _n in 0..alarms.len() {
+                    if let Some((alarm, _)) = alarms.pop() {
+                        if let Err(err) = alarm_validator.deregister_field_alarm(alarm) {
+                            log::error!("failed to dereigster field alarm : {:?}", err);
+                        }
+                    }
+                }
+            }
+        } else {
+            log::error!("failed to get disconnecting module from module manager");
         }
     }
+
+    return Ok(());
 }
 
 fn handle_module_value<'a>(
@@ -293,7 +314,7 @@ fn handle_module_value<'a>(
     sender_socket: &Sender<(String, Box<dyn interface::ModuleValueParsable>)>,
     alarm_validator: &mut alarm::validator::AlarmFieldValidator,
     alarm_store: &alarm::store::ModuleAlarmStore,
-) -> () {
+) -> Result<(), MainboardError> {
     let reference_connected_module_option =
         manager.get_module_at_index_mut(&value.board, &value.board_addr, value.port);
     if reference_connected_module_option.is_none() {
@@ -301,25 +322,26 @@ fn handle_module_value<'a>(
             "receive value for port {} but module is not in the store",
             value.port
         );
-        return;
+        return Err(MainboardError::not_found("module_port", ""));
     }
     let reference_connected_module = reference_connected_module_option.unwrap();
 
-    let on_change = |value| {
-        sender_socket
+    let on_change = |value| -> () {
+        if let Err(err) = sender_socket
             .send((
                 String::from(format!("/m/{}/data", reference_connected_module.id)),
                 value,
-            ))
-            .expect("Failed to send !!!");
+            )) {
+                log::error!("failed to send module data : {:?}", err);
+        }
     };
 
     match reference_connected_module.validator.convert_to_value(value) {
         Ok(sensor_value) => {
-            if reference_connected_module.last_value.is_some() {
+            if let Some(last_value) = reference_connected_module.last_value.as_ref() {
                 let change = reference_connected_module.validator.have_data_change(
                     &sensor_value,
-                    reference_connected_module.last_value.as_ref().unwrap(),
+                    last_value,
                 );
                 if change.0 == true {
                     on_change(sensor_value);
@@ -343,19 +365,21 @@ fn handle_module_value<'a>(
                                 .on_module_value_change(&module_value_change)
                                 .iter()
                                 .for_each(|(event, state)| {
-                                    sender_socket
+                                    if let Err(err) = sender_socket
                                         .send((
                                             format!("/m/{}/alarm", event.moduleId),
                                             Box::new(event.clone_me()),
-                                        ))
-                                        .unwrap();
-                                    alarm_store
+                                        )) {
+                                            log::error!("failed to send alarm state : {:?}", err);
+                                    }
+                                    if let Err(err) = alarm_store
                                         .update_alarm_state(
                                             event.moduleId.as_str(),
                                             event.property.as_str(),
                                             &state,
-                                        )
-                                        .unwrap();
+                                        ) {
+                                            log::error!("failed to update alarm state : {:?}", err);
+                                    }
                                 });
                         }
                     }
@@ -372,6 +396,8 @@ fn handle_module_value<'a>(
         }
         Err(e) => log::error!("convert to value error : {}", e),
     }
+
+    return Ok(());
 }
 
 fn handle_module_config(
@@ -381,9 +407,9 @@ fn handle_module_config(
     sender_config: &ComboardSenderMapReference,
     _sender_socket: &Sender<(String, Box<dyn interface::ModuleValueParsable>)>,
     store: &store::ModuleStateStore,
-) -> Result<(), interface::ModuleError> {
+) -> Result<(), MainboardError> {
     let id = crate::utils::mqtt::last_element_path(topic).ok_or(
-        ModuleError::new().message("failed to get last element from mqtt topic".to_string()),
+        MainboardError::new().message("failed to get last element from mqtt topic".to_string()),
     )?;
 
     let module_ref_option = manager.connected_module.get_mut(id.as_str());
@@ -403,17 +429,17 @@ fn handle_module_config(
                 &mut module_ref.handler_map,
             ) {
                 Ok((config, config_comboard)) => {
-                    sender_config.send(config_comboard).unwrap();
-                    store.store_module_config(&id, config).unwrap();
+                    store.store_module_config(&id, config)?;
+                    sender_config.send(config_comboard).map_err(|x| MainboardError::from_error(x.to_string()))?;
                 }
-                Err(e) => log::error!("{}", e),
+                Err(e) => { return Err(e.into()) },
             }
             tokio::task::spawn(async {});
         } else {
-            return Err(interface::ModuleError::sender_not_found(&id));
+            return Err(interface::ModuleError::sender_not_found(&id).into());
         }
     } else {
-        return Err(interface::ModuleError::not_found(&id));
+        return Err(interface::ModuleError::not_found(&id).into());
     }
 
     return Ok(());
@@ -426,16 +452,16 @@ fn handle_remove_module_config(
     _sender_config: &ComboardSenderMapReference,
     _sender_socket: &Sender<(String, Box<dyn interface::ModuleValueParsable>)>,
     store: &store::ModuleStateStore,
-) -> Result<(), interface::ModuleError> {
+) -> Result<(), MainboardError> {
     let id = crate::utils::mqtt::last_element_path(topic).ok_or(
         ModuleError::new().message("failed to get last element from mqtt topic".to_string()),
     )?;
     let module_ref_option = manager.connected_module.get_mut(id.as_str());
     if let Some(module_ref) = module_ref_option {
-        module_ref.validator.remove_config().unwrap();
-        store.delete_module_config(&id).unwrap();
+        module_ref.validator.remove_config()?;
+        store.delete_module_config(&id)?;
     } else {
-        return Err(interface::ModuleError::not_found(&id));
+        return Err(interface::ModuleError::not_found(&id).into());
     }
 
     return Ok(());
@@ -444,7 +470,7 @@ fn handle_remove_module_config(
 fn handle_sync_request(
     manager: &mut MainboardModuleStateManager,
     sender_socket: &Sender<(String, Box<dyn interface::ModuleValueParsable>)>,
-) -> Result<(), interface::ModuleError> {
+) -> Result<(), MainboardError> {
     log::debug!("send sync request to the cloud");
     for (_k, v) in manager.connected_module.iter() {
         send_module_state(
@@ -454,7 +480,7 @@ fn handle_sync_request(
             &v.board,
             &v.board_addr,
             sender_socket,
-        );
+        )?;
     }
 
     return Ok(());
@@ -464,12 +490,11 @@ fn handle_add_alarm(
     alarm_validator: &mut alarm::validator::AlarmFieldValidator,
     alarm_store: &alarm::store::ModuleAlarmStore,
     data: Arc<Vec<u8>>,
-) -> Result<(), interface::ModuleError> {
-    let field_alarm = FieldAlarm::parse_from_bytes(&data).unwrap();
-    alarm_store.add_alarm_field(&field_alarm).unwrap();
+) -> Result<(), MainboardError> {
+    let field_alarm = FieldAlarm::parse_from_bytes(&data)?;
+    alarm_store.add_alarm_field(&field_alarm)?;
     alarm_validator
-        .register_field_alarm(field_alarm, None)
-        .unwrap();
+        .register_field_alarm(field_alarm, None)?;
 
     return Ok(());
 }
@@ -478,12 +503,11 @@ fn handle_update_alarm(
     alarm_validator: &mut alarm::validator::AlarmFieldValidator,
     alarm_store: &alarm::store::ModuleAlarmStore,
     data: Arc<Vec<u8>>,
-) -> Result<(), interface::ModuleError> {
-    let field_alarm = FieldAlarm::parse_from_bytes(&data).unwrap();
-    alarm_store.update_alarm_field(&field_alarm).unwrap();
+) -> Result<(), MainboardError> {
+    let field_alarm = FieldAlarm::parse_from_bytes(&data)?;
+    alarm_store.update_alarm_field(&field_alarm)?;
     alarm_validator
-        .register_field_alarm(field_alarm, None)
-        .unwrap();
+        .register_field_alarm(field_alarm, None)?;
 
     return Ok(());
 }
@@ -492,10 +516,10 @@ fn handle_remove_alarm(
     alarm_validator: &mut alarm::validator::AlarmFieldValidator,
     alarm_store: &alarm::store::ModuleAlarmStore,
     data: Arc<Vec<u8>>,
-) -> Result<(), interface::ModuleError> {
-    let field_alarm = FieldAlarm::parse_from_bytes(&data).unwrap();
-    alarm_store.remove_alarm_field(&field_alarm).unwrap();
-    alarm_validator.deregister_field_alarm(field_alarm).unwrap();
+) -> Result<(), MainboardError> {
+    let field_alarm = FieldAlarm::parse_from_bytes(&data)?;
+    alarm_store.remove_alarm_field(&field_alarm)?;
+    alarm_validator.deregister_field_alarm(field_alarm)?;
 
     return Ok(());
 }
@@ -533,8 +557,8 @@ fn handle_module_command(
     sender_config: &ComboardSenderMapReference,
     sender_socket: &Sender<(String, Box<dyn interface::ModuleValueParsable>)>,
     virtual_relay_store: &mut relay::virtual_relay::store::VirtualRelayStore,
-) -> () {
-    let result = match cmd {
+) -> Result<(), MainboardError> {
+    let result: Result<(), MainboardError> = match cmd {
         "sync" => handle_sync_request(manager, &sender_socket),
         "mconfig" => {
             handle_module_config(topic, data, manager, &sender_config, &sender_socket, &store)
@@ -589,7 +613,7 @@ fn handle_module_command(
                 Ok(option_cmd) => {
                     if let Some(cmds) = option_cmd {
                         cmds.into_iter().for_each(|cmd| {
-                            handle_module_command(
+                            if let Err(err) = handle_module_command(
                                 cmd.cmd,
                                 &cmd.topic,
                                 cmd.data,
@@ -601,7 +625,9 @@ fn handle_module_command(
                                 sender_config,
                                 sender_socket,
                                 virtual_relay_store,
-                            );
+                            ) {
+                                log::error!("failed to handle_module_command : {:?}", err);
+                            }
                         });
                         Ok(())
                     } else {
@@ -609,7 +635,7 @@ fn handle_module_command(
                         Ok(())
                     }
                 }
-                Err(e) => Err(e),
+                Err(e) => Err(e.into()),
             }
         }
     };
@@ -618,14 +644,20 @@ fn handle_module_command(
     match result {
         Ok(()) => {
             action_respose.status = 0;
+            if let Err(err) = sender_response.send(action_respose) {
+                log::error!("failed to send action response : {:?}", err);
+            }
+            return Ok(());
         }
-        Err(module_error) => {
-            action_respose.status = module_error.status;
-            action_respose.msg = module_error.message;
+        Err(mainboard_error) => {
+            action_respose.status = 500;
+            action_respose.msg = mainboard_error.message.clone();
+            if let Err(err) = sender_response.send(action_respose) {
+                log::error!("failed to send action response : {:?}", err);
+            }
+            return Err(mainboard_error);
         }
     }
-
-    sender_response.send(action_respose).unwrap();
 }
 
 pub fn module_state_task(
@@ -649,10 +681,8 @@ pub fn module_state_task(
 
         loop {
             {
-                let receive = receiver_state.try_recv();
-                if receive.is_ok() {
-                    let mut state = receive.unwrap();
-                    handle_module_state(
+                if let Ok(mut state) = receiver_state.try_recv() {
+                    if let Err(err) = handle_module_state(
                         &mut manager,
                         &mut state,
                         &sender_config,
@@ -660,36 +690,37 @@ pub fn module_state_task(
                         &store,
                         &mut alarm_validator,
                         &alarm_store,
-                    );
-                    on_module_state_changed_virtual_relays(
+                    ) {
+                        log::error!("failed to handle_modle_state : {:?}", err);
+                    }
+                    if let Err(()) = on_module_state_changed_virtual_relays(
                         state.state,
                         &sender_config,
                         &sender_socket,
                         &store,
                         &mut virtual_relay_store,
                         &mut manager,
-                    )
-                    .unwrap();
+                    ) {
+                        log::error!("failed to changed virtual_relay state");
+                    }
                 }
             }
             {
-                let receive = receiver_value.try_recv();
-                if receive.is_ok() {
-                    let value = receive.unwrap();
-                    handle_module_value(
+                if let Ok(value) = receiver_value.try_recv() {
+                    if let Err(err) = handle_module_value(
                         &mut manager,
                         &value,
                         &sender_socket,
                         &mut alarm_validator,
                         &alarm_store,
-                    );
+                    ) {
+                        log::error!("failed to handle_module_value : {:?}", err);
+                    }
                 }
             }
             {
-                let receive = CHANNEL_MODULE_STATE_CMD.1.lock().unwrap().try_recv();
-                if receive.is_ok() {
-                    let cmd = receive.unwrap();
-                    handle_module_command(
+                if let Ok(cmd) = CHANNEL_MODULE_STATE_CMD.1.lock().unwrap().try_recv() {
+                    if let Err(err) = handle_module_command(
                         cmd.cmd,
                         &cmd.topic,
                         cmd.data,
@@ -701,7 +732,9 @@ pub fn module_state_task(
                         &sender_config,
                         &sender_socket,
                         &mut virtual_relay_store,
-                    );
+                    ) {
+                        log::error!("failed handle_module_command : {:?}", err);
+                    }
                 }
             }
         }

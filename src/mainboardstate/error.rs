@@ -1,5 +1,8 @@
 use std::sync::mpsc::SendError;
 
+use crate::modulestate::interface::ModuleError;
+use crate::modulestate::interface::ModuleValueParsable;
+
 #[derive(Debug, Clone)]
 pub struct MainboardError {
     pub message: String,
@@ -11,6 +14,12 @@ impl MainboardError {
     pub fn new() -> Self {
         return Self {
             message: String::from(""),
+        };
+    }
+
+    pub fn not_found(typ: &str, id: &str) -> Self {
+        return Self {
+            message: format!("{} with id {} not found", typ, id)
         };
     }
 
@@ -46,6 +55,14 @@ impl MainboardError {
 
 }
 
+impl From<ModuleError> for MainboardError {
+    fn from(value: ModuleError) -> Self {
+        return Self {
+            message: value.to_string(),
+        };
+    }
+}
+
 impl From<rusqlite::Error> for MainboardError {
     fn from(value: rusqlite::Error) -> Self {
          return Self {
@@ -56,6 +73,12 @@ impl From<rusqlite::Error> for MainboardError {
 
 impl From<protobuf::ProtobufError> for MainboardError {
     fn from(value: protobuf::ProtobufError) -> Self {
+        return Self { message: value.to_string() }
+    }
+}
+
+impl From<SendError<(String, Box<dyn ModuleValueParsable>)>> for MainboardError {
+    fn from(value: SendError<(String, Box<dyn ModuleValueParsable>)>) -> Self {
         return Self { message: value.to_string() }
     }
 }

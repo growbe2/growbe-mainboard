@@ -1,6 +1,6 @@
 use tokio_util::sync::CancellationToken;
 
-use crate::modulestate::interface::ModuleError;
+use crate::mainboardstate::error::MainboardError;
 use crate::{
     comboard::imple::channel::{ComboardAddr, ComboardSenderMapReference},
     modulestate::relay::{
@@ -20,19 +20,14 @@ pub fn create_virtual_relay(
     sender_comboard_config: &ComboardSenderMapReference,
     manager: &crate::modulestate::MainboardModuleStateManager,
     store_virtual_relay: &mut VirtualRelayStore,
-) -> Result<VirtualRelay, ModuleError> {
+) -> Result<VirtualRelay, MainboardError> {
     let mut virtual_relay = VirtualRelay::new(relay_config.get_name(), sender_socket);
 
-    store_virtual_relay.store_relay(relay_config).unwrap();
+    store_virtual_relay.store_relay(relay_config)?;
 
     for (k, v) in relay_config.get_relays().iter() {
-        let module_ref_options = manager.connected_module.get(k);
-
-        if module_ref_options.is_none() {
-            return Err(ModuleError::not_found(k));
-        }
-
-        let module_ref = module_ref_options.unwrap();
+        let module_ref = manager.connected_module.get(k)
+            .ok_or(MainboardError::not_found("virtual_relay", k.as_str()))?;
 
         // if only one propertie use a normal relay
         if v.properties.len() == 1 {
@@ -42,8 +37,7 @@ pub fn create_virtual_relay(
                     .get_sender(ComboardAddr {
                         imple: module_ref.board.clone(),
                         addr: module_ref.board_addr.clone(),
-                    })
-                    .unwrap(),
+                    })?,
                 port: module_ref.port,
                 action_port: (*v.properties.get(0).unwrap()).property as usize,
             });
@@ -63,8 +57,7 @@ pub fn create_virtual_relay(
                     .get_sender(ComboardAddr {
                         imple: module_ref.board.clone(),
                         addr: module_ref.board_addr.clone(),
-                    })
-                    .unwrap(),
+                    })?
             });
             virtual_relay.relays.push(batch_relay);
         }
@@ -83,18 +76,17 @@ pub fn delete_virtual_relay(
     _store: &crate::modulestate::store::ModuleStateStore,
     store_virtual_relay: &mut VirtualRelayStore,
     _manager: &mut crate::modulestate::MainboardModuleStateManager,
-) -> Result<(), ModuleError> {
+) -> Result<(), MainboardError> {
     if store_virtual_relay.is_created(name) {
         store_virtual_relay.stop_virtual_relay(name);
         let mut state = crate::protos::module::VirtualRelayState::new();
         state.set_id(name.to_string());
         state.set_state(false);
         sender_socket
-            .send((format!("/vr/{}/vrstate", name), Box::new(state)))
-            .unwrap();
+            .send((format!("/vr/{}/vrstate", name), Box::new(state)))?;
     }
 
-    store_virtual_relay.remove_relay(name);
+    store_virtual_relay.remove_relay(name)?;
 
     log::info!("virtual relay deleted {}", name);
     return Ok(());
@@ -110,7 +102,7 @@ pub fn initialize_virtual_relay(
     store: &crate::modulestate::store::ModuleStateStore,
     store_virtual_relay: &mut VirtualRelayStore,
     manager: &mut crate::modulestate::MainboardModuleStateManager,
-) -> Result<(), ModuleError> {
+) -> Result<(), MainboardError> {
     // check if im already existing , if not , delete me and recreate me ??
     if store_virtual_relay
         .virtual_relay_maps
@@ -159,8 +151,7 @@ pub fn initialize_virtual_relay(
     state.set_id(relay.name.clone());
     state.set_state(true);
     sender_socket
-        .send((format!("/vr/{}/vrstate", state.get_id()), Box::new(state)))
-        .unwrap();
+        .send((format!("/vr/{}/vrstate", state.get_id()), Box::new(state)))?;
 
     return Ok(());
 }
@@ -176,7 +167,7 @@ pub fn apply_config_virtual_relay(
     _store: &crate::modulestate::store::ModuleStateStore,
     store_virtual_relay: &mut VirtualRelayStore,
     _manager: &mut crate::modulestate::MainboardModuleStateManager,
-) -> Result<(), ModuleError> {
+) -> Result<(), MainboardError> {
     match store_virtual_relay.virtual_relay_maps.get_mut(id) {
         Some(relay) => {
             configure_relay(
@@ -190,10 +181,10 @@ pub fn apply_config_virtual_relay(
             );
             //configure_relay(true, &config, relay, & mut store_virtual_relay.cancellation_token_maps, None);
             tokio::spawn(async {});
-            store_virtual_relay.store_relay_config(id, config).unwrap();
+            store_virtual_relay.store_relay_config(id, config)?;
             return Ok(());
         }
-        None => return Err(ModuleError::not_found(id)),
+        None => return Err(MainboardError::not_found("virtual_relay", id.as_str())),
     }
 }
 
@@ -230,7 +221,7 @@ pub fn initialize_virtual_relay_and_apply_config(
     store: &crate::modulestate::store::ModuleStateStore,
     store_virtual_relay: &mut VirtualRelayStore,
     manager: &mut crate::modulestate::MainboardModuleStateManager,
-) {
+) -> Result<(), MainboardError> {
     initialize_virtual_relay(
         &virtual_relay,
         sender_comboard_config,
@@ -238,8 +229,8 @@ pub fn initialize_virtual_relay_and_apply_config(
         store,
         store_virtual_relay,
         manager,
-    )
-    .unwrap();
+    )?;
+
     if let Some(config) = virtual_config.as_ref() {
         apply_config_virtual_relay(
             &String::from(virtual_relay.get_name()),
@@ -249,7 +240,8 @@ pub fn initialize_virtual_relay_and_apply_config(
             store,
             store_virtual_relay,
             manager,
-        )
-        .unwrap();
+        )?;
     }
+
+    Ok(())
 }

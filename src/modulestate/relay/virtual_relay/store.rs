@@ -65,9 +65,10 @@ impl VirtualRelayStore {
      * stopping if existing
      * removing from database
      */
-    pub fn remove_relay(&mut self, id: &str) {
+    pub fn remove_relay(&mut self, id: &str) -> Result<(), MainboardError> {
         self.stop_virtual_relay(id);
-        crate::store::database::store_delete_key(&self.conn, "virtual_relay", id);
+        crate::store::database::store_delete_key(&self.conn, "virtual_relay", id)?;
+        Ok(())
     }
 
     /*
@@ -99,14 +100,14 @@ impl VirtualRelayStore {
         &self,
         id: &str,
         config: &crate::protos::module::RelayOutletConfig,
-    ) -> Result<(), ()> {
+    ) -> Result<(), MainboardError> {
         crate::store::database::store_update_property(
             &self.conn,
             "virtual_relay",
             "config",
             id,
             Box::new(config.clone()),
-        );
+        )?;
         return Ok(());
     }
 }

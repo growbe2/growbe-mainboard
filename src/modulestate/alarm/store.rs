@@ -1,7 +1,8 @@
-use crate::modulestate::interface::ModuleError;
+use crate::modulestate::interface::{ModuleError, conv_err};
 use crate::protos::alarm::FieldAlarm;
 use crate::store::database::{
     store_delete_combine_key, store_field_from_table_combine_key, store_update_property_combine_key,
+    to_sqerror
 };
 
 use protobuf::Message;
@@ -11,6 +12,7 @@ use std::sync::{Arc, Mutex};
 pub struct ModuleAlarmStore {
     pub conn: Arc<Mutex<rusqlite::Connection>>,
 }
+
 
 // ModuleAlarmStore is the store where we keep our alarm field config
 impl ModuleAlarmStore {
@@ -26,22 +28,20 @@ impl ModuleAlarmStore {
         let mut stmt = conn
             .prepare("SELECT config, state FROM module_field_alarm WHERE id = ?")
             .unwrap();
-        let vec_alarms = stmt
+        return stmt
             .query_map([module_id.as_str()], |row| {
-                let buffer: Vec<u8> = row.get(0).unwrap();
-                let buffer_state: Option<Vec<u8>> = row.get(1).unwrap();
+                let buffer: Vec<u8> = row.get(0)?;
+                let buffer_state: Option<Vec<u8>> = row.get(1)?;
                 let buffer_state = buffer_state.unwrap_or_default();
                 let state = if buffer_state.len() > 0 {
-                    Some(serde_json::from_slice(&buffer_state).unwrap())
+                    Some(serde_json::from_slice(&buffer_state).map_err(to_sqerror)?)
                 } else {
                     None
                 };
-                Ok((FieldAlarm::parse_from_bytes(&buffer).unwrap(), state))
-            })
-            .unwrap()
-            .map(|i| i.unwrap())
+                Ok((FieldAlarm::parse_from_bytes(&buffer).map_err(to_sqerror)?, state))
+            })?
+            .map(|x| x.map_err(|x| ModuleError::from_rusqlite_err(module_id, x)))
             .collect();
-        Ok(vec_alarms)
     }
 
     pub fn add_alarm_field(&self, alarm: &FieldAlarm) -> Result<(), ModuleError> {
@@ -50,8 +50,8 @@ impl ModuleAlarmStore {
             "module_field_alarm",
             &alarm.moduleId.clone(),
             &alarm.property.clone(),
-            alarm.write_to_bytes().unwrap(),
-        );
+            alarm.write_to_bytes().map_err(|x| ModuleError::from_protobuf_err(&alarm.moduleId, x))?,
+        ).map_err(conv_err(alarm.moduleId.clone()))?;
         Ok(())
     }
 
@@ -62,8 +62,7 @@ impl ModuleAlarmStore {
         alarm_state: &super::model::ModuleAlarmState<f32>,
     ) -> Result<(), ModuleError> {
         let payload = serde_json::to_vec(&alarm_state).map_err(|x| {
-            log::error!("failed serialize module alarm state {:?}", x);
-            return ModuleError::new();
+            return ModuleError::new().module_id(module_id.to_string()).message(x.to_string());
         })?;
         store_update_property_combine_key(
             &self.conn,
@@ -72,7 +71,7 @@ impl ModuleAlarmStore {
             module_id,
             property,
             payload,
-        );
+        ).map_err(conv_err(module_id.to_string()))?;
         Ok(())
     }
 
@@ -83,8 +82,8 @@ impl ModuleAlarmStore {
             "config",
             &alarm.moduleId.clone(),
             &alarm.property.clone(),
-            alarm.write_to_bytes().unwrap(),
-        );
+            alarm.write_to_bytes().map_err(|x| ModuleError::from_protobuf_err(&alarm.moduleId, x))?,
+        ).map_err(conv_err(alarm.moduleId.clone()))?;
         Ok(())
     }
 
@@ -94,7 +93,7 @@ impl ModuleAlarmStore {
             "module_field_alarm",
             &alarm.moduleId,
             &alarm.property,
-        );
+        ).map_err(conv_err(alarm.moduleId.clone()))?;
         Ok(())
     }
 }
@@ -112,7 +111,7 @@ mod tests {
     const PROPERTY_2: &str = "p1";
 
     fn get_store() -> ModuleAlarmStore {
-        let conn_database = Arc::new(Mutex::new(crate::store::database::init()));
+        let conn_database = Arc::new(Mutex::new(crate::store::database::init(Some("./database_test_alarm.sqlite".to_string()))));
         let store = ModuleAlarmStore::new(conn_database);
         clear_store(&store);
         store
@@ -137,7 +136,7 @@ mod tests {
 
         store.add_alarm_field(&field_alarm).unwrap();
 
-        assert_eq!(nbr_entry(&store.conn, "module_field_alarm"), 1);
+        assert_eq!(nbr_entry(&store.conn, "module_field_alarm").unwrap(), 1);
 
         clear_store(&store);
     }
@@ -185,7 +184,7 @@ mod tests {
         store.add_alarm_field(&field_alarm).unwrap();
         store.add_alarm_field(&field_alarm).unwrap();
 
-        assert_eq!(nbr_entry(&store.conn, "module_field_alarm"), 1);
+        assert_eq!(nbr_entry(&store.conn, "module_field_alarm").unwrap(), 1);
 
         clear_store(&store);
     }
@@ -201,7 +200,7 @@ mod tests {
         store.add_alarm_field(&field_alarm).unwrap();
         store.remove_alarm_field(&field_alarm).unwrap();
 
-        assert_eq!(nbr_entry(&store.conn, "module_field_alarm"), 0);
+        assert_eq!(nbr_entry(&store.conn, "module_field_alarm").unwrap(), 0);
 
         clear_store(&store);
     }

@@ -37,7 +37,7 @@ async fn main() {
     autoupdate();
 
     // Initializing database
-    let conn_database = Arc::new(Mutex::new(store::database::init()));
+    let conn_database = Arc::new(Mutex::new(store::database::init(None)));
 
     // Get the list of running comboards
     let boards = comboard::get_comboard_client();

@@ -72,9 +72,8 @@ impl ModuleStateStore {
         }
     }
 
-    pub fn delete_module_config(&self, id: &str) -> Result<(), rusqlite::Error> {
-        database::store_delete_key(&self.conn, "module_config", id);
-        return Ok(());
+    pub fn delete_module_config(&self, id: &str) -> Result<(), MainboardError> {
+        return database::store_delete_key(&self.conn, "module_config", id);
     }
 
     fn get_module_config_inner<T>(
@@ -89,4 +88,80 @@ impl ModuleStateStore {
         log::debug!("store module config {}", id);
         return database::store_field_from_table(&self.conn, "module_config", id, "config", config);
     }
+}
+
+
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+    use crate::{store::database::nbr_entry, protos::module::SOILProbeConfig};
+    use std::sync::{Arc, Mutex};
+
+
+    fn module_id() -> String {
+        "AAP0000003".to_string()
+    }
+
+    fn get_store() -> ModuleStateStore {
+        let conn_database = Arc::new(
+            Mutex::new(crate::store::database::init(Some("./database_test_modulestate.sqlite".to_string()))));
+        let store = ModuleStateStore::new(conn_database);
+        clear_store(&store);
+        store
+    }
+
+    fn clear_store(store: &ModuleStateStore) {
+        store
+            .conn
+            .lock()
+            .unwrap()
+            .execute("DELETE FROM module_config", [])
+            .unwrap();
+    }
+
+    #[test]
+    fn store_module_config_not_existing() {
+        let store = get_store();
+
+        let config_opt = store.get_module_config(&module_id());
+
+        assert_eq!(config_opt.is_none(), true);
+    }
+
+    #[test]
+    fn store_module_config_existing() {
+        let store = get_store();
+
+        let config = RelayModuleConfig::new();
+        store.store_module_config(&module_id(), Box::new(config)).unwrap();
+
+        store.get_module_config(&module_id()).unwrap();
+
+        assert_eq!(nbr_entry(&store.conn, "module_config").unwrap(), 1);
+    }
+
+    #[test]
+    fn store_module_config_wrong_type() {
+        let store = get_store();
+
+        let mut config = SOILModuleConfig::new();
+        let mut probe = SOILProbeConfig::new();
+        probe.set_low(300);
+        probe.set_high(800);
+        config.set_p0(probe);
+        store.store_module_config(&module_id(), Box::new(config)).unwrap();
+
+        store.delete_module_config(&module_id()).unwrap();
+
+        assert_eq!(store.get_module_config(&module_id()).is_none(), true);
+    }
+
+    #[test]
+    fn store_module_deleting_non_existing() {
+        let store = get_store();
+
+        store.delete_module_config(&module_id()).unwrap();
+    }
+
 }

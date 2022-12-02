@@ -3,8 +3,8 @@ use protobuf::Message;
 use crate::{
     comboard::imple::channel::ComboardSenderMapReference,
     modulestate::{
-        interface::ModuleError, relay::virtual_relay::op::initialize_virtual_relay_and_apply_config,
-    },
+        relay::virtual_relay::op::initialize_virtual_relay_and_apply_config,
+    }, mainboardstate::error::MainboardError,
 };
 
 use super::{
@@ -103,8 +103,8 @@ pub fn handle_virtual_relay(
     store: &crate::modulestate::store::ModuleStateStore,
     store_virtual_relay: &mut VirtualRelayStore,
     manager: &mut crate::modulestate::MainboardModuleStateManager,
-) -> Result<(), crate::modulestate::interface::ModuleError> {
-    let relay_config = crate::protos::module::VirtualRelay::parse_from_bytes(&data).unwrap();
+) -> Result<(), MainboardError> {
+    let relay_config = crate::protos::module::VirtualRelay::parse_from_bytes(&data)?;
 
     return initialize_virtual_relay(
         &relay_config,
@@ -127,12 +127,12 @@ pub fn handle_apply_config_virtual_relay(
     store: &crate::modulestate::store::ModuleStateStore,
     store_virtual_relay: &mut VirtualRelayStore,
     manager: &mut crate::modulestate::MainboardModuleStateManager,
-) -> Result<(), ModuleError> {
+) -> Result<(), MainboardError> {
     let id = crate::utils::mqtt::last_element_path(topic).ok_or(
-        ModuleError::new().message("failed to get last element from mqtt topic".to_string()),
+        MainboardError::new().message("failed to get last element from mqtt topic".to_string()),
     )?;
 
-    let config = crate::protos::module::RelayOutletConfig::parse_from_bytes(&data).unwrap();
+    let config = crate::protos::module::RelayOutletConfig::parse_from_bytes(&data)?;
 
     return apply_config_virtual_relay(
         &id,
@@ -156,9 +156,9 @@ pub fn handle_delete_virtual_relay(
     store: &crate::modulestate::store::ModuleStateStore,
     store_virtual_relay: &mut VirtualRelayStore,
     manager: &mut crate::modulestate::MainboardModuleStateManager,
-) -> Result<(), ModuleError> {
+) -> Result<(), MainboardError> {
     let id = crate::utils::mqtt::last_element_path(topic).ok_or(
-        ModuleError::new().message("failed to get last element from mqtt topic".to_string()),
+        MainboardError::new().message("failed to get last element from mqtt topic".to_string()),
     )?;
 
     return delete_virtual_relay(

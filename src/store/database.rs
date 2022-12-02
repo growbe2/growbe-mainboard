@@ -1,10 +1,14 @@
 use rusqlite::{params, Connection, Result};
-use std::sync::{Arc, Mutex};
+use std::{sync::{Arc, Mutex}, error::Error};
 
 use crate::mainboardstate::error::MainboardError;
 
-fn lock_conn(conn: &Arc<Mutex<Connection>>) -> Result<std::sync::MutexGuard<'_, rusqlite::Connection>, MainboardError> {
+pub fn lock_conn(conn: &Arc<Mutex<Connection>>) -> Result<std::sync::MutexGuard<'_, rusqlite::Connection>, MainboardError> {
     return conn.try_lock().map_err(|err| MainboardError::from_error(err.to_string()));
+}
+
+pub fn to_sqerror(err: impl Error) -> rusqlite::Error {
+    return rusqlite::Error::InvalidParameterName(err.to_string());
 }
 
 pub fn get_field_from_table<T>(
@@ -72,23 +76,18 @@ pub fn store_field_from_table(
     data: Box<dyn protobuf::Message>,
 ) -> Result<(), MainboardError> {
     let payload = data.write_to_bytes()?;
-    let update = conn
-        .lock()
-        .unwrap()
+    let update = lock_conn(&conn)?
         .execute(
             (format!("UPDATE {} SET {} = ? WHERE id = ?", table_name, property)).as_str(),
             params![payload, id],
-        )
-        .unwrap();
+        )?;
 
     if update == 0 {
-        conn.lock()
-            .unwrap()
+        lock_conn(&conn)?
             .execute(
                 (format!("INSERT INTO {} (id, {}) VALUES(?,?)", table_name, property)).as_str(),
                 params![id, payload],
-            )
-            .unwrap();
+            )?;
     }
     Ok(())
 }
@@ -99,10 +98,8 @@ pub fn store_field_from_table_combine_key(
     id: &String,
     property: &String,
     payload: Vec<u8>,
-) -> () {
-    let update = conn
-        .lock()
-        .unwrap()
+) -> Result<(), MainboardError> {
+    let update = lock_conn(&conn)?
         .execute(
             (format!(
                 "UPDATE {} SET config = ? WHERE id = ? AND property = ?",
@@ -110,12 +107,10 @@ pub fn store_field_from_table_combine_key(
             ))
             .as_str(),
             params![payload, id, property],
-        )
-        .unwrap();
+        )?;
 
     if update == 0 {
-        conn.lock()
-            .unwrap()
+        lock_conn(&conn)?
             .execute(
                 (format!(
                     "INSERT INTO {} (id, property, config) VALUES(?,?,?)",
@@ -123,9 +118,9 @@ pub fn store_field_from_table_combine_key(
                 ))
                 .as_str(),
                 params![id, property, payload],
-            )
-            .unwrap();
+            )?;
     }
+    Ok(())
 }
 
 pub fn store_update_property(
@@ -134,15 +129,14 @@ pub fn store_update_property(
     property: &'static str,
     id: &str,
     data: Box<dyn protobuf::Message>,
-) -> () {
-    let buffer = data.write_to_bytes().unwrap();
-    conn.lock()
-        .unwrap()
+) -> Result<(), MainboardError> {
+    let buffer = data.write_to_bytes()?;
+    lock_conn(&conn)?
         .execute(
             (format!("UPDATE {} SET {} = ? WHERE id = ?", table_name, property)).as_str(),
             params![&buffer, id],
-        )
-        .unwrap();
+        )?;
+    Ok(())
 }
 
 pub fn store_update_property_combine_key(
@@ -152,9 +146,8 @@ pub fn store_update_property_combine_key(
     id: &str,
     module_id: &str,
     payload: Vec<u8>,
-) -> () {
-    conn.lock()
-        .unwrap()
+) -> Result<(), MainboardError> {
+    lock_conn(&conn)?
         .execute(
             (format!(
                 "UPDATE {} SET {} = ? WHERE id = ? AND property = ?",
@@ -162,18 +155,17 @@ pub fn store_update_property_combine_key(
             ))
             .as_str(),
             params![payload, id, module_id],
-        )
-        .unwrap();
+        )?;
+    Ok(())
 }
 
-pub fn store_delete_key(conn: &Arc<Mutex<Connection>>, table_name: &'static str, id: &str) -> () {
-    conn.lock()
-        .unwrap()
+pub fn store_delete_key(conn: &Arc<Mutex<Connection>>, table_name: &'static str, id: &str) -> Result<(), MainboardError> {
+    lock_conn(&conn)?
         .execute(
             (format!("DELETE FROM {} WHERE id = ?", table_name)).as_str(),
             params![id],
-        )
-        .unwrap();
+        )?;
+    Ok(())
 }
 
 pub fn store_delete_combine_key(
@@ -181,30 +173,27 @@ pub fn store_delete_combine_key(
     table_name: &'static str,
     id: &String,
     property: &String,
-) -> () {
-    conn.lock()
-        .unwrap()
+) -> Result<(), MainboardError> {
+    lock_conn(&conn)?
         .execute(
             (format!("DELETE FROM {} WHERE id = ? AND property = ?", table_name)).as_str(),
             params![id, property],
-        )
-        .unwrap();
+        )?;
+    Ok(())
 }
 
 #[allow(dead_code)]
-pub fn nbr_entry(conn: &Arc<Mutex<Connection>>, table: &'static str) -> i32 {
-    conn.lock()
-        .unwrap()
+pub fn nbr_entry(conn: &Arc<Mutex<Connection>>, table: &'static str) -> Result<i32, MainboardError> {
+    return lock_conn(&conn)?
         .query_row(
             format!("SELECT count(*) FROM {}", table).as_str(),
             params![],
             |r| r.get(0),
-        )
-        .unwrap()
+        ).map_err(|x| MainboardError::from_sqlite_err(x));
 }
 
-pub fn init() -> Connection {
-    let conn = Connection::open("./database.sqlite").unwrap();
+pub fn init(path: Option<String>) -> Connection {
+    let conn = Connection::open( path.unwrap_or("./database.sqlite".to_string())).unwrap();
 
     conn.execute(
         "CREATE TABLE IF NOT EXISTS module_config (
