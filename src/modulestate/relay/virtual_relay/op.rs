@@ -18,7 +18,7 @@ pub fn create_virtual_relay(
         Box<dyn crate::modulestate::interface::ModuleValueParsable>,
     )>,
     sender_comboard_config: &ComboardSenderMapReference,
-    manager: &crate::modulestate::MainboardModuleStateManager,
+    manager: &crate::modulestate::state_manager::MainboardModuleStateManager,
     store_virtual_relay: &mut VirtualRelayStore,
 ) -> Result<VirtualRelay, MainboardError> {
     let mut virtual_relay = VirtualRelay::new(relay_config.get_name(), sender_socket);
@@ -75,7 +75,7 @@ pub fn delete_virtual_relay(
     )>,
     _store: &crate::modulestate::store::ModuleStateStore,
     store_virtual_relay: &mut VirtualRelayStore,
-    _manager: &mut crate::modulestate::MainboardModuleStateManager,
+    _manager: &mut crate::modulestate::state_manager::MainboardModuleStateManager,
 ) -> Result<(), MainboardError> {
     if store_virtual_relay.is_created(name) {
         store_virtual_relay.stop_virtual_relay(name);
@@ -101,7 +101,7 @@ pub fn initialize_virtual_relay(
     )>,
     store: &crate::modulestate::store::ModuleStateStore,
     store_virtual_relay: &mut VirtualRelayStore,
-    manager: &mut crate::modulestate::MainboardModuleStateManager,
+    manager: &mut crate::modulestate::state_manager::MainboardModuleStateManager,
 ) -> Result<(), MainboardError> {
     // check if im already existing , if not , delete me and recreate me ??
     if store_virtual_relay
@@ -166,7 +166,7 @@ pub fn apply_config_virtual_relay(
     )>,
     _store: &crate::modulestate::store::ModuleStateStore,
     store_virtual_relay: &mut VirtualRelayStore,
-    _manager: &mut crate::modulestate::MainboardModuleStateManager,
+    _manager: &mut crate::modulestate::state_manager::MainboardModuleStateManager,
 ) -> Result<(), MainboardError> {
     match store_virtual_relay.virtual_relay_maps.get_mut(id) {
         Some(relay) => {
@@ -220,7 +220,7 @@ pub fn initialize_virtual_relay_and_apply_config(
     )>,
     store: &crate::modulestate::store::ModuleStateStore,
     store_virtual_relay: &mut VirtualRelayStore,
-    manager: &mut crate::modulestate::MainboardModuleStateManager,
+    manager: &mut crate::modulestate::state_manager::MainboardModuleStateManager,
 ) -> Result<(), MainboardError> {
     initialize_virtual_relay(
         &virtual_relay,

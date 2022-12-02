@@ -368,7 +368,7 @@ pub fn socket_task(
                                 });
                                 if let Some((cmd, _, action_code)) = module_cmd_result {
                                     // send to modulestate handler and wait for response
-                                    crate::modulestate::CHANNEL_MODULE_STATE_CMD
+                                    crate::modulestate::cmd::CHANNEL_MODULE_STATE_CMD
                                         .0
                                         .lock()
                                         .unwrap()

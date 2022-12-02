@@ -64,7 +64,7 @@ async fn main() {
     });
 
     // Create the task to handle the modules state
-    let module_state_task = modulestate::module_state_task(
+    let module_state_task = modulestate::task::module_state_task(
         sender_socket,
         modulestate::store::ModuleStateStore::new(conn_database.clone()),
         config_channel_manager.get_reference(),
