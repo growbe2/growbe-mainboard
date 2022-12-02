@@ -1,55 +1,51 @@
-use super::actor::get_owner;
-use super::relay::configure::configure_relay;
-use super::relay::get_outlet_data;
-use super::relay::physical_relay::ActionPortUnion;
+use crate::modulestate::actor::get_owner;
+use crate::modulestate::relay::{configure::configure_relay, get_outlet_data, physical_relay::ActionPortUnion};
 use crate::modulestate::relay::BatchRelay;
-use crate::protos::module::{Actor, RelayModuleConfig, RelayModuleData};
+use crate::protos::module::{Actor, WCModuleConfig, WCModuleData};
 use protobuf::Message;
+use std::collections::HashMap;
 
-pub struct AAPValidator {
-    pub actors_property: std::collections::HashMap<String, Actor>,
-    pub previous_config: RelayModuleConfig,
+pub struct AABValidator {
+    pub actors_property: HashMap<String, Actor>,
+    pub previous_config: WCModuleConfig,
 }
 
-impl AAPValidator {
-    pub fn new() -> AAPValidator {
-        return AAPValidator {
-            actors_property: std::collections::HashMap::new(),
-            previous_config: RelayModuleConfig::new(),
+impl AABValidator {
+    pub fn new() -> AABValidator {
+        return AABValidator {
+            actors_property: HashMap::new(),
+            previous_config: WCModuleConfig::new(),
         };
     }
 }
 
-impl super::interface::ModuleValue for RelayModuleData {}
+impl crate::modulestate::interface::ModuleValue for WCModuleData {}
 
-impl super::interface::ModuleValueParsable for RelayModuleData {}
+impl crate::modulestate::interface::ModuleValueParsable for WCModuleData {}
 
-impl super::interface::ModuleValueValidator for AAPValidator {
+impl crate::modulestate::interface::ModuleValueValidator for AABValidator {
     fn convert_to_value(
         &mut self,
         value_event: &crate::comboard::imple::interface::ModuleValueValidationEvent,
-    ) -> Result<Box<dyn super::interface::ModuleValueParsable>, super::interface::ModuleError> {
-        if value_event.buffer.len() >= 8 {
-            let mut data = crate::protos::module::RelayModuleData::new();
-            data.p0 = get_outlet_data(value_event.buffer[0]);
-            data.p1 = get_outlet_data(value_event.buffer[1]);
-            data.p2 = get_outlet_data(value_event.buffer[2]);
-            data.p3 = get_outlet_data(value_event.buffer[3]);
-            data.p4 = get_outlet_data(value_event.buffer[4]);
-            data.p5 = get_outlet_data(value_event.buffer[5]);
-            data.p6 = get_outlet_data(value_event.buffer[6]);
-            data.p7 = get_outlet_data(value_event.buffer[7]);
-            data.timestamp = std::time::SystemTime::now()
-                .duration_since(std::time::SystemTime::UNIX_EPOCH)
-                .unwrap()
-                .as_secs() as i32;
-            return Ok(Box::new(data));
-        } else {
-            return Err(super::interface::ModuleError::new());
-        }
+    ) -> Result<Box<dyn crate::modulestate::interface::ModuleValueParsable>, crate::modulestate::interface::ModuleError> {
+        let mut data = crate::protos::module::WCModuleData::new();
+        data.p0 = get_outlet_data(value_event.buffer[0]);
+        data.p1 = get_outlet_data(value_event.buffer[1]);
+        data.p2 = get_outlet_data(value_event.buffer[2]);
+        data.drain = get_outlet_data(value_event.buffer[3]);
+        data.pump0 = get_outlet_data(value_event.buffer[4]);
+        data.pump1 = get_outlet_data(value_event.buffer[5]);
+        data.pump2 = get_outlet_data(value_event.buffer[6]);
+        data.pump3 = get_outlet_data(value_event.buffer[7]);
+        data.timestamp = std::time::SystemTime::now()
+            .duration_since(std::time::SystemTime::UNIX_EPOCH)
+            .unwrap()
+            .as_secs() as i32;
+
+        return Ok(Box::new(data));
     }
 
-    fn remove_config(&mut self) -> Result<(), super::interface::ModuleError> {
+    fn remove_config(&mut self) -> Result<(), crate::modulestate::interface::ModuleError> {
         return Ok(());
     }
 
@@ -67,22 +63,25 @@ impl super::interface::ModuleValueValidator for AAPValidator {
             Box<dyn protobuf::Message>,
             crate::comboard::imple::channel::ModuleConfig,
         ),
-        super::interface::ModuleError,
+        crate::modulestate::interface::ModuleError,
     > {
-        let config: Box<RelayModuleConfig> = Box::new(
-            RelayModuleConfig::parse_from_bytes(&data)
-                .map_err(|_e| super::interface::ModuleError::new())?,
+        let config: Box<WCModuleConfig> = Box::new(
+            WCModuleConfig::parse_from_bytes(&data)
+                .map_err(|_e| crate::modulestate::interface::ModuleError::new())?,
         );
 
         let buffer = [255; 8];
+
         let previous_owner: Option<&Actor> = get_owner(&self.actors_property, "p0");
-        let mut batch_relay = super::relay::physical_relay::BatchPhysicalRelay {
+
+        let mut batch_relay = crate::modulestate::relay::physical_relay::BatchPhysicalRelay {
             action_port: ActionPortUnion::new_port(0),
             buffer: [255; 8],
-            port: port,
             auto_send: false,
+            port: port,
             sender: sender_comboard_config.clone(),
         };
+
         configure_relay(
             config.has_p0(),
             config.get_p0(),
@@ -117,10 +116,10 @@ impl super::interface::ModuleValueValidator for AAPValidator {
 
         batch_relay.action_port.port = 3;
         configure_relay(
-            config.has_p3(),
-            config.get_p3(),
-            self.previous_config.has_p3(),
-            self.previous_config.get_p3(),
+            config.has_drain(),
+            config.get_drain(),
+            self.previous_config.has_drain(),
+            self.previous_config.get_drain(),
             &mut batch_relay,
             map_handler,
             previous_owner,
@@ -128,10 +127,10 @@ impl super::interface::ModuleValueValidator for AAPValidator {
 
         batch_relay.action_port.port = 4;
         configure_relay(
-            config.has_p4(),
-            config.get_p4(),
-            self.previous_config.has_p4(),
-            self.previous_config.get_p4(),
+            config.has_pump0(),
+            config.get_pump0(),
+            self.previous_config.has_pump0(),
+            self.previous_config.get_pump0(),
             &mut batch_relay,
             map_handler,
             previous_owner,
@@ -139,10 +138,10 @@ impl super::interface::ModuleValueValidator for AAPValidator {
 
         batch_relay.action_port.port = 5;
         configure_relay(
-            config.has_p5(),
-            config.get_p5(),
-            self.previous_config.has_p5(),
-            self.previous_config.get_p5(),
+            config.has_pump1(),
+            config.get_pump1(),
+            self.previous_config.has_pump1(),
+            self.previous_config.get_pump1(),
             &mut batch_relay,
             map_handler,
             previous_owner,
@@ -150,10 +149,10 @@ impl super::interface::ModuleValueValidator for AAPValidator {
 
         batch_relay.action_port.port = 6;
         configure_relay(
-            config.has_p6(),
-            config.get_p6(),
-            self.previous_config.has_p6(),
-            self.previous_config.get_p6(),
+            config.has_pump2(),
+            config.get_pump2(),
+            self.previous_config.has_pump2(),
+            self.previous_config.get_pump2(),
             &mut batch_relay,
             map_handler,
             previous_owner,
@@ -161,10 +160,10 @@ impl super::interface::ModuleValueValidator for AAPValidator {
 
         batch_relay.action_port.port = 7;
         configure_relay(
-            config.has_p7(),
-            config.get_p7(),
-            self.previous_config.has_p7(),
-            self.previous_config.get_p7(),
+            config.has_pump3(),
+            config.get_pump3(),
+            self.previous_config.has_pump3(),
+            self.previous_config.get_pump3(),
             &mut batch_relay,
             map_handler,
             previous_owner,
@@ -172,7 +171,7 @@ impl super::interface::ModuleValueValidator for AAPValidator {
 
         batch_relay.execute().unwrap();
 
-        //self.previous_config = *config.clone();
+        self.previous_config = *config.clone();
 
         return Ok((
             config,
@@ -187,9 +186,9 @@ impl super::interface::ModuleValueValidator for AAPValidator {
         &self,
         current: &Box<dyn crate::modulestate::interface::ModuleValueParsable>,
         last: &Box<dyn crate::modulestate::interface::ModuleValueParsable>,
-    ) -> (bool, Vec<super::alarm::model::ValueChange<f32>>) {
-        let current = current.as_any().downcast_ref::<RelayModuleData>().unwrap();
-        let last = last.as_any().downcast_ref::<RelayModuleData>().unwrap();
+    ) -> (bool, Vec<crate::modulestate::alarm::model::ValueChange<f32>>) {
+        let current = current.as_any().downcast_ref::<WCModuleData>().unwrap();
+        let last = last.as_any().downcast_ref::<WCModuleData>().unwrap();
 
         if current.p0.as_ref().unwrap().state != last.p0.as_ref().unwrap().state {
             return (true, vec![]);
@@ -197,15 +196,15 @@ impl super::interface::ModuleValueValidator for AAPValidator {
             return (true, vec![]);
         } else if current.p2.as_ref().unwrap().state != last.p2.as_ref().unwrap().state {
             return (true, vec![]);
-        } else if current.p3.as_ref().unwrap().state != last.p3.as_ref().unwrap().state {
+        } else if current.drain.as_ref().unwrap().state != last.drain.as_ref().unwrap().state {
             return (true, vec![]);
-        } else if current.p4.as_ref().unwrap().state != last.p4.as_ref().unwrap().state {
+        } else if current.pump1.as_ref().unwrap().state != last.pump1.as_ref().unwrap().state {
             return (true, vec![]);
-        } else if current.p5.as_ref().unwrap().state != last.p5.as_ref().unwrap().state {
+        } else if current.pump2.as_ref().unwrap().state != last.pump2.as_ref().unwrap().state {
             return (true, vec![]);
-        } else if current.p6.as_ref().unwrap().state != last.p6.as_ref().unwrap().state {
+        } else if current.pump3.as_ref().unwrap().state != last.pump3.as_ref().unwrap().state {
             return (true, vec![]);
-        } else if current.p7.as_ref().unwrap().state != last.p7.as_ref().unwrap().state {
+        } else if current.pump0.as_ref().unwrap().state != last.pump0.as_ref().unwrap().state {
             return (true, vec![]);
         }
 
@@ -220,9 +219,9 @@ impl super::interface::ModuleValueValidator for AAPValidator {
         _sender_response: &std::sync::mpsc::Sender<crate::protos::message::ActionResponse>,
         _sender_socket: &std::sync::mpsc::Sender<(
             String,
-            Box<dyn super::interface::ModuleValueParsable>,
+            Box<dyn crate::modulestate::interface::ModuleValueParsable>,
         )>,
-    ) -> Result<Option<Vec<super::interface::ModuleStateCmd>>, super::interface::ModuleError> {
+    ) -> Result<Option<Vec<crate::modulestate::interface::ModuleStateCmd>>, crate::modulestate::interface::ModuleError> {
         return Ok(None);
     }
 }

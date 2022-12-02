@@ -8,6 +8,7 @@ use crate::comboard::imple::{
     interface::ModuleStateChangeEvent,
     channel::ComboardSenderMapReference
 };
+use super::modules::get_module_validator;
 use super::state_manager::{MainboardConnectedModule, MainboardModuleStateManager};
 
 lazy_static::lazy_static! {
@@ -35,37 +36,6 @@ pub fn send_module_state(
     Ok(())
 }
 
-
-fn get_module_validator(
-    module_type: &str,
-) -> Result<Box<dyn super::interface::ModuleValueValidator>, MainboardError> {
-    if module_type == "AAA" {
-        return Ok(Box::new(super::aaa::AAAValidator::new()));
-    } else if module_type == "AAS" {
-        return Ok(Box::new(super::aas::AASValidator::new()));
-    } else if module_type == "AAP" {
-        return Ok(Box::new(super::aap::AAPValidator::new()));
-    } else if module_type == "AAB" {
-        return Ok(Box::new(super::aab::AABValidator::new()));
-    } else if module_type == "PAC" {
-        return Ok(Box::new(super::pac::PACValidator::new()));
-    } else if module_type == "PPO" {
-        return Ok(Box::new(super::ppo::PPOValidator::new()));
-    } else if module_type == "PPR" {
-        return Ok(Box::new(super::ppr::PPRValidator::new()));
-    } else if module_type == "PAL" {
-        return Ok(Box::new(super::pal::PALValidator::new()));
-    } else if module_type == "PCS" {
-        return Ok(Box::new(super::pcs::PCSValidator::new()));
-    } else if module_type == "CCS" {
-        return Ok(Box::new(super::ccs::CCSValidator::new()));
-    } else if module_type == "CSS" {
-        return Ok(Box::new(super::css::CSSValidator::new()));
-    } else {
-        return Err(MainboardError::new()
-            .message("cannot find validator for module type".to_string()));
-    }
-}
 
 fn valid_module_id(module_id: &String) -> bool {
     return REGEX_MODULE_ID.is_match(module_id);

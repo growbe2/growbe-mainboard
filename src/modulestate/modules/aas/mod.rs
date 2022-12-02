@@ -24,23 +24,23 @@ impl AASValidator {
     }
 }
 
-impl super::interface::ModuleValue for SOILModuleConfig {}
+impl crate::modulestate::interface::ModuleValue for SOILModuleConfig {}
 
-impl super::interface::ModuleValueParsable for SOILModuleConfig {}
+impl crate::modulestate::interface::ModuleValueParsable for SOILModuleConfig {}
 
-impl super::interface::ModuleValue for SOILModuleData {}
+impl crate::modulestate::interface::ModuleValue for SOILModuleData {}
 
-impl super::interface::ModuleValueParsable for SOILModuleData {}
+impl crate::modulestate::interface::ModuleValueParsable for SOILModuleData {}
 
 fn two_u8_to_u16(b1: u8, b2: u8) -> u16 {
     return ((b2 as u16) << 8) | b1 as u16;
 }
 
-impl super::interface::ModuleValueValidator for AASValidator {
+impl crate::modulestate::interface::ModuleValueValidator for AASValidator {
     fn convert_to_value(
         &mut self,
         value_event: &crate::comboard::imple::interface::ModuleValueValidationEvent,
-    ) -> Result<Box<dyn super::interface::ModuleValueParsable>, super::interface::ModuleError> {
+    ) -> Result<Box<dyn crate::modulestate::interface::ModuleValueParsable>, crate::modulestate::interface::ModuleError> {
         let mut data = SOILModuleData::new();
 
         if value_event.buffer.len() > 350 {
@@ -74,7 +74,7 @@ impl super::interface::ModuleValueValidator for AASValidator {
         return Ok(Box::new(data));
     }
 
-    fn remove_config(&mut self) -> Result<(), super::interface::ModuleError> {
+    fn remove_config(&mut self) -> Result<(), crate::modulestate::interface::ModuleError> {
         self.option_config = None;
         return Ok(());
     }
@@ -93,12 +93,12 @@ impl super::interface::ModuleValueValidator for AASValidator {
             Box<dyn protobuf::Message>,
             crate::comboard::imple::channel::ModuleConfig,
         ),
-        super::interface::ModuleError,
+        crate::modulestate::interface::ModuleError,
     > {
         let config = SOILModuleConfig::parse_from_bytes(&data);
         if config.is_err() {
             return Err(
-                super::interface::ModuleError::new().message(config.err().unwrap().to_string())
+                crate::modulestate::interface::ModuleError::new().message(config.err().unwrap().to_string())
             );
         }
 
@@ -119,63 +119,63 @@ impl super::interface::ModuleValueValidator for AASValidator {
         &self,
         current: &Box<dyn crate::modulestate::interface::ModuleValueParsable>,
         last: &Box<dyn crate::modulestate::interface::ModuleValueParsable>,
-    ) -> (bool, Vec<super::alarm::model::ValueChange<f32>>) {
+    ) -> (bool, Vec<crate::modulestate::alarm::model::ValueChange<f32>>) {
         let current = current.as_any().downcast_ref::<SOILModuleData>().unwrap();
         let last = last.as_any().downcast_ref::<SOILModuleData>().unwrap();
 
         let mut vec = Vec::new();
 
         if difference_of(current.p0, last.p0, 1) {
-            vec.push(super::alarm::model::ValueChange::<f32> {
+            vec.push(crate::modulestate::alarm::model::ValueChange::<f32> {
                 property: "p0".to_string(),
                 current_value: current.p0 as f32,
                 previous_value: last.p0 as f32,
             });
         }
         if difference_of(current.p1, last.p1, 1) {
-            vec.push(super::alarm::model::ValueChange::<f32> {
+            vec.push(crate::modulestate::alarm::model::ValueChange::<f32> {
                 property: "p1".to_string(),
                 current_value: current.p1 as f32,
                 previous_value: last.p1 as f32,
             });
         }
         if difference_of(current.p2, last.p2, 1) {
-            vec.push(super::alarm::model::ValueChange::<f32> {
+            vec.push(crate::modulestate::alarm::model::ValueChange::<f32> {
                 property: "p2".to_string(),
                 current_value: current.p2 as f32,
                 previous_value: last.p2 as f32,
             });
         }
         if difference_of(current.p3, last.p3, 1) {
-            vec.push(super::alarm::model::ValueChange::<f32> {
+            vec.push(crate::modulestate::alarm::model::ValueChange::<f32> {
                 property: "p3".to_string(),
                 current_value: current.p3 as f32,
                 previous_value: last.p3 as f32,
             });
         }
         if difference_of(current.p4, last.p4, 1) {
-            vec.push(super::alarm::model::ValueChange::<f32> {
+            vec.push(crate::modulestate::alarm::model::ValueChange::<f32> {
                 property: "p4".to_string(),
                 current_value: current.p4 as f32,
                 previous_value: last.p4 as f32,
             });
         }
         if difference_of(current.p5, last.p5, 1) {
-            vec.push(super::alarm::model::ValueChange::<f32> {
+            vec.push(crate::modulestate::alarm::model::ValueChange::<f32> {
                 property: "p5".to_string(),
                 current_value: current.p5 as f32,
                 previous_value: last.p5 as f32,
             });
         }
         if difference_of(current.p6, last.p6, 1) {
-            vec.push(super::alarm::model::ValueChange::<f32> {
+            vec.push(crate::modulestate::alarm::model::ValueChange::<f32> {
                 property: "p6".to_string(),
                 current_value: current.p6 as f32,
                 previous_value: last.p6 as f32,
             });
         }
         if difference_of(current.p7, last.p7, 1) {
-            vec.push(super::alarm::model::ValueChange::<f32> {
+            vec.push(crate::modulestate::alarm::model::ValueChange::<f32> {
                 property: "p7".to_string(),
                 current_value: current.p7 as f32,
                 previous_value: last.p7 as f32,
@@ -196,9 +196,9 @@ impl super::interface::ModuleValueValidator for AASValidator {
         sender_response: &std::sync::mpsc::Sender<crate::protos::message::ActionResponse>,
         sender_socket: &std::sync::mpsc::Sender<(
             String,
-            Box<dyn super::interface::ModuleValueParsable>,
+            Box<dyn crate::modulestate::interface::ModuleValueParsable>,
         )>,
-    ) -> Result<Option<Vec<super::interface::ModuleStateCmd>>, super::interface::ModuleError> {
+    ) -> Result<Option<Vec<crate::modulestate::interface::ModuleStateCmd>>, crate::modulestate::interface::ModuleError> {
         let mut event = SOILCalibrationStepEvent::new();
         match cmd {
             "startCalibration" => {
@@ -238,7 +238,7 @@ impl super::interface::ModuleValueValidator for AASValidator {
                                 ))
                                 .unwrap();
 
-                            let cmd = super::interface::ModuleStateCmd {
+                            let cmd = crate::modulestate::interface::ModuleStateCmd {
                                 cmd: "mconfig",
                                 topic: format!("/{}", module_id),
                                 data: std::sync::Arc::new(config_bytes),
@@ -264,8 +264,8 @@ impl super::interface::ModuleValueValidator for AASValidator {
                 }
             }
             _ => {
-                return Err(super::interface::ModuleError::new()
-                    .status(super::interface::CMD_NOT_SUPPORTED));
+                return Err(crate::modulestate::interface::ModuleError::new()
+                    .status(crate::modulestate::interface::CMD_NOT_SUPPORTED));
             }
         }
         sender_socket

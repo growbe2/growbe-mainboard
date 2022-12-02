@@ -15,15 +15,15 @@ impl AAAValidator {
     }
 }
 
-impl super::interface::ModuleValue for THLModuleData {}
+impl crate::modulestate::interface::ModuleValue for THLModuleData {}
 
-impl super::interface::ModuleValueParsable for THLModuleData {}
+impl crate::modulestate::interface::ModuleValueParsable for THLModuleData {}
 
-impl super::interface::ModuleValueValidator for AAAValidator {
+impl crate::modulestate::interface::ModuleValueValidator for AAAValidator {
     fn convert_to_value(
         &mut self,
         value_event: &crate::comboard::imple::interface::ModuleValueValidationEvent,
-    ) -> Result<Box<dyn super::interface::ModuleValueParsable>, super::interface::ModuleError> {
+    ) -> Result<Box<dyn crate::modulestate::interface::ModuleValueParsable>, crate::modulestate::interface::ModuleError> {
         let mut data = THLModuleData::new();
 
         let mut v = std::ptr::null_mut();
@@ -38,7 +38,7 @@ impl super::interface::ModuleValueValidator for AAAValidator {
                     .unwrap()
                     .as_secs() as i32;
             } else {
-                return Err(super::interface::ModuleError::new()
+                return Err(crate::modulestate::interface::ModuleError::new()
                     .message("could not parse value from buffer".to_string()));
             }
         }
@@ -60,12 +60,12 @@ impl super::interface::ModuleValueValidator for AAAValidator {
             Box<dyn protobuf::Message>,
             crate::comboard::imple::channel::ModuleConfig,
         ),
-        super::interface::ModuleError,
+        crate::modulestate::interface::ModuleError,
     > {
-        Err(super::interface::ModuleError::new())
+        Err(crate::modulestate::interface::ModuleError::new())
     }
 
-    fn remove_config(&mut self) -> Result<(), super::interface::ModuleError> {
+    fn remove_config(&mut self) -> Result<(), crate::modulestate::interface::ModuleError> {
         return Ok(());
     }
 
@@ -73,21 +73,21 @@ impl super::interface::ModuleValueValidator for AAAValidator {
         &self,
         current: &Box<dyn crate::modulestate::interface::ModuleValueParsable>,
         last: &Box<dyn crate::modulestate::interface::ModuleValueParsable>,
-    ) -> (bool, Vec<super::alarm::model::ValueChange<f32>>) {
+    ) -> (bool, Vec<crate::modulestate::alarm::model::ValueChange<f32>>) {
         let current = current.as_any().downcast_ref::<THLModuleData>().unwrap();
         let last = last.as_any().downcast_ref::<THLModuleData>().unwrap();
 
         let mut vec = Vec::new();
 
         if difference_of(current.airTemperature, last.airTemperature, 0.1) {
-            vec.push(super::alarm::model::ValueChange::<f32> {
+            vec.push(crate::modulestate::alarm::model::ValueChange::<f32> {
                 property: "airTemperature".to_string(),
                 current_value: current.airTemperature,
                 previous_value: last.airTemperature,
             });
         }
         if difference_of(current.humidity, last.humidity, 0.5) {
-            vec.push(super::alarm::model::ValueChange::<f32> {
+            vec.push(crate::modulestate::alarm::model::ValueChange::<f32> {
                 property: "humidity".to_string(),
                 current_value: current.humidity,
                 previous_value: last.humidity,
@@ -108,9 +108,9 @@ impl super::interface::ModuleValueValidator for AAAValidator {
         _sender_response: &std::sync::mpsc::Sender<crate::protos::message::ActionResponse>,
         _sender_socket: &std::sync::mpsc::Sender<(
             String,
-            Box<dyn super::interface::ModuleValueParsable>,
+            Box<dyn crate::modulestate::interface::ModuleValueParsable>,
         )>,
-    ) -> Result<Option<Vec<super::interface::ModuleStateCmd>>, super::interface::ModuleError> {
+    ) -> Result<Option<Vec<crate::modulestate::interface::ModuleStateCmd>>, crate::modulestate::interface::ModuleError> {
         return Ok(None);
     }
 }

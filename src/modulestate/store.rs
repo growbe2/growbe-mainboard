@@ -12,6 +12,22 @@ pub struct ModuleStateStore {
     pub conn: Arc<Mutex<rusqlite::Connection>>,
 }
 
+lazy_static::lazy_static! {
+    static ref SUPPORTED_MODULES: Vec<&'static str> = vec!["AAP", "AAB", "AAS", "PCS", "CCS"];
+}
+
+fn is_supported(module_id: &String) -> bool {
+    if module_id.len() > 3 {
+        let sub = module_id[0..3].to_string();
+        for sup in SUPPORTED_MODULES.iter() {
+            if sub.eq(sup) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 impl ModuleStateStore {
     pub fn new(conn: Arc<Mutex<rusqlite::Connection>>) -> Self {
         return ModuleStateStore { conn };
@@ -85,8 +101,11 @@ impl ModuleStateStore {
     }
 
     pub fn store_module_config(&self, id: &String, config: Box<dyn protobuf::Message>) -> Result<(), MainboardError> {
-        log::debug!("store module config {}", id);
-        return database::store_field_from_table(&self.conn, "module_config", id, "config", config);
+        if is_supported(id) {
+            log::debug!("store module config {}", id);
+            return database::store_field_from_table(&self.conn, "module_config", id, "config", config);
+        }
+        return Err(MainboardError::from_error("module is not supported to save config".to_string()));
     }
 }
 
@@ -95,9 +114,19 @@ impl ModuleStateStore {
 mod tests {
 
     use super::*;
-    use crate::{store::database::nbr_entry, protos::module::SOILProbeConfig};
+    use crate::{store::database::nbr_entry, protos::board::HelloWord};
     use std::sync::{Arc, Mutex};
 
+
+    fn supported_modules() -> Vec<&'static str> {
+        return vec!["AAP", "AAB", "AAS", "PCS", "CCS"];
+    }
+
+    fn get_id() -> &'static str { "0000001" }
+
+    fn get_modules() -> Vec<String> {
+        supported_modules().into_iter().map(|x| format!("{}{}", x, get_id())).collect()
+    }
 
     fn module_id() -> String {
         "AAP0000003".to_string()
@@ -145,16 +174,18 @@ mod tests {
     fn store_module_config_wrong_type() {
         let store = get_store();
 
-        let mut config = SOILModuleConfig::new();
-        let mut probe = SOILProbeConfig::new();
-        probe.set_low(300);
-        probe.set_high(800);
-        config.set_p0(probe);
-        store.store_module_config(&module_id(), Box::new(config)).unwrap();
+        let mut hello_world = HelloWord::new();
+        hello_world.set_version("my version".to_string());
 
-        store.delete_module_config(&module_id()).unwrap();
+        for module in get_modules() {
 
-        assert_eq!(store.get_module_config(&module_id()).is_none(), true);
+            store.store_module_config(&module, Box::new(hello_world.clone())).unwrap();
+
+            assert_eq!(store.get_module_config(&module).is_none(), true);
+
+            store.delete_module_config(&module).unwrap();
+
+        }
     }
 
     #[test]
@@ -162,6 +193,28 @@ mod tests {
         let store = get_store();
 
         store.delete_module_config(&module_id()).unwrap();
+    }
+
+    #[test]
+    fn store_all_supported_type_are_working() {
+        let store = get_store();
+
+        for module in get_modules() {
+            let config = SOILModuleConfig::new();
+            store.store_module_config(&module, Box::new(config)).unwrap();
+            store.get_module_config(&module).unwrap();
+        }
+    }
+
+    #[test]
+    fn store_unsupported_module_type() {
+        let store = get_store();
+        let config = SOILModuleConfig::new();
+        let id = "KKK0000001".to_string();
+
+        store.store_module_config(&id, Box::new(config)).unwrap_err();
+
+        assert_eq!(store.get_module_config(&id).is_none(), true);
     }
 
 }

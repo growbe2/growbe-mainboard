@@ -1,30 +1,30 @@
 use protobuf::Message;
 
-use crate::protos::module::PhonePositionData;
+use crate::protos::module::ComputerStatsData;
 
-use super::interface::ModuleError;
+use crate::modulestate::interface::ModuleError;
 
-pub struct PPOValidator {}
+pub struct CSSValidator {}
 
-impl PPOValidator {
-    pub fn new() -> PPOValidator {
-        return PPOValidator {};
+impl CSSValidator {
+    pub fn new() -> CSSValidator {
+        return CSSValidator {};
     }
 }
 
-impl super::interface::ModuleValue for PhonePositionData {}
+impl crate::modulestate::interface::ModuleValue for ComputerStatsData {}
 
-impl super::interface::ModuleValueParsable for PhonePositionData {}
+impl crate::modulestate::interface::ModuleValueParsable for ComputerStatsData {}
 
-impl super::interface::ModuleValueValidator for PPOValidator {
+impl crate::modulestate::interface::ModuleValueValidator for CSSValidator {
     fn convert_to_value(
         &mut self,
         value_event: &crate::comboard::imple::interface::ModuleValueValidationEvent,
-    ) -> Result<Box<dyn super::interface::ModuleValueParsable>, super::interface::ModuleError> {
-        if let Ok(data) = PhonePositionData::parse_from_bytes(&value_event.buffer) {
-            return Ok(Box::new(data));
+    ) -> Result<Box<dyn crate::modulestate::interface::ModuleValueParsable>, crate::modulestate::interface::ModuleError> {
+        match ComputerStatsData::parse_from_bytes(&value_event.buffer) {
+            Ok(data) => Ok(Box::new(data)),
+            Err(err) => Err(ModuleError::new().message(err.to_string())),
         }
-        return Err(ModuleError::new());
     }
 
     fn apply_parse_config(
@@ -41,12 +41,12 @@ impl super::interface::ModuleValueValidator for PPOValidator {
             Box<dyn protobuf::Message>,
             crate::comboard::imple::channel::ModuleConfig,
         ),
-        super::interface::ModuleError,
+        crate::modulestate::interface::ModuleError,
     > {
-        Err(super::interface::ModuleError::new())
+        return Err(ModuleError::new());
     }
 
-    fn remove_config(&mut self) -> Result<(), super::interface::ModuleError> {
+    fn remove_config(&mut self) -> Result<(), crate::modulestate::interface::ModuleError> {
         return Ok(());
     }
 
@@ -54,7 +54,7 @@ impl super::interface::ModuleValueValidator for PPOValidator {
         &self,
         _current: &Box<dyn crate::modulestate::interface::ModuleValueParsable>,
         _last: &Box<dyn crate::modulestate::interface::ModuleValueParsable>,
-    ) -> (bool, Vec<super::alarm::model::ValueChange<f32>>) {
+    ) -> (bool, Vec<crate::modulestate::alarm::model::ValueChange<f32>>) {
         return (true, vec![]);
     }
 
@@ -66,9 +66,9 @@ impl super::interface::ModuleValueValidator for PPOValidator {
         _sender_response: &std::sync::mpsc::Sender<crate::protos::message::ActionResponse>,
         _sender_socket: &std::sync::mpsc::Sender<(
             String,
-            Box<dyn super::interface::ModuleValueParsable>,
+            Box<dyn crate::modulestate::interface::ModuleValueParsable>,
         )>,
-    ) -> Result<Option<Vec<super::interface::ModuleStateCmd>>, super::interface::ModuleError> {
+    ) -> Result<Option<Vec<crate::modulestate::interface::ModuleStateCmd>>, crate::modulestate::interface::ModuleError> {
         return Ok(None);
     }
 }
