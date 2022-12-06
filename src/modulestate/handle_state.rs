@@ -185,11 +185,111 @@ pub fn handle_module_state(
                 }
             }
         } else {
-            log::error!("failed to get disconnecting module from module manager");
+            return Err(MainboardError::not_found("module", &state.id));
         }
     }
 
     return Ok(());
 }
 
+#[cfg(test)]
+mod tests {
+    use crate::comboard::imple::channel::ComboardConfigChannelManager;
+    use crate::modulestate::alarm::store::ModuleAlarmStore;
+    use crate::modulestate::alarm::validator::AlarmFieldValidator;
+    use crate::modulestate::interface::ModuleValueParsable;
+    use crate::modulestate::relay::virtual_relay::store::VirtualRelayStore;
+    use crate::modulestate::store::ModuleStateStore;
 
+    use super::*;
+
+    use std::sync::mpsc::Receiver;
+    use std::sync::{Arc,Mutex, mpsc::channel};
+    use std::collections::HashMap;
+
+    fn get_ctx() -> (
+        MainboardModuleStateManager,
+        AlarmFieldValidator,
+        ModuleAlarmStore,
+        VirtualRelayStore,
+        ComboardSenderMapReference,
+        Sender<(String, Box<dyn ModuleValueParsable>)>,
+        Receiver<(String, Box<dyn ModuleValueParsable>)>,
+        ModuleStateStore,
+    ) {
+        let conn_database = Arc::new(Mutex::new(crate::store::database::init(None)));
+
+        let mut manager = MainboardModuleStateManager {
+            connected_module: HashMap::new(),
+        };
+
+        let mut alarm_validator = crate::modulestate::alarm::validator::AlarmFieldValidator::new();
+        let module_alarm_store = crate::modulestate::alarm::store::ModuleAlarmStore::new(conn_database.clone());
+        let mut virtual_relay_store =
+            crate::modulestate::relay::virtual_relay::store::VirtualRelayStore::new(module_alarm_store.conn.clone());
+        
+        let mut config_channel_manager = ComboardConfigChannelManager::new();
+
+        let (sender_socket, receiver_socket) =
+            channel::<(String, Box<dyn crate::modulestate::interface::ModuleValueParsable>)>();
+
+        let module_state_store = crate::modulestate::store::ModuleStateStore::new(conn_database.clone());
+        let config_channel_manager = config_channel_manager.get_reference();
+
+        return (
+            manager,
+            alarm_validator,
+            module_alarm_store,
+            virtual_relay_store,
+            config_channel_manager,
+            sender_socket,
+            receiver_socket,
+            module_state_store,
+        );
+    }
+
+    #[test]
+    fn invalid_id_return_error() {
+
+    }
+
+    #[test]
+    fn receive_disconnect_not_store_return_error() {
+
+    }
+
+    #[test]
+    fn receive_disconnect_cancellation_token() {
+
+    }
+
+    #[test]
+    fn receive_disconnect_send_socket() {
+
+    }
+
+    #[test]
+    fn receive_disconnect_remove_alarms() {
+
+    }
+
+    #[test]
+    fn receive_connect_unsupported_module_return_error() {
+
+    }
+
+    #[test]
+    fn receive_connect_noconfig_noalarm() {
+
+    }
+
+    #[test]
+    fn receive_connect_config() {
+
+    }
+
+    #[test]
+    fn receive_connect_alarm() {
+
+    }
+} 

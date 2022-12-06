@@ -14,6 +14,12 @@ pub struct MainboardModuleStateManager {
 }
 
 impl MainboardModuleStateManager {
+    pub fn new() -> Self {
+        Self {
+            connected_module: HashMap::new()
+        }
+    }
+
     pub fn get_module_at_index(
         &self,
         board: &String,
@@ -47,5 +53,4 @@ impl MainboardModuleStateManager {
         return Vec::from_iter(self.connected_module.keys().cloned());
     }
 }
-
 
