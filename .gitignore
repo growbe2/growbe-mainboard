@@ -11,3 +11,4 @@ proto/
 log_http.py
 .gitignore
 docker/config.mak
+cargo-test*

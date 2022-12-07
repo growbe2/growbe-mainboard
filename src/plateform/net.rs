@@ -2,6 +2,8 @@ use serde::{Deserialize, Serialize};
 
 use nix::sys::socket::AddressFamily;
 
+use crate::mainboardstate::error::MainboardError;
+
 #[derive(Serialize, Deserialize, Clone)]
 pub struct NetworkIterface {
     pub name: String,
@@ -17,18 +19,21 @@ pub struct NetworkInfo {
     interfaces: Vec<NetworkIterface>,
 }
 
-pub fn get_ip_addr() -> String {
-    let net_info = get_net_info();
+pub fn get_ip_addr() -> Result<String, MainboardError> {
+    let net_info = get_net_info()?;
+    // TODO rework this to work on none pi device using wifi
     let interface_wlan0_response = net_info.interfaces.iter().find(|&x| x.name == "wlan0");
-    if let Some(interface_wlan0) = interface_wlan0_response {
-        let addr = interface_wlan0.ip.clone();
-        return addr;
+    if let Some(x) = interface_wlan0_response {
+        return Ok(x.ip.clone());
     }
-    return String::from("");
+    return Err(MainboardError::from_error(
+        "failed to get wlan0".to_string(),
+    ));
 }
 
-pub fn get_net_info() -> NetworkInfo {
-    let addrs = nix::ifaddrs::getifaddrs().unwrap();
+pub fn get_net_info() -> Result<NetworkInfo, MainboardError> {
+    let addrs =
+        nix::ifaddrs::getifaddrs().map_err(|err| MainboardError::from_error(err.to_string()))?;
 
     let mut hashmap: std::collections::HashMap<String, NetworkIterface> =
         std::collections::HashMap::new();
@@ -70,7 +75,11 @@ pub fn get_net_info() -> NetworkInfo {
         }
     }
 
-    return NetworkInfo {
+    if hashmap.len() == 0 {
+        return Err(MainboardError::new().message("failed to get network interface".to_string()));
+    }
+
+    return Ok(NetworkInfo {
         interfaces: hashmap.into_values().collect(),
-    };
+    });
 }

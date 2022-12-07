@@ -1,7 +1,7 @@
-use crate::protos::board::HostInformation;
+use crate::{mainboardstate::error::MainboardError, protos::board::HostInformation};
 
-pub fn get_host_information() -> HostInformation {
-    let un = uname::uname().unwrap();
+pub fn get_host_information() -> Result<HostInformation, MainboardError> {
+    let un = uname::uname().map_err(|x| MainboardError::from_error(x.to_string()))?;
     let mut host = HostInformation::new();
 
     host.architecture = un.machine;
@@ -10,5 +10,5 @@ pub fn get_host_information() -> HostInformation {
     host.kernelVersion = un.version;
     host.kernel = un.release;
 
-    return host;
+    return Ok(host);
 }

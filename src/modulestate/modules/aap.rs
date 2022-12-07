@@ -1,7 +1,7 @@
-use super::actor::get_owner;
-use super::relay::configure::configure_relay;
-use super::relay::get_outlet_data;
-use super::relay::physical_relay::ActionPortUnion;
+use crate::modulestate::actor::get_owner;
+use crate::modulestate::relay::configure::configure_relay;
+use crate::modulestate::relay::get_outlet_data;
+use crate::modulestate::relay::physical_relay::ActionPortUnion;
 use crate::modulestate::relay::BatchRelay;
 use crate::protos::module::{Actor, RelayModuleConfig, RelayModuleData};
 use protobuf::Message;
@@ -20,15 +20,18 @@ impl AAPValidator {
     }
 }
 
-impl super::interface::ModuleValue for RelayModuleData {}
+impl crate::modulestate::interface::ModuleValue for RelayModuleData {}
 
-impl super::interface::ModuleValueParsable for RelayModuleData {}
+impl crate::modulestate::interface::ModuleValueParsable for RelayModuleData {}
 
-impl super::interface::ModuleValueValidator for AAPValidator {
+impl crate::modulestate::interface::ModuleValueValidator for AAPValidator {
     fn convert_to_value(
         &mut self,
         value_event: &crate::comboard::imple::interface::ModuleValueValidationEvent,
-    ) -> Result<Box<dyn super::interface::ModuleValueParsable>, super::interface::ModuleError> {
+    ) -> Result<
+        Box<dyn crate::modulestate::interface::ModuleValueParsable>,
+        crate::modulestate::interface::ModuleError,
+    > {
         if value_event.buffer.len() >= 8 {
             let mut data = crate::protos::module::RelayModuleData::new();
             data.p0 = get_outlet_data(value_event.buffer[0]);
@@ -45,11 +48,11 @@ impl super::interface::ModuleValueValidator for AAPValidator {
                 .as_secs() as i32;
             return Ok(Box::new(data));
         } else {
-            return Err(super::interface::ModuleError::new());
+            return Err(crate::modulestate::interface::ModuleError::new());
         }
     }
 
-    fn remove_config(&mut self) -> Result<(), super::interface::ModuleError> {
+    fn remove_config(&mut self) -> Result<(), crate::modulestate::interface::ModuleError> {
         return Ok(());
     }
 
@@ -67,16 +70,16 @@ impl super::interface::ModuleValueValidator for AAPValidator {
             Box<dyn protobuf::Message>,
             crate::comboard::imple::channel::ModuleConfig,
         ),
-        super::interface::ModuleError,
+        crate::modulestate::interface::ModuleError,
     > {
         let config: Box<RelayModuleConfig> = Box::new(
             RelayModuleConfig::parse_from_bytes(&data)
-                .map_err(|_e| super::interface::ModuleError::new())?,
+                .map_err(|_e| crate::modulestate::interface::ModuleError::new())?,
         );
 
         let buffer = [255; 8];
         let previous_owner: Option<&Actor> = get_owner(&self.actors_property, "p0");
-        let mut batch_relay = super::relay::physical_relay::BatchPhysicalRelay {
+        let mut batch_relay = crate::modulestate::relay::physical_relay::BatchPhysicalRelay {
             action_port: ActionPortUnion::new_port(0),
             buffer: [255; 8],
             port: port,
@@ -187,7 +190,10 @@ impl super::interface::ModuleValueValidator for AAPValidator {
         &self,
         current: &Box<dyn crate::modulestate::interface::ModuleValueParsable>,
         last: &Box<dyn crate::modulestate::interface::ModuleValueParsable>,
-    ) -> (bool, Vec<super::alarm::model::ValueChange<f32>>) {
+    ) -> (
+        bool,
+        Vec<crate::modulestate::alarm::model::ValueChange<f32>>,
+    ) {
         let current = current.as_any().downcast_ref::<RelayModuleData>().unwrap();
         let last = last.as_any().downcast_ref::<RelayModuleData>().unwrap();
 
@@ -220,9 +226,12 @@ impl super::interface::ModuleValueValidator for AAPValidator {
         _sender_response: &std::sync::mpsc::Sender<crate::protos::message::ActionResponse>,
         _sender_socket: &std::sync::mpsc::Sender<(
             String,
-            Box<dyn super::interface::ModuleValueParsable>,
+            Box<dyn crate::modulestate::interface::ModuleValueParsable>,
         )>,
-    ) -> Result<Option<Vec<super::interface::ModuleStateCmd>>, super::interface::ModuleError> {
+    ) -> Result<
+        Option<Vec<crate::modulestate::interface::ModuleStateCmd>>,
+        crate::modulestate::interface::ModuleError,
+    > {
         return Ok(None);
     }
 }

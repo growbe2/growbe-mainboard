@@ -30,22 +30,30 @@ pub fn get_comboard_client() -> Vec<(RunningComboard, Box<dyn imple::interface::
     for element in crate::mainboardstate::config::CONFIG.comboards.iter() {
         let mut board: Vec<Box<dyn imple::interface::ComboardClient>> = vec![];
 
-        if element.imple == "i2c" {
+        if element.imple == "virt" {
             #[cfg(feature = "com_virt")]
             board.push(Box::new(get_comboard_virt(ComboardClientConfig {
                 config: element.config.clone(),
             })));
+            #[cfg(not(feature = "com_virt"))]
+            panic!("virtual comboard not compiled in the version");
         } else if element.imple == "i2c" {
             #[cfg(all(target_os = "linux", feature = "com_i2c"))]
             board.push(Box::new(get_comboard_i2c(ComboardClientConfig {
                 config: element.config.clone(),
             })));
+            #[cfg(not(feature = "i2c"))]
+            panic!("i2c comboard not compiled in the version");
         } else if element.imple == "ble" {
             #[cfg(feature = "com_ble")]
             board.push(get_ble_comboard(element.config.clone()));
+            #[cfg(not(feature = "com_ble"))]
+            panic!("ble comboard not compiled in the version");
         } else if element.imple == "ws" {
             #[cfg(feature = "com_ws")]
             board.push(get_ws_comboard(element.config.clone()));
+            #[cfg(not(feature = "com_ws"))]
+            panic!("ws comboard not compiled in the version");
         };
 
         if board.len() == 1 {

@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+use crate::mainboardstate::error::MainboardError;
+
 #[derive(Serialize, Deserialize)]
 pub struct SysInfo {
     pub hostname: String,
@@ -18,13 +20,14 @@ pub struct SysInfo {
 }
 
 #[allow(dead_code)]
-pub fn get_sys_info() -> SysInfo {
+pub fn get_sys_info() -> Result<SysInfo, MainboardError> {
     let mut buf = [0u8; 64];
-    let hostname = nix::unistd::gethostname(&mut buf).unwrap();
+    let hostname = nix::unistd::gethostname(&mut buf)
+        .map_err(|x| MainboardError::from_error(x.to_string()))?;
 
     let uts_name = nix::sys::utsname::uname();
     let mut info = SysInfo {
-        hostname: hostname.to_str().unwrap().to_owned(),
+        hostname: hostname.to_str().unwrap_or_default().to_owned(),
         uname: format!("{} {}", uts_name.machine(), uts_name.release()),
         os: uts_name.sysname().to_string(),
         uptime: 0,
@@ -35,7 +38,8 @@ pub fn get_sys_info() -> SysInfo {
 
     #[cfg(target_os = "linux")]
     {
-        let sys_info = nix::sys::sysinfo::sysinfo().unwrap();
+        let sys_info =
+            nix::sys::sysinfo::sysinfo().map_err(|x| MainboardError::from_error(x.to_string()))?;
         let load_average = sys_info.load_average();
         info.uptime = sys_info.uptime().as_secs();
         info.load_average = [load_average.0, load_average.1, load_average.2];
@@ -43,5 +47,5 @@ pub fn get_sys_info() -> SysInfo {
         info.ram_unused = sys_info.ram_unused();
     }
 
-    return info;
+    return Ok(info);
 }

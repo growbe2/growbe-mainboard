@@ -1,30 +1,33 @@
 use protobuf::Message;
 
-use crate::protos::module::PhoneAmbientLightData;
+use crate::protos::module::PhonePressureData;
 
-use super::interface::ModuleError;
+use crate::modulestate::interface::ModuleError;
 
-pub struct PALValidator {}
+pub struct PPRValidator {}
 
-impl PALValidator {
-    pub fn new() -> PALValidator {
-        return PALValidator {};
+impl PPRValidator {
+    pub fn new() -> PPRValidator {
+        return PPRValidator {};
     }
 }
 
-impl super::interface::ModuleValue for PhoneAmbientLightData {}
+impl crate::modulestate::interface::ModuleValue for PhonePressureData {}
 
-impl super::interface::ModuleValueParsable for PhoneAmbientLightData {}
+impl crate::modulestate::interface::ModuleValueParsable for PhonePressureData {}
 
-impl super::interface::ModuleValueValidator for PALValidator {
+impl crate::modulestate::interface::ModuleValueValidator for PPRValidator {
     fn convert_to_value(
         &mut self,
         value_event: &crate::comboard::imple::interface::ModuleValueValidationEvent,
-    ) -> Result<Box<dyn super::interface::ModuleValueParsable>, super::interface::ModuleError> {
-        if let Ok(data) = PhoneAmbientLightData::parse_from_bytes(&value_event.buffer) {
-            return Ok(Box::new(data));
+    ) -> Result<
+        Box<dyn crate::modulestate::interface::ModuleValueParsable>,
+        crate::modulestate::interface::ModuleError,
+    > {
+        match PhonePressureData::parse_from_bytes(&value_event.buffer) {
+            Ok(data) => Ok(Box::new(data)),
+            Err(err) => Err(ModuleError::new().message(err.to_string())),
         }
-        return Err(ModuleError::new());
     }
 
     fn apply_parse_config(
@@ -41,12 +44,12 @@ impl super::interface::ModuleValueValidator for PALValidator {
             Box<dyn protobuf::Message>,
             crate::comboard::imple::channel::ModuleConfig,
         ),
-        super::interface::ModuleError,
+        crate::modulestate::interface::ModuleError,
     > {
-        Err(super::interface::ModuleError::new())
+        Err(crate::modulestate::interface::ModuleError::new())
     }
 
-    fn remove_config(&mut self) -> Result<(), super::interface::ModuleError> {
+    fn remove_config(&mut self) -> Result<(), crate::modulestate::interface::ModuleError> {
         return Ok(());
     }
 
@@ -54,7 +57,10 @@ impl super::interface::ModuleValueValidator for PALValidator {
         &self,
         _current: &Box<dyn crate::modulestate::interface::ModuleValueParsable>,
         _last: &Box<dyn crate::modulestate::interface::ModuleValueParsable>,
-    ) -> (bool, Vec<super::alarm::model::ValueChange<f32>>) {
+    ) -> (
+        bool,
+        Vec<crate::modulestate::alarm::model::ValueChange<f32>>,
+    ) {
         return (true, vec![]);
     }
 
@@ -66,9 +72,12 @@ impl super::interface::ModuleValueValidator for PALValidator {
         _sender_response: &std::sync::mpsc::Sender<crate::protos::message::ActionResponse>,
         _sender_socket: &std::sync::mpsc::Sender<(
             String,
-            Box<dyn super::interface::ModuleValueParsable>,
+            Box<dyn crate::modulestate::interface::ModuleValueParsable>,
         )>,
-    ) -> Result<Option<Vec<super::interface::ModuleStateCmd>>, super::interface::ModuleError> {
+    ) -> Result<
+        Option<Vec<crate::modulestate::interface::ModuleStateCmd>>,
+        crate::modulestate::interface::ModuleError,
+    > {
         return Ok(None);
     }
 }

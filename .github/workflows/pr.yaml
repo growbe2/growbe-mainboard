@@ -14,9 +14,49 @@ jobs:
         run: docker login https://docker.pkg.github.com -u berlingoqc -p $GITHUB_ACCESS_TOKEN
         env:
           GITHUB_ACCESS_TOKEN: ${{ secrets.PAT }}
+      - name: Cache cargo
+        id: cache-cargo
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-cargo
+        with:
+          # npm cache files are stored in `~/.npm` on Linux/macOS
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+            vendor/
+          key: ${{ runner.os }}-build-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
       - name: Download vendors
-        run: ./scripts/rust_env.sh cargo vendor && ./scripts/rust_env.sh make -C ./drivers
+        if: steps.cache-cargo.outputs.cache-hit != 'true'
+        run: ./scripts/rust_env.sh cargo vendor
       - name: Run UT
-        run: ./scripts/rust_env.sh cargo test
+        run: ENV_FILE="./docker/coverage.env" ./scripts/rust_env.sh cargo test && ./scripts/rust_env.sh coverage.sh
+      - name: Code Coverage Report
+        uses: irongut/CodeCoverageSummary@v1.3.0
+        with:
+          filename: target/coverage/cobertura.xml
+          badge: true
+          fail_below_min: false
+          format: markdown
+          hide_branch_rate: false
+          hide_complexity: true
+          indicators: true
+          output: both
+          thresholds: '60 80'
+      - name: Add Coverage PR Comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        if: github.event_name == 'pull_request'
+        with:
+          recreate: true
+          path: code-coverage-results.md
+      - name: Validate
+        run: ls -la vendor/ && sudo chmod -R 0777 vendor/
       - name: Build ARMv7
-        run: ./scripts/rust_env.sh make -C ./drivers clean && ./scripts/rust_env.sh make -C ./drivers CC=arm-linux-gnueabihf-gcc && COMMIT=$(git rev-parse --short "$GITHUB_SHA") ./scripts/rust_env.sh cargo build --target armv7-unknown-linux-gnueabihf --release
+        run: ./scripts/rust_env.sh make -C ./drivers clean && ./scripts/rust_env.sh make -C ./drivers CC=arm-linux-gnueabihf-gcc && ENV_FILE="./docker/arm.env" COMMIT=$(git rev-parse --short "$GITHUB_SHA") ./scripts/rust_env.sh cargo build --target armv7-unknown-linux-gnueabihf --release

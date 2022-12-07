@@ -94,7 +94,9 @@ fn on_update_request(
 fn restart_task() {
     tokio::task::spawn(async move {
         tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
-        crate::plateform::restart::restart_process();
+        if let Err(err) = crate::plateform::restart::restart_process() {
+            log::error!("failed to restart_process {:?}", err);
+        }
     });
 }
 
@@ -109,8 +111,10 @@ fn on_restart(
 
 fn reboot_task() {
     tokio::task::spawn(async move {
-        tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
-        crate::plateform::restart::restart_host();
+        tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
+        if let Err(err) = crate::plateform::restart::restart_host() {
+            log::error!("failed to restart_process {:?}", err);
+        }
     });
 }
 
@@ -364,7 +368,7 @@ pub fn socket_task(
                                 });
                                 if let Some((cmd, _, action_code)) = module_cmd_result {
                                     // send to modulestate handler and wait for response
-                                    crate::modulestate::CHANNEL_MODULE_STATE_CMD
+                                    crate::modulestate::cmd::CHANNEL_MODULE_STATE_CMD
                                         .0
                                         .lock()
                                         .unwrap()

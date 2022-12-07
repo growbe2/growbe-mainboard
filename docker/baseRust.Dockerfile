@@ -1,7 +1,7 @@
 
 FROM ubuntu:20.04
 
-COPY docker/source.list /etc/apt/sources.list
+COPY ./source.list /etc/apt/sources.list
 
 WORKDIR /usr/src/app
 
@@ -18,4 +18,11 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | bash -s -- -y
 ENV PATH="/root/.cargo/bin:${PATH}"
 RUN rustup target add armv7-unknown-linux-gnueabihf
 RUN rustup target add arm-unknown-linux-gnueabihf
+RUN rustup component add llvm-tools-preview
+RUN cargo install grcov
+
+COPY ./scripts /
+
+ENV PATH="/scripts/:${PATH}"
+
 

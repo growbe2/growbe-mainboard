@@ -1,6 +1,8 @@
-use super::actor::get_owner;
-use super::relay::{configure::configure_relay, get_outlet_data, physical_relay::ActionPortUnion};
+use crate::modulestate::actor::get_owner;
 use crate::modulestate::relay::BatchRelay;
+use crate::modulestate::relay::{
+    configure::configure_relay, get_outlet_data, physical_relay::ActionPortUnion,
+};
 use crate::protos::module::{Actor, WCModuleConfig, WCModuleData};
 use protobuf::Message;
 use std::collections::HashMap;
@@ -19,15 +21,18 @@ impl AABValidator {
     }
 }
 
-impl super::interface::ModuleValue for WCModuleData {}
+impl crate::modulestate::interface::ModuleValue for WCModuleData {}
 
-impl super::interface::ModuleValueParsable for WCModuleData {}
+impl crate::modulestate::interface::ModuleValueParsable for WCModuleData {}
 
-impl super::interface::ModuleValueValidator for AABValidator {
+impl crate::modulestate::interface::ModuleValueValidator for AABValidator {
     fn convert_to_value(
         &mut self,
         value_event: &crate::comboard::imple::interface::ModuleValueValidationEvent,
-    ) -> Result<Box<dyn super::interface::ModuleValueParsable>, super::interface::ModuleError> {
+    ) -> Result<
+        Box<dyn crate::modulestate::interface::ModuleValueParsable>,
+        crate::modulestate::interface::ModuleError,
+    > {
         let mut data = crate::protos::module::WCModuleData::new();
         data.p0 = get_outlet_data(value_event.buffer[0]);
         data.p1 = get_outlet_data(value_event.buffer[1]);
@@ -45,7 +50,7 @@ impl super::interface::ModuleValueValidator for AABValidator {
         return Ok(Box::new(data));
     }
 
-    fn remove_config(&mut self) -> Result<(), super::interface::ModuleError> {
+    fn remove_config(&mut self) -> Result<(), crate::modulestate::interface::ModuleError> {
         return Ok(());
     }
 
@@ -63,18 +68,18 @@ impl super::interface::ModuleValueValidator for AABValidator {
             Box<dyn protobuf::Message>,
             crate::comboard::imple::channel::ModuleConfig,
         ),
-        super::interface::ModuleError,
+        crate::modulestate::interface::ModuleError,
     > {
         let config: Box<WCModuleConfig> = Box::new(
             WCModuleConfig::parse_from_bytes(&data)
-                .map_err(|_e| super::interface::ModuleError::new())?,
+                .map_err(|_e| crate::modulestate::interface::ModuleError::new())?,
         );
 
         let buffer = [255; 8];
 
         let previous_owner: Option<&Actor> = get_owner(&self.actors_property, "p0");
 
-        let mut batch_relay = super::relay::physical_relay::BatchPhysicalRelay {
+        let mut batch_relay = crate::modulestate::relay::physical_relay::BatchPhysicalRelay {
             action_port: ActionPortUnion::new_port(0),
             buffer: [255; 8],
             auto_send: false,
@@ -186,7 +191,10 @@ impl super::interface::ModuleValueValidator for AABValidator {
         &self,
         current: &Box<dyn crate::modulestate::interface::ModuleValueParsable>,
         last: &Box<dyn crate::modulestate::interface::ModuleValueParsable>,
-    ) -> (bool, Vec<super::alarm::model::ValueChange<f32>>) {
+    ) -> (
+        bool,
+        Vec<crate::modulestate::alarm::model::ValueChange<f32>>,
+    ) {
         let current = current.as_any().downcast_ref::<WCModuleData>().unwrap();
         let last = last.as_any().downcast_ref::<WCModuleData>().unwrap();
 
@@ -219,9 +227,12 @@ impl super::interface::ModuleValueValidator for AABValidator {
         _sender_response: &std::sync::mpsc::Sender<crate::protos::message::ActionResponse>,
         _sender_socket: &std::sync::mpsc::Sender<(
             String,
-            Box<dyn super::interface::ModuleValueParsable>,
+            Box<dyn crate::modulestate::interface::ModuleValueParsable>,
         )>,
-    ) -> Result<Option<Vec<super::interface::ModuleStateCmd>>, super::interface::ModuleError> {
+    ) -> Result<
+        Option<Vec<crate::modulestate::interface::ModuleStateCmd>>,
+        crate::modulestate::interface::ModuleError,
+    > {
         return Ok(None);
     }
 }

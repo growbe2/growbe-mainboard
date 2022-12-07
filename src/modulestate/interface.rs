@@ -1,3 +1,5 @@
+use crate::mainboardstate::error::MainboardError;
+
 pub trait ModuleValue {}
 pub trait ModuleValueParsable: ModuleValue + protobuf::Message {}
 
@@ -16,6 +18,14 @@ pub struct ModuleError {
     pub status: u32,
 }
 
+pub fn conv_err(module_id: String) -> impl Fn(MainboardError) -> ModuleError {
+    return move |err| {
+        ModuleError::new()
+            .message(err.message)
+            .module_id(module_id.clone())
+    };
+}
+
 impl ModuleError {
     pub fn new() -> ModuleError {
         return ModuleError {
@@ -29,6 +39,24 @@ impl ModuleError {
     pub fn not_found(module_id: &str) -> ModuleError {
         return ModuleError {
             message: String::from("module not found"),
+            module_id: module_id.to_string(),
+            port: -1,
+            status: MODULE_NOT_FOUND,
+        };
+    }
+
+    pub fn from_protobuf_err(module_id: &str, err: protobuf::ProtobufError) -> Self {
+        return Self {
+            message: err.to_string(),
+            module_id: module_id.to_string(),
+            port: -1,
+            status: MODULE_NOT_FOUND,
+        };
+    }
+
+    pub fn from_rusqlite_err(module_id: &str, err: rusqlite::Error) -> Self {
+        return Self {
+            message: err.to_string(),
             module_id: module_id.to_string(),
             port: -1,
             status: MODULE_NOT_FOUND,
@@ -54,15 +82,21 @@ impl ModuleError {
         self
     }
 
-    /*pub fn module_id(mut self, module_id: String) -> ModuleError {
+    pub fn module_id(mut self, module_id: String) -> ModuleError {
         self.module_id = module_id;
         self
     }
+}
 
-    pub fn port(mut self, port: i32) -> ModuleError {
-        self.port = port;
-        self
-    }*/
+impl From<rusqlite::Error> for ModuleError {
+    fn from(value: rusqlite::Error) -> Self {
+        return Self {
+            message: value.to_string(),
+            module_id: "".to_string(),
+            port: -1,
+            status: SENDER_NOT_FOUND,
+        };
+    }
 }
 
 pub struct ModuleStateCmd {

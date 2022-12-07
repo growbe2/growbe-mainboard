@@ -14,6 +14,25 @@ jobs:
         run: docker login https://docker.pkg.github.com -u berlingoqc -p $GITHUB_ACCESS_TOKEN
         env:
           GITHUB_ACCESS_TOKEN: ${{ secrets.PAT }}
+      - name: Cache cargo
+        id: cache-cargo
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-cargo
+        with:
+          # npm cache files are stored in `~/.npm` on Linux/macOS
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+            vendor/
+          key: ${{ runner.os }}-build-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
       - name: Validation formating
         run: ./scripts/rust_env.sh cargo fmt --all -- --check
       - name: Download vendors
@@ -46,4 +65,7 @@ jobs:
         uses: Ilshidur/action-discord@master
         with:
           args: 'The project {{ EVENT_PAYLOAD.repository.full_name }} has been deployed to master. ${{ github.event.head_commit.message }}'
+      - name: Validate
+        run: ls -la vendor/ && sudo chmod -R 0777 vendor/
+
 

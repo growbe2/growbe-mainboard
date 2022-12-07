@@ -1,10 +1,8 @@
 use protobuf::Message;
 
 use crate::{
-    comboard::imple::channel::ComboardSenderMapReference,
-    modulestate::{
-        interface::ModuleError, relay::virtual_relay::op::initialize_virtual_relay_and_apply_config,
-    },
+    comboard::imple::channel::ComboardSenderMapReference, mainboardstate::error::MainboardError,
+    modulestate::relay::virtual_relay::op::initialize_virtual_relay_and_apply_config,
 };
 
 use super::{
@@ -24,7 +22,7 @@ pub fn on_module_state_changed_virtual_relays(
     )>,
     store: &crate::modulestate::store::ModuleStateStore,
     store_virtual_relay: &mut VirtualRelayStore,
-    manager: &mut crate::modulestate::MainboardModuleStateManager,
+    manager: &mut crate::modulestate::state_manager::MainboardModuleStateManager,
 ) -> Result<(), ()> {
     let config_relays = store_virtual_relay.get_stored_relays().unwrap();
     let connected_modules = manager.get_connected_modules();
@@ -44,7 +42,8 @@ pub fn on_module_state_changed_virtual_relays(
                         store,
                         store_virtual_relay,
                         manager,
-                    );
+                    )
+                    .unwrap();
                 } else {
                     // cant create the vr missing modules
                     let mut state = crate::protos::module::VirtualRelayState::new();
@@ -102,9 +101,9 @@ pub fn handle_virtual_relay(
     )>,
     store: &crate::modulestate::store::ModuleStateStore,
     store_virtual_relay: &mut VirtualRelayStore,
-    manager: &mut crate::modulestate::MainboardModuleStateManager,
-) -> Result<(), crate::modulestate::interface::ModuleError> {
-    let relay_config = crate::protos::module::VirtualRelay::parse_from_bytes(&data).unwrap();
+    manager: &mut crate::modulestate::state_manager::MainboardModuleStateManager,
+) -> Result<(), MainboardError> {
+    let relay_config = crate::protos::module::VirtualRelay::parse_from_bytes(&data)?;
 
     return initialize_virtual_relay(
         &relay_config,
@@ -126,11 +125,13 @@ pub fn handle_apply_config_virtual_relay(
     )>,
     store: &crate::modulestate::store::ModuleStateStore,
     store_virtual_relay: &mut VirtualRelayStore,
-    manager: &mut crate::modulestate::MainboardModuleStateManager,
-) -> Result<(), ModuleError> {
-    let id = crate::utils::mqtt::last_element_path(topic);
+    manager: &mut crate::modulestate::state_manager::MainboardModuleStateManager,
+) -> Result<(), MainboardError> {
+    let id = crate::utils::mqtt::last_element_path(topic).ok_or(
+        MainboardError::new().message("failed to get last element from mqtt topic".to_string()),
+    )?;
 
-    let config = crate::protos::module::RelayOutletConfig::parse_from_bytes(&data).unwrap();
+    let config = crate::protos::module::RelayOutletConfig::parse_from_bytes(&data)?;
 
     return apply_config_virtual_relay(
         &id,
@@ -153,9 +154,11 @@ pub fn handle_delete_virtual_relay(
     )>,
     store: &crate::modulestate::store::ModuleStateStore,
     store_virtual_relay: &mut VirtualRelayStore,
-    manager: &mut crate::modulestate::MainboardModuleStateManager,
-) -> Result<(), ModuleError> {
-    let id = crate::utils::mqtt::last_element_path(topic);
+    manager: &mut crate::modulestate::state_manager::MainboardModuleStateManager,
+) -> Result<(), MainboardError> {
+    let id = crate::utils::mqtt::last_element_path(topic).ok_or(
+        MainboardError::new().message("failed to get last element from mqtt topic".to_string()),
+    )?;
 
     return delete_virtual_relay(
         &id,
