@@ -1,10 +1,11 @@
-use std::sync::mpsc::{Receiver, Sender};
+use std::sync::mpsc::{Receiver, Sender, self};
 use std::sync::{Arc, Mutex};
 
 use crate::comboard::imple::channel::ComboardAddr;
 use crate::comboard::imple::channel::ComboardSenderMapReference;
 use crate::mainboardstate::error::MainboardError;
 use crate::protos::alarm::FieldAlarm;
+use crate::protos::message::ActionResponse;
 use crate::utils::mqtt::extract_module_id;
 
 use protobuf::Message;
@@ -21,7 +22,6 @@ lazy_static::lazy_static! {
         return (Mutex::new(sender), Mutex::new(receiver));
     };
 }
-
 fn handle_module_config(
     topic: &String,
     data: Arc<Vec<u8>>,

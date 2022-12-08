@@ -8,10 +8,11 @@ fn main() {
         protoc_rust::Codegen::new()
             .out_dir("./src/protos")
             .inputs(&[
-                "./proto/alarm.proto",
+                "proto/alarm.proto",
                 "proto/board.proto",
                 "proto/message.proto",
                 "proto/module.proto",
+                "proto/env_controller.proto"
             ])
             .include("proto")
             .run()
