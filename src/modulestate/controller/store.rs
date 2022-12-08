@@ -259,7 +259,6 @@ impl EnvControllerStore {
                return Err(MainboardError::from_error(format!("failed to get field alarm event receive")));
             }
 
-            println!("Create context {:?}", self.value_senders.keys().clone());
             if let Some(sr) = self.value_senders.get(obs.get_id()) {
                 value_receivers.insert(key, sr.1.clone());
             } else {
@@ -466,7 +465,7 @@ mod tests {
     }
 
     #[test]
-    fn register_controller_module_not_connected() {
+    fn env_controller_module_not_connected() {
         let (msm, mut ecs, mas) = init();
         let mut config = EnvironmentControllerConfiguration::new();
         config.set_id("test".to_string());
@@ -481,7 +480,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn register_controller_module_connected_no_alarm() {
+    async fn env_controller_module_connected_no_alarm() {
         let (mut msm, mut ecs,mut mas) = init();
 
         add_fake_module(&mut msm, &mut mas, &mut ecs, "AAA0000003");
@@ -499,7 +498,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn register_controller_module_connected() {
+    async fn env_controller_module_connected() {
         let (mut msm, mut ecs,mut mas) = init();
 
         add_fake_module(&mut msm, &mut mas, &mut ecs, "AAA0000003");
@@ -531,7 +530,111 @@ mod tests {
         assert_eq!(entry.handler.is_finished(), true);
     }
 
+    #[tokio::test]
+    async fn env_controller_start_after_module_alarm_added() {
+        let (mut msm, mut ecs,mut mas) = init();
 
+        let mut config = EnvironmentControllerConfiguration::new();
+        config.set_id("test".to_string());
+        add_observer(&mut config, "obs", "AAA0000003", "airTemperature");
+        add_static(
+            &mut config,
+            SCConditionActor {
+                actor_id: "".into(),
+                observer_id: "".into(),
+                actions: HashMap::new(),
+                ..Default::default()
+            },
+        );
 
+        let is_starting = ecs.register_controller(&msm, &mas, config.clone()).unwrap();
+
+        assert_eq!(is_starting, false);
+
+        add_fake_module(&mut msm, &mut mas, &mut ecs, "AAA0000003");
+
+        // start should not be started stil
+        let is_starting = ecs.tasks.contains_key(&config.id);
+
+        assert_eq!(is_starting, false);
+
+        add_alarm(&mas, &mut msm, &mut ecs, "AAA0000003", "airTemperature");
+
+        let is_starting = ecs.tasks.contains_key(&config.id);
+
+        assert_eq!(is_starting, true);
+         
+    }
+
+    #[tokio::test]
+    async fn env_controller_stop_after_module_or_alarm_removed() {
+        let (mut msm, mut ecs,mut mas) = init();
+
+        add_fake_module(&mut msm, &mut mas, &mut ecs, "AAA0000003");
+        add_alarm(&mas, &mut msm, &mut ecs, "AAA0000003", "airTemperature");
+        add_alarm(&mas, &mut msm, &mut ecs, "AAA0000003", "humidity");
+
+        let mut config = EnvironmentControllerConfiguration::new();
+        config.set_id("test".to_string());
+        add_observer(&mut config, "obs", "AAA0000003", "airTemperature");
+        add_static(
+            &mut config,
+            SCConditionActor {
+                actor_id: "".into(),
+                observer_id: "".into(),
+                actions: HashMap::new(),
+                ..Default::default()
+            },
+        );
+
+        let is_starting = ecs.register_controller(&msm, &mas, config.clone()).unwrap();
+        assert_eq!(is_starting, true);
+
+        disconect_module(&mut msm, &mut mas, &mut ecs, "AAA0000003");
+        
+        let is_starting = ecs.tasks.contains_key(&config.id);
+        assert_eq!(is_starting, false);
+
+        add_fake_module(&mut msm, &mut mas, &mut ecs, "AAA0000003");
+        let is_starting = ecs.tasks.contains_key(&config.id);
+        assert_eq!(is_starting, true);
+
+        remove_alarm(&mut msm, &mut mas, &mut ecs, "AAA0000003", "humidity");
+        let is_starting = ecs.tasks.contains_key(&config.id);
+        assert_eq!(is_starting, true);
+
+        remove_alarm(&mut msm, &mut mas, &mut ecs, "AAA0000003", "airTemperature");
+        let is_starting = ecs.tasks.contains_key(&config.id);
+        assert_eq!(is_starting, false);
+    }
+
+    #[tokio::test]
+    async fn env_controller_unregister_config() {
+        let (mut msm, mut ecs,mut mas) = init();
+
+        add_fake_module(&mut msm, &mut mas, &mut ecs, "AAA0000003");
+        add_alarm(&mas, &mut msm, &mut ecs, "AAA0000003", "airTemperature");
+
+        let mut config = EnvironmentControllerConfiguration::new();
+        config.set_id("test".to_string());
+        add_observer(&mut config, "obs", "AAA0000003", "airTemperature");
+        add_static(
+            &mut config,
+            SCConditionActor {
+                actor_id: "".into(),
+                observer_id: "".into(),
+                actions: HashMap::new(),
+                ..Default::default()
+            },
+        );
+
+        let is_starting = ecs.register_controller(&msm, &mas, config.clone()).unwrap();
+        assert_eq!(is_starting, true);
+
+        ecs.unregister_controller(&config.id).unwrap();
+
+        let is_starting = ecs.tasks.contains_key(&config.id);
+        assert_eq!(is_starting, false);
+    }
 
 }
