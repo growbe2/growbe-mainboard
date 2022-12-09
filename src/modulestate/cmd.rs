@@ -5,11 +5,11 @@ use crate::comboard::imple::channel::ComboardAddr;
 use crate::comboard::imple::channel::ComboardSenderMapReference;
 use crate::mainboardstate::error::MainboardError;
 use crate::protos::alarm::FieldAlarm;
-use crate::protos::message::ActionResponse;
 use crate::utils::mqtt::extract_module_id;
 
 use protobuf::Message;
 
+use super::controller::store::EnvControllerStore;
 use super::interface::{ModuleError, ModuleStateCmd};
 use super::{handle_state::send_module_state, state_manager::MainboardModuleStateManager};
 
@@ -114,11 +114,15 @@ fn handle_sync_request(
 fn handle_add_alarm(
     alarm_validator: &mut super::alarm::validator::AlarmFieldValidator,
     alarm_store: &super::alarm::store::ModuleAlarmStore,
+    module_state_manager: &mut MainboardModuleStateManager,
+    env_controller: &mut EnvControllerStore,
     data: Arc<Vec<u8>>,
 ) -> Result<(), MainboardError> {
     let field_alarm = FieldAlarm::parse_from_bytes(&data)?;
     alarm_store.add_alarm_field(&field_alarm)?;
-    alarm_validator.register_field_alarm(field_alarm, None)?;
+    alarm_validator.register_field_alarm(field_alarm.clone(), None)?;
+
+    env_controller.on_alarm_deleted(&field_alarm.moduleId, &field_alarm.property, module_state_manager, alarm_store)?;
 
     return Ok(());
 }
@@ -126,11 +130,16 @@ fn handle_add_alarm(
 fn handle_update_alarm(
     alarm_validator: &mut super::alarm::validator::AlarmFieldValidator,
     alarm_store: &super::alarm::store::ModuleAlarmStore,
+    module_state_manager: &mut MainboardModuleStateManager,
+    env_controller: &mut EnvControllerStore,
     data: Arc<Vec<u8>>,
 ) -> Result<(), MainboardError> {
     let field_alarm = FieldAlarm::parse_from_bytes(&data)?;
     alarm_store.update_alarm_field(&field_alarm)?;
-    alarm_validator.register_field_alarm(field_alarm, None)?;
+    alarm_validator.register_field_alarm(field_alarm.clone(), None)?;
+
+    env_controller.on_alarm_deleted(&field_alarm.moduleId, &field_alarm.property, module_state_manager, alarm_store)?;
+    env_controller.on_alarm_created(&field_alarm.moduleId, &field_alarm.property, module_state_manager, alarm_store)?;
 
     return Ok(());
 }
@@ -138,11 +147,15 @@ fn handle_update_alarm(
 fn handle_remove_alarm(
     alarm_validator: &mut super::alarm::validator::AlarmFieldValidator,
     alarm_store: &super::alarm::store::ModuleAlarmStore,
+    module_state_manager: &mut MainboardModuleStateManager,
+    env_controller: &mut EnvControllerStore,
     data: Arc<Vec<u8>>,
 ) -> Result<(), MainboardError> {
     let field_alarm = FieldAlarm::parse_from_bytes(&data)?;
     alarm_store.remove_alarm_field(&field_alarm)?;
-    alarm_validator.deregister_field_alarm(field_alarm)?;
+    alarm_validator.deregister_field_alarm(field_alarm.clone())?;
+
+    env_controller.on_alarm_deleted(&field_alarm.moduleId, &field_alarm.property, module_state_manager, alarm_store)?;
 
     return Ok(());
 }
@@ -180,6 +193,7 @@ pub fn handle_module_command(
     sender_config: &ComboardSenderMapReference,
     sender_socket: &Sender<(String, Box<dyn super::interface::ModuleValueParsable>)>,
     virtual_relay_store: &mut super::relay::virtual_relay::store::VirtualRelayStore,
+    mut env_controller: &mut EnvControllerStore,
 ) -> Result<(), MainboardError> {
     let result: Result<(), MainboardError> = match cmd {
         "sync" => handle_sync_request(manager, &sender_socket),
@@ -194,9 +208,9 @@ pub fn handle_module_command(
             &sender_socket,
             &store,
         ),
-        "aAl" => handle_add_alarm(alarm_validator, &alarm_store, data),
-        "rAl" => handle_remove_alarm(alarm_validator, &alarm_store, data),
-        "uAl" => handle_update_alarm(alarm_validator, &alarm_store, data),
+        "aAl" => handle_add_alarm(alarm_validator, &alarm_store, manager, &mut env_controller, data),
+        "rAl" => handle_remove_alarm(alarm_validator, &alarm_store, manager, &mut env_controller, data),
+        "uAl" => handle_update_alarm(alarm_validator, &alarm_store, manager, &mut env_controller, data),
         "addVr" => super::relay::virtual_relay::handler::handle_virtual_relay(
             data,
             &sender_config,
@@ -248,6 +262,7 @@ pub fn handle_module_command(
                                 sender_config,
                                 sender_socket,
                                 virtual_relay_store,
+                                &mut env_controller,
                             ) {
                                 log::error!("failed to handle_module_command : {:?}", err);
                             }

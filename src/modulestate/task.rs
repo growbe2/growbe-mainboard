@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::sync::mpsc::Sender;
 
-use super::state_manager::MainboardModuleStateManager;
+use super::{controller::store::EnvControllerStore, state_manager::MainboardModuleStateManager};
 use crate::comboard::imple::channel::{ComboardSenderMapReference, CHANNEL_STATE, CHANNEL_VALUE};
 
 pub fn module_state_task(
@@ -20,6 +20,9 @@ pub fn module_state_task(
         let mut virtual_relay_store =
             super::relay::virtual_relay::store::VirtualRelayStore::new(alarm_store.conn.clone());
 
+        let mut environment_controller =
+            EnvControllerStore::new(alarm_store.conn.clone(), sender_socket.clone().into());
+
         let receiver_state = CHANNEL_STATE.1.lock().unwrap();
         let receiver_value = CHANNEL_VALUE.1.lock().unwrap();
 
@@ -34,6 +37,7 @@ pub fn module_state_task(
                         &store,
                         &mut alarm_validator,
                         &alarm_store,
+                        &mut environment_controller,
                     ) {
                         log::error!("failed to handle_modle_state : {:?}", err);
                     }
@@ -59,6 +63,7 @@ pub fn module_state_task(
                         &sender_socket,
                         &mut alarm_validator,
                         &alarm_store,
+                        &mut environment_controller,
                     ) {
                         log::error!("failed to handle_module_value : {:?}", err);
                     }
@@ -83,6 +88,7 @@ pub fn module_state_task(
                         &sender_config,
                         &sender_socket,
                         &mut virtual_relay_store,
+                        &mut environment_controller,
                     ) {
                         log::error!("failed handle_module_command : {:?}", err);
                     }

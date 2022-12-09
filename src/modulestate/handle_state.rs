@@ -2,6 +2,7 @@ use regex::Regex;
 use std::sync::mpsc::Sender;
 use std::sync::Arc;
 
+use super::controller::store::EnvControllerStore;
 use super::modules::get_module_validator;
 use super::state_manager::{MainboardConnectedModule, MainboardModuleStateManager};
 use crate::comboard::imple::channel::ComboardAddr;
@@ -48,6 +49,7 @@ pub fn handle_module_state(
     store: &super::store::ModuleStateStore,
     alarm_validator: &mut super::alarm::validator::AlarmFieldValidator,
     alarm_store: &super::alarm::store::ModuleAlarmStore,
+    env_controller: &mut EnvControllerStore,
 ) -> Result<(), MainboardError> {
     if !valid_module_id(&state.id) {
         if state.state == true {
@@ -130,6 +132,8 @@ pub fn handle_module_state(
             }
         }
 
+        env_controller.on_module_connected(&state.id, manager, alarm_store)?;
+
         // BLOCK TO HANDLE ALARMS
         //
         match alarm_store.get_alarm_for_module(&state.id.clone()) {
@@ -137,9 +141,10 @@ pub fn handle_module_state(
                 log::info!("loading {} alarms for {}", alarms.len(), state.id.as_str());
                 for _n in 0..alarms.len() {
                     if let Some((alarm, state)) = alarms.pop() {
-                        if let Err(err) = alarm_validator.register_field_alarm(alarm, state) {
+                        if let Err(err) = alarm_validator.register_field_alarm(alarm.clone(), state) {
                             log::error!("failed to register alarm : {:?}", err);
                         }
+                        env_controller.on_alarm_created(&alarm.moduleId, &alarm.property, manager, alarm_store)?;
                     } else {
                         log::error!("failed to get next alarm in list");
                     }
@@ -185,6 +190,7 @@ pub fn handle_module_state(
                     }
                 }
             }
+            env_controller.on_module_disconnected(&state.id, manager, alarm_store)?;
         } else {
             return Err(MainboardError::not_found("module", &state.id));
         }

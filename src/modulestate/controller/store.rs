@@ -12,6 +12,7 @@ use crate::modulestate::state_manager::MainboardModuleStateManager;
 use crate::protos::env_controller::{
     EnvironmentControllerConfiguration_oneof_implementation, RessourceType,
 };
+use crate::socket::ss::SenderSocket;
 use crate::store::database::get_many_field_from_table;
 use crate::{
     modulestate::alarm::model::ModuleValueChange,
@@ -32,8 +33,13 @@ struct StoreEnvControllerTask {
 }
 
 pub struct EnvControllerStore {
+
     tasks: HashMap<String, StoreEnvControllerTask>,
+
     conn: Arc<Mutex<rusqlite::Connection>>,
+
+    sender: SenderSocket,
+
     alarm_senders: HashMap<String, (Sender<FieldAlarmEvent>, Receiver<FieldAlarmEvent>)>,
     value_senders: HashMap<
         String,
@@ -45,9 +51,13 @@ pub struct EnvControllerStore {
 }
 
 impl EnvControllerStore {
-    pub fn new(conn: Arc<Mutex<rusqlite::Connection>>) -> Self {
+    pub fn new(
+        conn: Arc<Mutex<rusqlite::Connection>>,
+        socket: SenderSocket,
+    ) -> Self {
         return Self {
             conn,
+            sender: socket,
             tasks: HashMap::new(),
             alarm_senders: HashMap::new(),
             value_senders: HashMap::new(),
@@ -80,6 +90,8 @@ impl EnvControllerStore {
             }),
         );
 
+        log::debug!("creating field alarm event channel for {}:{}", module_id, property);
+
         return self.validate_creation(module_state_manager, module_alarm_store);
     }
 
@@ -92,6 +104,7 @@ impl EnvControllerStore {
     ) -> Result<(), MainboardError> {
         let key = format!("{}:{}", module_id, property);
         self.alarm_senders.remove(&key);
+        log::debug!("deleting field alarm event channel for {}:{}", module_id, property);
         return self.validate_removale(module_state_manager, module_alarm_store);
     }
 
@@ -116,6 +129,8 @@ impl EnvControllerStore {
             }),
         );
 
+        log::debug!("creating module value event channel for {}", module_id);
+
         return self.validate_creation(module_state_manager, module_alarm_store);
     }
 
@@ -126,6 +141,19 @@ impl EnvControllerStore {
         module_alarm_store: &ModuleAlarmStore,
     ) -> Result<(), MainboardError> {
         self.value_senders.remove(module_id);
+        log::debug!("deleting module value event channel for {}", module_id);
+        // clear alarm link to the module
+        let mut to_delete = vec![];
+        for (k,_) in self.alarm_senders.iter() {
+            if k.contains(module_id) {
+                to_delete.push(k.clone());
+            }
+        }
+        for k in to_delete { 
+            self.alarm_senders.remove(&k);
+            log::debug!("removing field alarm event channel for {}", k);
+        }
+        
         return self.validate_removale(module_state_manager, module_alarm_store);
     }
 
@@ -150,9 +178,14 @@ impl EnvControllerStore {
             Box::new(config.clone()),
         )?;
 
+
+        log::debug!("environment_controller {} has been register to the database", config.id);
+
         if self.can_be_initialize(&module_state_manager, &module_alarm_store, &config) {
             return self.create_task(&config).map(|_| true);
         }
+
+        log::debug!("environment_controller {} cannot be started for now, missing ressources", config.id);
 
         return Ok(false);
     }
@@ -160,9 +193,14 @@ impl EnvControllerStore {
     pub fn unregister_controller(&mut self, id: &str) -> Result<(), MainboardError> {
         if let Some(value) = self.tasks.remove(id) {
             value.cancellation_token.cancel();
+            log::debug!("environment_controller {} task has been cancelled", id);
         }
 
-        return crate::store::database::store_delete_key(&self.conn, "environment_controller", id);
+        let res = crate::store::database::store_delete_key(&self.conn, "environment_controller", id);
+        if res.is_ok() {
+            log::debug!("environment_controller {} has been unregister to the database", id);
+        }
+        return res;
     }
 
     fn validate_creation(
@@ -218,6 +256,8 @@ impl EnvControllerStore {
             cancellation_token: ctx.cancellation_token.clone(),
             handler: self.start_task_implementation(&config, ctx)?,
         };
+
+        log::debug!("environment_controller task has been started {}", config.get_id());
 
         self.tasks.insert(config.id.clone(), entry);
 
@@ -335,7 +375,7 @@ impl EnvControllerStore {
 #[cfg(test)]
 mod tests {
 
-    use std::time::Duration;
+    use std::{time::Duration, sync::mpsc::channel};
 
     use protobuf::RepeatedField;
 
@@ -344,7 +384,7 @@ mod tests {
         protos::{
             alarm::FieldAlarm,
             env_controller::{MObserver, SCConditionActor, StaticControllerImplementation},
-        },
+        }, socket::ss::SenderPayload,
     };
 
     use super::*;
@@ -358,8 +398,10 @@ mod tests {
             format!("./database_test_env_controller_{}.sqlite", uid),
         ))));
 
+        let (ss, rs) = channel::<SenderPayload>();
+
         let msm = MainboardModuleStateManager::new();
-        let ecs = EnvControllerStore::new(conn_database.clone());
+        let ecs = EnvControllerStore::new(conn_database.clone(), ss.clone().into());
         let mas = ModuleAlarmStore::new(conn_database);
 
         clear_store(&ecs);
@@ -595,6 +637,7 @@ mod tests {
         let is_starting = ecs.tasks.contains_key(&config.id);
         assert_eq!(is_starting, false);
 
+        add_alarm(&mas, &mut msm, &mut ecs, "AAA0000003", "airTemperature");
         add_fake_module(&mut msm, &mut mas, &mut ecs, "AAA0000003");
         let is_starting = ecs.tasks.contains_key(&config.id);
         assert_eq!(is_starting, true);

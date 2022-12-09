@@ -1,5 +1,6 @@
 pub mod http;
 pub mod mqtt;
+pub mod ss;
 
 use protobuf::Message;
 use rumqtt::{MqttClient, MqttOptions, Notification, QoS};

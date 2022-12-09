@@ -1,3 +1,4 @@
+use super::controller::store::EnvControllerStore;
 use super::state_manager::MainboardModuleStateManager;
 use crate::comboard::imple::interface::ModuleValueValidationEvent;
 use crate::mainboardstate::error::MainboardError;
@@ -9,6 +10,7 @@ pub fn handle_module_value<'a>(
     sender_socket: &Sender<(String, Box<dyn super::interface::ModuleValueParsable>)>,
     alarm_validator: &mut super::alarm::validator::AlarmFieldValidator,
     alarm_store: &super::alarm::store::ModuleAlarmStore,
+    env_controller: &mut EnvControllerStore,
 ) -> Result<(), MainboardError> {
     let reference_connected_module_option =
         manager.get_module_at_index_mut(&value.board, &value.board_addr, value.port);
