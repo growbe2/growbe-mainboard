@@ -3,10 +3,11 @@ use crate::modulestate::relay::BatchRelay;
 use crate::modulestate::relay::{
     configure::configure_relay, get_outlet_data, physical_relay::ActionPortUnion,
 };
-use crate::protos::module::{Actor, WCModuleConfig, WCModuleData};
+use crate::protos::module::{Actor, WCModuleConfig, WCModuleData, RelayOutletConfig};
+use crate::set_property;
 use protobuf::Message;
+use protobuf::SingularPtrField;
 use std::collections::HashMap;
-use std::thread::panicking;
 
 pub struct AABValidator {
     pub actors_property: HashMap<String, Actor>,
@@ -77,9 +78,31 @@ impl crate::modulestate::interface::ModuleValueValidator for AABValidator {
                     .map_err(|_e| crate::modulestate::interface::ModuleError::new())?,
             )
         } else {
-            let property = t.split(":").last().unwrap();
+            let property = t.split(":").last();
+            if property.is_none() {
+                Box::new(WCModuleConfig::new())
+            } else {
+                let property = property.unwrap();
+                let relay_outlet = RelayOutletConfig::parse_from_bytes(&data)
+                    .map_err(|_e| crate::modulestate::interface::ModuleError::new())?;
 
-            Box::new(WCModuleConfig::new())
+                let mut config = self.previous_config.clone();
+                set_property!(
+                    config,
+                    property,
+                    relay_outlet,
+                    p0,
+                    p1,
+                    p2,
+                    drain,
+                    pump0,
+                    pump1,
+                    pump2,
+                    pump3
+                );
+
+                Box::new(config)
+            }
         };
 
         let buffer = [255; 8];
@@ -241,5 +264,64 @@ impl crate::modulestate::interface::ModuleValueValidator for AABValidator {
         crate::modulestate::interface::ModuleError,
     > {
         return Ok(None);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+
+    use std::{
+        collections::HashMap,
+        sync::{mpsc::channel, Arc}, time::Duration,
+    };
+
+    use tokio_util::sync::CancellationToken;
+
+    use crate::{
+        comboard::imple::channel::ModuleConfig, modulestate::interface::ModuleValueValidator, protos::module::ManualConfig,
+    };
+
+    use super::*;
+
+    #[test]
+    fn module_aab_apply_full_config() {
+        let mut validator = AABValidator::new();
+        let (s, _r) = channel::<ModuleConfig>();
+        let config = WCModuleConfig::new();
+        let mut map_handler: HashMap<String, CancellationToken> = HashMap::new();
+
+        validator.apply_parse_config(
+            0,
+            "AAB",
+            Arc::new(config.write_to_bytes().unwrap()),
+            &s,
+            &mut map_handler,
+        ).unwrap();
+    }
+
+    #[test]
+    fn module_aab_apply_partial_config() {
+        let mut validator = AABValidator::new();
+        let (s, r) = channel::<ModuleConfig>();
+        let mut config = RelayOutletConfig::new();
+        let manual = ManualConfig{ state: true, ..Default::default()};
+        config.set_manual(manual);
+        let mut map_handler: HashMap<String, CancellationToken> = HashMap::new();
+
+        let (c, _) = validator.apply_parse_config(
+            0,
+            "AAB:p0",
+            Arc::new(config.write_to_bytes().unwrap()),
+            &s,
+            &mut map_handler,
+        ).unwrap();
+
+        let c = c.as_any().downcast_ref::<WCModuleConfig>().unwrap();
+
+        assert_eq!(c.p0.as_ref().unwrap().get_manual().state, true);
+
+        let sended_config = r.recv_timeout(Duration::from_millis(100)).unwrap();
+        assert_eq!(*sended_config.data.get(0).unwrap(), 1);
+        assert_eq!(*sended_config.data.get(1).unwrap(), 255);
     }
 }
