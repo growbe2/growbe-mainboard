@@ -5,6 +5,7 @@ use crate::comboard::imple::channel::ComboardAddr;
 use crate::comboard::imple::channel::ComboardSenderMapReference;
 use crate::mainboardstate::error::MainboardError;
 use crate::protos::alarm::FieldAlarm;
+use crate::protos::env_controller::EnvironmentControllerConfiguration;
 use crate::utils::mqtt::extract_module_id;
 
 use protobuf::Message;
@@ -69,6 +70,59 @@ fn handle_module_config(
 
     return Ok(());
 }
+
+// TODO: receive only a RelayOutletConfig and apply it to the module,
+fn handle_pmodule_config(
+    topic: &String,
+    data: Arc<Vec<u8>>,
+    manager: &mut MainboardModuleStateManager,
+    sender_config: &ComboardSenderMapReference,
+    _sender_socket: &Sender<(String, Box<dyn super::interface::ModuleValueParsable>)>,
+    store: &super::store::ModuleStateStore,
+) -> Result<(), MainboardError> {
+    // Need to get the last two element
+    //
+    log::debug!("need to apply property module config but cannot still");
+    return Ok(());
+    let id = crate::utils::mqtt::last_element_path(topic).ok_or(
+        MainboardError::new().message("failed to get last element from mqtt topic".to_string()),
+    )?;
+
+    let module_ref_option = manager.connected_module.get_mut(id.as_str());
+
+    if let Some(module_ref) = module_ref_option {
+        let t = &module_ref.id[..3];
+
+        if let Ok(sender_config) = sender_config.get_sender(ComboardAddr {
+            imple: module_ref.board.clone(),
+            addr: module_ref.board_addr.clone(),
+        }) {
+            match module_ref.validator.apply_parse_config(
+                module_ref.port,
+                t,
+                data,
+                &sender_config,
+                &mut module_ref.handler_map,
+            ) {
+                Ok((config, config_comboard)) => {
+                    store.store_module_config(&id, config)?;
+                    sender_config
+                        .send(config_comboard)
+                        .map_err(|x| MainboardError::from_error(x.to_string()))?;
+                }
+                Err(e) => return Err(e.into()),
+            }
+            tokio::task::spawn(async {});
+        } else {
+            return Err(super::interface::ModuleError::sender_not_found(&id).into());
+        }
+    } else {
+        return Err(super::interface::ModuleError::not_found(&id).into());
+    }
+    return Ok(());
+}
+
+
 
 fn handle_remove_module_config(
     topic: &String,
@@ -160,6 +214,31 @@ fn handle_remove_alarm(
     return Ok(());
 }
 
+fn handle_register_environment_controller(
+    alarm_store: &super::alarm::store::ModuleAlarmStore,
+    module_state_manager: &mut MainboardModuleStateManager,
+    env_controller: &mut EnvControllerStore,
+    data: Arc<Vec<u8>>,
+) -> Result<(), MainboardError> {
+    let config = EnvironmentControllerConfiguration::parse_from_bytes(&data)?;
+
+    env_controller.register_controller(module_state_manager, alarm_store, config)?;
+    return Ok(());
+}
+
+fn handle_unregister_environment_controller(
+    env_controller: &mut EnvControllerStore,
+    topic: &String,
+) -> Result<(), MainboardError> {
+    let id = crate::utils::mqtt::last_element_path(topic).ok_or(
+        MainboardError::new().message("failed to get last element from mqtt topic".to_string()),
+    )?;
+
+    return env_controller.unregister_controller(&id);
+}
+
+
+
 fn handle_validator_command(
     cmd: &str,
     module_id: &String,
@@ -197,6 +276,9 @@ pub fn handle_module_command(
 ) -> Result<(), MainboardError> {
     let result: Result<(), MainboardError> = match cmd {
         "sync" => handle_sync_request(manager, &sender_socket),
+        "pmconfig" => {
+            handle_pmodule_config(topic, data, manager, &sender_config, &sender_socket, &store)
+        },
         "mconfig" => {
             handle_module_config(topic, data, manager, &sender_config, &sender_socket, &store)
         }
@@ -208,6 +290,8 @@ pub fn handle_module_command(
             &sender_socket,
             &store,
         ),
+        "aEnv" => handle_register_environment_controller(&alarm_store, manager, &mut env_controller, data),
+        "rEnv" => handle_unregister_environment_controller(&mut env_controller, topic),
         "aAl" => handle_add_alarm(alarm_validator, &alarm_store, manager, &mut env_controller, data),
         "rAl" => handle_remove_alarm(alarm_validator, &alarm_store, manager, &mut env_controller, data),
         "uAl" => handle_update_alarm(alarm_validator, &alarm_store, manager, &mut env_controller, data),

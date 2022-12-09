@@ -3,8 +3,9 @@ use crate::modulestate::relay::configure::configure_relay;
 use crate::modulestate::relay::get_outlet_data;
 use crate::modulestate::relay::physical_relay::ActionPortUnion;
 use crate::modulestate::relay::BatchRelay;
-use crate::protos::module::{Actor, RelayModuleConfig, RelayModuleData};
+use crate::protos::module::{Actor, RelayModuleConfig, RelayModuleData, RelayOutletConfig};
 use protobuf::Message;
+use protobuf::SingularPtrField;
 
 pub struct AAPValidator {
     pub actors_property: std::collections::HashMap<String, Actor>,
@@ -18,6 +19,16 @@ impl AAPValidator {
             previous_config: RelayModuleConfig::new(),
         };
     }
+}
+
+macro_rules! set_property {
+    ($this: ident, $property: ident, $data: ident, $($name: ident),+) => {
+        $(
+            if $property == stringify!($name) {
+                $this.$name = SingularPtrField::from(Some($data.clone()));
+            }
+        )+
+    };
 }
 
 impl crate::modulestate::interface::ModuleValue for RelayModuleData {}
@@ -59,7 +70,7 @@ impl crate::modulestate::interface::ModuleValueValidator for AAPValidator {
     fn apply_parse_config(
         &mut self,
         port: i32,
-        _t: &str,
+        t: &str,
         data: std::sync::Arc<Vec<u8>>,
         sender_comboard_config: &std::sync::mpsc::Sender<
             crate::comboard::imple::channel::ModuleConfig,
@@ -72,10 +83,38 @@ impl crate::modulestate::interface::ModuleValueValidator for AAPValidator {
         ),
         crate::modulestate::interface::ModuleError,
     > {
-        let config: Box<RelayModuleConfig> = Box::new(
-            RelayModuleConfig::parse_from_bytes(&data)
-                .map_err(|_e| crate::modulestate::interface::ModuleError::new())?,
-        );
+        let config: Box<RelayModuleConfig> = if t == "AAP" {
+            Box::new(
+                RelayModuleConfig::parse_from_bytes(&data)
+                    .map_err(|_e| crate::modulestate::interface::ModuleError::new())?,
+            )
+        } else {
+            let property = t.split(":").last();
+            if property.is_none() {
+                Box::new(RelayModuleConfig::new())
+            } else {
+                let property = property.unwrap();
+                let relay_outlet = RelayOutletConfig::parse_from_bytes(&data)
+                    .map_err(|_e| crate::modulestate::interface::ModuleError::new())?;
+
+                let mut config = self.previous_config.clone();
+                set_property!(
+                    config,
+                    property,
+                    relay_outlet,
+                    p0,
+                    p1,
+                    p2,
+                    p3,
+                    p4,
+                    p5,
+                    p6,
+                    p7
+                );
+
+                Box::new(config)
+            }
+        };
 
         let buffer = [255; 8];
         let previous_owner: Option<&Actor> = get_owner(&self.actors_property, "p0");
@@ -175,7 +214,7 @@ impl crate::modulestate::interface::ModuleValueValidator for AAPValidator {
 
         batch_relay.execute().unwrap();
 
-        //self.previous_config = *config.clone();
+        self.previous_config = *config.clone();
 
         return Ok((
             config,
@@ -233,5 +272,63 @@ impl crate::modulestate::interface::ModuleValueValidator for AAPValidator {
         crate::modulestate::interface::ModuleError,
     > {
         return Ok(None);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+
+    use std::{
+        collections::HashMap,
+        sync::{mpsc::channel, Arc},
+    };
+
+    use tokio_util::sync::CancellationToken;
+
+    use crate::{
+        comboard::imple::channel::ModuleConfig, modulestate::interface::ModuleValueValidator, protos::module::ManualConfig,
+    };
+
+    use super::*;
+
+    #[test]
+    fn module_aap_apply_full_config() {
+        let mut validator = AAPValidator::new();
+        let (s, r) = channel::<ModuleConfig>();
+        let config = RelayModuleConfig::new();
+        let mut map_handler: HashMap<String, CancellationToken> = HashMap::new();
+
+        validator.apply_parse_config(
+            0,
+            "AAP",
+            Arc::new(config.write_to_bytes().unwrap()),
+            &s,
+            &mut map_handler,
+        ).unwrap();
+    }
+
+    #[test]
+    fn module_aap_apply_partial_config() {
+        let mut validator = AAPValidator::new();
+        let (s, _r) = channel::<ModuleConfig>();
+        let mut config = RelayOutletConfig::new();
+        let manual = ManualConfig{ state: true, ..Default::default()};
+        config.set_manual(manual);
+        let mut map_handler: HashMap<String, CancellationToken> = HashMap::new();
+
+        let (c, mc) = validator.apply_parse_config(
+            0,
+            "AAP:p0",
+            Arc::new(config.write_to_bytes().unwrap()),
+            &s,
+            &mut map_handler,
+        ).unwrap();
+
+        let c = c.as_any().downcast_ref::<RelayModuleConfig>().unwrap();
+
+        assert_eq!(c.p0.as_ref().unwrap().get_manual().state, true);
+        println!("DATA : {:?}", mc.data);
+        assert_eq!(*mc.data.get(0).unwrap(), 1);
+
     }
 }

@@ -1688,6 +1688,231 @@ impl ::protobuf::reflect::ProtobufValue for EnvironmentControllerConfiguration {
     }
 }
 
+#[derive(PartialEq,Clone,Default)]
+pub struct EnvironmentControllerEvent {
+    // message fields
+    pub id: ::std::string::String,
+    pub running: bool,
+    pub state: EnvironmentControllerState,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a EnvironmentControllerEvent {
+    fn default() -> &'a EnvironmentControllerEvent {
+        <EnvironmentControllerEvent as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl EnvironmentControllerEvent {
+    pub fn new() -> EnvironmentControllerEvent {
+        ::std::default::Default::default()
+    }
+
+    // string id = 1;
+
+
+    pub fn get_id(&self) -> &str {
+        &self.id
+    }
+    pub fn clear_id(&mut self) {
+        self.id.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_id(&mut self, v: ::std::string::String) {
+        self.id = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_id(&mut self) -> &mut ::std::string::String {
+        &mut self.id
+    }
+
+    // Take field
+    pub fn take_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.id, ::std::string::String::new())
+    }
+
+    // bool running = 2;
+
+
+    pub fn get_running(&self) -> bool {
+        self.running
+    }
+    pub fn clear_running(&mut self) {
+        self.running = false;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_running(&mut self, v: bool) {
+        self.running = v;
+    }
+
+    // .EnvironmentControllerState state = 3;
+
+
+    pub fn get_state(&self) -> EnvironmentControllerState {
+        self.state
+    }
+    pub fn clear_state(&mut self) {
+        self.state = EnvironmentControllerState::WAITING_ALARM;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_state(&mut self, v: EnvironmentControllerState) {
+        self.state = v;
+    }
+}
+
+impl ::protobuf::Message for EnvironmentControllerEvent {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.id)?;
+                },
+                2 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_bool()?;
+                    self.running = tmp;
+                },
+                3 => {
+                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.state, 3, &mut self.unknown_fields)?
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if !self.id.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.id);
+        }
+        if self.running != false {
+            my_size += 2;
+        }
+        if self.state != EnvironmentControllerState::WAITING_ALARM {
+            my_size += ::protobuf::rt::enum_size(3, self.state);
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if !self.id.is_empty() {
+            os.write_string(1, &self.id)?;
+        }
+        if self.running != false {
+            os.write_bool(2, self.running)?;
+        }
+        if self.state != EnvironmentControllerState::WAITING_ALARM {
+            os.write_enum(3, ::protobuf::ProtobufEnum::value(&self.state))?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> EnvironmentControllerEvent {
+        EnvironmentControllerEvent::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "id",
+                |m: &EnvironmentControllerEvent| { &m.id },
+                |m: &mut EnvironmentControllerEvent| { &mut m.id },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBool>(
+                "running",
+                |m: &EnvironmentControllerEvent| { &m.running },
+                |m: &mut EnvironmentControllerEvent| { &mut m.running },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<EnvironmentControllerState>>(
+                "state",
+                |m: &EnvironmentControllerEvent| { &m.state },
+                |m: &mut EnvironmentControllerEvent| { &mut m.state },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<EnvironmentControllerEvent>(
+                "EnvironmentControllerEvent",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static EnvironmentControllerEvent {
+        static instance: ::protobuf::rt::LazyV2<EnvironmentControllerEvent> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(EnvironmentControllerEvent::new)
+    }
+}
+
+impl ::protobuf::Clear for EnvironmentControllerEvent {
+    fn clear(&mut self) {
+        self.id.clear();
+        self.running = false;
+        self.state = EnvironmentControllerState::WAITING_ALARM;
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for EnvironmentControllerEvent {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for EnvironmentControllerEvent {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
 pub enum RessourceType {
     ACTOR_MODULE = 0,
@@ -1738,6 +1963,62 @@ impl ::protobuf::reflect::ProtobufValue for RessourceType {
     }
 }
 
+#[derive(Clone,PartialEq,Eq,Debug,Hash)]
+pub enum EnvironmentControllerState {
+    WAITING_ALARM = 0,
+    WAITING_VALUE = 1,
+    CHANGING_CONFIG = 2,
+    SLEEPING = 3,
+}
+
+impl ::protobuf::ProtobufEnum for EnvironmentControllerState {
+    fn value(&self) -> i32 {
+        *self as i32
+    }
+
+    fn from_i32(value: i32) -> ::std::option::Option<EnvironmentControllerState> {
+        match value {
+            0 => ::std::option::Option::Some(EnvironmentControllerState::WAITING_ALARM),
+            1 => ::std::option::Option::Some(EnvironmentControllerState::WAITING_VALUE),
+            2 => ::std::option::Option::Some(EnvironmentControllerState::CHANGING_CONFIG),
+            3 => ::std::option::Option::Some(EnvironmentControllerState::SLEEPING),
+            _ => ::std::option::Option::None
+        }
+    }
+
+    fn values() -> &'static [Self] {
+        static values: &'static [EnvironmentControllerState] = &[
+            EnvironmentControllerState::WAITING_ALARM,
+            EnvironmentControllerState::WAITING_VALUE,
+            EnvironmentControllerState::CHANGING_CONFIG,
+            EnvironmentControllerState::SLEEPING,
+        ];
+        values
+    }
+
+    fn enum_descriptor_static() -> &'static ::protobuf::reflect::EnumDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::EnumDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            ::protobuf::reflect::EnumDescriptor::new_pb_name::<EnvironmentControllerState>("EnvironmentControllerState", file_descriptor_proto())
+        })
+    }
+}
+
+impl ::std::marker::Copy for EnvironmentControllerState {
+}
+
+impl ::std::default::Default for EnvironmentControllerState {
+    fn default() -> Self {
+        EnvironmentControllerState::WAITING_ALARM
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for EnvironmentControllerState {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Enum(::protobuf::ProtobufEnum::descriptor(self))
+    }
+}
+
 static file_descriptor_proto_data: &'static [u8] = b"\
     \n\x14env_controller.proto\x1a\x0cmodule.proto\"l\n\x06MActor\x12\x12\n\
     \x04name\x18\x01\x20\x01(\tR\x04name\x12\x0e\n\x02id\x18\x02\x20\x01(\tR\
@@ -1760,9 +2041,14 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x06actors\x18\x03\x20\x03(\x0b2\x07.MActorR\x06actors\x129\n\x06static\
     \x18\n\x20\x01(\x0b2\x1f.StaticControllerImplementationH\0R\x06static\
     \x12G\n\x0bprogressive\x18\x0f\x20\x01(\x0b2#.ProgressiveControlerImplem\
-    entationH\0R\x0bprogressiveB\x10\n\x0eimplementation*4\n\rRessourceType\
-    \x12\x10\n\x0cACTOR_MODULE\x10\0\x12\x11\n\rACTOR_VIRTUAL\x10\x01b\x06pr\
-    oto3\
+    entationH\0R\x0bprogressiveB\x10\n\x0eimplementation\"y\n\x1aEnvironment\
+    ControllerEvent\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\x18\n\x07r\
+    unning\x18\x02\x20\x01(\x08R\x07running\x121\n\x05state\x18\x03\x20\x01(\
+    \x0e2\x1b.EnvironmentControllerStateR\x05state*4\n\rRessourceType\x12\
+    \x10\n\x0cACTOR_MODULE\x10\0\x12\x11\n\rACTOR_VIRTUAL\x10\x01*e\n\x1aEnv\
+    ironmentControllerState\x12\x11\n\rWAITING_ALARM\x10\0\x12\x11\n\rWAITIN\
+    G_VALUE\x10\x01\x12\x13\n\x0fCHANGING_CONFIG\x10\x02\x12\x0c\n\x08SLEEPI\
+    NG\x10\x03b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

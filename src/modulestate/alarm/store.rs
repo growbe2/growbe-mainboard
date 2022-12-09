@@ -74,6 +74,7 @@ impl ModuleAlarmStore {
         let conn = self.conn.lock().unwrap();
         let mut stmt = conn
             .prepare("SELECT config, state FROM module_field_alarm WHERE id = ?")
+            
             .unwrap();
         return stmt
             .query_map([module_id.as_str()], handle_row)?

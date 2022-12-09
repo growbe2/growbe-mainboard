@@ -6,6 +6,7 @@ use crate::modulestate::relay::{
 use crate::protos::module::{Actor, WCModuleConfig, WCModuleData};
 use protobuf::Message;
 use std::collections::HashMap;
+use std::thread::panicking;
 
 pub struct AABValidator {
     pub actors_property: HashMap<String, Actor>,
@@ -57,7 +58,7 @@ impl crate::modulestate::interface::ModuleValueValidator for AABValidator {
     fn apply_parse_config(
         &mut self,
         port: i32,
-        _t: &str,
+        t: &str,
         data: std::sync::Arc<Vec<u8>>,
         sender_comboard_config: &std::sync::mpsc::Sender<
             crate::comboard::imple::channel::ModuleConfig,
@@ -70,10 +71,16 @@ impl crate::modulestate::interface::ModuleValueValidator for AABValidator {
         ),
         crate::modulestate::interface::ModuleError,
     > {
-        let config: Box<WCModuleConfig> = Box::new(
-            WCModuleConfig::parse_from_bytes(&data)
-                .map_err(|_e| crate::modulestate::interface::ModuleError::new())?,
-        );
+        let config: Box<WCModuleConfig> = if t == "AAB" {
+            Box::new(
+                WCModuleConfig::parse_from_bytes(&data)
+                    .map_err(|_e| crate::modulestate::interface::ModuleError::new())?,
+            )
+        } else {
+            let property = t.split(":").last().unwrap();
+
+            Box::new(WCModuleConfig::new())
+        };
 
         let buffer = [255; 8];
 
