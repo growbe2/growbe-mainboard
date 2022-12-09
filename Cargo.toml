@@ -66,6 +66,8 @@ bluer = {version = "0.15.0", features = ["bluetoothd"], optional = true}
 # for gpio
 rppal = { version = "0.13.1", optional = true }
 
+[dev-dependencies]
+serial_test = "*"
 
 [build-dependencies]
 protoc-rust = "2.25.2"

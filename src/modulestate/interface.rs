@@ -99,6 +99,7 @@ impl From<rusqlite::Error> for ModuleError {
     }
 }
 
+#[derive(Debug)]
 pub struct ModuleStateCmd {
     pub cmd: &'static str,
     pub topic: String,

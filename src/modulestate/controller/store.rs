@@ -349,13 +349,13 @@ mod tests {
 
     use super::*;
 
-    fn init() -> (
+    fn init(uid: &str) -> (
         MainboardModuleStateManager,
         EnvControllerStore,
         ModuleAlarmStore,
     ) {
         let conn_database = Arc::new(Mutex::new(crate::store::database::init(Some(
-            "./database_test_env_controller.sqlite".to_string(),
+            format!("./database_test_env_controller_{}.sqlite", uid),
         ))));
 
         let msm = MainboardModuleStateManager::new();
@@ -466,7 +466,7 @@ mod tests {
 
     #[test]
     fn env_controller_module_not_connected() {
-        let (msm, mut ecs, mas) = init();
+        let (msm, mut ecs, mas) = init("not_connected");
         let mut config = EnvironmentControllerConfiguration::new();
         config.set_id("test".to_string());
         add_observer(&mut config, "obs", "AAA0000003", "airTemperature");
@@ -481,7 +481,7 @@ mod tests {
 
     #[tokio::test]
     async fn env_controller_module_connected_no_alarm() {
-        let (mut msm, mut ecs,mut mas) = init();
+        let (mut msm, mut ecs,mut mas) = init("no_alarm");
 
         add_fake_module(&mut msm, &mut mas, &mut ecs, "AAA0000003");
 
@@ -499,7 +499,7 @@ mod tests {
 
     #[tokio::test]
     async fn env_controller_module_connected() {
-        let (mut msm, mut ecs,mut mas) = init();
+        let (mut msm, mut ecs,mut mas) = init("connected");
 
         add_fake_module(&mut msm, &mut mas, &mut ecs, "AAA0000003");
 
@@ -532,7 +532,7 @@ mod tests {
 
     #[tokio::test]
     async fn env_controller_start_after_module_alarm_added() {
-        let (mut msm, mut ecs,mut mas) = init();
+        let (mut msm, mut ecs,mut mas) = init("alarm_added");
 
         let mut config = EnvironmentControllerConfiguration::new();
         config.set_id("test".to_string());
@@ -568,7 +568,7 @@ mod tests {
 
     #[tokio::test]
     async fn env_controller_stop_after_module_or_alarm_removed() {
-        let (mut msm, mut ecs,mut mas) = init();
+        let (mut msm, mut ecs,mut mas) = init("or_alarm_removed");
 
         add_fake_module(&mut msm, &mut mas, &mut ecs, "AAA0000003");
         add_alarm(&mas, &mut msm, &mut ecs, "AAA0000003", "airTemperature");
@@ -610,7 +610,7 @@ mod tests {
 
     #[tokio::test]
     async fn env_controller_unregister_config() {
-        let (mut msm, mut ecs,mut mas) = init();
+        let (mut msm, mut ecs,mut mas) = init("unregister_controller");
 
         add_fake_module(&mut msm, &mut mas, &mut ecs, "AAA0000003");
         add_alarm(&mas, &mut msm, &mut ecs, "AAA0000003", "airTemperature");

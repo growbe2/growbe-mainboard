@@ -14,6 +14,7 @@ use super::interface::{ModuleError, ModuleStateCmd};
 use super::{handle_state::send_module_state, state_manager::MainboardModuleStateManager};
 
 lazy_static::lazy_static! {
+    // TODO : not global shit
     pub static ref CHANNEL_MODULE_STATE_CMD: (
         Mutex<Sender<ModuleStateCmd>>,
         Mutex<Receiver<ModuleStateCmd>>

@@ -1,3 +1,4 @@
+//#![feature(mutex_unpoison)]
 extern crate lazy_static;
 
 mod comboard;
