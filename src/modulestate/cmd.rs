@@ -24,6 +24,50 @@ lazy_static::lazy_static! {
         return (Mutex::new(sender), Mutex::new(receiver));
     };
 }
+
+fn apply_module_config(
+    id: &str,
+    data: Arc<Vec<u8>>,
+    manager: &mut MainboardModuleStateManager,
+    sender_config: &ComboardSenderMapReference,
+    store: &super::store::ModuleStateStore,
+    suffix: &str,
+) -> Result<(), MainboardError> {
+    let module_ref_option = manager.connected_module.get_mut(id);
+
+    if let Some(module_ref) = module_ref_option {
+        let t = &module_ref.id[..3];
+
+        if let Ok(sender_config) = sender_config.get_sender(ComboardAddr {
+            imple: module_ref.board.clone(),
+            addr: module_ref.board_addr.clone(),
+        }) {
+            match module_ref.validator.apply_parse_config(
+                module_ref.port,
+                &format!("{}{}", t, suffix),
+                data,
+                &sender_config,
+                &mut module_ref.handler_map,
+            ) {
+                Ok((config, config_comboard)) => {
+                    store.store_module_config(&(id.into()), config)?;
+                    sender_config
+                        .send(config_comboard)
+                        .map_err(|x| MainboardError::from_error(x.to_string()))?;
+                }
+                Err(e) => return Err(e.into()),
+            }
+            tokio::task::spawn(async {});
+        } else {
+            return Err(super::interface::ModuleError::sender_not_found(&id).into());
+        }
+    } else {
+        return Err(super::interface::ModuleError::not_found(&id).into());
+    }
+    return Ok(());
+}
+
+
 fn handle_module_config(
     topic: &String,
     data: Arc<Vec<u8>>,
@@ -36,42 +80,9 @@ fn handle_module_config(
         MainboardError::new().message("failed to get last element from mqtt topic".to_string()),
     )?;
 
-    let module_ref_option = manager.connected_module.get_mut(id.as_str());
-
-    if let Some(module_ref) = module_ref_option {
-        let t = &module_ref.id[..3];
-
-        if let Ok(sender_config) = sender_config.get_sender(ComboardAddr {
-            imple: module_ref.board.clone(),
-            addr: module_ref.board_addr.clone(),
-        }) {
-            match module_ref.validator.apply_parse_config(
-                module_ref.port,
-                t,
-                data,
-                &sender_config,
-                &mut module_ref.handler_map,
-            ) {
-                Ok((config, config_comboard)) => {
-                    store.store_module_config(&id, config)?;
-                    sender_config
-                        .send(config_comboard)
-                        .map_err(|x| MainboardError::from_error(x.to_string()))?;
-                }
-                Err(e) => return Err(e.into()),
-            }
-            tokio::task::spawn(async {});
-        } else {
-            return Err(super::interface::ModuleError::sender_not_found(&id).into());
-        }
-    } else {
-        return Err(super::interface::ModuleError::not_found(&id).into());
-    }
-
-    return Ok(());
+    return apply_module_config(&id, data, manager, sender_config, store, "");
 }
 
-// TODO: receive only a RelayOutletConfig and apply it to the module,
 fn handle_pmodule_config(
     topic: &String,
     data: Arc<Vec<u8>>,
@@ -80,49 +91,13 @@ fn handle_pmodule_config(
     _sender_socket: &Sender<(String, Box<dyn super::interface::ModuleValueParsable>)>,
     store: &super::store::ModuleStateStore,
 ) -> Result<(), MainboardError> {
-    // Need to get the last two element
-    //
     log::debug!("need to apply property module config but cannot still");
-    return Ok(());
-    let id = crate::utils::mqtt::last_element_path(topic).ok_or(
+    let (id, property) = crate::utils::mqtt::last_2_element_path(topic).ok_or(
         MainboardError::new().message("failed to get last element from mqtt topic".to_string()),
     )?;
 
-    let module_ref_option = manager.connected_module.get_mut(id.as_str());
-
-    if let Some(module_ref) = module_ref_option {
-        let t = &module_ref.id[..3];
-
-        if let Ok(sender_config) = sender_config.get_sender(ComboardAddr {
-            imple: module_ref.board.clone(),
-            addr: module_ref.board_addr.clone(),
-        }) {
-            match module_ref.validator.apply_parse_config(
-                module_ref.port,
-                t,
-                data,
-                &sender_config,
-                &mut module_ref.handler_map,
-            ) {
-                Ok((config, config_comboard)) => {
-                    store.store_module_config(&id, config)?;
-                    sender_config
-                        .send(config_comboard)
-                        .map_err(|x| MainboardError::from_error(x.to_string()))?;
-                }
-                Err(e) => return Err(e.into()),
-            }
-            tokio::task::spawn(async {});
-        } else {
-            return Err(super::interface::ModuleError::sender_not_found(&id).into());
-        }
-    } else {
-        return Err(super::interface::ModuleError::not_found(&id).into());
-    }
-    return Ok(());
+    return apply_module_config(&id, data, manager, sender_config, store, &property);
 }
-
-
 
 fn handle_remove_module_config(
     topic: &String,

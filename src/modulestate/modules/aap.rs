@@ -77,7 +77,7 @@ impl crate::modulestate::interface::ModuleValueValidator for AAPValidator {
         let config: Box<RelayModuleConfig> = if t == "AAP" {
             Box::new(
                 RelayModuleConfig::parse_from_bytes(&data)
-                    .map_err(|_e| crate::modulestate::interface::ModuleError::new())?,
+                    .map_err(|_e| crate::modulestate::interface::ModuleError::new().message(_e.to_string()))?,
             )
         } else {
             let property = t.split(":").last();

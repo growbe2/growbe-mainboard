@@ -8,6 +8,7 @@ use std::sync::mpsc::Receiver;
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 
+use crate::comboard::imple::virt::VIRTUAL_COMBOARD_CMD;
 use crate::mainboardstate::config::rewrite_configuration;
 use crate::protos::message::ActionCode;
 
@@ -167,6 +168,28 @@ fn on_setconfig(
     }
 }
 
+fn on_virt_item(
+    _topic_name: String,
+    data: Arc<Vec<u8>>,
+) -> Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError> {
+
+    println!("on virt item");
+
+    match serde_json::from_slice(&data) {
+        Ok(config) => {
+            VIRTUAL_COMBOARD_CMD.0
+                .lock().unwrap()
+                .send(config)
+                .unwrap();
+        },
+        Err(_) => {
+            return Err(SocketMessagingError::new());
+        }
+    }
+
+    return Ok(None);
+}
+
 pub fn socket_task(
     receiver_socket: Arc<
         Mutex<
@@ -225,6 +248,13 @@ pub fn socket_task(
             not_prefix: false,
         },
         MqttHandler {
+            subscription: "/board/virt/item".into(),
+            regex: "virt",
+            action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
+            handler: on_virt_item,
+            not_prefix: false,
+        },
+        MqttHandler {
             subscription: "/update".to_string(),
             regex: "update",
             action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
@@ -244,6 +274,8 @@ pub fn socket_task(
         ("sync", false, ActionCode::SYNC_REQUEST),
         ("mconfig", true, ActionCode::MODULE_CONFIG),
         ("rmconfig", true, ActionCode::MODULE_CONFIG),
+        ("aEnv", true, ActionCode::SYNC_REQUEST),
+        ("rEnv", true, ActionCode::SYNC_REQUEST),
         ("aAl", false, ActionCode::ADD_ALARM),
         ("rAl", false, ActionCode::REMOVE_ALARM),
         ("uAl", false, ActionCode::SYNC_REQUEST),

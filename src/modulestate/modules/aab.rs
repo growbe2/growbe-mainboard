@@ -3,7 +3,7 @@ use crate::modulestate::relay::BatchRelay;
 use crate::modulestate::relay::{
     configure::configure_relay, get_outlet_data, physical_relay::ActionPortUnion,
 };
-use crate::protos::module::{Actor, WCModuleConfig, WCModuleData, RelayOutletConfig};
+use crate::protos::module::{Actor, RelayOutletConfig, WCModuleConfig, WCModuleData};
 use crate::set_property;
 use protobuf::Message;
 use protobuf::SingularPtrField;
@@ -272,13 +272,15 @@ mod tests {
 
     use std::{
         collections::HashMap,
-        sync::{mpsc::channel, Arc}, time::Duration,
+        sync::{mpsc::channel, Arc},
+        time::Duration,
     };
 
     use tokio_util::sync::CancellationToken;
 
     use crate::{
-        comboard::imple::channel::ModuleConfig, modulestate::interface::ModuleValueValidator, protos::module::ManualConfig,
+        comboard::imple::channel::ModuleConfig, modulestate::interface::ModuleValueValidator,
+        protos::module::ManualConfig,
     };
 
     use super::*;
@@ -290,13 +292,15 @@ mod tests {
         let config = WCModuleConfig::new();
         let mut map_handler: HashMap<String, CancellationToken> = HashMap::new();
 
-        validator.apply_parse_config(
-            0,
-            "AAB",
-            Arc::new(config.write_to_bytes().unwrap()),
-            &s,
-            &mut map_handler,
-        ).unwrap();
+        validator
+            .apply_parse_config(
+                0,
+                "AAB",
+                Arc::new(config.write_to_bytes().unwrap()),
+                &s,
+                &mut map_handler,
+            )
+            .unwrap();
     }
 
     #[test]
@@ -304,17 +308,22 @@ mod tests {
         let mut validator = AABValidator::new();
         let (s, r) = channel::<ModuleConfig>();
         let mut config = RelayOutletConfig::new();
-        let manual = ManualConfig{ state: true, ..Default::default()};
+        let manual = ManualConfig {
+            state: true,
+            ..Default::default()
+        };
         config.set_manual(manual);
         let mut map_handler: HashMap<String, CancellationToken> = HashMap::new();
 
-        let (c, _) = validator.apply_parse_config(
-            0,
-            "AAB:p0",
-            Arc::new(config.write_to_bytes().unwrap()),
-            &s,
-            &mut map_handler,
-        ).unwrap();
+        let (c, _) = validator
+            .apply_parse_config(
+                0,
+                "AAB:p0",
+                Arc::new(config.write_to_bytes().unwrap()),
+                &s,
+                &mut map_handler,
+            )
+            .unwrap();
 
         let c = c.as_any().downcast_ref::<WCModuleConfig>().unwrap();
 

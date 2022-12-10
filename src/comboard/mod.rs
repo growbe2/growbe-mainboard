@@ -42,7 +42,7 @@ pub fn get_comboard_client() -> Vec<(RunningComboard, Box<dyn imple::interface::
             board.push(Box::new(get_comboard_i2c(ComboardClientConfig {
                 config: element.config.clone(),
             })));
-            #[cfg(not(feature = "i2c"))]
+            #[cfg(not(feature = "com_i2c"))]
             panic!("i2c comboard not compiled in the version");
         } else if element.imple == "ble" {
             #[cfg(feature = "com_ble")]

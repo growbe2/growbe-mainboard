@@ -31,6 +31,7 @@ impl crate::modulestate::interface::ModuleValueValidator for AAAValidator {
 
         let mut v = std::ptr::null_mut();
 
+
         unsafe {
             if value_event.buffer.len() > 150 {
                 data.airTemperature = round_decimal(strtof(value_event.buffer.as_ptr(), &mut v));

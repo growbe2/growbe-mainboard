@@ -1,16 +1,12 @@
 {
 	"mqtt": {
-		"url": "mainboard.growbe.ca",
+		"url": "192.168.2.2",
 		"port": 30045
 	},
 	"comboards": [
         {
-            "config": "localhost",
-            "imple": "ws"
-        },
-        {
-            "config": "192.168.2.25",
-            "imple": "ws"
+            "config": "",
+            "imple": "virt"
         }
 	],
 	"server": {

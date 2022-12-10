@@ -46,7 +46,7 @@ impl ModuleCommandSender {
         prop: &str,
         config: Box<dyn ModuleValueParsable>,
     ) -> Result<Receiver<ActionResponse>, MainboardError> {
-        return self.send_cmd("pmconfig", id, config);
+        return self.send_cmd("pmconfig", &format!("{}/{}", id, prop), config);
     }
 
     fn send_cmd(
