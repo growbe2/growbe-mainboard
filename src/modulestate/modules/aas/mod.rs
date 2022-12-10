@@ -46,7 +46,7 @@ impl crate::modulestate::interface::ModuleValueValidator for AASValidator {
     > {
         let mut data = SOILModuleData::new();
 
-        if value_event.buffer.len() > 350 {
+        if value_event.buffer.len() >= 72 {
             data.p0 = two_u8_to_u16(value_event.buffer[0], value_event.buffer[1]) as i32;
             data.p1 = two_u8_to_u16(value_event.buffer[10], value_event.buffer[11]) as i32;
             data.p2 = two_u8_to_u16(value_event.buffer[20], value_event.buffer[21]) as i32;

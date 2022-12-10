@@ -33,7 +33,7 @@ impl crate::modulestate::interface::ModuleValueValidator for AAAValidator {
 
 
         unsafe {
-            if value_event.buffer.len() > 150 {
+            if value_event.buffer.len() >= 105 {
                 data.airTemperature = round_decimal(strtof(value_event.buffer.as_ptr(), &mut v));
                 data.humidity =
                     round_decimal(strtof(value_event.buffer.as_ptr().offset(100), &mut v));

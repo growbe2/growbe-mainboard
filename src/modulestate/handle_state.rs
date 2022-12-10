@@ -132,7 +132,6 @@ pub fn handle_module_state(
             }
         }
 
-        env_controller.on_module_connected(&state.id, manager, alarm_store)?;
 
         // BLOCK TO HANDLE ALARMS
         //
@@ -141,10 +140,10 @@ pub fn handle_module_state(
                 log::info!("loading {} alarms for {}", alarms.len(), state.id.as_str());
                 for _n in 0..alarms.len() {
                     if let Some((alarm, state)) = alarms.pop() {
-                        if let Err(err) = alarm_validator.register_field_alarm(alarm.clone(), state) {
+                        if let Err(err) = alarm_validator.register_field_alarm(alarm.clone(), state.clone()) {
                             log::error!("failed to register alarm : {:?}", err);
                         }
-                        env_controller.on_alarm_created(&alarm.moduleId, &alarm.property, manager, alarm_store)?;
+                        env_controller.on_alarm_created(&alarm.moduleId, &alarm.property, manager, alarm_store, state, true)?;
                     } else {
                         log::error!("failed to get next alarm in list");
                     }
@@ -152,6 +151,8 @@ pub fn handle_module_state(
             }
             Err(err) => log::error!("failed to get alarms for modules : {:?}", err),
         }
+
+        env_controller.on_module_connected(&state.id, manager, alarm_store)?;
     }
     if state.state == false {
         log::debug!(

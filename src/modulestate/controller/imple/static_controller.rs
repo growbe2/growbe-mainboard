@@ -1,4 +1,5 @@
 use crate::{
+    get_env_element,
     mainboardstate::error::MainboardError,
     modulestate::controller::{
         context::Context, controller_trait::EnvControllerTask, module_command::ModuleCommandSender,
@@ -6,11 +7,12 @@ use crate::{
     protos::{
         alarm::FieldAlarmEvent,
         env_controller::{
-            EnvironmentControllerEvent,
-            EnvironmentControllerConfiguration_oneof_implementation, MActor, SCConditionActor, EnvironmentControllerState,
+            EnvironmentControllerConfiguration_oneof_implementation, EnvironmentControllerEvent,
+            EnvironmentControllerState, MActor, SCConditionActor,
         },
         module::RelayOutletConfig,
-    }, send_event, get_env_element,
+    },
+    send_event,
 };
 use protobuf::ProtobufEnum;
 use tokio::{select, sync::watch::Receiver};
@@ -34,8 +36,8 @@ fn get_config_for_event(
     if let Some(item) = action.actions.get(&index) {
         if item.config.is_some() {
             let v = item.config.clone().unwrap();
-            println!("found item {:?}", v);
             if v.has_alarm() || v.has_manual() || v.has_cycle() {
+                println!("found item {:?} for zone {}", v, index);
                 return Some(v);
             }
         }
@@ -71,28 +73,33 @@ impl EnvControllerTask for StaticControllerImplementation {
         return Ok(tokio::task::spawn(async move {
             log::info!("starting static controller : {}", ctx.config.get_id());
 
-            let imple = ctx.config.implementation.unwrap();
+            let imple = ctx.config.implementation.clone().unwrap();
             let imple = match imple {
-                EnvironmentControllerConfiguration_oneof_implementation::field_static(s) => s.clone(),
+                EnvironmentControllerConfiguration_oneof_implementation::field_static(s) => {
+                    s.clone()
+                }
                 _ => panic!("failed to be"),
             };
             let action = imple.conditions.get(0).unwrap();
 
             let observer_id = action.get_observer_id();
             let actor_id = action.get_actor_id();
-            println!("{}  dasdasdsaad {}", observer_id, actor_id);
             let observer = get_env_element!(ctx, observers, observer_id).unwrap();
             let actor = get_env_element!(ctx, actors, actor_id).unwrap();
             let key = format!("{}:{}", observer.get_id(), observer.get_property());
 
             let mut receiver_alarm = ctx.alarm_receivers.remove(&key).unwrap();
 
-            on_value_event_change(&ctx.module_command_sender, &mut receiver_alarm, &action, &actor);
+            on_value_event_change(
+                &ctx.module_command_sender,
+                &mut receiver_alarm,
+                &action,
+                &actor,
+            );
 
             send_event!(ctx, EnvironmentControllerState::CHANGING_CONFIG, true);
 
             loop {
-
                 send_event!(ctx, EnvironmentControllerState::WAITING_ALARM, true);
 
                 select! {
@@ -249,19 +256,33 @@ mod tests {
         assert_eq!(handle.is_finished(), true);
         assert_eq!(ct.is_cancelled(), true);
 
-
         let d = sr.recv_timeout(Duration::from_millis(10)).unwrap().1;
-        let first_message = d.as_any().downcast_ref::<EnvironmentControllerEvent>().unwrap();
-        assert_eq!(first_message.state, EnvironmentControllerState::CHANGING_CONFIG);
+        let first_message = d
+            .as_any()
+            .downcast_ref::<EnvironmentControllerEvent>()
+            .unwrap();
+        assert_eq!(
+            first_message.state,
+            EnvironmentControllerState::CHANGING_CONFIG
+        );
         assert_eq!(first_message.running, true);
 
         let d = sr.recv_timeout(Duration::from_millis(10)).unwrap().1;
-        let first_message = d.as_any().downcast_ref::<EnvironmentControllerEvent>().unwrap();
-        assert_eq!(first_message.state, EnvironmentControllerState::WAITING_ALARM);
+        let first_message = d
+            .as_any()
+            .downcast_ref::<EnvironmentControllerEvent>()
+            .unwrap();
+        assert_eq!(
+            first_message.state,
+            EnvironmentControllerState::WAITING_ALARM
+        );
         assert_eq!(first_message.running, true);
 
         let d = sr.recv_timeout(Duration::from_millis(10)).unwrap().1;
-        let first_message = d.as_any().downcast_ref::<EnvironmentControllerEvent>().unwrap();
+        let first_message = d
+            .as_any()
+            .downcast_ref::<EnvironmentControllerEvent>()
+            .unwrap();
         assert_eq!(first_message.state, EnvironmentControllerState::SLEEPING);
         assert_eq!(first_message.running, false);
     }

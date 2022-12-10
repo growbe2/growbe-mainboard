@@ -7,6 +7,7 @@ use tokio::sync::watch::{channel, Receiver, Sender};
 use tokio_util::sync::CancellationToken;
 
 use crate::mainboardstate::error::MainboardError;
+use crate::modulestate::alarm::model::ModuleAlarmState;
 use crate::modulestate::alarm::store::ModuleAlarmStore;
 use crate::modulestate::state_manager::MainboardModuleStateManager;
 use crate::protos::env_controller::{
@@ -41,8 +42,8 @@ pub struct EnvControllerStore {
 
     sender: SenderSocket,
 
-    alarm_senders: HashMap<String, (Sender<FieldAlarmEvent>, Receiver<FieldAlarmEvent>)>,
-    value_senders: HashMap<
+    pub alarm_senders: HashMap<String, (Sender<FieldAlarmEvent>, Receiver<FieldAlarmEvent>)>,
+    pub value_senders: HashMap<
         String,
         (
             Sender<ModuleValueChange<f32>>,
@@ -73,6 +74,8 @@ impl EnvControllerStore {
         property: &str,
         module_state_manager: &MainboardModuleStateManager,
         module_alarm_store: &ModuleAlarmStore,
+        state: Option<ModuleAlarmState<f32>>,
+        no_validate: bool,
     ) -> Result<(), MainboardError> {
         let key = format!("{}:{}", module_id, property);
         if self.alarm_senders.contains_key(&key) {
@@ -82,18 +85,28 @@ impl EnvControllerStore {
             )));
         }
 
-        self.alarm_senders.insert(
-            key,
-            channel(FieldAlarmEvent {
+        let mut event = FieldAlarmEvent {
                 moduleId: module_id.into(),
                 property: property.into(),
                 ..Default::default()
-            }),
+        };
+        if let Some(state) = state {
+            event.currentZone = state.zone;
+            event.currentValue = state.current_value;
+            event.previousValue = state.previous_value;
+        }
+
+        self.alarm_senders.insert(
+            key,
+            channel(event),
         );
 
         log::debug!("creating field alarm event channel for {}:{}", module_id, property);
 
-        return self.validate_creation(module_state_manager, module_alarm_store);
+        if no_validate == false {
+            return self.validate_creation(module_state_manager, module_alarm_store);
+        }
+        return Ok(());
     }
 
     pub fn on_alarm_deleted(
@@ -258,8 +271,9 @@ impl EnvControllerStore {
             handler: self.start_task_implementation(&config, ctx)?,
         };
 
-        log::debug!("environment_controller task has been started {}", config.get_id());
+        log::debug!("environment_controller task has been started {} running {}", config.get_id(), !entry.handler.is_finished());
 
+        tokio::task::spawn(async {});
         self.tasks.insert(config.id.clone(), entry);
 
         return Ok(());
@@ -273,7 +287,8 @@ impl EnvControllerStore {
         if let Some(implementation) = &config.implementation {
             match implementation {
                 EnvironmentControllerConfiguration_oneof_implementation::field_static(_) => {
-                    return StaticControllerImplementation::new().run(ctx);
+                    let handler = StaticControllerImplementation::new().run(ctx);
+                    return handler;
                 }
                 _ => {
                     return Err(MainboardError::from_error(format!(
@@ -482,7 +497,7 @@ mod tests {
         field_alarm.mut_high().offset = 1.;
 
         store.add_alarm_field(&field_alarm).unwrap();
-        ecs.on_alarm_created(id, property,  msm, store).unwrap();
+        ecs.on_alarm_created(id, property,  msm, store, None, false).unwrap();
     }
 
     fn remove_alarm(

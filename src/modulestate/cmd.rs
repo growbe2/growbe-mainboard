@@ -44,12 +44,13 @@ fn apply_module_config(
         }) {
             match module_ref.validator.apply_parse_config(
                 module_ref.port,
-                &format!("{}{}", t, suffix),
+                &format!("{}:{}", t, suffix),
                 data,
                 &sender_config,
                 &mut module_ref.handler_map,
             ) {
                 Ok((config, config_comboard)) => {
+                    println!("cac, {:?}", config);
                     store.store_module_config(&(id.into()), config)?;
                     sender_config
                         .send(config_comboard)
@@ -91,7 +92,6 @@ fn handle_pmodule_config(
     _sender_socket: &Sender<(String, Box<dyn super::interface::ModuleValueParsable>)>,
     store: &super::store::ModuleStateStore,
 ) -> Result<(), MainboardError> {
-    log::debug!("need to apply property module config but cannot still");
     let (id, property) = crate::utils::mqtt::last_2_element_path(topic).ok_or(
         MainboardError::new().message("failed to get last element from mqtt topic".to_string()),
     )?;
@@ -168,7 +168,7 @@ fn handle_update_alarm(
     alarm_validator.register_field_alarm(field_alarm.clone(), None)?;
 
     env_controller.on_alarm_deleted(&field_alarm.moduleId, &field_alarm.property, module_state_manager, alarm_store)?;
-    env_controller.on_alarm_created(&field_alarm.moduleId, &field_alarm.property, module_state_manager, alarm_store)?;
+    env_controller.on_alarm_created(&field_alarm.moduleId, &field_alarm.property, module_state_manager, alarm_store, None, false)?;
 
     return Ok(());
 }
@@ -195,6 +195,7 @@ fn handle_register_environment_controller(
     env_controller: &mut EnvControllerStore,
     data: Arc<Vec<u8>>,
 ) -> Result<(), MainboardError> {
+    println!("RECEIVE MAIN");
     let config = EnvironmentControllerConfiguration::parse_from_bytes(&data)?;
 
     env_controller.register_controller(module_state_manager, alarm_store, config)?;
@@ -342,7 +343,7 @@ pub fn handle_module_command(
         Ok(()) => {
             action_respose.status = 0;
             if let Err(err) = sender_response.send(action_respose) {
-                log::error!("failed to send action response : {:?}", err);
+                log::error!("failed to send action response but cmd ok : {:?}", err);
             }
             return Ok(());
         }
@@ -351,6 +352,7 @@ pub fn handle_module_command(
             action_respose.msg = mainboard_error.message.clone();
             if let Err(err) = sender_response.send(action_respose) {
                 log::error!("failed to send action response : {:?}", err);
+                log::error!("{:?}", mainboard_error);
             }
             return Err(mainboard_error);
         }

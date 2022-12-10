@@ -274,7 +274,7 @@ pub fn socket_task(
         ("sync", false, ActionCode::SYNC_REQUEST),
         ("mconfig", true, ActionCode::MODULE_CONFIG),
         ("rmconfig", true, ActionCode::MODULE_CONFIG),
-        ("aEnv", true, ActionCode::SYNC_REQUEST),
+        ("aEnv", false, ActionCode::SYNC_REQUEST),
         ("rEnv", true, ActionCode::SYNC_REQUEST),
         ("aAl", false, ActionCode::ADD_ALARM),
         ("rAl", false, ActionCode::REMOVE_ALARM),

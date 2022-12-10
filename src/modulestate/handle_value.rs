@@ -73,6 +73,12 @@ pub fn handle_module_value<'a>(
                                     ) {
                                         log::error!("failed to update alarm state : {:?}", err);
                                     }
+                                    // TODO: regarde s'il y a un socket et envoie l'event si oui
+                                    if let Some((sender,_)) = env_controller.alarm_senders
+                                        .get(&format!("{}:{}", event.get_moduleId(), event.get_property())) {
+                                        println!("SEND FIELD ALARM");
+                                        sender.send(event.clone()).unwrap();
+                                    }
                                 });
                         }
                     }
