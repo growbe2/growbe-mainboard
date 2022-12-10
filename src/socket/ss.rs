@@ -11,6 +11,12 @@ pub struct SenderSocket {
     sender_socket: Sender<SenderPayload>,
 }
 
+impl Clone for SenderSocket {
+    fn clone(&self) -> Self {
+        Self { sender_socket: self.sender_socket.clone() }
+    }
+}
+
 
 impl SenderSocket {
     pub fn send(&self, topic: String, value: Box<dyn ModuleValueParsable>) -> Result<(), MainboardError> {

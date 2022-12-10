@@ -1,18 +1,16 @@
 use crate::{
     mainboardstate::error::MainboardError,
     modulestate::controller::{
-        controller_trait::{Context, EnvControllerTask},
-        module_command::ModuleCommandSender,
+        context::Context, controller_trait::EnvControllerTask, module_command::ModuleCommandSender,
     },
     protos::{
         alarm::FieldAlarmEvent,
         env_controller::{
-            EnvironmentControllerConfiguration,
-            EnvironmentControllerConfiguration_oneof_implementation, MActor, SCConditionActor,
-            SCObserverAction,
+            EnvironmentControllerEvent,
+            EnvironmentControllerConfiguration_oneof_implementation, MActor, SCConditionActor, EnvironmentControllerState,
         },
         module::RelayOutletConfig,
-    },
+    }, send_event, get_env_element,
 };
 use protobuf::ProtobufEnum;
 use tokio::{select, sync::watch::Receiver};
@@ -67,46 +65,46 @@ fn on_value_event_change(
 impl EnvControllerTask for StaticControllerImplementation {
     fn run(
         &self,
-        config: EnvironmentControllerConfiguration,
-        context: Context,
+        ctx: Context,
     ) -> Result<tokio::task::JoinHandle<Result<(), MainboardError>>, MainboardError> {
-        let mut context = context;
+        let mut ctx = ctx;
         return Ok(tokio::task::spawn(async move {
-            log::info!("starting static controller : {}", config.get_id());
+            log::info!("starting static controller : {}", ctx.config.get_id());
 
-            let imple = config.implementation.unwrap();
+            let imple = ctx.config.implementation.unwrap();
             let imple = match imple {
-                EnvironmentControllerConfiguration_oneof_implementation::field_static(s) => s,
+                EnvironmentControllerConfiguration_oneof_implementation::field_static(s) => s.clone(),
                 _ => panic!("failed to be"),
             };
             let action = imple.conditions.get(0).unwrap();
 
-            let observer = config
-                .observers
-                .iter()
-                .find(|x| x.name.eq(action.get_observer_id()))
-                .unwrap();
-            let actor = config
-                .actors
-                .iter()
-                .find(|x| x.name.eq(action.get_actor_id()))
-                .unwrap();
+            let observer_id = action.get_observer_id();
+            let actor_id = action.get_actor_id();
+            println!("{}  dasdasdsaad {}", observer_id, actor_id);
+            let observer = get_env_element!(ctx, observers, observer_id).unwrap();
+            let actor = get_env_element!(ctx, actors, actor_id).unwrap();
             let key = format!("{}:{}", observer.get_id(), observer.get_property());
 
-            let mut receiver_alarm = context.alarm_receivers.get_mut(&key).unwrap();
-            let cmd = context.module_command_sender;
+            let mut receiver_alarm = ctx.alarm_receivers.remove(&key).unwrap();
 
-            on_value_event_change(&cmd, &mut receiver_alarm, &action, &actor);
+            on_value_event_change(&ctx.module_command_sender, &mut receiver_alarm, &action, &actor);
+
+            send_event!(ctx, EnvironmentControllerState::CHANGING_CONFIG, true);
 
             loop {
+
+                send_event!(ctx, EnvironmentControllerState::WAITING_ALARM, true);
+
                 select! {
-                    _ = context.cancellation_token.cancelled() => {
+                    _ = ctx.cancellation_token.cancelled() => {
                         log::info!("static controller stopped");
+                        send_event!(ctx, EnvironmentControllerState::SLEEPING, false);
                         return Ok(());
                     },
                     _ = receiver_alarm.changed() => {
                         log::info!("receive alarm changed");
-                        on_value_event_change(&cmd, &mut receiver_alarm, &action, &actor);
+                        on_value_event_change(&ctx.module_command_sender, &mut receiver_alarm, &action, &actor);
+                        send_event!(ctx, EnvironmentControllerState::CHANGING_CONFIG, true);
                     }
                 }
             }
@@ -119,19 +117,24 @@ mod tests {
 
     use std::{collections::HashMap, time::Duration};
 
-    use protobuf::{RepeatedField, SingularPtrField};
-    use tokio::sync::watch::{channel, Receiver, Sender};
+    use protobuf::RepeatedField;
+    use tokio::sync::watch::{channel, Sender};
     use tokio_util::sync::CancellationToken;
 
     use crate::{
         modulestate::{
             alarm::model::ModuleValueChange, cmd::CHANNEL_MODULE_STATE_CMD,
-            controller::module_command::ModuleCommandSender,
+            controller::context::Context, controller::module_command::ModuleCommandSender,
         },
         protos::{
-            alarm::{FieldAlarmEvent, AlarmZone, AlarmZoneValue},
-            env_controller::{MObserver, RessourceType, SCConditionActor}, module::ManualConfig,
+            alarm::{AlarmZone, FieldAlarmEvent},
+            env_controller::{
+                EnvironmentControllerConfiguration, MObserver, RessourceType, SCConditionActor,
+                SCObserverAction,
+            },
+            module::ManualConfig,
         },
+        socket::ss::SenderPayload,
     };
 
     use serial_test::serial;
@@ -148,6 +151,7 @@ mod tests {
         Context,
         Sender<FieldAlarmEvent>,
         Sender<ModuleValueChange<f32>>,
+        std::sync::mpsc::Receiver<SenderPayload>,
         EnvironmentControllerConfiguration,
         CancellationToken,
     ) {
@@ -199,15 +203,20 @@ mod tests {
 
         let cancellation_token = CancellationToken::new();
 
+        let (ss, sr) = std::sync::mpsc::channel::<SenderPayload>();
+
         return (
             Context {
+                config: config.clone(),
                 cancellation_token: cancellation_token.clone(),
                 module_command_sender: ModuleCommandSender::new(),
                 alarm_receivers,
                 value_receivers,
+                sender_socket: ss.into(),
             },
             sa,
             sm,
+            sr,
             config,
             cancellation_token,
         );
@@ -216,8 +225,10 @@ mod tests {
     #[tokio::test]
     #[serial]
     async fn env_controller_static_start_and_stop() {
-        let condition = SCConditionActor::default();
-        let (ctx, sa, sm, config, ct) = init(
+        let mut condition = SCConditionActor::default();
+        condition.observer_id = "test_observer".into();
+        condition.actor_id = "test_actor".into();
+        let (ctx, sa, sm, sr, config, ct) = init(
             "AAA0000003",
             "airTemperature",
             "AAP0000003",
@@ -227,7 +238,7 @@ mod tests {
 
         let imple = StaticControllerImplementation::new();
 
-        let handle = imple.run(config, ctx).unwrap();
+        let handle = imple.run(ctx).unwrap();
 
         assert_eq!(handle.is_finished(), false);
         assert_eq!(ct.is_cancelled(), false);
@@ -237,6 +248,22 @@ mod tests {
 
         assert_eq!(handle.is_finished(), true);
         assert_eq!(ct.is_cancelled(), true);
+
+
+        let d = sr.recv_timeout(Duration::from_millis(10)).unwrap().1;
+        let first_message = d.as_any().downcast_ref::<EnvironmentControllerEvent>().unwrap();
+        assert_eq!(first_message.state, EnvironmentControllerState::CHANGING_CONFIG);
+        assert_eq!(first_message.running, true);
+
+        let d = sr.recv_timeout(Duration::from_millis(10)).unwrap().1;
+        let first_message = d.as_any().downcast_ref::<EnvironmentControllerEvent>().unwrap();
+        assert_eq!(first_message.state, EnvironmentControllerState::WAITING_ALARM);
+        assert_eq!(first_message.running, true);
+
+        let d = sr.recv_timeout(Duration::from_millis(10)).unwrap().1;
+        let first_message = d.as_any().downcast_ref::<EnvironmentControllerEvent>().unwrap();
+        assert_eq!(first_message.state, EnvironmentControllerState::SLEEPING);
+        assert_eq!(first_message.running, false);
     }
 
     #[tokio::test]
@@ -245,7 +272,7 @@ mod tests {
         let mut condition = SCConditionActor::default();
         condition.observer_id = "test_observer".into();
         condition.actor_id = "test_actor".into();
-        let (ctx, sa, sm, config, ct) = init(
+        let (ctx, sa, sm, sr, config, ct) = init(
             "AAA0000003",
             "airTemperature",
             "AAP0000003",
@@ -255,7 +282,7 @@ mod tests {
 
         let imple = StaticControllerImplementation::new();
 
-        let handle = imple.run(config, ctx).unwrap();
+        let handle = imple.run(ctx).unwrap();
 
         assert_eq!(handle.is_finished(), false);
         assert_eq!(ct.is_cancelled(), false);
@@ -289,10 +316,15 @@ mod tests {
         condition.actor_id = "test_actor".into();
         let mut actor_action = SCObserverAction::new();
         let mut relay = RelayOutletConfig::new();
-        relay.set_manual(ManualConfig{ state: true, ..Default::default()});
+        relay.set_manual(ManualConfig {
+            state: true,
+            ..Default::default()
+        });
         actor_action.set_config(relay);
-        condition.actions.insert(AlarmZone::UNKNOW.value(), actor_action);
-        let (ctx, sa, sm, config, ct) = init(
+        condition
+            .actions
+            .insert(AlarmZone::UNKNOW.value(), actor_action);
+        let (ctx, sa, sm, sr, config, ct) = init(
             "AAA0000003",
             "airTemperature",
             "AAP0000003",
@@ -302,7 +334,7 @@ mod tests {
 
         let imple = StaticControllerImplementation::new();
 
-        let handle = imple.run(config, ctx).unwrap();
+        let handle = imple.run(ctx).unwrap();
 
         assert_eq!(handle.is_finished(), false);
         assert_eq!(ct.is_cancelled(), false);
@@ -329,5 +361,4 @@ mod tests {
 
         ct.cancel();
     }
-
 }

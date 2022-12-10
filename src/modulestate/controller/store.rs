@@ -19,7 +19,8 @@ use crate::{
     protos::{alarm::FieldAlarmEvent, env_controller::EnvironmentControllerConfiguration},
 };
 
-use super::controller_trait::{Context, EnvControllerTask};
+use super::controller_trait::EnvControllerTask;
+use super::context::Context;
 use super::imple::static_controller::StaticControllerImplementation;
 use super::module_command::ModuleCommandSender;
 
@@ -272,7 +273,7 @@ impl EnvControllerStore {
         if let Some(implementation) = &config.implementation {
             match implementation {
                 EnvironmentControllerConfiguration_oneof_implementation::field_static(_) => {
-                    return StaticControllerImplementation::new().run(config.clone(), ctx);
+                    return StaticControllerImplementation::new().run(ctx);
                 }
                 _ => {
                     return Err(MainboardError::from_error(format!(
@@ -308,10 +309,12 @@ impl EnvControllerStore {
 
 
         Ok(Context {
+            config: config.clone(),
             cancellation_token: CancellationToken::new(),
             module_command_sender: ModuleCommandSender::new(),
             alarm_receivers,
             value_receivers,
+            sender_socket: self.sender.clone(),
         })
     }
 
