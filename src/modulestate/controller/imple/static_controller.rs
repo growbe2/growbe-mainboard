@@ -5,12 +5,12 @@ use crate::{
         context::Context, controller_trait::EnvControllerTask, module_command::ModuleCommandSender,
     },
     protos::{
-        alarm::FieldAlarmEvent,
+        alarm::{FieldAlarmEvent, AlarmZone},
         env_controller::{
             EnvironmentControllerConfiguration_oneof_implementation, EnvironmentControllerEvent,
             EnvironmentControllerState, MActor, SCConditionActor,
         },
-        module::RelayOutletConfig,
+        module::RelayOutletConfig, message::ActionCode,
     },
     send_event,
 };
@@ -37,7 +37,6 @@ fn get_config_for_event(
         if item.config.is_some() {
             let v = item.config.clone().unwrap();
             if v.has_alarm() || v.has_manual() || v.has_cycle() {
-                println!("found item {:?} for zone {}", v, index);
                 return Some(v);
             }
         }
@@ -46,12 +45,16 @@ fn get_config_for_event(
 }
 
 fn on_value_event_change(
+    code: AlarmZone,
     context: &ModuleCommandSender,
     receiver_alarm: &mut Receiver<FieldAlarmEvent>,
     action: &SCConditionActor,
     actor: &MActor,
-) {
+) -> AlarmZone {
     let initial_value = receiver_alarm.borrow();
+    if initial_value.currentZone != AlarmZone::UNKNOW && initial_value.currentZone == code {
+        return code;
+    }
     if let Some(config_relay) = get_config_for_event(&initial_value, action) {
         context
             .send_mconfig_prop(&actor.id, &actor.property, Box::new(config_relay))
@@ -62,6 +65,8 @@ fn on_value_event_change(
             initial_value.currentZone
         );
     }
+
+    return initial_value.currentZone;
 }
 
 impl EnvControllerTask for StaticControllerImplementation {
@@ -90,7 +95,9 @@ impl EnvControllerTask for StaticControllerImplementation {
 
             let mut receiver_alarm = ctx.alarm_receivers.remove(&key).unwrap();
 
-            on_value_event_change(
+
+            let mut last_zone = on_value_event_change(
+                AlarmZone::UNKNOW,
                 &ctx.module_command_sender,
                 &mut receiver_alarm,
                 &action,
@@ -109,9 +116,12 @@ impl EnvControllerTask for StaticControllerImplementation {
                         return Ok(());
                     },
                     _ = receiver_alarm.changed() => {
-                        log::info!("receive alarm changed");
-                        on_value_event_change(&ctx.module_command_sender, &mut receiver_alarm, &action, &actor);
-                        send_event!(ctx, EnvironmentControllerState::CHANGING_CONFIG, true);
+                        let new_zone = on_value_event_change(last_zone,&ctx.module_command_sender, &mut receiver_alarm, &action, &actor);
+                        if last_zone != new_zone {
+                            log::info!("receive alarm changed");
+                            send_event!(ctx, EnvironmentControllerState::CHANGING_CONFIG, true);
+                            last_zone = new_zone;
+                        }
                     }
                 }
             }

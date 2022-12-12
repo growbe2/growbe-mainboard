@@ -153,7 +153,7 @@ fn handle_add_alarm(
     alarm_store.add_alarm_field(&field_alarm)?;
     alarm_validator.register_field_alarm(field_alarm.clone(), None)?;
 
-    env_controller.on_alarm_deleted(&field_alarm.moduleId, &field_alarm.property, module_state_manager, alarm_store)?;
+    env_controller.on_alarm_created(&field_alarm.moduleId, &field_alarm.property, module_state_manager, alarm_store, None, false)?;
 
     return Ok(());
 }
