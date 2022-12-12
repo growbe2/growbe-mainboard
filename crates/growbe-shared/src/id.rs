@@ -26,7 +26,8 @@ fn get_id() -> Result<String, ()> {
         Ok(paths) => {
             let paths = paths.map(|x| x.unwrap()).collect::<Vec<DirEntry>>();
             if let Some(path) = paths.iter().find(|x| {
-                return x.file_name().eq("wlan0");
+                let x = x.file_name().into_string().unwrap();
+                return x.starts_with("wl");
             }) {
                 return read_id(path.file_name().to_str().unwrap());
             }

@@ -42,15 +42,17 @@ fn apply_module_config(
             imple: module_ref.board.clone(),
             addr: module_ref.board_addr.clone(),
         }) {
+
+            let t = if suffix.is_empty() { t.to_string() } else { format!("{}:{}", t, suffix) };
+
             match module_ref.validator.apply_parse_config(
                 module_ref.port,
-                &format!("{}:{}", t, suffix),
+                &t,
                 data,
                 &sender_config,
                 &mut module_ref.handler_map,
             ) {
                 Ok((config, config_comboard)) => {
-                    println!("cac, {:?}", config);
                     store.store_module_config(&(id.into()), config)?;
                     sender_config
                         .send(config_comboard)

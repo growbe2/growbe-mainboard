@@ -50,7 +50,7 @@ impl crate::modulestate::interface::ModuleValueValidator for AAPValidator {
                 .as_secs() as i32;
             return Ok(Box::new(data));
         } else {
-            return Err(crate::modulestate::interface::ModuleError::new());
+            return Err(crate::modulestate::interface::ModuleError::new().message("buffer not long enought".into()));
         }
     }
 
@@ -86,7 +86,7 @@ impl crate::modulestate::interface::ModuleValueValidator for AAPValidator {
             } else {
                 let property = property.unwrap();
                 let relay_outlet = RelayOutletConfig::parse_from_bytes(&data)
-                    .map_err(|_e| crate::modulestate::interface::ModuleError::new())?;
+                    .map_err(|_e| crate::modulestate::interface::ModuleError::new().message("failed to parse relay outlet config".into()))?;
 
                 let mut config = self.previous_config.clone();
                 set_property!(
@@ -112,7 +112,7 @@ impl crate::modulestate::interface::ModuleValueValidator for AAPValidator {
         let mut batch_relay = crate::modulestate::relay::physical_relay::BatchPhysicalRelay {
             action_port: ActionPortUnion::new_port(0),
             buffer: [255; 8],
-            port: port,
+            port,
             auto_send: false,
             sender: sender_comboard_config.clone(),
         };

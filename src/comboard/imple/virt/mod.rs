@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::sync::mpsc::{Receiver, Sender};
 use std::sync::Mutex;
 use std::time::Duration;
@@ -24,7 +25,7 @@ fn default_index() -> i32 {
     return -1;
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct VirtualScenarioItem {
     pub event_type: String,
     #[serde(default)]
@@ -70,6 +71,9 @@ impl super::interface::ComboardClient for VirtualComboardClient {
         let config_board = self.config_comboard.config.clone();
 
         return tokio::spawn(async move {
+            // PORT : MODULE_ID
+            let mut map_module = HashMap::<i32, VirtualScenarioItem>::new();
+
             let mut config = get_config(&config_board);
             // Read json config file
             let mut i: usize = 0;
@@ -81,6 +85,35 @@ impl super::interface::ComboardClient for VirtualComboardClient {
                 if let Ok(mut value) = receiver.recv_timeout(Duration::from_millis(10)) {
                     log::info!("receive new action for virtual board");
                     config.actions.append(&mut value);
+                }
+                if let Ok(module_config) = receiver_config.recv_timeout(Duration::from_millis(10)) {
+                    if let Some(item) = map_module.get_mut(&module_config.port) {
+                        match &item.id[..3] {
+                            "AAP" | "AAB" => {
+                                let new_buffer = if module_config.data.len() == 8 {
+                                    let mut new_buffer = module_config.data.clone();
+                                    for i in 0..8 {
+                                        if new_buffer[i] == 255 {
+                                            new_buffer[i] = item.buffer[i];
+                                        } else {
+                                            item.buffer[i] = new_buffer[i];
+                                        }
+                                    }
+                                    new_buffer
+                                } else { vec![] };
+
+                                sender_value
+                                    .send(ModuleValueValidationEvent {
+                                        board: I2C_VIRT_ID.to_string(),
+                                        board_addr: config_board.clone(),
+                                        port: item.port,
+                                        buffer: new_buffer,
+                                    })
+                                    .unwrap();
+                            }
+                            _ => {}
+                        }
+                    }
                 }
                 while i < config.actions.len() {
                     // check if we have event to process config change
@@ -100,8 +133,21 @@ impl super::interface::ComboardClient for VirtualComboardClient {
                     }
 
                     if waiting.is_none() {
+                        let typ = config.actions[i].id[..3].to_string();
                         match config.actions[i].event_type.as_str() {
                             "state" => {
+                                if config.actions[i].state {
+                                    match typ.as_str() {
+                                        "AAP" | "AAB" => {
+                                            config.actions[i].buffer = vec![0, 0, 0, 0, 0, 0, 0, 0];
+                                        }
+                                        _ => {}
+                                    };
+                                    map_module
+                                        .insert(config.actions[i].port, config.actions[i].clone());
+                                } else {
+                                    map_module.remove(&config.actions[i].port);
+                                };
                                 sender_state
                                     .send(ModuleStateChangeEvent {
                                         board: I2C_VIRT_ID.to_string(),
@@ -111,6 +157,17 @@ impl super::interface::ComboardClient for VirtualComboardClient {
                                         state: config.actions[i].state,
                                     })
                                     .unwrap();
+                                if config.actions[i].buffer.len() > 2 {
+                                    let new_buffer = config.actions[i].buffer.clone();
+                                    sender_value
+                                        .send(ModuleValueValidationEvent {
+                                            board: I2C_VIRT_ID.to_string(),
+                                            board_addr: config_board.clone(),
+                                            port: config.actions[i].port,
+                                            buffer: new_buffer,
+                                        })
+                                        .unwrap();
+                                }
                             }
                             "value" => {
                                 let new_buffer = config.actions[i].buffer.clone();
