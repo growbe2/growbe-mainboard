@@ -206,8 +206,11 @@ impl EnvControllerStore {
 
     pub fn unregister_controller(&mut self, id: &str) -> Result<(), MainboardError> {
         if let Some(value) = self.tasks.remove(id) {
+            log::debug!("environment_controller {} still alive {}", id, value.handler.is_finished());
             value.cancellation_token.cancel();
-            log::debug!("environment_controller {} task has been cancelled", id);
+            value.cancellation_token.cancel();
+            value.cancellation_token.cancel();
+            log::debug!("environment_controller {} task has been cancelled {}", id, value.handler.is_finished());
         }
 
         let res = crate::store::database::store_delete_key(&self.conn, "environment_controller", id);
