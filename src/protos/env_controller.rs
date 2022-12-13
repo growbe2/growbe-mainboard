@@ -575,7 +575,6 @@ impl ::protobuf::reflect::ProtobufValue for MObserver {
 pub struct SCConditionActor {
     // message fields
     pub actor_id: ::std::string::String,
-    pub observer_id: ::std::string::String,
     pub actions: ::std::collections::HashMap<i32, SCObserverAction>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
@@ -619,32 +618,6 @@ impl SCConditionActor {
         ::std::mem::replace(&mut self.actor_id, ::std::string::String::new())
     }
 
-    // string observer_id = 2;
-
-
-    pub fn get_observer_id(&self) -> &str {
-        &self.observer_id
-    }
-    pub fn clear_observer_id(&mut self) {
-        self.observer_id.clear();
-    }
-
-    // Param is passed by value, moved
-    pub fn set_observer_id(&mut self, v: ::std::string::String) {
-        self.observer_id = v;
-    }
-
-    // Mutable pointer to the field.
-    // If field is not initialized, it is initialized with default value first.
-    pub fn mut_observer_id(&mut self) -> &mut ::std::string::String {
-        &mut self.observer_id
-    }
-
-    // Take field
-    pub fn take_observer_id(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.observer_id, ::std::string::String::new())
-    }
-
     // repeated .SCConditionActor.ActionsEntry actions = 3;
 
 
@@ -683,9 +656,6 @@ impl ::protobuf::Message for SCConditionActor {
                 1 => {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.actor_id)?;
                 },
-                2 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.observer_id)?;
-                },
                 3 => {
                     ::protobuf::rt::read_map_into::<::protobuf::types::ProtobufTypeInt32, ::protobuf::types::ProtobufTypeMessage<SCObserverAction>>(wire_type, is, &mut self.actions)?;
                 },
@@ -704,9 +674,6 @@ impl ::protobuf::Message for SCConditionActor {
         if !self.actor_id.is_empty() {
             my_size += ::protobuf::rt::string_size(1, &self.actor_id);
         }
-        if !self.observer_id.is_empty() {
-            my_size += ::protobuf::rt::string_size(2, &self.observer_id);
-        }
         my_size += ::protobuf::rt::compute_map_size::<::protobuf::types::ProtobufTypeInt32, ::protobuf::types::ProtobufTypeMessage<SCObserverAction>>(3, &self.actions);
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -716,9 +683,6 @@ impl ::protobuf::Message for SCConditionActor {
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
         if !self.actor_id.is_empty() {
             os.write_string(1, &self.actor_id)?;
-        }
-        if !self.observer_id.is_empty() {
-            os.write_string(2, &self.observer_id)?;
         }
         ::protobuf::rt::write_map_with_cached_sizes::<::protobuf::types::ProtobufTypeInt32, ::protobuf::types::ProtobufTypeMessage<SCObserverAction>>(3, &self.actions, os)?;
         os.write_unknown_fields(self.get_unknown_fields())?;
@@ -764,11 +728,6 @@ impl ::protobuf::Message for SCConditionActor {
                 |m: &SCConditionActor| { &m.actor_id },
                 |m: &mut SCConditionActor| { &mut m.actor_id },
             ));
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                "observer_id",
-                |m: &SCConditionActor| { &m.observer_id },
-                |m: &mut SCConditionActor| { &mut m.observer_id },
-            ));
             fields.push(::protobuf::reflect::accessor::make_map_accessor::<_, ::protobuf::types::ProtobufTypeInt32, ::protobuf::types::ProtobufTypeMessage<SCObserverAction>>(
                 "actions",
                 |m: &SCConditionActor| { &m.actions },
@@ -791,7 +750,6 @@ impl ::protobuf::Message for SCConditionActor {
 impl ::protobuf::Clear for SCConditionActor {
     fn clear(&mut self) {
         self.actor_id.clear();
-        self.observer_id.clear();
         self.actions.clear();
         self.unknown_fields.clear();
     }
@@ -812,7 +770,7 @@ impl ::protobuf::reflect::ProtobufValue for SCConditionActor {
 #[derive(PartialEq,Clone,Default)]
 pub struct SCObserverAction {
     // message fields
-    pub config: ::protobuf::SingularPtrField<super::module::RelayOutletConfig>,
+    pub config: ::std::collections::HashMap<::std::string::String, super::module::RelayOutletConfig>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -829,47 +787,34 @@ impl SCObserverAction {
         ::std::default::Default::default()
     }
 
-    // .RelayOutletConfig config = 1;
+    // repeated .SCObserverAction.ConfigEntry config = 1;
 
 
-    pub fn get_config(&self) -> &super::module::RelayOutletConfig {
-        self.config.as_ref().unwrap_or_else(|| <super::module::RelayOutletConfig as ::protobuf::Message>::default_instance())
+    pub fn get_config(&self) -> &::std::collections::HashMap<::std::string::String, super::module::RelayOutletConfig> {
+        &self.config
     }
     pub fn clear_config(&mut self) {
         self.config.clear();
     }
 
-    pub fn has_config(&self) -> bool {
-        self.config.is_some()
-    }
-
     // Param is passed by value, moved
-    pub fn set_config(&mut self, v: super::module::RelayOutletConfig) {
-        self.config = ::protobuf::SingularPtrField::some(v);
+    pub fn set_config(&mut self, v: ::std::collections::HashMap<::std::string::String, super::module::RelayOutletConfig>) {
+        self.config = v;
     }
 
     // Mutable pointer to the field.
-    // If field is not initialized, it is initialized with default value first.
-    pub fn mut_config(&mut self) -> &mut super::module::RelayOutletConfig {
-        if self.config.is_none() {
-            self.config.set_default();
-        }
-        self.config.as_mut().unwrap()
+    pub fn mut_config(&mut self) -> &mut ::std::collections::HashMap<::std::string::String, super::module::RelayOutletConfig> {
+        &mut self.config
     }
 
     // Take field
-    pub fn take_config(&mut self) -> super::module::RelayOutletConfig {
-        self.config.take().unwrap_or_else(|| super::module::RelayOutletConfig::new())
+    pub fn take_config(&mut self) -> ::std::collections::HashMap<::std::string::String, super::module::RelayOutletConfig> {
+        ::std::mem::replace(&mut self.config, ::std::collections::HashMap::new())
     }
 }
 
 impl ::protobuf::Message for SCObserverAction {
     fn is_initialized(&self) -> bool {
-        for v in &self.config {
-            if !v.is_initialized() {
-                return false;
-            }
-        };
         true
     }
 
@@ -878,7 +823,7 @@ impl ::protobuf::Message for SCObserverAction {
             let (field_number, wire_type) = is.read_tag_unpack()?;
             match field_number {
                 1 => {
-                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.config)?;
+                    ::protobuf::rt::read_map_into::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<super::module::RelayOutletConfig>>(wire_type, is, &mut self.config)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -892,21 +837,14 @@ impl ::protobuf::Message for SCObserverAction {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
-        if let Some(ref v) = self.config.as_ref() {
-            let len = v.compute_size();
-            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
-        }
+        my_size += ::protobuf::rt::compute_map_size::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<super::module::RelayOutletConfig>>(1, &self.config);
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if let Some(ref v) = self.config.as_ref() {
-            os.write_tag(1, ::protobuf::wire_format::WireTypeLengthDelimited)?;
-            os.write_raw_varint32(v.get_cached_size())?;
-            v.write_to_with_cached_sizes(os)?;
-        }
+        ::protobuf::rt::write_map_with_cached_sizes::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<super::module::RelayOutletConfig>>(1, &self.config, os)?;
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
     }
@@ -945,7 +883,7 @@ impl ::protobuf::Message for SCObserverAction {
         static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
         descriptor.get(|| {
             let mut fields = ::std::vec::Vec::new();
-            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<super::module::RelayOutletConfig>>(
+            fields.push(::protobuf::reflect::accessor::make_map_accessor::<_, ::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<super::module::RelayOutletConfig>>(
                 "config",
                 |m: &SCObserverAction| { &m.config },
                 |m: &mut SCObserverAction| { &mut m.config },
@@ -2026,29 +1964,30 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     type\x18\x05\x20\x01(\x0e2\x0e.RessourceTypeR\x04type\"o\n\tMObserver\
     \x12\x12\n\x04name\x18\x01\x20\x01(\tR\x04name\x12\x0e\n\x02id\x18\x02\
     \x20\x01(\tR\x02id\x12\x1a\n\x08property\x18\x03\x20\x01(\tR\x08property\
-    \x12\"\n\x04type\x18\x04\x20\x01(\x0e2\x0e.RessourceTypeR\x04type\"\xd7\
+    \x12\"\n\x04type\x18\x04\x20\x01(\x0e2\x0e.RessourceTypeR\x04type\"\xb6\
     \x01\n\x10SCConditionActor\x12\x19\n\x08actor_id\x18\x01\x20\x01(\tR\x07\
-    actorId\x12\x1f\n\x0bobserver_id\x18\x02\x20\x01(\tR\nobserverId\x128\n\
-    \x07actions\x18\x03\x20\x03(\x0b2\x1e.SCConditionActor.ActionsEntryR\x07\
-    actions\x1aM\n\x0cActionsEntry\x12\x10\n\x03key\x18\x01\x20\x01(\x05R\
-    \x03key\x12'\n\x05value\x18\x02\x20\x01(\x0b2\x11.SCObserverActionR\x05v\
-    alue:\x028\x01\">\n\x10SCObserverAction\x12*\n\x06config\x18\x01\x20\x01\
-    (\x0b2\x12.RelayOutletConfigR\x06config\"S\n\x1eStaticControllerImplemen\
-    tation\x121\n\nconditions\x18\x01\x20\x03(\x0b2\x11.SCConditionActorR\nc\
-    onditions\"$\n\"ProgressiveControlerImplementation\"\x95\x02\n\"Environm\
-    entControllerConfiguration\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\
-    (\n\tobservers\x18\x02\x20\x03(\x0b2\n.MObserverR\tobservers\x12\x1f\n\
-    \x06actors\x18\x03\x20\x03(\x0b2\x07.MActorR\x06actors\x129\n\x06static\
-    \x18\n\x20\x01(\x0b2\x1f.StaticControllerImplementationH\0R\x06static\
-    \x12G\n\x0bprogressive\x18\x0f\x20\x01(\x0b2#.ProgressiveControlerImplem\
-    entationH\0R\x0bprogressiveB\x10\n\x0eimplementation\"y\n\x1aEnvironment\
-    ControllerEvent\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\x18\n\x07r\
-    unning\x18\x02\x20\x01(\x08R\x07running\x121\n\x05state\x18\x03\x20\x01(\
-    \x0e2\x1b.EnvironmentControllerStateR\x05state*4\n\rRessourceType\x12\
-    \x10\n\x0cACTOR_MODULE\x10\0\x12\x11\n\rACTOR_VIRTUAL\x10\x01*e\n\x1aEnv\
-    ironmentControllerState\x12\x11\n\rWAITING_ALARM\x10\0\x12\x11\n\rWAITIN\
-    G_VALUE\x10\x01\x12\x13\n\x0fCHANGING_CONFIG\x10\x02\x12\x0c\n\x08SLEEPI\
-    NG\x10\x03b\x06proto3\
+    actorId\x128\n\x07actions\x18\x03\x20\x03(\x0b2\x1e.SCConditionActor.Act\
+    ionsEntryR\x07actions\x1aM\n\x0cActionsEntry\x12\x10\n\x03key\x18\x01\
+    \x20\x01(\x05R\x03key\x12'\n\x05value\x18\x02\x20\x01(\x0b2\x11.SCObserv\
+    erActionR\x05value:\x028\x01\"\x98\x01\n\x10SCObserverAction\x125\n\x06c\
+    onfig\x18\x01\x20\x03(\x0b2\x1d.SCObserverAction.ConfigEntryR\x06config\
+    \x1aM\n\x0bConfigEntry\x12\x10\n\x03key\x18\x01\x20\x01(\tR\x03key\x12(\
+    \n\x05value\x18\x02\x20\x01(\x0b2\x12.RelayOutletConfigR\x05value:\x028\
+    \x01\"S\n\x1eStaticControllerImplementation\x121\n\nconditions\x18\x01\
+    \x20\x03(\x0b2\x11.SCConditionActorR\nconditions\"$\n\"ProgressiveContro\
+    lerImplementation\"\x95\x02\n\"EnvironmentControllerConfiguration\x12\
+    \x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12(\n\tobservers\x18\x02\x20\x03\
+    (\x0b2\n.MObserverR\tobservers\x12\x1f\n\x06actors\x18\x03\x20\x03(\x0b2\
+    \x07.MActorR\x06actors\x129\n\x06static\x18\n\x20\x01(\x0b2\x1f.StaticCo\
+    ntrollerImplementationH\0R\x06static\x12G\n\x0bprogressive\x18\x0f\x20\
+    \x01(\x0b2#.ProgressiveControlerImplementationH\0R\x0bprogressiveB\x10\n\
+    \x0eimplementation\"y\n\x1aEnvironmentControllerEvent\x12\x0e\n\x02id\
+    \x18\x01\x20\x01(\tR\x02id\x12\x18\n\x07running\x18\x02\x20\x01(\x08R\
+    \x07running\x121\n\x05state\x18\x03\x20\x01(\x0e2\x1b.EnvironmentControl\
+    lerStateR\x05state*4\n\rRessourceType\x12\x10\n\x0cACTOR_MODULE\x10\0\
+    \x12\x11\n\rACTOR_VIRTUAL\x10\x01*e\n\x1aEnvironmentControllerState\x12\
+    \x11\n\rWAITING_ALARM\x10\0\x12\x11\n\rWAITING_VALUE\x10\x01\x12\x13\n\
+    \x0fCHANGING_CONFIG\x10\x02\x12\x0c\n\x08SLEEPING\x10\x03b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

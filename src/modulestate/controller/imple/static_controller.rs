@@ -50,7 +50,7 @@ fn on_value_event_change(
     action: &SCConditionActor,
     actor: &MActor,
 ) {
-    let initial_value = receiver_alarm.borrow();
+    let initial_value = receiver_alarm.borrow_and_update().clone();
     if let Some(config_relay) = get_config_for_event(&initial_value, action) {
         context
             .send_mconfig_prop(&actor.id, &actor.property, Box::new(config_relay))
@@ -81,27 +81,41 @@ impl EnvControllerTask for StaticControllerImplementation {
             };
             let action = imple.conditions.get(0).unwrap();
 
-            let observer_id = action.get_observer_id();
+            //let observer_id = action.get_observer_id();
             let actor_id = action.get_actor_id();
-            let observer = get_env_element!(ctx, observers, observer_id).unwrap();
+            //let observer = get_env_element!(ctx, observers, observer_id).unwrap();
             let actor = get_env_element!(ctx, actors, actor_id).unwrap();
-            let key = format!("{}:{}", observer.get_id(), observer.get_property());
+            //let key = format!("{}:{}", observer.get_id(), observer.get_property());
 
-            let mut receiver_alarm = ctx.alarm_receivers.remove(&key).unwrap();
+            //let mut receiver_alarm = ctx.alarm_receivers.get_mut(&key).unwrap();
+
+            //on_value_event_change(
+            //    &ctx.module_command_sender,
+            //    &mut receiver_alarm,
+            //    &action,
+            //    &actor,
+            //);
 
 
-            on_value_event_change(
-                &ctx.module_command_sender,
-                &mut receiver_alarm,
-                &action,
-                &actor,
-            );
-
-            send_event!(ctx, EnvironmentControllerState::CHANGING_CONFIG, true);
+            //send_event!(ctx, EnvironmentControllerState::CHANGING_CONFIG, true);
 
             loop {
-                send_event!(ctx, EnvironmentControllerState::WAITING_ALARM, true);
+                if let Ok(recv) = receiver_alarm.has_changed() {
+                    println!("receive alarm {:?}", recv);
+                    if recv {
+                        on_value_event_change(&ctx.module_command_sender, &mut receiver_alarm, &action, &actor);
+                        send_event!(ctx, EnvironmentControllerState::CHANGING_CONFIG, true);
+                        send_event!(ctx, EnvironmentControllerState::WAITING_ALARM, true);
+                    }
+                }
 
+                if ctx.cancellation_token.is_cancelled() {
+                    log::info!("static controller stopped");
+                    send_event!(ctx, EnvironmentControllerState::SLEEPING, false);
+                    return Ok(());
+                }
+                tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
+                /*
                 select! {
                     _ = ctx.cancellation_token.cancelled() => {
                         log::info!("static controller stopped");
@@ -110,7 +124,6 @@ impl EnvControllerTask for StaticControllerImplementation {
                     },
                     res = receiver_alarm.changed() => {
                         if res.is_ok() {
-                            println!("cacaac ?");
                             on_value_event_change(&ctx.module_command_sender, &mut receiver_alarm, &action, &actor);
                             send_event!(ctx, EnvironmentControllerState::CHANGING_CONFIG, true);
                         }
@@ -119,6 +132,7 @@ impl EnvControllerTask for StaticControllerImplementation {
                         println!("still alive");
                     }
                 }
+                */
             }
         }));
     }

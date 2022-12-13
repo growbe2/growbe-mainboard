@@ -42,13 +42,10 @@ pub struct EnvControllerStore {
 
     sender: SenderSocket,
 
-    pub alarm_senders: HashMap<String, (Sender<FieldAlarmEvent>, Receiver<FieldAlarmEvent>)>,
+    pub alarm_senders: HashMap<String, Sender<FieldAlarmEvent>>,
     pub value_senders: HashMap<
         String,
-        (
-            Sender<ModuleValueChange<f32>>,
-            Receiver<ModuleValueChange<f32>>,
-        ),
+        Sender<ModuleValueChange<f32>>,
     >,
 }
 
@@ -96,9 +93,11 @@ impl EnvControllerStore {
             event.previousValue = state.previous_value;
         }
 
+        let (sender, _) = channel(event);
+
         self.alarm_senders.insert(
             key,
-            channel(event),
+            sender
         );
 
         log::debug!("creating field alarm event channel for {}:{}", module_id, property);
@@ -134,13 +133,14 @@ impl EnvControllerStore {
                 module_id
             )));
         }
+        let (sender, _) = channel(ModuleValueChange::<f32> {
+                module_id: module_id.into(),
+                changes: vec![],
+            });
 
         self.value_senders.insert(
             module_id.into(),
-            channel(ModuleValueChange::<f32> {
-                module_id: module_id.into(),
-                changes: vec![],
-            }),
+            sender
         );
 
         log::debug!("creating module value event channel for {}", module_id);
@@ -313,13 +313,13 @@ impl EnvControllerStore {
         for obs in config.observers.iter() {
             let key = format!("{}:{}", obs.get_id(), obs.get_property());
             if let Some(sr) = self.alarm_senders.get(&key) {
-                alarm_receivers.insert(key.clone(), sr.1.clone());
+                alarm_receivers.insert(key.clone(), sr.subscribe());
             } else {
                return Err(MainboardError::from_error(format!("failed to get field alarm event receive")));
             }
 
             if let Some(sr) = self.value_senders.get(obs.get_id()) {
-                value_receivers.insert(key, sr.1.clone());
+                value_receivers.insert(key, sr.subscribe());
             } else {
                return Err(MainboardError::from_error(format!("failed to get field value event receive")));
             }
