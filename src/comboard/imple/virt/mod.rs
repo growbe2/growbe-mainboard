@@ -83,8 +83,9 @@ impl super::interface::ComboardClient for VirtualComboardClient {
 
             loop {
                 if let Ok(mut value) = receiver.recv_timeout(Duration::from_millis(10)) {
-                    log::info!("receive new action for virtual board");
+                    log::info!("receive new action for virtual board {}", config.actions.len());
                     config.actions.append(&mut value);
+                    log::info!("receive new action for virtual board {}", config.actions.len());
                 }
                 if let Ok(module_config) = receiver_config.recv_timeout(Duration::from_millis(10)) {
                     if let Some(item) = map_module.get_mut(&module_config.port) {
@@ -190,6 +191,7 @@ impl super::interface::ComboardClient for VirtualComboardClient {
 
                         if config.actions[i].timeout > 0 {
                             waiting = Some(std::time::Instant::now());
+                            println!("sleeping ");
                             //tokio::time::sleep(tokio::time::Duration::from_millis(config.actions[i].timeout)).await;
                         }
 
@@ -203,6 +205,7 @@ impl super::interface::ComboardClient for VirtualComboardClient {
                             && waiting.unwrap().elapsed()
                                 > std::time::Duration::from_millis(config.actions[i].timeout)
                         {
+                            println!("done waiting");
                             waiting = None;
                         }
                     }

@@ -574,7 +574,6 @@ mod tests {
             &mut config,
             SCConditionActor {
                 actor_id: "".into(),
-                observer_id: "".into(),
                 actions: HashMap::new(),
                 ..Default::default()
             },
@@ -604,8 +603,6 @@ mod tests {
             &mut config,
             SCConditionActor {
                 actor_id: "".into(),
-                observer_id: "".into(),
-                actions: HashMap::new(),
                 ..Default::default()
             },
         );
@@ -644,7 +641,6 @@ mod tests {
             &mut config,
             SCConditionActor {
                 actor_id: "".into(),
-                observer_id: "".into(),
                 actions: HashMap::new(),
                 ..Default::default()
             },
@@ -686,7 +682,6 @@ mod tests {
             &mut config,
             SCConditionActor {
                 actor_id: "".into(),
-                observer_id: "".into(),
                 actions: HashMap::new(),
                 ..Default::default()
             },
