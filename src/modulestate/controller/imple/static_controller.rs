@@ -1,16 +1,21 @@
 use crate::{
     get_env_element,
     mainboardstate::error::MainboardError,
-    modulestate::controller::{
-        context::Context, controller_trait::EnvControllerTask, module_command::ModuleCommandSender,
+    modulestate::{
+        actor,
+        controller::{
+            context::Context, controller_trait::EnvControllerTask,
+            module_command::ModuleCommandSender,
+        },
     },
     protos::{
-        alarm::{FieldAlarmEvent, AlarmZone},
+        alarm::{AlarmZone, FieldAlarmEvent},
         env_controller::{
             EnvironmentControllerConfiguration_oneof_implementation, EnvironmentControllerEvent,
-            EnvironmentControllerState, MActor, SCConditionActor, MObserver,
+            EnvironmentControllerState, MActor, MObserver, SCConditionActor,
         },
-        module::{RelayOutletConfig, RelayModuleConfig}, message::ActionCode,
+        message::ActionCode,
+        module::{RelayModuleConfig, RelayOutletConfig},
     },
     send_event,
 };
@@ -29,16 +34,34 @@ impl StaticControllerImplementation {
 }
 
 fn get_config_for_event(
-    observers: &RepeatedField<MObserver>,
+    actors: &RepeatedField<MActor>,
     field_value: &FieldAlarmEvent,
     action: &SCConditionActor,
-) -> Option<Vec<(String, String, RelayOutletConfig)>> {
+) -> Vec<(String, String, RelayOutletConfig)> {
     let index: i32 = field_value.currentZone.value();
-    if let Some(item) = action.actions.get(&index) {
+    return action
+        .actions
+        .clone()
+        .into_iter()
+        .map(|(k, v)| {
+            if let Some(actor) = actors.iter().find(|x| x.name == k) {
+                if let Some(item) = v.config.get(&index) {
+                    Some((actor.id.clone(), actor.property.clone(), item.clone()))
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
+        })
+        .filter(|x| x.is_some())
+        .map(|x| x.unwrap())
+        .collect();
+    /*if let Some(item) = action.actions.get(&index) {
         if !item.config.is_empty() {
             let items: Vec<(String, String, RelayOutletConfig)> = item.config.clone().into_iter().map(|(k,v)| {
-                let observer = observers.iter().find(|x| x.name == k).unwrap();
-                (observer.id.clone(), observer.property.clone(), v)
+                let actor = actors.iter().find(|x| x.name == k).unwrap();
+                (actor.id.clone(), actor.property.clone(), v)
             }).collect();
             return Some(items);
             //let observer = get_env_element!(ctx, observers, observer_id).unwrap();
@@ -47,28 +70,21 @@ fn get_config_for_event(
             //    return Some(v);
             //}
         }
-    }
-    return None;
+    }*/
 }
 
 fn on_value_event_change(
     context: &ModuleCommandSender,
     receiver_alarm: &mut Receiver<FieldAlarmEvent>,
     action: &SCConditionActor,
-    observers: &RepeatedField<MObserver>,
+    actors: &RepeatedField<MActor>,
 ) {
     let initial_value = receiver_alarm.borrow_and_update().clone();
-    if let Some(config_relays) = get_config_for_event(&observers, &initial_value, action) {
-        for (k, p, config_relay) in config_relays {
-            context
-                .send_mconfig_prop(&k, &p, Box::new(config_relay))
-                .unwrap();
-        }
-    } else {
-        log::info!(
-            "no configuration for new alarm zone {:?}",
-            initial_value.currentZone
-        );
+    let config_relays = get_config_for_event(&actors, &initial_value, action);
+    for (k, p, config_relay) in config_relays {
+        context
+            .send_mconfig_prop(&k, &p, Box::new(config_relay))
+            .unwrap();
     }
 }
 
@@ -104,6 +120,16 @@ impl EnvControllerTask for StaticControllerImplementation {
             //    &actor,
             //);
 
+            for (_, mut receiver_alarm) in ctx.alarm_receivers.iter_mut() {
+                for action in imple.conditions.iter() {
+                    on_value_event_change(
+                        &ctx.module_command_sender,
+                        &mut receiver_alarm,
+                        &action,
+                        &ctx.config.actors,
+                    );
+                }
+            }
 
             //send_event!(ctx, EnvironmentControllerState::CHANGING_CONFIG, true);
 
@@ -112,10 +138,15 @@ impl EnvControllerTask for StaticControllerImplementation {
             loop {
                 for (_k, mut receiver_alarm) in ctx.alarm_receivers.iter_mut() {
                     if let Ok(recv) = receiver_alarm.has_changed() {
-                        println!("receive alarm {:?}", recv);
                         if recv {
+                            println!("has changed");
                             for action in imple.conditions.iter() {
-                                on_value_event_change(&ctx.module_command_sender, &mut receiver_alarm, &action, &ctx.config.observers);
+                                on_value_event_change(
+                                    &ctx.module_command_sender,
+                                    &mut receiver_alarm,
+                                    &action,
+                                    &ctx.config.actors,
+                                );
                                 send_event!(ctx, EnvironmentControllerState::CHANGING_CONFIG, true);
                             }
                         }
@@ -126,7 +157,6 @@ impl EnvControllerTask for StaticControllerImplementation {
                     send_event!(ctx, EnvironmentControllerState::SLEEPING, false);
                     return Ok(());
                 }
-                tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
                 /*
                 select! {
                     _ = ctx.cancellation_token.cancelled() => {
@@ -153,7 +183,7 @@ impl EnvControllerTask for StaticControllerImplementation {
 #[cfg(test)]
 mod tests {
 
-    use std::{collections::HashMap, time::Duration, hash::Hash};
+    use std::{collections::HashMap, hash::Hash, time::Duration};
 
     use protobuf::RepeatedField;
     use tokio::sync::watch::{channel, Sender};
@@ -264,7 +294,7 @@ mod tests {
     #[serial]
     async fn env_controller_static_start_and_stop() {
         let mut condition = SCConditionActor::default();
-        condition.actor_id = "test_actor".into();
+        condition.observer_id = "test_observer".into();
         let (ctx, sa, sm, sr, config, ct) = init(
             "AAA0000003",
             "airTemperature",
@@ -310,7 +340,7 @@ mod tests {
     #[serial]
     async fn env_controller_static_reat_alarm_undefined_zone_dont_send() {
         let mut condition = SCConditionActor::default();
-        condition.actor_id = "test_actor".into();
+        condition.observer_id = "test_observer".into();
         let (ctx, sa, sm, sr, config, ct) = init(
             "AAA0000003",
             "airTemperature",
@@ -351,7 +381,7 @@ mod tests {
     #[serial]
     async fn env_controller_static_reat_alarm_defined_zone_send() {
         let mut condition = SCConditionActor::default();
-        condition.actor_id = "test_actor".into();
+        condition.observer_id = "test_observer".into();
         let mut actor_action = SCObserverAction::new();
         let mut relay = RelayOutletConfig::new();
         relay.set_manual(ManualConfig {
@@ -359,11 +389,12 @@ mod tests {
             ..Default::default()
         });
         let mut map_observer_action = HashMap::new();
-        map_observer_action.insert("test_observer".into(), relay);
+        map_observer_action.insert(0, relay);
         actor_action.set_config(map_observer_action);
         condition
             .actions
-            .insert(AlarmZone::UNKNOW.value(), actor_action);
+            .insert("test_actor".into(), actor_action);
+
         let (ctx, sa, sm, sr, config, ct) = init(
             "AAA0000003",
             "airTemperature",

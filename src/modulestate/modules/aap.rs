@@ -207,6 +207,9 @@ impl crate::modulestate::interface::ModuleValueValidator for AAPValidator {
 
         self.previous_config = *config.clone();
 
+
+        println!("Applying config : {:?}", self.previous_config);
+
         return Ok((
             config,
             crate::comboard::imple::channel::ModuleConfig {

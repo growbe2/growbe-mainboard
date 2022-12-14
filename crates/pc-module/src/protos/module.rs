@@ -5368,10 +5368,377 @@ impl ::protobuf::reflect::ProtobufValue for VirtualRelayItem {
 }
 
 #[derive(PartialEq,Clone,Default)]
+pub struct VirtualRelayPropetyItem {
+    // message fields
+    pub moduleId: ::std::string::String,
+    pub property: ::std::vec::Vec<i32>,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a VirtualRelayPropetyItem {
+    fn default() -> &'a VirtualRelayPropetyItem {
+        <VirtualRelayPropetyItem as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl VirtualRelayPropetyItem {
+    pub fn new() -> VirtualRelayPropetyItem {
+        ::std::default::Default::default()
+    }
+
+    // string moduleId = 1;
+
+
+    pub fn get_moduleId(&self) -> &str {
+        &self.moduleId
+    }
+    pub fn clear_moduleId(&mut self) {
+        self.moduleId.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_moduleId(&mut self, v: ::std::string::String) {
+        self.moduleId = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_moduleId(&mut self) -> &mut ::std::string::String {
+        &mut self.moduleId
+    }
+
+    // Take field
+    pub fn take_moduleId(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.moduleId, ::std::string::String::new())
+    }
+
+    // repeated int32 property = 2;
+
+
+    pub fn get_property(&self) -> &[i32] {
+        &self.property
+    }
+    pub fn clear_property(&mut self) {
+        self.property.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_property(&mut self, v: ::std::vec::Vec<i32>) {
+        self.property = v;
+    }
+
+    // Mutable pointer to the field.
+    pub fn mut_property(&mut self) -> &mut ::std::vec::Vec<i32> {
+        &mut self.property
+    }
+
+    // Take field
+    pub fn take_property(&mut self) -> ::std::vec::Vec<i32> {
+        ::std::mem::replace(&mut self.property, ::std::vec::Vec::new())
+    }
+}
+
+impl ::protobuf::Message for VirtualRelayPropetyItem {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.moduleId)?;
+                },
+                2 => {
+                    ::protobuf::rt::read_repeated_int32_into(wire_type, is, &mut self.property)?;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if !self.moduleId.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.moduleId);
+        }
+        for value in &self.property {
+            my_size += ::protobuf::rt::value_size(2, *value, ::protobuf::wire_format::WireTypeVarint);
+        };
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if !self.moduleId.is_empty() {
+            os.write_string(1, &self.moduleId)?;
+        }
+        for v in &self.property {
+            os.write_int32(2, *v)?;
+        };
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> VirtualRelayPropetyItem {
+        VirtualRelayPropetyItem::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "moduleId",
+                |m: &VirtualRelayPropetyItem| { &m.moduleId },
+                |m: &mut VirtualRelayPropetyItem| { &mut m.moduleId },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_vec_accessor::<_, ::protobuf::types::ProtobufTypeInt32>(
+                "property",
+                |m: &VirtualRelayPropetyItem| { &m.property },
+                |m: &mut VirtualRelayPropetyItem| { &mut m.property },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<VirtualRelayPropetyItem>(
+                "VirtualRelayPropetyItem",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static VirtualRelayPropetyItem {
+        static instance: ::protobuf::rt::LazyV2<VirtualRelayPropetyItem> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(VirtualRelayPropetyItem::new)
+    }
+}
+
+impl ::protobuf::Clear for VirtualRelayPropetyItem {
+    fn clear(&mut self) {
+        self.moduleId.clear();
+        self.property.clear();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for VirtualRelayPropetyItem {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for VirtualRelayPropetyItem {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
+pub struct VirtualRelayProperty {
+    // message fields
+    pub items: ::protobuf::RepeatedField<VirtualRelayPropetyItem>,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a VirtualRelayProperty {
+    fn default() -> &'a VirtualRelayProperty {
+        <VirtualRelayProperty as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl VirtualRelayProperty {
+    pub fn new() -> VirtualRelayProperty {
+        ::std::default::Default::default()
+    }
+
+    // repeated .VirtualRelayPropetyItem items = 1;
+
+
+    pub fn get_items(&self) -> &[VirtualRelayPropetyItem] {
+        &self.items
+    }
+    pub fn clear_items(&mut self) {
+        self.items.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_items(&mut self, v: ::protobuf::RepeatedField<VirtualRelayPropetyItem>) {
+        self.items = v;
+    }
+
+    // Mutable pointer to the field.
+    pub fn mut_items(&mut self) -> &mut ::protobuf::RepeatedField<VirtualRelayPropetyItem> {
+        &mut self.items
+    }
+
+    // Take field
+    pub fn take_items(&mut self) -> ::protobuf::RepeatedField<VirtualRelayPropetyItem> {
+        ::std::mem::replace(&mut self.items, ::protobuf::RepeatedField::new())
+    }
+}
+
+impl ::protobuf::Message for VirtualRelayProperty {
+    fn is_initialized(&self) -> bool {
+        for v in &self.items {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_repeated_message_into(wire_type, is, &mut self.items)?;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        for value in &self.items {
+            let len = value.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        };
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        for v in &self.items {
+            os.write_tag(1, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        };
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> VirtualRelayProperty {
+        VirtualRelayProperty::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_repeated_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<VirtualRelayPropetyItem>>(
+                "items",
+                |m: &VirtualRelayProperty| { &m.items },
+                |m: &mut VirtualRelayProperty| { &mut m.items },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<VirtualRelayProperty>(
+                "VirtualRelayProperty",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static VirtualRelayProperty {
+        static instance: ::protobuf::rt::LazyV2<VirtualRelayProperty> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(VirtualRelayProperty::new)
+    }
+}
+
+impl ::protobuf::Clear for VirtualRelayProperty {
+    fn clear(&mut self) {
+        self.items.clear();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for VirtualRelayProperty {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for VirtualRelayProperty {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
 pub struct VirtualRelay {
     // message fields
     pub name: ::std::string::String,
     pub relays: ::std::collections::HashMap<::std::string::String, VirtualRelayItem>,
+    pub properties: ::std::collections::HashMap<::std::string::String, VirtualRelayProperty>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -5438,6 +5805,31 @@ impl VirtualRelay {
     pub fn take_relays(&mut self) -> ::std::collections::HashMap<::std::string::String, VirtualRelayItem> {
         ::std::mem::replace(&mut self.relays, ::std::collections::HashMap::new())
     }
+
+    // repeated .VirtualRelay.PropertiesEntry properties = 3;
+
+
+    pub fn get_properties(&self) -> &::std::collections::HashMap<::std::string::String, VirtualRelayProperty> {
+        &self.properties
+    }
+    pub fn clear_properties(&mut self) {
+        self.properties.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_properties(&mut self, v: ::std::collections::HashMap<::std::string::String, VirtualRelayProperty>) {
+        self.properties = v;
+    }
+
+    // Mutable pointer to the field.
+    pub fn mut_properties(&mut self) -> &mut ::std::collections::HashMap<::std::string::String, VirtualRelayProperty> {
+        &mut self.properties
+    }
+
+    // Take field
+    pub fn take_properties(&mut self) -> ::std::collections::HashMap<::std::string::String, VirtualRelayProperty> {
+        ::std::mem::replace(&mut self.properties, ::std::collections::HashMap::new())
+    }
 }
 
 impl ::protobuf::Message for VirtualRelay {
@@ -5455,6 +5847,9 @@ impl ::protobuf::Message for VirtualRelay {
                 2 => {
                     ::protobuf::rt::read_map_into::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<VirtualRelayItem>>(wire_type, is, &mut self.relays)?;
                 },
+                3 => {
+                    ::protobuf::rt::read_map_into::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<VirtualRelayProperty>>(wire_type, is, &mut self.properties)?;
+                },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
                 },
@@ -5471,6 +5866,7 @@ impl ::protobuf::Message for VirtualRelay {
             my_size += ::protobuf::rt::string_size(1, &self.name);
         }
         my_size += ::protobuf::rt::compute_map_size::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<VirtualRelayItem>>(2, &self.relays);
+        my_size += ::protobuf::rt::compute_map_size::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<VirtualRelayProperty>>(3, &self.properties);
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -5481,6 +5877,7 @@ impl ::protobuf::Message for VirtualRelay {
             os.write_string(1, &self.name)?;
         }
         ::protobuf::rt::write_map_with_cached_sizes::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<VirtualRelayItem>>(2, &self.relays, os)?;
+        ::protobuf::rt::write_map_with_cached_sizes::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<VirtualRelayProperty>>(3, &self.properties, os)?;
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
     }
@@ -5529,6 +5926,11 @@ impl ::protobuf::Message for VirtualRelay {
                 |m: &VirtualRelay| { &m.relays },
                 |m: &mut VirtualRelay| { &mut m.relays },
             ));
+            fields.push(::protobuf::reflect::accessor::make_map_accessor::<_, ::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<VirtualRelayProperty>>(
+                "properties",
+                |m: &VirtualRelay| { &m.properties },
+                |m: &mut VirtualRelay| { &mut m.properties },
+            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<VirtualRelay>(
                 "VirtualRelay",
                 fields,
@@ -5547,6 +5949,7 @@ impl ::protobuf::Clear for VirtualRelay {
     fn clear(&mut self) {
         self.name.clear();
         self.relays.clear();
+        self.properties.clear();
         self.unknown_fields.clear();
     }
 }
@@ -14520,131 +14923,137 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x01\x20\x01(\x05R\x08property\x12\x1e\n\nfalseState\x18\x02\x20\x01(\
     \x08R\nfalseState\x12\x1c\n\ttrueState\x18\x03\x20\x01(\x08R\ttrueState\
     \"O\n\x10VirtualRelayItem\x12;\n\nproperties\x18\x01\x20\x03(\x0b2\x1b.V\
-    irtualRelayPropertyConfigR\nproperties\"\xa3\x01\n\x0cVirtualRelay\x12\
-    \x12\n\x04name\x18\x01\x20\x01(\tR\x04name\x121\n\x06relays\x18\x02\x20\
-    \x03(\x0b2\x19.VirtualRelay.RelaysEntryR\x06relays\x1aL\n\x0bRelaysEntry\
-    \x12\x10\n\x03key\x18\x01\x20\x01(\tR\x03key\x12'\n\x05value\x18\x02\x20\
-    \x01(\x0b2\x11.VirtualRelayItemR\x05value:\x028\x01\"6\n\rVirtualRelays\
-    \x12%\n\x06relays\x18\x01\x20\x03(\x0b2\r.VirtualRelayR\x06relays\"V\n\
-    \x10VirtualRelayData\x12$\n\x04data\x18\x01\x20\x01(\x0b2\x10.RelayOutle\
-    tDataR\x04data\x12\x1c\n\ttimestamp\x18\x02\x20\x01(\x05R\ttimestamp\"S\
-    \n\x11VirtualRelayState\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\
-    \x14\n\x05state\x18\x02\x20\x01(\x08R\x05state\x12\x18\n\x07message\x18\
-    \x03\x20\x01(\tR\x07message\"\xdd\x02\n\x0fRelayModuleData\x12\x20\n\x02\
-    p0\x18\x01\x20\x01(\x0b2\x10.RelayOutletDataR\x02p0\x12\x20\n\x02p1\x18\
-    \x02\x20\x01(\x0b2\x10.RelayOutletDataR\x02p1\x12\x20\n\x02p2\x18\x03\
-    \x20\x01(\x0b2\x10.RelayOutletDataR\x02p2\x12\x20\n\x02p3\x18\x04\x20\
-    \x01(\x0b2\x10.RelayOutletDataR\x02p3\x12\x20\n\x02p4\x18\x05\x20\x01(\
-    \x0b2\x10.RelayOutletDataR\x02p4\x12\x20\n\x02p5\x18\x06\x20\x01(\x0b2\
-    \x10.RelayOutletDataR\x02p5\x12\x20\n\x02p6\x18\x07\x20\x01(\x0b2\x10.Re\
-    layOutletDataR\x02p6\x12\x20\n\x02p7\x18\x08\x20\x01(\x0b2\x10.RelayOutl\
-    etDataR\x02p7\x12\x1c\n\ttimestamp\x18\t\x20\x01(\x05R\ttimestamp\x12\
-    \x1c\n\x05actor\x18\n\x20\x01(\x0b2\x06.ActorR\x05actor\"\xd1\x02\n\x11R\
-    elayModuleConfig\x12\"\n\x02p0\x18\x01\x20\x01(\x0b2\x12.RelayOutletConf\
-    igR\x02p0\x12\"\n\x02p1\x18\x02\x20\x01(\x0b2\x12.RelayOutletConfigR\x02\
-    p1\x12\"\n\x02p2\x18\x03\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p2\x12\
-    \"\n\x02p3\x18\x04\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p3\x12\"\n\
-    \x02p4\x18\x05\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p4\x12\"\n\x02p5\
-    \x18\x06\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p5\x12\"\n\x02p6\x18\
-    \x07\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p6\x12\"\n\x02p7\x18\x08\
-    \x20\x01(\x0b2\x12.RelayOutletConfigR\x02p7\x12\x1c\n\ttimestamp\x18\t\
-    \x20\x01(\x05R\ttimestamp\"\xf8\x02\n\x0cWCModuleData\x12\x20\n\x02p0\
-    \x18\x01\x20\x01(\x0b2\x10.RelayOutletDataR\x02p0\x12\x20\n\x02p1\x18\
-    \x02\x20\x01(\x0b2\x10.RelayOutletDataR\x02p1\x12\x20\n\x02p2\x18\x03\
-    \x20\x01(\x0b2\x10.RelayOutletDataR\x02p2\x12&\n\x05drain\x18\x04\x20\
-    \x01(\x0b2\x10.RelayOutletDataR\x05drain\x12&\n\x05pump0\x18\x05\x20\x01\
-    (\x0b2\x10.RelayOutletDataR\x05pump0\x12&\n\x05pump1\x18\x06\x20\x01(\
-    \x0b2\x10.RelayOutletDataR\x05pump1\x12&\n\x05pump2\x18\x07\x20\x01(\x0b\
-    2\x10.RelayOutletDataR\x05pump2\x12&\n\x05pump3\x18\x08\x20\x01(\x0b2\
-    \x10.RelayOutletDataR\x05pump3\x12\x1c\n\ttimestamp\x18\t\x20\x01(\x05R\
-    \ttimestamp\x12\x1c\n\x05actor\x18\n\x20\x01(\x0b2\x06.ActorR\x05actor\"\
-    \xce\x02\n\x0eWCModuleConfig\x12\"\n\x02p0\x18\x01\x20\x01(\x0b2\x12.Rel\
-    ayOutletConfigR\x02p0\x12\"\n\x02p1\x18\x02\x20\x01(\x0b2\x12.RelayOutle\
-    tConfigR\x02p1\x12\"\n\x02p2\x18\x03\x20\x01(\x0b2\x12.RelayOutletConfig\
-    R\x02p2\x12(\n\x05drain\x18\x04\x20\x01(\x0b2\x12.RelayOutletConfigR\x05\
-    drain\x12(\n\x05pump0\x18\x05\x20\x01(\x0b2\x12.RelayOutletConfigR\x05pu\
-    mp0\x12(\n\x05pump1\x18\x06\x20\x01(\x0b2\x12.RelayOutletConfigR\x05pump\
-    1\x12(\n\x05pump2\x18\x07\x20\x01(\x0b2\x12.RelayOutletConfigR\x05pump2\
-    \x12(\n\x05pump3\x18\x08\x20\x01(\x0b2\x12.RelayOutletConfigR\x05pump3\"\
-    \x9f\x01\n\x11PhonePositionData\x12\x10\n\x03lat\x18\x01\x20\x01(\x02R\
-    \x03lat\x12\x10\n\x03log\x18\x02\x20\x01(\x02R\x03log\x12\x1a\n\x08accur\
-    acy\x18\x03\x20\x01(\x02R\x08accuracy\x12\x1a\n\x08altitude\x18\x04\x20\
-    \x01(\x01R\x08altitude\x12\x18\n\x07bearing\x18\x05\x20\x01(\x02R\x07bea\
-    ring\x12\x14\n\x05speed\x18\x07\x20\x01(\x02R\x05speed\"\x15\n\x13PhoneP\
-    ositionConfig\"G\n\x15PhoneAccelerationData\x12\x0e\n\x02gx\x18\x01\x20\
-    \x01(\x02R\x02gx\x12\x0e\n\x02gy\x18\x02\x20\x01(\x02R\x02gy\x12\x0e\n\
-    \x02gz\x18\x03\x20\x01(\x02R\x02gz\"\x19\n\x17PhoneAccelerationConfig\".\
-    \n\x15PhoneAmbientLightData\x12\x15\n\x06si_lux\x18\x01\x20\x01(\x02R\
-    \x05siLux\"\x19\n\x17PhoneAmbientLightConfig\"%\n\x11PhonePressureData\
-    \x12\x10\n\x03hpa\x18\x01\x20\x01(\x02R\x03hpa\"\x15\n\x13PhonePressureC\
-    onfig\"#\n\x05Point\x12\x0c\n\x01x\x18\x01\x20\x01(\x05R\x01x\x12\x0c\n\
-    \x01y\x18\x02\x20\x01(\x05R\x01y\"Z\n\x04Rect\x12\x10\n\x03top\x18\x01\
-    \x20\x01(\x05R\x03top\x12\x14\n\x05right\x18\x02\x20\x01(\x05R\x05right\
-    \x12\x16\n\x06bottom\x18\x03\x20\x01(\x05R\x06bottom\x12\x12\n\x04left\
-    \x18\x04\x20\x01(\x05R\x04left\"\xb1\x01\n\nCameraFace\x12\x0e\n\x02id\
-    \x18\x01\x20\x01(\x05R\x02id\x12\x14\n\x05score\x18\x02\x20\x01(\x05R\
-    \x05score\x12\x19\n\x04rect\x18\x03\x20\x01(\x0b2\x05.RectR\x04rect\x12\
-    \x1c\n\x05mouth\x18\x04\x20\x01(\x0b2\x06.PointR\x05mouth\x12\x20\n\x07l\
-    eftEye\x18\x05\x20\x01(\x0b2\x06.PointR\x07leftEye\x12\"\n\x08rightEye\
-    \x18\x06\x20\x01(\x0b2\x06.PointR\x08rightEye\"\xa8\x01\n\x12PhoneStream\
-    ingData\x12-\n\x06status\x18\x01\x20\x01(\x0e2\x15.PhoneStreamingStatusR\
-    \x06status\x12\x10\n\x03fps\x18\x02\x20\x01(\x02R\x03fps\x12\x18\n\x07bi\
-    trate\x18\x03\x20\x01(\x02R\x07bitrate\x12!\n\x05faces\x18\x04\x20\x03(\
-    \x0b2\x0b.CameraFaceR\x05faces\x12\x14\n\x05error\x18\x05\x20\x01(\tR\
-    \x05error\"\xce\x02\n\x14PhoneStreamingConfig\x12\x1c\n\tactivated\x18\
-    \x01\x20\x01(\x08R\tactivated\x12-\n\x06output\x18\x02\x20\x01(\x0e2\x15\
-    .PhoneStreamingOutputR\x06output\x12\x10\n\x03url\x18\x03\x20\x01(\tR\
-    \x03url\x12-\n\x06camera\x18\x04\x20\x01(\x0e2\x15.PhoneStreamingCameraR\
-    \x06camera\x12\x14\n\x05light\x18\x05\x20\x01(\x08R\x05light\x12\x14\n\
-    \x05audio\x18\x06\x20\x01(\x08R\x05audio\x12\x1c\n\tautoFocus\x18\x07\
-    \x20\x01(\x08R\tautoFocus\x12$\n\rstabilization\x18\x08\x20\x01(\x08R\rs\
-    tabilization\x12$\n\rfaceDetection\x18\t\x20\x01(\x08R\rfaceDetection\
-    \x12\x12\n\x04zoom\x18\n\x20\x01(\x05R\x04zoom\"\x88\x01\n\x15ComputerSt\
-    reamingData\x12-\n\x06status\x18\x01\x20\x01(\x0e2\x15.PhoneStreamingSta\
-    tusR\x06status\x12\x10\n\x03fps\x18\x02\x20\x01(\x02R\x03fps\x12\x18\n\
-    \x07bitrate\x18\x03\x20\x01(\x02R\x07bitrate\x12\x14\n\x05error\x18\x04\
-    \x20\x01(\tR\x05error\"\xae\x01\n\x17ComputerStreamingConfig\x12\x1c\n\t\
-    activated\x18\x01\x20\x01(\x08R\tactivated\x12\x16\n\x06camera\x18\x02\
-    \x20\x01(\tR\x06camera\x12-\n\x06output\x18\x03\x20\x01(\x0e2\x15.PhoneS\
-    treamingOutputR\x06output\x12\x10\n\x03url\x18\x04\x20\x01(\tR\x03url\
-    \x12\x1c\n\targuments\x18\x05\x20\x03(\tR\targuments\"2\n\x16ComputerStr\
-    eamingState\x12\x18\n\x07cameras\x18\x01\x20\x03(\tR\x07cameras\"\x15\n\
-    \x13ComputerStatsConfig\"\x8f\x01\n\x07CpuData\x12\x12\n\x04user\x18\x01\
-    \x20\x01(\x02R\x04user\x12\x12\n\x04nice\x18\x02\x20\x01(\x02R\x04nice\
-    \x12\x16\n\x06system\x18\x03\x20\x01(\x02R\x06system\x12\x1c\n\tinterrup\
-    t\x18\x04\x20\x01(\x02R\tinterrupt\x12\x12\n\x04idle\x18\x05\x20\x01(\
-    \x02R\x04idle\x12\x12\n\x04temp\x18\x06\x20\x01(\x02R\x04temp\"M\n\x0bCp\
-    uLoadData\x12\x10\n\x03one\x18\x01\x20\x01(\x02R\x03one\x12\x12\n\x04fiv\
-    e\x18\x02\x20\x01(\x02R\x04five\x12\x18\n\x07fifteen\x18\x03\x20\x01(\
-    \x02R\x07fifteen\"R\n\nMemoryData\x12\x14\n\x05total\x18\x01\x20\x01(\
-    \x02R\x05total\x12\x12\n\x04free\x18\x02\x20\x01(\x02R\x04free\x12\x1a\n\
-    \x08platform\x18\x03\x20\x01(\x02R\x08platform\"!\n\tPowerData\x12\x14\n\
-    \x05power\x18\x01\x20\x01(\x02R\x05power\"C\n\x0bNetworkData\x12\x19\n\
-    \x08rx_bytes\x18\x01\x20\x01(\x02R\x07rxBytes\x12\x19\n\x08tx_bytes\x18\
-    \x02\x20\x01(\x02R\x07txBytes\"\xdb\x01\n\x11ComputerStatsData\x12\x16\n\
-    \x06uptime\x18\x01\x20\x01(\x02R\x06uptime\x12\x1a\n\x03cpu\x18\x02\x20\
-    \x01(\x0b2\x08.CpuDataR\x03cpu\x12&\n\x07loadavg\x18\x03\x20\x01(\x0b2\
-    \x0c.CpuLoadDataR\x07loadavg\x12\x1f\n\x04swap\x18\x04\x20\x01(\x0b2\x0b\
-    .MemoryDataR\x04swap\x12#\n\x06memory\x18\x05\x20\x01(\x0b2\x0b.MemoryDa\
-    taR\x06memory\x12$\n\x06netifs\x18\x06\x20\x03(\x0b2\x0c.NetworkDataR\
-    \x06netifs*Z\n\tActorType\x12\x15\n\x11MANUAL_USER_ACTOR\x10\0\x12\x12\n\
-    \x0eDURATION_ACTOR\x10\x01\x12\x0f\n\x0bALARM_ACTOR\x10\x02\x12\x11\n\rV\
-    IRTUAL_ACTOR\x10\x03*\x90\x01\n\x0fCalibrationStep\x12\x15\n\x11READY_CA\
-    LIBRATION\x10\0\x12\x13\n\x0fLOW_CALIBRATION\x10\x01\x12\x14\n\x10HIGH_C\
-    ALIBRATION\x10\x02\x12\x15\n\x11ERROR_CALIBRATION\x10\x03\x12$\n\x20WAIT\
-    ING_CONFIRMATION_CALIBRATION\x10\x04*y\n\x15CalibrationStepStatus\x12\
-    \x1b\n\x17INSUFFISANT_DATA_STATUS\x10\0\x12\x17\n\x13ENOUGHT_DATA_STATUS\
-    \x10\x01\x12\x10\n\x0cERROR_STATUS\x10\x02\x12\x18\n\x14AWAITING_STEP_ST\
-    ATUS\x10\x03*r\n\x10CalibrationError\x12\x0e\n\nNONE_ERROR\x10\0\x12\x19\
-    \n\x15ALREADY_STARTED_ERROR\x10\x01\x12\x17\n\x13INSTABLE_DATA_ERROR\x10\
-    \x02\x12\x1a\n\x16NOT_ENOUGHT_DATA_ERROR\x10\x03*@\n\x0fRelayOutletMode\
-    \x12\n\n\x06MANUAL\x10\0\x12\t\n\x05ALARM\x10\x01\x12\x0b\n\x07VIRTUAL\
-    \x10\x02\x12\t\n\x05CYCLE\x10\x03*;\n\x14PhoneStreamingStatus\x12\x0b\n\
-    \x07STOPPED\x10\0\x12\x0b\n\x07RUNNING\x10\x01\x12\t\n\x05ERROR\x10\x02*\
-    +\n\x14PhoneStreamingCamera\x12\x08\n\x04BACK\x10\0\x12\t\n\x05FRONT\x10\
-    \x01*C\n\x14PhoneStreamingOutput\x12\n\n\x06STREAM\x10\0\x12\n\n\x06RECO\
-    RD\x10\x01\x12\x13\n\x0fSTREAM_N_RECORD\x10\x02B+\n)ca.berlingoqc.growbe\
-    _android_module.protob\x06proto3\
+    irtualRelayPropertyConfigR\nproperties\"Q\n\x17VirtualRelayPropetyItem\
+    \x12\x1a\n\x08moduleId\x18\x01\x20\x01(\tR\x08moduleId\x12\x1a\n\x08prop\
+    erty\x18\x02\x20\x03(\x05R\x08property\"F\n\x14VirtualRelayProperty\x12.\
+    \n\x05items\x18\x01\x20\x03(\x0b2\x18.VirtualRelayPropetyItemR\x05items\
+    \"\xb8\x02\n\x0cVirtualRelay\x12\x12\n\x04name\x18\x01\x20\x01(\tR\x04na\
+    me\x121\n\x06relays\x18\x02\x20\x03(\x0b2\x19.VirtualRelay.RelaysEntryR\
+    \x06relays\x12=\n\nproperties\x18\x03\x20\x03(\x0b2\x1d.VirtualRelay.Pro\
+    pertiesEntryR\nproperties\x1aL\n\x0bRelaysEntry\x12\x10\n\x03key\x18\x01\
+    \x20\x01(\tR\x03key\x12'\n\x05value\x18\x02\x20\x01(\x0b2\x11.VirtualRel\
+    ayItemR\x05value:\x028\x01\x1aT\n\x0fPropertiesEntry\x12\x10\n\x03key\
+    \x18\x01\x20\x01(\tR\x03key\x12+\n\x05value\x18\x02\x20\x01(\x0b2\x15.Vi\
+    rtualRelayPropertyR\x05value:\x028\x01\"6\n\rVirtualRelays\x12%\n\x06rel\
+    ays\x18\x01\x20\x03(\x0b2\r.VirtualRelayR\x06relays\"V\n\x10VirtualRelay\
+    Data\x12$\n\x04data\x18\x01\x20\x01(\x0b2\x10.RelayOutletDataR\x04data\
+    \x12\x1c\n\ttimestamp\x18\x02\x20\x01(\x05R\ttimestamp\"S\n\x11VirtualRe\
+    layState\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\x14\n\x05state\
+    \x18\x02\x20\x01(\x08R\x05state\x12\x18\n\x07message\x18\x03\x20\x01(\tR\
+    \x07message\"\xdd\x02\n\x0fRelayModuleData\x12\x20\n\x02p0\x18\x01\x20\
+    \x01(\x0b2\x10.RelayOutletDataR\x02p0\x12\x20\n\x02p1\x18\x02\x20\x01(\
+    \x0b2\x10.RelayOutletDataR\x02p1\x12\x20\n\x02p2\x18\x03\x20\x01(\x0b2\
+    \x10.RelayOutletDataR\x02p2\x12\x20\n\x02p3\x18\x04\x20\x01(\x0b2\x10.Re\
+    layOutletDataR\x02p3\x12\x20\n\x02p4\x18\x05\x20\x01(\x0b2\x10.RelayOutl\
+    etDataR\x02p4\x12\x20\n\x02p5\x18\x06\x20\x01(\x0b2\x10.RelayOutletDataR\
+    \x02p5\x12\x20\n\x02p6\x18\x07\x20\x01(\x0b2\x10.RelayOutletDataR\x02p6\
+    \x12\x20\n\x02p7\x18\x08\x20\x01(\x0b2\x10.RelayOutletDataR\x02p7\x12\
+    \x1c\n\ttimestamp\x18\t\x20\x01(\x05R\ttimestamp\x12\x1c\n\x05actor\x18\
+    \n\x20\x01(\x0b2\x06.ActorR\x05actor\"\xd1\x02\n\x11RelayModuleConfig\
+    \x12\"\n\x02p0\x18\x01\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p0\x12\"\
+    \n\x02p1\x18\x02\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p1\x12\"\n\x02p\
+    2\x18\x03\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p2\x12\"\n\x02p3\x18\
+    \x04\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p3\x12\"\n\x02p4\x18\x05\
+    \x20\x01(\x0b2\x12.RelayOutletConfigR\x02p4\x12\"\n\x02p5\x18\x06\x20\
+    \x01(\x0b2\x12.RelayOutletConfigR\x02p5\x12\"\n\x02p6\x18\x07\x20\x01(\
+    \x0b2\x12.RelayOutletConfigR\x02p6\x12\"\n\x02p7\x18\x08\x20\x01(\x0b2\
+    \x12.RelayOutletConfigR\x02p7\x12\x1c\n\ttimestamp\x18\t\x20\x01(\x05R\t\
+    timestamp\"\xf8\x02\n\x0cWCModuleData\x12\x20\n\x02p0\x18\x01\x20\x01(\
+    \x0b2\x10.RelayOutletDataR\x02p0\x12\x20\n\x02p1\x18\x02\x20\x01(\x0b2\
+    \x10.RelayOutletDataR\x02p1\x12\x20\n\x02p2\x18\x03\x20\x01(\x0b2\x10.Re\
+    layOutletDataR\x02p2\x12&\n\x05drain\x18\x04\x20\x01(\x0b2\x10.RelayOutl\
+    etDataR\x05drain\x12&\n\x05pump0\x18\x05\x20\x01(\x0b2\x10.RelayOutletDa\
+    taR\x05pump0\x12&\n\x05pump1\x18\x06\x20\x01(\x0b2\x10.RelayOutletDataR\
+    \x05pump1\x12&\n\x05pump2\x18\x07\x20\x01(\x0b2\x10.RelayOutletDataR\x05\
+    pump2\x12&\n\x05pump3\x18\x08\x20\x01(\x0b2\x10.RelayOutletDataR\x05pump\
+    3\x12\x1c\n\ttimestamp\x18\t\x20\x01(\x05R\ttimestamp\x12\x1c\n\x05actor\
+    \x18\n\x20\x01(\x0b2\x06.ActorR\x05actor\"\xce\x02\n\x0eWCModuleConfig\
+    \x12\"\n\x02p0\x18\x01\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p0\x12\"\
+    \n\x02p1\x18\x02\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p1\x12\"\n\x02p\
+    2\x18\x03\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p2\x12(\n\x05drain\x18\
+    \x04\x20\x01(\x0b2\x12.RelayOutletConfigR\x05drain\x12(\n\x05pump0\x18\
+    \x05\x20\x01(\x0b2\x12.RelayOutletConfigR\x05pump0\x12(\n\x05pump1\x18\
+    \x06\x20\x01(\x0b2\x12.RelayOutletConfigR\x05pump1\x12(\n\x05pump2\x18\
+    \x07\x20\x01(\x0b2\x12.RelayOutletConfigR\x05pump2\x12(\n\x05pump3\x18\
+    \x08\x20\x01(\x0b2\x12.RelayOutletConfigR\x05pump3\"\x9f\x01\n\x11PhoneP\
+    ositionData\x12\x10\n\x03lat\x18\x01\x20\x01(\x02R\x03lat\x12\x10\n\x03l\
+    og\x18\x02\x20\x01(\x02R\x03log\x12\x1a\n\x08accuracy\x18\x03\x20\x01(\
+    \x02R\x08accuracy\x12\x1a\n\x08altitude\x18\x04\x20\x01(\x01R\x08altitud\
+    e\x12\x18\n\x07bearing\x18\x05\x20\x01(\x02R\x07bearing\x12\x14\n\x05spe\
+    ed\x18\x07\x20\x01(\x02R\x05speed\"\x15\n\x13PhonePositionConfig\"G\n\
+    \x15PhoneAccelerationData\x12\x0e\n\x02gx\x18\x01\x20\x01(\x02R\x02gx\
+    \x12\x0e\n\x02gy\x18\x02\x20\x01(\x02R\x02gy\x12\x0e\n\x02gz\x18\x03\x20\
+    \x01(\x02R\x02gz\"\x19\n\x17PhoneAccelerationConfig\".\n\x15PhoneAmbient\
+    LightData\x12\x15\n\x06si_lux\x18\x01\x20\x01(\x02R\x05siLux\"\x19\n\x17\
+    PhoneAmbientLightConfig\"%\n\x11PhonePressureData\x12\x10\n\x03hpa\x18\
+    \x01\x20\x01(\x02R\x03hpa\"\x15\n\x13PhonePressureConfig\"#\n\x05Point\
+    \x12\x0c\n\x01x\x18\x01\x20\x01(\x05R\x01x\x12\x0c\n\x01y\x18\x02\x20\
+    \x01(\x05R\x01y\"Z\n\x04Rect\x12\x10\n\x03top\x18\x01\x20\x01(\x05R\x03t\
+    op\x12\x14\n\x05right\x18\x02\x20\x01(\x05R\x05right\x12\x16\n\x06bottom\
+    \x18\x03\x20\x01(\x05R\x06bottom\x12\x12\n\x04left\x18\x04\x20\x01(\x05R\
+    \x04left\"\xb1\x01\n\nCameraFace\x12\x0e\n\x02id\x18\x01\x20\x01(\x05R\
+    \x02id\x12\x14\n\x05score\x18\x02\x20\x01(\x05R\x05score\x12\x19\n\x04re\
+    ct\x18\x03\x20\x01(\x0b2\x05.RectR\x04rect\x12\x1c\n\x05mouth\x18\x04\
+    \x20\x01(\x0b2\x06.PointR\x05mouth\x12\x20\n\x07leftEye\x18\x05\x20\x01(\
+    \x0b2\x06.PointR\x07leftEye\x12\"\n\x08rightEye\x18\x06\x20\x01(\x0b2\
+    \x06.PointR\x08rightEye\"\xa8\x01\n\x12PhoneStreamingData\x12-\n\x06stat\
+    us\x18\x01\x20\x01(\x0e2\x15.PhoneStreamingStatusR\x06status\x12\x10\n\
+    \x03fps\x18\x02\x20\x01(\x02R\x03fps\x12\x18\n\x07bitrate\x18\x03\x20\
+    \x01(\x02R\x07bitrate\x12!\n\x05faces\x18\x04\x20\x03(\x0b2\x0b.CameraFa\
+    ceR\x05faces\x12\x14\n\x05error\x18\x05\x20\x01(\tR\x05error\"\xce\x02\n\
+    \x14PhoneStreamingConfig\x12\x1c\n\tactivated\x18\x01\x20\x01(\x08R\tact\
+    ivated\x12-\n\x06output\x18\x02\x20\x01(\x0e2\x15.PhoneStreamingOutputR\
+    \x06output\x12\x10\n\x03url\x18\x03\x20\x01(\tR\x03url\x12-\n\x06camera\
+    \x18\x04\x20\x01(\x0e2\x15.PhoneStreamingCameraR\x06camera\x12\x14\n\x05\
+    light\x18\x05\x20\x01(\x08R\x05light\x12\x14\n\x05audio\x18\x06\x20\x01(\
+    \x08R\x05audio\x12\x1c\n\tautoFocus\x18\x07\x20\x01(\x08R\tautoFocus\x12\
+    $\n\rstabilization\x18\x08\x20\x01(\x08R\rstabilization\x12$\n\rfaceDete\
+    ction\x18\t\x20\x01(\x08R\rfaceDetection\x12\x12\n\x04zoom\x18\n\x20\x01\
+    (\x05R\x04zoom\"\x88\x01\n\x15ComputerStreamingData\x12-\n\x06status\x18\
+    \x01\x20\x01(\x0e2\x15.PhoneStreamingStatusR\x06status\x12\x10\n\x03fps\
+    \x18\x02\x20\x01(\x02R\x03fps\x12\x18\n\x07bitrate\x18\x03\x20\x01(\x02R\
+    \x07bitrate\x12\x14\n\x05error\x18\x04\x20\x01(\tR\x05error\"\xae\x01\n\
+    \x17ComputerStreamingConfig\x12\x1c\n\tactivated\x18\x01\x20\x01(\x08R\t\
+    activated\x12\x16\n\x06camera\x18\x02\x20\x01(\tR\x06camera\x12-\n\x06ou\
+    tput\x18\x03\x20\x01(\x0e2\x15.PhoneStreamingOutputR\x06output\x12\x10\n\
+    \x03url\x18\x04\x20\x01(\tR\x03url\x12\x1c\n\targuments\x18\x05\x20\x03(\
+    \tR\targuments\"2\n\x16ComputerStreamingState\x12\x18\n\x07cameras\x18\
+    \x01\x20\x03(\tR\x07cameras\"\x15\n\x13ComputerStatsConfig\"\x8f\x01\n\
+    \x07CpuData\x12\x12\n\x04user\x18\x01\x20\x01(\x02R\x04user\x12\x12\n\
+    \x04nice\x18\x02\x20\x01(\x02R\x04nice\x12\x16\n\x06system\x18\x03\x20\
+    \x01(\x02R\x06system\x12\x1c\n\tinterrupt\x18\x04\x20\x01(\x02R\tinterru\
+    pt\x12\x12\n\x04idle\x18\x05\x20\x01(\x02R\x04idle\x12\x12\n\x04temp\x18\
+    \x06\x20\x01(\x02R\x04temp\"M\n\x0bCpuLoadData\x12\x10\n\x03one\x18\x01\
+    \x20\x01(\x02R\x03one\x12\x12\n\x04five\x18\x02\x20\x01(\x02R\x04five\
+    \x12\x18\n\x07fifteen\x18\x03\x20\x01(\x02R\x07fifteen\"R\n\nMemoryData\
+    \x12\x14\n\x05total\x18\x01\x20\x01(\x02R\x05total\x12\x12\n\x04free\x18\
+    \x02\x20\x01(\x02R\x04free\x12\x1a\n\x08platform\x18\x03\x20\x01(\x02R\
+    \x08platform\"!\n\tPowerData\x12\x14\n\x05power\x18\x01\x20\x01(\x02R\
+    \x05power\"C\n\x0bNetworkData\x12\x19\n\x08rx_bytes\x18\x01\x20\x01(\x02\
+    R\x07rxBytes\x12\x19\n\x08tx_bytes\x18\x02\x20\x01(\x02R\x07txBytes\"\
+    \xdb\x01\n\x11ComputerStatsData\x12\x16\n\x06uptime\x18\x01\x20\x01(\x02\
+    R\x06uptime\x12\x1a\n\x03cpu\x18\x02\x20\x01(\x0b2\x08.CpuDataR\x03cpu\
+    \x12&\n\x07loadavg\x18\x03\x20\x01(\x0b2\x0c.CpuLoadDataR\x07loadavg\x12\
+    \x1f\n\x04swap\x18\x04\x20\x01(\x0b2\x0b.MemoryDataR\x04swap\x12#\n\x06m\
+    emory\x18\x05\x20\x01(\x0b2\x0b.MemoryDataR\x06memory\x12$\n\x06netifs\
+    \x18\x06\x20\x03(\x0b2\x0c.NetworkDataR\x06netifs*Z\n\tActorType\x12\x15\
+    \n\x11MANUAL_USER_ACTOR\x10\0\x12\x12\n\x0eDURATION_ACTOR\x10\x01\x12\
+    \x0f\n\x0bALARM_ACTOR\x10\x02\x12\x11\n\rVIRTUAL_ACTOR\x10\x03*\x90\x01\
+    \n\x0fCalibrationStep\x12\x15\n\x11READY_CALIBRATION\x10\0\x12\x13\n\x0f\
+    LOW_CALIBRATION\x10\x01\x12\x14\n\x10HIGH_CALIBRATION\x10\x02\x12\x15\n\
+    \x11ERROR_CALIBRATION\x10\x03\x12$\n\x20WAITING_CONFIRMATION_CALIBRATION\
+    \x10\x04*y\n\x15CalibrationStepStatus\x12\x1b\n\x17INSUFFISANT_DATA_STAT\
+    US\x10\0\x12\x17\n\x13ENOUGHT_DATA_STATUS\x10\x01\x12\x10\n\x0cERROR_STA\
+    TUS\x10\x02\x12\x18\n\x14AWAITING_STEP_STATUS\x10\x03*r\n\x10Calibration\
+    Error\x12\x0e\n\nNONE_ERROR\x10\0\x12\x19\n\x15ALREADY_STARTED_ERROR\x10\
+    \x01\x12\x17\n\x13INSTABLE_DATA_ERROR\x10\x02\x12\x1a\n\x16NOT_ENOUGHT_D\
+    ATA_ERROR\x10\x03*@\n\x0fRelayOutletMode\x12\n\n\x06MANUAL\x10\0\x12\t\n\
+    \x05ALARM\x10\x01\x12\x0b\n\x07VIRTUAL\x10\x02\x12\t\n\x05CYCLE\x10\x03*\
+    ;\n\x14PhoneStreamingStatus\x12\x0b\n\x07STOPPED\x10\0\x12\x0b\n\x07RUNN\
+    ING\x10\x01\x12\t\n\x05ERROR\x10\x02*+\n\x14PhoneStreamingCamera\x12\x08\
+    \n\x04BACK\x10\0\x12\t\n\x05FRONT\x10\x01*C\n\x14PhoneStreamingOutput\
+    \x12\n\n\x06STREAM\x10\0\x12\n\n\x06RECORD\x10\x01\x12\x13\n\x0fSTREAM_N\
+    _RECORD\x10\x02B+\n)ca.berlingoqc.growbe_android_module.protob\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

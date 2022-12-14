@@ -82,12 +82,18 @@ impl super::interface::ComboardClient for VirtualComboardClient {
             let receiver = VIRTUAL_COMBOARD_CMD.1.lock().unwrap();
 
             loop {
-                if let Ok(mut value) = receiver.recv_timeout(Duration::from_millis(10)) {
-                    log::info!("receive new action for virtual board {}", config.actions.len());
+                if let Ok(mut value) = receiver.try_recv() {
+                    log::info!(
+                        "receive new action for virtual board {}",
+                        config.actions.len()
+                    );
                     config.actions.append(&mut value);
-                    log::info!("receive new action for virtual board {}", config.actions.len());
+                    log::info!(
+                        "receive new action for virtual board {}",
+                        config.actions.len()
+                    );
                 }
-                if let Ok(module_config) = receiver_config.recv_timeout(Duration::from_millis(10)) {
+                if let Ok(module_config) = receiver_config.try_recv() {
                     if let Some(item) = map_module.get_mut(&module_config.port) {
                         match &item.id[..3] {
                             "AAP" | "AAB" => {
@@ -101,7 +107,9 @@ impl super::interface::ComboardClient for VirtualComboardClient {
                                         }
                                     }
                                     new_buffer
-                                } else { vec![] };
+                                } else {
+                                    vec![]
+                                };
 
                                 sender_value
                                     .send(ModuleValueValidationEvent {
@@ -116,23 +124,21 @@ impl super::interface::ComboardClient for VirtualComboardClient {
                         }
                     }
                 }
-                while i < config.actions.len() {
+                if let Ok(config) = receiver_config.try_recv() {
+                    log::debug!("virtual comboard apply config {:?}", config.data);
+
+                    sender_value
+                        .send(ModuleValueValidationEvent {
+                            board: I2C_VIRT_ID.to_string(),
+                            board_addr: config_board.clone(),
+                            port: config.port,
+                            buffer: config.data,
+                        })
+                        .unwrap();
+                }
+
+                if i < config.actions.len() {
                     // check if we have event to process config change
-                    let config_request = receiver_config.try_recv();
-                    if config_request.is_ok() {
-                        let config = config_request.unwrap();
-                        log::debug!("virtual comboard apply config {:?}", config.data);
-
-                        sender_value
-                            .send(ModuleValueValidationEvent {
-                                board: I2C_VIRT_ID.to_string(),
-                                board_addr: config_board.clone(),
-                                port: config.port,
-                                buffer: config.data,
-                            })
-                            .unwrap();
-                    }
-
                     if waiting.is_none() {
                         let typ = config.actions[i].id[..3].to_string();
                         match config.actions[i].event_type.as_str() {

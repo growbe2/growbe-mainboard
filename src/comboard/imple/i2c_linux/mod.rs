@@ -181,7 +181,7 @@ impl super::interface::ComboardClient for I2CLinuxComboardClient {
             Err(_) => {}
         }
 
-        return tokio::spawn(async move {
+        return tokio::task::spawn_blocking(move || {
             unsafe {
                 register_callback_comboard(
                     callback_state_changed,

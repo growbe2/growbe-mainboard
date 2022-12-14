@@ -573,8 +573,6 @@ mod tests {
         add_static(
             &mut config,
             SCConditionActor {
-                actor_id: "".into(),
-                actions: HashMap::new(),
                 ..Default::default()
             },
         );
@@ -602,7 +600,6 @@ mod tests {
         add_static(
             &mut config,
             SCConditionActor {
-                actor_id: "".into(),
                 ..Default::default()
             },
         );
@@ -640,8 +637,6 @@ mod tests {
         add_static(
             &mut config,
             SCConditionActor {
-                actor_id: "".into(),
-                actions: HashMap::new(),
                 ..Default::default()
             },
         );
@@ -681,8 +676,6 @@ mod tests {
         add_static(
             &mut config,
             SCConditionActor {
-                actor_id: "".into(),
-                actions: HashMap::new(),
                 ..Default::default()
             },
         );
