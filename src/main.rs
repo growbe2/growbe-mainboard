@@ -66,12 +66,12 @@ async fn main() {
     });
 
     // Create the task to handle the modules state
-    /*let module_state_task = modulestate::task::module_state_task(
+    let module_state_task = modulestate::task::module_state_task(
         sender_socket,
         modulestate::store::ModuleStateStore::new(conn_database.clone()),
         config_channel_manager.get_reference(),
         modulestate::alarm::store::ModuleAlarmStore::new(conn_database.clone()),
-    );*/
+    );
 
     // Create the task for the communication socket from outside the app
     let socket_task = socket::socket_task(
@@ -107,6 +107,6 @@ async fn main() {
     #[cfg(not(feature = "http_server"))]
     let server_task = async {};
 
-    //let _ = tokio::join!(server_task, module_state_task, socket_task);
-    let _ = tokio::join!(server_task, socket_task);
+    let _ = tokio::join!(server_task, module_state_task, socket_task);
+    //let _ = tokio::join!(server_task, socket_task);
 }

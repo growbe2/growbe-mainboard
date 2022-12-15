@@ -4,6 +4,10 @@
 		"port": 30045
 	},
 	"comboards": [
+        {
+                "config": "",
+                "imple": "virt"
+        }
 	],
 	"server": {
 		"addr": "0.0.0.0",

@@ -299,44 +299,44 @@ async fn handle_subscription_topics(
     handlers: &Vec<MqttHandler>,
     mapping_module: &Vec<MqttModuleHanlder>,
 ) -> Result<(), MainboardError> {
-        for handler in handlers.iter() {
-            if handler.not_prefix {
-                client
-                    .subscribe(handler.subscription.as_str(), QoS::ExactlyOnce)
-                    .await
-                    .unwrap();
-            } else {
-                client
-                    .subscribe(
-                        format!(
-                            "/growbe/{}{}",
-                            growbe_shared::id::get(),
-                            handler.subscription
-                        ),
-                        QoS::ExactlyOnce,
-                    )
-                    .await
-                    .unwrap();
-            }
+    for handler in handlers.iter() {
+        if handler.not_prefix {
+            client
+                .subscribe(handler.subscription.as_str(), QoS::ExactlyOnce)
+                .await
+                .unwrap();
+        } else {
+            client
+                .subscribe(
+                    format!(
+                        "/growbe/{}{}",
+                        growbe_shared::id::get(),
+                        handler.subscription
+                    ),
+                    QoS::ExactlyOnce,
+                )
+                .await
+                .unwrap();
         }
+    }
 
-        let topics: Vec<SubscribeFilter> = mapping_module
-            .iter()
-            .map(|handler| {
-                let suffix = if handler.suffix == true { "/+" } else { "" };
-                let topic = format!(
-                    "/growbe/{}/board/{}{}",
-                    growbe_shared::id::get(),
-                    handler.name,
-                    suffix
-                );
-                SubscribeFilter {
-                    path: topic,
-                    qos: QoS::ExactlyOnce,
-                }
-            })
-            .collect();
-        client.subscribe_many(topics).await.unwrap();
+    let topics: Vec<SubscribeFilter> = mapping_module
+        .iter()
+        .map(|handler| {
+            let suffix = if handler.suffix == true { "/+" } else { "" };
+            let topic = format!(
+                "/growbe/{}/board/{}{}",
+                growbe_shared::id::get(),
+                handler.name,
+                suffix
+            );
+            SubscribeFilter {
+                path: topic,
+                qos: QoS::ExactlyOnce,
+            }
+        })
+        .collect();
+    client.subscribe_many(topics).await.unwrap();
 
     Ok(())
 }
@@ -451,14 +451,16 @@ pub fn socket_task(
         );
         let (mut client, mut eventloop) = AsyncClient::new(config, 20);
 
-
-        handle_subscription_topics(&client, &MQTT_HANDLES, &MAPPING_MODULES).await.unwrap();
-
+        handle_subscription_topics(&client, &MQTT_HANDLES, &MAPPING_MODULES)
+            .await
+            .unwrap();
 
         println!("starting listening socket");
         loop {
+            println!("start loop");
             select! {
                 receive = receiver_socket.recv() => {
+                    println!("receiver");
                     if receive.is_some() {
                         let message = receive.unwrap();
                         let payload = message.1.write_to_bytes().unwrap();
@@ -474,13 +476,12 @@ pub fn socket_task(
                     }
                 },
                 result = eventloop.poll() => {
+                    println!("event loop");
                     if let Ok(result) = result {
                         match result {
                             Event::Incoming(d) => {
-                                println!("icomming {:?}", d);
                                 match d {
                                     Packet::Publish(message) => {
-                                        println!("message {:?}", message);
                                         let data = Arc::new(message.payload.to_vec());
                                         handle_incomming_message(&client, &MQTT_HANDLES, &MAPPING_MODULES, &sender_action_response, &receiver_action_response, message.topic, data)
                                     },
@@ -491,15 +492,14 @@ pub fn socket_task(
                                 }
                             },
                             Event::Outgoing(d) => {
-                                println!("outcomming {:?}", d);
                             }
                         }
-
                     } else {
                         println!("errrorororo {:?}", result.unwrap_err());
                     }
                 },
                 _ = tokio::time::sleep(hearth_beath_rate) => {
+                    println!("heartbeath");
                     let mut hearth_beath = crate::protos::message::HearthBeath::new();
                     let now = chrono::Utc::now();
                     hearth_beath.set_rtc(String::from(now.timestamp_nanos().to_string()));
@@ -517,98 +517,7 @@ pub fn socket_task(
 
                 }
             }
-            /*
-            {
-                let receive = receiver_socket.try_recv();
-                if receive.is_ok() {
-                    let message = receive.unwrap();
-                    let payload = message.1.write_to_bytes().unwrap();
-                    client
-                        .publish(
-                            get_topic_prefix(message.0.as_str()),
-                            QoS::ExactlyOnce,
-                            false,
-                            payload,
-                        )
-                        .await
-                        .unwrap();
-                    last_send_instant = Instant::now();
-                }
-            }
-            {
-                let incomming_message_result = notifications.try_recv();
-                if incomming_message_result.is_ok() {
-                    let message = incomming_message_result.unwrap();
-                    match message {
-                        Notification::Reconnection => {
-                            log::warn!("mqtt reconnection");
-                            handlers.iter().for_each(|handler| {
-                                client
-                                    .subscribe(
-                                        format!(
-                                            "/growbe/{}{}",
-                                            growbe_shared::id::get(),
-                                            handler.subscription
-                                        ),
-                                        QoS::ExactlyOnce,
-                                    )
-                                    .unwrap()
-                            });
-                            handlers.iter().for_each(|handler| {
-                                if handler.not_prefix {
-                                    client
-                                        .subscribe(handler.subscription.as_str(), QoS::ExactlyOnce)
-                                        .unwrap();
-                                } else {
-                                    client
-                                        .subscribe(
-                                            format!(
-                                                "/growbe/{}{}",
-                                                growbe_shared::id::get(),
-                                                handler.subscription
-                                            ),
-                                            QoS::ExactlyOnce,
-                                        )
-                                        .unwrap();
-                                }
-                            });
-
-                            mapping_module.iter().for_each(|handler| {
-                                let suffix = if handler.1 == true { "/+" } else { "" };
-                                let topic = format!(
-                                    "/growbe/{}/board/{}{}",
-                                    growbe_shared::id::get(),
-                                    handler.0,
-                                    suffix
-                                );
-
-                                client.subscribe(topic, QoS::ExactlyOnce).unwrap();
-                            });
-                        }
-                        _ => log::error!("mqtt message not publish {:?}", message),
-                    }
-                }
-            }
-            {
-                if last_send_instant.elapsed() > hearth_beath_rate {
-                    let mut hearth_beath = crate::protos::message::HearthBeath::new();
-                    let now = chrono::Utc::now();
-                    hearth_beath.set_rtc(String::from(now.timestamp_nanos().to_string()));
-                    let payload = hearth_beath.write_to_bytes().unwrap();
-
-                    client
-                        .publish(
-                            get_topic_prefix("/heartbeath"),
-                            QoS::ExactlyOnce,
-                            false,
-                            payload,
-                        )
-                        .unwrap();
-
-                    last_send_instant = Instant::now();
-                }
-            }
-            */
+            println!("end loop");
         }
     });
 }
