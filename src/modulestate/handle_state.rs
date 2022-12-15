@@ -1,5 +1,5 @@
 use regex::Regex;
-use std::sync::mpsc::Sender;
+use tokio::sync::mpsc::Sender;
 use std::sync::Arc;
 
 use super::controller::store::EnvControllerStore;
@@ -29,7 +29,7 @@ pub fn send_module_state(
     send_state.atIndex = port;
     send_state.board = board.clone();
     send_state.boardAddr = board_addr.clone();
-    sender_socket.send((
+    sender_socket.try_send((
         String::from(format!("/m/{}/state", id)),
         Box::new(send_state),
     ))?;
@@ -212,8 +212,8 @@ mod tests {
     use super::*;
 
     use std::collections::HashMap;
-    use std::sync::mpsc::Receiver;
-    use std::sync::{mpsc::channel, Arc, Mutex};
+    use std::sync::{Arc, Mutex};
+    use tokio::sync::mpsc::{channel, Receiver};
 
     fn get_ctx() -> (
         MainboardModuleStateManager,
@@ -244,7 +244,7 @@ mod tests {
         let (sender_socket, receiver_socket) = channel::<(
             String,
             Box<dyn crate::modulestate::interface::ModuleValueParsable>,
-        )>();
+        )>(10);
 
         let module_state_store =
             crate::modulestate::store::ModuleStateStore::new(conn_database.clone());

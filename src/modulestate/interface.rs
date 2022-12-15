@@ -101,7 +101,7 @@ impl From<rusqlite::Error> for ModuleError {
 
 #[derive(Debug)]
 pub struct ModuleStateCmd {
-    pub cmd: &'static str,
+    pub cmd: String,
     pub topic: String,
     pub data: std::sync::Arc<Vec<u8>>,
     pub sender: std::sync::mpsc::Sender<crate::protos::message::ActionResponse>,
@@ -167,7 +167,7 @@ pub trait ModuleValueValidator: Downcast {
         module_id: &String,
         data: std::sync::Arc<Vec<u8>>,
         sender_response: &std::sync::mpsc::Sender<crate::protos::message::ActionResponse>,
-        sender_socket: &std::sync::mpsc::Sender<(String, Box<dyn ModuleValueParsable>)>,
+        sender_socket: &tokio::sync::mpsc::Sender<(String, Box<dyn ModuleValueParsable>)>,
     ) -> Result<Option<Vec<ModuleStateCmd>>, ModuleError>;
 
     // need to be option result

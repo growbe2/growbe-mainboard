@@ -396,7 +396,9 @@ impl EnvControllerStore {
 #[cfg(test)]
 mod tests {
 
-    use std::{time::Duration, sync::mpsc::channel};
+    use std::time::Duration;
+
+    use tokio::sync::mpsc::channel;
 
     use protobuf::RepeatedField;
 
@@ -419,7 +421,7 @@ mod tests {
             format!("./database_test_env_controller_{}.sqlite", uid),
         ))));
 
-        let (ss, rs) = channel::<SenderPayload>();
+        let (ss, rs) = channel::<SenderPayload>(10);
 
         let msm = MainboardModuleStateManager::new();
         let ecs = EnvControllerStore::new(conn_database.clone(), ss.clone().into());

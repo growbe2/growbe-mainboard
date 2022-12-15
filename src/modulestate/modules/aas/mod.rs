@@ -199,7 +199,7 @@ impl crate::modulestate::interface::ModuleValueValidator for AASValidator {
         module_id: &String,
         data: std::sync::Arc<Vec<u8>>,
         sender_response: &std::sync::mpsc::Sender<crate::protos::message::ActionResponse>,
-        sender_socket: &std::sync::mpsc::Sender<(
+        sender_socket: &tokio::sync::mpsc::Sender<(
             String,
             Box<dyn crate::modulestate::interface::ModuleValueParsable>,
         )>,
@@ -240,14 +240,14 @@ impl crate::modulestate::interface::ModuleValueValidator for AASValidator {
                             let config_bytes = config.write_to_bytes().unwrap();
 
                             sender_socket
-                                .send((
+                                .try_send((
                                     format!("/m/{}/config_updated", module_id),
                                     Box::new(config),
                                 ))
                                 .unwrap();
 
                             let cmd = crate::modulestate::interface::ModuleStateCmd {
-                                cmd: "mconfig",
+                                cmd: "mconfig".into(),
                                 topic: format!("/{}", module_id),
                                 data: std::sync::Arc::new(config_bytes),
                                 sender: sender_response.clone(),
@@ -277,7 +277,7 @@ impl crate::modulestate::interface::ModuleValueValidator for AASValidator {
             }
         }
         sender_socket
-            .send((
+            .try_send((
                 format!("/m/{}/calibrationEvent", module_id.as_str()),
                 Box::new(event),
             ))

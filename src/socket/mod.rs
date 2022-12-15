@@ -3,13 +3,16 @@ pub mod mqtt;
 pub mod ss;
 
 use protobuf::Message;
-use rumqtt::{MqttClient, MqttOptions, Notification, QoS};
-use std::sync::mpsc::Receiver;
+use rumqttc::{AsyncClient, Event, MqttOptions, Packet, QoS, SubscribeFilter};
+use std::sync::mpsc::Sender;
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
+use tokio::select;
+use tokio::sync::mpsc::Receiver;
 
 use crate::comboard::imple::virt::VIRTUAL_COMBOARD_CMD;
 use crate::mainboardstate::config::rewrite_configuration;
+use crate::mainboardstate::error::MainboardError;
 use crate::protos::message::ActionCode;
 
 struct SocketMessagingError {
@@ -45,6 +48,111 @@ struct MqttHandler {
         data: Arc<Vec<u8>>,
     ) -> Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError>,
     pub not_prefix: bool,
+}
+
+struct MqttModuleHanlder {
+    pub name: String,
+    pub suffix: bool,
+    pub action_code: ActionCode,
+}
+
+impl From<(&str, bool, ActionCode)> for MqttModuleHanlder {
+    fn from(value: (&str, bool, ActionCode)) -> Self {
+        Self {
+            name: value.0.into(),
+            suffix: value.1,
+            action_code: value.2,
+        }
+    }
+}
+lazy_static::lazy_static! {
+    static ref MQTT_HANDLES: Vec<MqttHandler> = vec![
+        MqttHandler {
+            subscription: String::from("/board/setTime"),
+            regex: "setTime",
+            action_code: crate::protos::message::ActionCode::RTC_SET,
+            handler: on_set_rtc,
+            not_prefix: false,
+        },
+        MqttHandler {
+            subscription: String::from("/board/helloworld"),
+            regex: "helloworld",
+            action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
+            handler: on_helloworld,
+            not_prefix: false,
+        },
+        MqttHandler {
+            subscription: String::from("/board/localconnection"),
+            regex: "localconnection",
+            action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
+            handler: on_localconnection,
+            not_prefix: false,
+        },
+        MqttHandler {
+            subscription: "/board/restart".to_string(),
+            regex: "restart",
+            action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
+            handler: on_restart,
+            not_prefix: false,
+        },
+        MqttHandler {
+            subscription: "/board/reboot".to_string(),
+            regex: "reboot",
+            action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
+            handler: on_reboot,
+            not_prefix: false,
+        },
+        MqttHandler {
+            subscription: "/board/boardconfig".to_string(),
+            regex: "boardconfig",
+            action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
+            handler: on_setconfig,
+            not_prefix: false,
+        },
+        MqttHandler {
+            subscription: "/board/virt/item".to_string(),
+            regex: "virt",
+            action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
+            handler: on_virt_item,
+            not_prefix: false,
+        },
+        MqttHandler {
+            subscription: "/update".to_string(),
+            regex: "update",
+            action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
+            handler: on_update,
+            not_prefix: true,
+        },
+        MqttHandler {
+            subscription: "/update/request".to_string(),
+            regex: "update/request",
+            action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
+            handler: on_update_request,
+            not_prefix: true,
+        },
+    ];
+
+    static ref MAPPING_MODULES: Vec<MqttModuleHanlder> = vec![
+        ("sync", false, ActionCode::SYNC_REQUEST).into(),
+        ("mconfig", true, ActionCode::MODULE_CONFIG),
+        ("rmconfig", true, ActionCode::MODULE_CONFIG),
+        ("aEnv", false, ActionCode::SYNC_REQUEST),
+        ("rEnv", true, ActionCode::SYNC_REQUEST),
+        ("aAl", false, ActionCode::ADD_ALARM),
+        ("rAl", false, ActionCode::REMOVE_ALARM),
+        ("uAl", false, ActionCode::SYNC_REQUEST),
+        ("addVr", false, ActionCode::SYNC_REQUEST),
+        ("vrconfig", true, ActionCode::SYNC_REQUEST),
+        ("rmVr", true, ActionCode::SYNC_REQUEST),
+        ("startCalibration", true, ActionCode::SYNC_REQUEST),
+        ("setCalibration", true, ActionCode::SYNC_REQUEST),
+        ("terminateCalibration", true, ActionCode::SYNC_REQUEST),
+        ("cancelCalibration", true, ActionCode::SYNC_REQUEST),
+        ("statusCalibration", true, ActionCode::SYNC_REQUEST),
+    ]
+    .iter()
+    .map(|x| (*x).into())
+    .collect();
 }
 
 fn get_topic_prefix(subtopic: &str) -> String {
@@ -172,16 +280,12 @@ fn on_virt_item(
     _topic_name: String,
     data: Arc<Vec<u8>>,
 ) -> Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError> {
-
     println!("on virt item");
 
     match serde_json::from_slice(&data) {
         Ok(config) => {
-            VIRTUAL_COMBOARD_CMD.0
-                .lock().unwrap()
-                .send(config)
-                .unwrap();
-        },
+            VIRTUAL_COMBOARD_CMD.0.lock().unwrap().send(config).unwrap();
+        }
         Err(_) => {
             return Err(SocketMessagingError::new());
         }
@@ -190,137 +294,16 @@ fn on_virt_item(
     return Ok(None);
 }
 
-pub fn socket_task(
-    receiver_socket: Arc<
-        Mutex<
-            Receiver<(
-                String,
-                Box<dyn crate::modulestate::interface::ModuleValueParsable>,
-            )>,
-        >,
-    >,
-    config_mqtt: &'static mqtt::CloudMQTTConfig,
-) -> tokio::task::JoinHandle<()> {
-    /*
-    Handle pour les trucs mqtt, ca va s'executer dans une task async et faut je fasse le map
-     */
-    let handlers = vec![
-        MqttHandler {
-            subscription: String::from("/board/setTime"),
-            regex: "setTime",
-            action_code: crate::protos::message::ActionCode::RTC_SET,
-            handler: on_set_rtc,
-            not_prefix: false,
-        },
-        MqttHandler {
-            subscription: String::from("/board/helloworld"),
-            regex: "helloworld",
-            action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
-            handler: on_helloworld,
-            not_prefix: false,
-        },
-        MqttHandler {
-            subscription: String::from("/board/localconnection"),
-            regex: "localconnection",
-            action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
-            handler: on_localconnection,
-            not_prefix: false,
-        },
-        MqttHandler {
-            subscription: "/board/restart".to_string(),
-            regex: "restart",
-            action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
-            handler: on_restart,
-            not_prefix: false,
-        },
-        MqttHandler {
-            subscription: "/board/reboot".to_string(),
-            regex: "reboot",
-            action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
-            handler: on_reboot,
-            not_prefix: false,
-        },
-        MqttHandler {
-            subscription: "/board/boardconfig".to_string(),
-            regex: "boardconfig",
-            action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
-            handler: on_setconfig,
-            not_prefix: false,
-        },
-        MqttHandler {
-            subscription: "/board/virt/item".into(),
-            regex: "virt",
-            action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
-            handler: on_virt_item,
-            not_prefix: false,
-        },
-        MqttHandler {
-            subscription: "/update".to_string(),
-            regex: "update",
-            action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
-            handler: on_update,
-            not_prefix: true,
-        },
-        MqttHandler {
-            subscription: "/update/request".to_string(),
-            regex: "update/request",
-            action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
-            handler: on_update_request,
-            not_prefix: true,
-        },
-    ];
-
-    let mapping_module = vec![
-        ("sync", false, ActionCode::SYNC_REQUEST),
-        ("mconfig", true, ActionCode::MODULE_CONFIG),
-        ("rmconfig", true, ActionCode::MODULE_CONFIG),
-        ("aEnv", false, ActionCode::SYNC_REQUEST),
-        ("rEnv", true, ActionCode::SYNC_REQUEST),
-        ("aAl", false, ActionCode::ADD_ALARM),
-        ("rAl", false, ActionCode::REMOVE_ALARM),
-        ("uAl", false, ActionCode::SYNC_REQUEST),
-        ("addVr", false, ActionCode::SYNC_REQUEST),
-        ("vrconfig", true, ActionCode::SYNC_REQUEST),
-        ("rmVr", true, ActionCode::SYNC_REQUEST),
-        ("startCalibration", true, ActionCode::SYNC_REQUEST),
-        ("setCalibration", true, ActionCode::SYNC_REQUEST),
-        ("terminateCalibration", true, ActionCode::SYNC_REQUEST),
-        ("cancelCalibration", true, ActionCode::SYNC_REQUEST),
-        ("statusCalibration", true, ActionCode::SYNC_REQUEST),
-    ];
-
-    let id_client = format!("pi-{}", growbe_shared::id::get());
-
-    let (sender_action_response, receiver_action_response) =
-        std::sync::mpsc::channel::<crate::protos::message::ActionResponse>();
-
-    return tokio::spawn(async move {
-        let hearth_beath_rate = Duration::from_secs(5);
-
-        let (mut client, notifications) = loop {
-            let config = MqttOptions::new(
-                id_client.clone(),
-                config_mqtt.url.as_str(),
-                config_mqtt.port,
-            );
-            match MqttClient::start(config) {
-                Ok(v) => {
-                    break v;
-                }
-                Err(err) => {
-                    log::error!("fatal error creating link to the cloud {:?}", err);
-                    tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
-                    continue;
-                }
-            }
-        };
-
-        let mut last_send_instant = Instant::now();
-
-        handlers.iter().for_each(|handler| {
+async fn handle_subscription_topics(
+    client: &AsyncClient,
+    handlers: &Vec<MqttHandler>,
+    mapping_module: &Vec<MqttModuleHanlder>,
+) -> Result<(), MainboardError> {
+        for handler in handlers.iter() {
             if handler.not_prefix {
                 client
                     .subscribe(handler.subscription.as_str(), QoS::ExactlyOnce)
+                    .await
                     .unwrap();
             } else {
                 client
@@ -332,24 +315,211 @@ pub fn socket_task(
                         ),
                         QoS::ExactlyOnce,
                     )
+                    .await
                     .unwrap();
             }
+        }
+
+        let topics: Vec<SubscribeFilter> = mapping_module
+            .iter()
+            .map(|handler| {
+                let suffix = if handler.suffix == true { "/+" } else { "" };
+                let topic = format!(
+                    "/growbe/{}/board/{}{}",
+                    growbe_shared::id::get(),
+                    handler.name,
+                    suffix
+                );
+                SubscribeFilter {
+                    path: topic,
+                    qos: QoS::ExactlyOnce,
+                }
+            })
+            .collect();
+        client.subscribe_many(topics).await.unwrap();
+
+    Ok(())
+}
+
+fn handle_incomming_message(
+    client: &AsyncClient,
+    handlers: &Vec<MqttHandler>,
+    mapping_module: &Vec<MqttModuleHanlder>,
+
+    sender_action_response: &Sender<crate::protos::message::ActionResponse>,
+    receiver_action_response: &std::sync::mpsc::Receiver<crate::protos::message::ActionResponse>,
+
+    topic_name: String,
+    payload: Arc<Vec<u8>>,
+) {
+    log::debug!("receive message from cloud, {}", topic_name);
+    let item_opt = handlers.iter().find(|&x| {
+        return topic_name.contains(x.regex);
+    });
+    let mut action_respose = crate::protos::message::ActionResponse::new();
+
+    if let Some(item) = item_opt {
+        let handler_result = (item.handler)(String::from(topic_name.as_str()), payload);
+        action_respose.action = item.action_code;
+        if let Ok(result) = handler_result {
+            if let Some(ret) = result {
+                client
+                    .try_publish(ret.0, QoS::ExactlyOnce, false, ret.1)
+                    .unwrap();
+            }
+            action_respose.status = 0;
+            action_respose.set_action(item.action_code);
+            action_respose.msg = String::from("");
+        } else {
+            let err = handler_result.unwrap_err();
+            action_respose.status = err.status;
+            action_respose.msg = err.msg;
+        }
+    } else {
+        let module_cmd_result = mapping_module.iter().find(|&x| {
+            return topic_name.contains(x.name.as_str());
         });
 
-        mapping_module.iter().for_each(|handler| {
-            let suffix = if handler.1 == true { "/+" } else { "" };
-            let topic = format!(
-                "/growbe/{}/board/{}{}",
-                growbe_shared::id::get(),
-                handler.0,
-                suffix
-            );
-            client.subscribe(topic, QoS::ExactlyOnce).unwrap();
-        });
+        if let Some(handler) = module_cmd_result {
+            // send to modulestate handler and wait for response
+            crate::modulestate::cmd::CHANNEL_MODULE_STATE_CMD
+                .0
+                .lock()
+                .unwrap()
+                .send(crate::modulestate::interface::ModuleStateCmd {
+                    cmd: handler.name.clone(),
+                    topic: topic_name.clone(),
+                    data: payload,
+                    sender: sender_action_response.clone(),
+                })
+                .unwrap();
 
+            // wait f
+            // or not very long for a response from the state_cmd
+            let action_code = handler.action_code;
+            let action_response_result =
+                receiver_action_response.recv_timeout(Duration::from_millis(200));
+            match action_response_result {
+                Ok(ar) => {
+                    action_respose = ar;
+                    action_respose.action = action_code;
+                }
+                Err(_) => {
+                    action_respose.action = action_code;
+                    action_respose.status = 405;
+                    action_respose.msg = "timeout waiting for cmd response".to_string();
+                }
+            }
+        } else {
+            action_respose.status = 401;
+        }
+    }
+
+    if action_respose.action == ActionCode::PARSING {
+        action_respose.action = ActionCode::SYNC_REQUEST;
+    }
+    client
+        .try_publish(
+            format!("{}{}", topic_name.as_str(), "/response"),
+            QoS::ExactlyOnce,
+            false,
+            action_respose.write_to_bytes().unwrap(),
+        )
+        .unwrap();
+    //last_send_instant = Instant::now();
+}
+
+pub fn socket_task(
+    mut receiver_socket: Receiver<(
+        String,
+        Box<dyn crate::modulestate::interface::ModuleValueParsable>,
+    )>,
+    config_mqtt: &'static mqtt::CloudMQTTConfig,
+) -> tokio::task::JoinHandle<()> {
+    let id_client = format!("pi-{}", growbe_shared::id::get());
+
+    let (sender_action_response, receiver_action_response) =
+        std::sync::mpsc::channel::<crate::protos::message::ActionResponse>();
+
+    return tokio::spawn(async move {
+        let hearth_beath_rate = Duration::from_secs(5);
+
+        let config = MqttOptions::new(
+            id_client.clone(),
+            config_mqtt.url.as_str(),
+            config_mqtt.port,
+        );
+        let (mut client, mut eventloop) = AsyncClient::new(config, 20);
+
+
+        handle_subscription_topics(&client, &MQTT_HANDLES, &MAPPING_MODULES).await.unwrap();
+
+
+        println!("starting listening socket");
         loop {
+            select! {
+                receive = receiver_socket.recv() => {
+                    if receive.is_some() {
+                        let message = receive.unwrap();
+                        let payload = message.1.write_to_bytes().unwrap();
+                        client
+                            .publish(
+                                get_topic_prefix(message.0.as_str()),
+                                QoS::ExactlyOnce,
+                                false,
+                            payload,
+                        )
+                        .await
+                        .unwrap();
+                    }
+                },
+                result = eventloop.poll() => {
+                    if let Ok(result) = result {
+                        match result {
+                            Event::Incoming(d) => {
+                                println!("icomming {:?}", d);
+                                match d {
+                                    Packet::Publish(message) => {
+                                        println!("message {:?}", message);
+                                        let data = Arc::new(message.payload.to_vec());
+                                        handle_incomming_message(&client, &MQTT_HANDLES, &MAPPING_MODULES, &sender_action_response, &receiver_action_response, message.topic, data)
+                                    },
+                                    Packet::Connect(c) => {
+                                        println!("im connected !!! {:?}", c);
+                                    },
+                                    _ => {}
+                                }
+                            },
+                            Event::Outgoing(d) => {
+                                println!("outcomming {:?}", d);
+                            }
+                        }
+
+                    } else {
+                        println!("errrorororo {:?}", result.unwrap_err());
+                    }
+                },
+                _ = tokio::time::sleep(hearth_beath_rate) => {
+                    let mut hearth_beath = crate::protos::message::HearthBeath::new();
+                    let now = chrono::Utc::now();
+                    hearth_beath.set_rtc(String::from(now.timestamp_nanos().to_string()));
+                    let payload = hearth_beath.write_to_bytes().unwrap();
+
+                    client
+                        .publish(
+                            get_topic_prefix("/heartbeath"),
+                            QoS::ExactlyOnce,
+                            false,
+                            payload,
+                        )
+                        .await
+                        .unwrap();
+
+                }
+            }
+            /*
             {
-                let receive = receiver_socket.lock().unwrap().try_recv();
+                let receive = receiver_socket.try_recv();
                 if receive.is_ok() {
                     let message = receive.unwrap();
                     let payload = message.1.write_to_bytes().unwrap();
@@ -360,6 +530,7 @@ pub fn socket_task(
                             false,
                             payload,
                         )
+                        .await
                         .unwrap();
                     last_send_instant = Instant::now();
                 }
@@ -369,84 +540,6 @@ pub fn socket_task(
                 if incomming_message_result.is_ok() {
                     let message = incomming_message_result.unwrap();
                     match message {
-                        Notification::Publish(d) => {
-                            log::debug!("receive message from cloud, {}", d.topic_name);
-                            let item_opt = handlers.iter().find(|&x| {
-                                return d.topic_name.contains(x.regex);
-                            });
-
-                            let mut action_respose = crate::protos::message::ActionResponse::new();
-
-                            if let Some(item) = item_opt {
-                                let handler_result =
-                                    (item.handler)(String::from(d.topic_name.as_str()), d.payload);
-                                action_respose.action = item.action_code;
-                                if let Ok(result) = handler_result {
-                                    if let Some(ret) = result {
-                                        client
-                                            .publish(ret.0, QoS::ExactlyOnce, false, ret.1)
-                                            .unwrap();
-                                    }
-                                    action_respose.status = 0;
-                                    action_respose.set_action(item.action_code);
-                                    action_respose.msg = String::from("");
-                                } else {
-                                    let err = handler_result.unwrap_err();
-                                    action_respose.status = err.status;
-                                    action_respose.msg = err.msg;
-                                }
-                            } else {
-                                let module_cmd_result = mapping_module.iter().find(|&x| {
-                                    return d.topic_name.contains(x.0);
-                                });
-                                if let Some((cmd, _, action_code)) = module_cmd_result {
-                                    // send to modulestate handler and wait for response
-                                    crate::modulestate::cmd::CHANNEL_MODULE_STATE_CMD
-                                        .0
-                                        .lock()
-                                        .unwrap()
-                                        .send(crate::modulestate::interface::ModuleStateCmd {
-                                            cmd: cmd,
-                                            topic: d.topic_name.clone(),
-                                            data: d.payload,
-                                            sender: sender_action_response.clone(),
-                                        })
-                                        .unwrap();
-
-                                    // wait for not very long for a response from the state_cmd
-                                    let action_response_result = receiver_action_response
-                                        .recv_timeout(Duration::from_millis(200));
-                                    match action_response_result {
-                                        Ok(ar) => {
-                                            action_respose = ar;
-                                            action_respose.action = *action_code;
-                                        }
-                                        Err(_) => {
-                                            action_respose.action = *action_code;
-                                            action_respose.status = 405;
-                                            action_respose.msg =
-                                                "timeout waiting for cmd response".to_string();
-                                        }
-                                    }
-                                } else {
-                                    action_respose.status = 401;
-                                }
-                            }
-
-                            if action_respose.action == ActionCode::PARSING {
-                                action_respose.action = ActionCode::SYNC_REQUEST;
-                            }
-                            client
-                                .publish(
-                                    format!("{}{}", d.topic_name.as_str(), "/response"),
-                                    QoS::ExactlyOnce,
-                                    false,
-                                    action_respose.write_to_bytes().unwrap(),
-                                )
-                                .unwrap();
-
-                            last_send_instant = Instant::now();
-                        }
                         Notification::Reconnection => {
                             log::warn!("mqtt reconnection");
                             handlers.iter().for_each(|handler| {
@@ -515,6 +608,7 @@ pub fn socket_task(
                     last_send_instant = Instant::now();
                 }
             }
+            */
         }
     });
 }

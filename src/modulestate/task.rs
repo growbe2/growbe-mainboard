@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::sync::mpsc::Sender;
+use tokio::sync::mpsc::Sender;
 
 use super::{controller::store::EnvControllerStore, state_manager::MainboardModuleStateManager};
 use crate::comboard::imple::channel::{ComboardSenderMapReference, CHANNEL_STATE, CHANNEL_VALUE};
@@ -77,7 +77,7 @@ pub fn module_state_task(
                     .try_recv()
                 {
                     if let Err(err) = super::cmd::handle_module_command(
-                        cmd.cmd,
+                        &cmd.cmd,
                         &cmd.topic,
                         cmd.data,
                         &cmd.sender,

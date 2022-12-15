@@ -2,7 +2,7 @@ use super::controller::store::EnvControllerStore;
 use super::state_manager::MainboardModuleStateManager;
 use crate::comboard::imple::interface::ModuleValueValidationEvent;
 use crate::mainboardstate::error::MainboardError;
-use std::sync::mpsc::Sender;
+use tokio::sync::mpsc::Sender;
 
 pub fn handle_module_value<'a>(
     manager: &mut MainboardModuleStateManager,
@@ -24,7 +24,7 @@ pub fn handle_module_value<'a>(
     let reference_connected_module = reference_connected_module_option.unwrap();
 
     let on_change = |value| -> () {
-        if let Err(err) = sender_socket.send((
+        if let Err(err) = sender_socket.try_send((
             String::from(format!("/m/{}/data", reference_connected_module.id)),
             value,
         )) {
@@ -60,7 +60,7 @@ pub fn handle_module_value<'a>(
                                 .on_module_value_change(&module_value_change)
                                 .iter()
                                 .for_each(|(event, state)| {
-                                    if let Err(err) = sender_socket.send((
+                                    if let Err(err) = sender_socket.try_send((
                                         format!("/m/{}/alarm", event.moduleId),
                                         Box::new(event.clone_me()),
                                     )) {

@@ -1,4 +1,4 @@
-use std::sync::mpsc::SendError;
+use tokio::sync::mpsc::error::TrySendError;
 
 use crate::modulestate::interface::ModuleError;
 use crate::modulestate::interface::ModuleValueParsable;
@@ -19,13 +19,6 @@ impl MainboardError {
     pub fn not_found(typ: &str, id: &str) -> Self {
         return Self {
             message: format!("{} with id {} not found", typ, id),
-        };
-    }
-
-    pub fn from_send_error<T>(err: SendError<T>) -> Self {
-        log::error!("{:?}", err);
-        return Self {
-            message: "failed to send payload to mpsc sender".to_string(),
         };
     }
 
@@ -77,8 +70,9 @@ impl From<protobuf::ProtobufError> for MainboardError {
     }
 }
 
-impl From<SendError<(String, Box<dyn ModuleValueParsable>)>> for MainboardError {
-    fn from(value: SendError<(String, Box<dyn ModuleValueParsable>)>) -> Self {
+//tokio::sync::mpsc::error::SendError<(std::string::String, Box<(dyn ModuleValueParsable + 'static)>)>>>
+impl From<TrySendError<(String, Box<dyn ModuleValueParsable + 'static>)>> for MainboardError {
+    fn from(value: TrySendError<(String, Box<dyn ModuleValueParsable>)>) -> Self {
         return Self {
             message: value.to_string(),
         };

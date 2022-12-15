@@ -1,4 +1,4 @@
-pub mod channel;
+mod channel;
 
 use crate::comboard::imple::channel::*;
 use crate::comboard::imple::interface::{ModuleStateChangeEvent, ModuleValueValidationEvent};

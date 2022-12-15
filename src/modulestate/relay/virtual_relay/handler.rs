@@ -16,7 +16,7 @@ use super::{
 pub fn on_module_state_changed_virtual_relays(
     state: bool,
     sender_comboard_config: &ComboardSenderMapReference,
-    sender_socket: &std::sync::mpsc::Sender<(
+    sender_socket: &tokio::sync::mpsc::Sender<(
         String,
         Box<dyn crate::modulestate::interface::ModuleValueParsable>,
     )>,
@@ -54,7 +54,7 @@ pub fn on_module_state_changed_virtual_relays(
                         get_missing_required_module(&connected_modules, &vr).join(" ")
                     ));
                     sender_socket
-                        .send((format!("/vr/{}/vrstate", vr.get_name()), Box::new(state)))
+                        .try_send((format!("/vr/{}/vrstate", vr.get_name()), Box::new(state)))
                         .unwrap();
                 }
             } else {
@@ -76,7 +76,7 @@ pub fn on_module_state_changed_virtual_relays(
                         get_missing_required_module(&connected_modules, &vr).join(" ")
                     ));
                     sender_socket
-                        .send((format!("/vr/{}/vrstate", vr.get_name()), Box::new(state)))
+                        .try_send((format!("/vr/{}/vrstate", vr.get_name()), Box::new(state)))
                         .unwrap();
                 }
             }
@@ -95,7 +95,7 @@ pub fn on_module_state_changed_virtual_relays(
 pub fn handle_virtual_relay(
     data: std::sync::Arc<Vec<u8>>,
     sender_comboard_config: &ComboardSenderMapReference,
-    sender_socket: &std::sync::mpsc::Sender<(
+    sender_socket: &tokio::sync::mpsc::Sender<(
         String,
         Box<dyn crate::modulestate::interface::ModuleValueParsable>,
     )>,
@@ -119,7 +119,7 @@ pub fn handle_apply_config_virtual_relay(
     topic: &String,
     data: std::sync::Arc<Vec<u8>>,
     sender_comboard_config: &ComboardSenderMapReference,
-    sender_socket: &std::sync::mpsc::Sender<(
+    sender_socket: &tokio::sync::mpsc::Sender<(
         String,
         Box<dyn crate::modulestate::interface::ModuleValueParsable>,
     )>,
@@ -148,7 +148,7 @@ pub fn handle_delete_virtual_relay(
     topic: &String,
     _data: std::sync::Arc<Vec<u8>>,
     sender_comboard_config: &ComboardSenderMapReference,
-    sender_socket: &std::sync::mpsc::Sender<(
+    sender_socket: &tokio::sync::mpsc::Sender<(
         String,
         Box<dyn crate::modulestate::interface::ModuleValueParsable>,
     )>,

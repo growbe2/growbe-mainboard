@@ -1,4 +1,4 @@
-use std::sync::mpsc::Sender;
+use tokio::sync::mpsc::Sender;
 
 use crate::{
     mainboardstate::config::get_configuration_proto,
@@ -32,10 +32,10 @@ pub async fn task_hello_world(
     log::info!("hello world starting with version {}", hello.version);
     sender
         .send((String::from("/hello"), Box::new(hello)))
-        .map_err(MainboardError::from_send_error)?;
+        .await.unwrap();
     sender
         .send((String::from("/config"), Box::new(config)))
-        .map_err(MainboardError::from_send_error)?;
+        .await.unwrap();
 
     return Ok(());
 }

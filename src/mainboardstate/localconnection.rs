@@ -1,5 +1,5 @@
 use crate::protos::board::LocalConnection;
-use std::sync::mpsc::Sender;
+use tokio::sync::mpsc::Sender;
 
 use super::error::MainboardError;
 
@@ -13,9 +13,10 @@ pub async fn task_local_connection(
     )>,
 ) -> Result<(), MainboardError> {
     let local_connection = get_local_connection();
-    return sender
+    sender
         .send((String::from("/localconnection"), Box::new(local_connection)))
-        .map_err(MainboardError::from_send_error);
+        .await.unwrap();
+    Ok(())
 }
 
 pub fn get_local_connection() -> LocalConnection {

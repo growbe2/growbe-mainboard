@@ -13,7 +13,7 @@ use super::{store::VirtualRelayStore, virtual_relay::VirtualRelay};
 
 pub fn create_virtual_relay(
     relay_config: &crate::protos::module::VirtualRelay,
-    sender_socket: &std::sync::mpsc::Sender<(
+    sender_socket: &tokio::sync::mpsc::Sender<(
         String,
         Box<dyn crate::modulestate::interface::ModuleValueParsable>,
     )>,
@@ -79,7 +79,7 @@ pub fn create_virtual_relay(
 pub fn delete_virtual_relay(
     name: &str,
     _sender_comboard_config: &ComboardSenderMapReference,
-    sender_socket: &std::sync::mpsc::Sender<(
+    sender_socket: &tokio::sync::mpsc::Sender<(
         String,
         Box<dyn crate::modulestate::interface::ModuleValueParsable>,
     )>,
@@ -92,7 +92,7 @@ pub fn delete_virtual_relay(
         let mut state = crate::protos::module::VirtualRelayState::new();
         state.set_id(name.to_string());
         state.set_state(false);
-        sender_socket.send((format!("/vr/{}/vrstate", name), Box::new(state)))?;
+        sender_socket.try_send((format!("/vr/{}/vrstate", name), Box::new(state))).unwrap();
     }
 
     store_virtual_relay.remove_relay(name)?;
@@ -104,7 +104,7 @@ pub fn delete_virtual_relay(
 pub fn initialize_virtual_relay(
     relay_config: &crate::protos::module::VirtualRelay,
     sender_comboard_config: &ComboardSenderMapReference,
-    sender_socket: &std::sync::mpsc::Sender<(
+    sender_socket: &tokio::sync::mpsc::Sender<(
         String,
         Box<dyn crate::modulestate::interface::ModuleValueParsable>,
     )>,
@@ -159,7 +159,7 @@ pub fn initialize_virtual_relay(
     let mut state = crate::protos::module::VirtualRelayState::new();
     state.set_id(relay.name.clone());
     state.set_state(true);
-    sender_socket.send((format!("/vr/{}/vrstate", state.get_id()), Box::new(state)))?;
+    sender_socket.try_send((format!("/vr/{}/vrstate", state.get_id()), Box::new(state))).unwrap();
 
     return Ok(());
 }
@@ -168,7 +168,7 @@ pub fn apply_config_virtual_relay(
     id: &String,
     config: &crate::protos::module::RelayOutletConfig,
     _sender_comboard_config: &ComboardSenderMapReference,
-    _sender_socket: &std::sync::mpsc::Sender<(
+    _sender_socket: &tokio::sync::mpsc::Sender<(
         String,
         Box<dyn crate::modulestate::interface::ModuleValueParsable>,
     )>,
@@ -222,7 +222,7 @@ pub fn initialize_virtual_relay_and_apply_config(
     virtual_relay: &crate::protos::module::VirtualRelay,
     virtual_config: &Option<crate::protos::module::RelayOutletConfig>,
     sender_comboard_config: &ComboardSenderMapReference,
-    sender_socket: &std::sync::mpsc::Sender<(
+    sender_socket: &tokio::sync::mpsc::Sender<(
         String,
         Box<dyn crate::modulestate::interface::ModuleValueParsable>,
     )>,

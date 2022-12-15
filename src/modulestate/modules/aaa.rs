@@ -113,7 +113,7 @@ impl crate::modulestate::interface::ModuleValueValidator for AAAValidator {
         _module_id: &String,
         _data: std::sync::Arc<Vec<u8>>,
         _sender_response: &std::sync::mpsc::Sender<crate::protos::message::ActionResponse>,
-        _sender_socket: &std::sync::mpsc::Sender<(
+        _sender_socket: &tokio::sync::mpsc::Sender<(
             String,
             Box<dyn crate::modulestate::interface::ModuleValueParsable>,
         )>,

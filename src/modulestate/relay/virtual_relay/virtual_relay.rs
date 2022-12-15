@@ -14,7 +14,7 @@ impl ModuleValueParsable for RelayOutletData {}
 // together in a group
 pub struct VirtualRelay {
     pub name: String,
-    pub sender_socket: std::sync::mpsc::Sender<(
+    pub sender_socket: tokio::sync::mpsc::Sender<(
         String,
         Box<dyn crate::modulestate::interface::ModuleValueParsable>,
     )>,
@@ -24,7 +24,7 @@ pub struct VirtualRelay {
 impl VirtualRelay {
     pub fn new(
         name: &str,
-        sender_socket: &std::sync::mpsc::Sender<(
+        sender_socket: &tokio::sync::mpsc::Sender<(
             String,
             Box<dyn crate::modulestate::interface::ModuleValueParsable>,
         )>,
@@ -55,8 +55,7 @@ impl State for VirtualRelay {
                 .as_secs() as i32,
         );
         self.sender_socket
-            .send((format!("/vr/{}/vrdata", self.name), Box::new(vr_data)))
-            .unwrap();
+            .try_send((format!("/vr/{}/vrdata", self.name), Box::new(vr_data))).unwrap();
         return Ok(());
     }
 }

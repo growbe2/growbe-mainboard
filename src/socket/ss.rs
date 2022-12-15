@@ -1,7 +1,6 @@
-use std::sync::mpsc::Sender;
+use tokio::sync::mpsc::Sender;
 
 use crate::{modulestate::interface::ModuleValueParsable, mainboardstate::error::MainboardError};
-
 
 
 pub type SenderPayload = (String, Box<dyn ModuleValueParsable>);
@@ -20,7 +19,7 @@ impl Clone for SenderSocket {
 
 impl SenderSocket {
     pub fn send(&self, topic: String, value: Box<dyn ModuleValueParsable>) -> Result<(), MainboardError> {
-        self.sender_socket.send((topic, value))?;
+        self.sender_socket.try_send((topic, value))?;
         Ok(())
     }
 }

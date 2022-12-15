@@ -57,7 +57,7 @@ impl ModuleCommandSender {
     ) -> Result<std::sync::mpsc::Receiver<ActionResponse>, MainboardError> {
         let (sender, receiver) = std::sync::mpsc::channel::<ActionResponse>();
         let cmd = ModuleStateCmd {
-            cmd,
+            cmd: cmd.into(),
             topic: format!("local:/{}", id),
             sender,
             data: std::sync::Arc::new(config.write_to_bytes()?),

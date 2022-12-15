@@ -1,4 +1,3 @@
-//#![feature(mutex_unpoison)]
 extern crate lazy_static;
 
 mod comboard;
@@ -11,7 +10,9 @@ mod socket;
 mod store;
 mod utils;
 
-use std::sync::{mpsc::channel, Arc, Mutex};
+use std::sync::{Arc, Mutex};
+
+use tokio::sync::mpsc::channel;
 
 use crate::{
     comboard::imple::channel::{ComboardAddr, ComboardConfigChannelManager},
@@ -45,7 +46,7 @@ async fn main() {
 
     // Create the channel to send the data to the socket thread
     let (sender_socket, receiver_socket) =
-        channel::<(String, Box<dyn modulestate::interface::ModuleValueParsable>)>();
+        channel::<(String, Box<dyn modulestate::interface::ModuleValueParsable>)>(100);
 
     // Create sender copy to give to some starting task
     let sender_socket_hello = sender_socket.clone();
@@ -65,16 +66,16 @@ async fn main() {
     });
 
     // Create the task to handle the modules state
-    let module_state_task = modulestate::task::module_state_task(
+    /*let module_state_task = modulestate::task::module_state_task(
         sender_socket,
         modulestate::store::ModuleStateStore::new(conn_database.clone()),
         config_channel_manager.get_reference(),
         modulestate::alarm::store::ModuleAlarmStore::new(conn_database.clone()),
-    );
+    );*/
 
     // Create the task for the communication socket from outside the app
     let socket_task = socket::socket_task(
-        Arc::new(Mutex::new(receiver_socket)),
+        receiver_socket,
         &mainboardstate::config::CONFIG.mqtt,
     );
 
@@ -106,5 +107,6 @@ async fn main() {
     #[cfg(not(feature = "http_server"))]
     let server_task = async {};
 
-    let _ = tokio::join!(server_task, module_state_task, socket_task);
+    //let _ = tokio::join!(server_task, module_state_task, socket_task);
+    let _ = tokio::join!(server_task, socket_task);
 }

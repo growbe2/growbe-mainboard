@@ -1,4 +1,5 @@
-use std::sync::mpsc::{Receiver, Sender, self};
+use std::sync::mpsc::{Receiver};
+use tokio::sync::mpsc::Sender;
 use std::sync::{Arc, Mutex};
 
 use crate::comboard::imple::channel::ComboardAddr;
@@ -17,7 +18,7 @@ use super::{handle_state::send_module_state, state_manager::MainboardModuleState
 lazy_static::lazy_static! {
     // TODO : not global shit
     pub static ref CHANNEL_MODULE_STATE_CMD: (
-        Mutex<Sender<ModuleStateCmd>>,
+        Mutex<std::sync::mpsc::Sender<ModuleStateCmd>>,
         Mutex<Receiver<ModuleStateCmd>>
     ) = {
         let (sender, receiver) = std::sync::mpsc::channel::<ModuleStateCmd>();
@@ -239,7 +240,7 @@ fn handle_validator_command(
 }
 
 pub fn handle_module_command(
-    cmd: &str,
+    cmd: &String,
     topic: &String,
     data: std::sync::Arc<Vec<u8>>,
     sender_response: &std::sync::mpsc::Sender<crate::protos::message::ActionResponse>,
@@ -252,7 +253,7 @@ pub fn handle_module_command(
     virtual_relay_store: &mut super::relay::virtual_relay::store::VirtualRelayStore,
     mut env_controller: &mut EnvControllerStore,
 ) -> Result<(), MainboardError> {
-    let result: Result<(), MainboardError> = match cmd {
+    let result: Result<(), MainboardError> = match cmd.as_str() {
         "sync" => handle_sync_request(manager, &sender_socket),
         "pmconfig" => {
             handle_pmodule_config(topic, data, manager, &sender_config, &sender_socket, &store)
@@ -313,7 +314,7 @@ pub fn handle_module_command(
                     if let Some(cmds) = option_cmd {
                         cmds.into_iter().for_each(|cmd| {
                             if let Err(err) = handle_module_command(
-                                cmd.cmd,
+                                &cmd.cmd,
                                 &cmd.topic,
                                 cmd.data,
                                 sender_response,
