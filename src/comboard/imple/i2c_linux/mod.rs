@@ -1,12 +1,14 @@
 mod channel;
 
-use crate::comboard::imple::channel::*;
+use crate::comboard::imple::i2c_linux::channel::*;
 use crate::comboard::imple::interface::{ModuleStateChangeEvent, ModuleValueValidationEvent};
+use crate::mainboardstate::error::MainboardError;
+use crate::modulestate::interface::ModuleMsg;
 use std::error::Error;
 use std::ffi::CStr;
-use std::sync::mpsc::Receiver;
 
 use self::channel::{Module_Config, CHANNEL_CONFIG_I2C};
+
 
 use regex::Regex;
 use rppal::gpio::Gpio;
@@ -27,35 +29,37 @@ extern "C" fn callback_state_changed(
 
     CHANNEL_STATE
         .0
-        .lock()
+        .try_lock()
         .unwrap()
-        .send(ModuleStateChangeEvent {
+        .try_send(ModuleStateChangeEvent {
             board: "i2c".to_string(),
             board_addr: format!("/dev/i2c-{}", device),
             port,
             id: String::from(str_slice),
             state,
         })
+        .map_err(|x| MainboardError::from_error(x.to_string()))
         .unwrap();
 }
 
 extern "C" fn callback_value_validation(device: i32, port: i32, buffer: &[u8; 512]) -> () {
     CHANNEL_VALUE
         .0
-        .lock()
+        .try_lock()
         .unwrap()
-        .send(ModuleValueValidationEvent {
+        .try_send(ModuleValueValidationEvent {
             port,
             board: "i2c".to_string(),
             board_addr: format!("/dev/i2c-{}", device),
             buffer: buffer.to_vec(),
         })
+        .map_err(|x| MainboardError::from_error(x.to_string()))
         .unwrap();
 }
 
 extern "C" fn callback_config(_device: i32, config: *mut channel::Module_Config) {
     if !config.is_null() {
-        let value = CHANNEL_CONFIG_I2C.1.lock().unwrap().try_recv();
+        let value = CHANNEL_CONFIG_I2C.1.try_lock().unwrap().try_recv();
         if value.is_ok() {
             let v = value.unwrap();
             unsafe {
@@ -130,8 +134,9 @@ pub struct I2CLinuxComboardClient {
 
 impl super::interface::ComboardClient for I2CLinuxComboardClient {
     fn run(
-        &self,
-        receiver_config: Receiver<crate::comboard::imple::channel::ModuleConfig>,
+        &mut self,
+        sender_module: tokio::sync::mpsc::Sender<ModuleMsg>,
+        mut receiver_config: tokio::sync::mpsc::Receiver<crate::comboard::imple::channel::ModuleConfig>,
     ) -> tokio::task::JoinHandle<Result<(), ()>> {
         let str_config: Vec<String> = self
             .config_comboard
@@ -181,7 +186,8 @@ impl super::interface::ComboardClient for I2CLinuxComboardClient {
             Err(_) => {}
         }
 
-        return tokio::task::spawn_blocking(move || {
+        return tokio::task::spawn(async move {
+            println!("starting i2c task");
             unsafe {
                 register_callback_comboard(
                     callback_state_changed,
@@ -192,22 +198,46 @@ impl super::interface::ComboardClient for I2CLinuxComboardClient {
                     panic!("cannot open comboard device");
                 }
             }
+            // Start a thread
+            //
+            //
+            let d_i = device_index;
+            let s_p = starting_port;
+            let e_p = ending_port;
+
+            std::thread::spawn(move || {
+                loop {
+                    unsafe {
+                        comboard_loop_body(d_i, s_p, e_p);
+                    }
+                }
+            });
+
+            let mut receiver_value = CHANNEL_VALUE.1.lock().await;
+            let mut receiver_state = CHANNEL_STATE.1.lock().await;
+
             loop {
-                unsafe {
-                    if let Ok(value) = receiver_config.try_recv() {
+                select! {
+                    Some(value) = receiver_config.recv() => {
                         let v: [u8; 8] = value.data.try_into().unwrap();
                         CHANNEL_CONFIG_I2C
                             .0
                             .lock()
-                            .unwrap()
+                            .await
                             .send(Module_Config {
                                 port: value.port,
                                 buffer: v,
                             })
+                            .await
                             .unwrap();
+                    },
+                    Some(value) = receiver_value.recv() => {
+                        sender_module.send(ModuleMsg::Value(value)).await.unwrap();
+                    },
+                    Some(value) = receiver_state.recv() => {
+                        sender_module.send(ModuleMsg::State(value)).await.unwrap();
                     }
 
-                    comboard_loop_body(device_index, starting_port, ending_port);
                 }
             }
         });

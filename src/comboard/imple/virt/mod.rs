@@ -1,13 +1,13 @@
 use std::collections::HashMap;
-use std::sync::mpsc::{Receiver, Sender};
 use std::sync::Mutex;
-use std::time::Duration;
+use tokio::sync::mpsc::{Receiver, Sender};
 
 use crate::comboard::imple::interface::{
     ModuleStateChangeEvent, ModuleValueValidationEvent, I2C_VIRT_ID,
 };
 
-use crate::comboard::imple::channel::*;
+use crate::mainboardstate::error::MainboardError;
+use crate::modulestate::interface::ModuleMsg;
 
 use serde::{Deserialize, Serialize};
 
@@ -16,9 +16,16 @@ lazy_static::lazy_static! {
         Mutex<Sender<Vec<VirtualScenarioItem>>>,
         Mutex<Receiver<Vec<VirtualScenarioItem>>>
     ) = {
-        let (sender, receiver) = std::sync::mpsc::channel::<Vec<VirtualScenarioItem>>();
+        let (sender, receiver) = tokio::sync::mpsc::channel::<Vec<VirtualScenarioItem>>(10);
         return (Mutex::new(sender), Mutex::new(receiver));
     };
+}
+
+pub fn create_virtual_comboard_cmd() -> (
+    Sender<Vec<VirtualScenarioItem>>,
+    Receiver<Vec<VirtualScenarioItem>>,
+) {
+    return tokio::sync::mpsc::channel::<Vec<VirtualScenarioItem>>(10);
 }
 
 fn default_index() -> i32 {
@@ -57,44 +64,107 @@ fn get_config(config: &String) -> VirtualScenario {
 }
 
 pub struct VirtualComboardClient {
+    pub receiver_config: Option<Receiver<Vec<VirtualScenarioItem>>>,
     pub config_comboard: super::interface::ComboardClientConfig,
+}
+
+async fn handle_items(
+    sender_module: &Sender<ModuleMsg>,
+    config_board: &String,
+    item: &mut VirtualScenarioItem,
+    map_module: &mut HashMap<i32, VirtualScenarioItem>,
+) -> Option<std::time::Duration> {
+
+    let typ = item.id[..3].to_string();
+    match item.event_type.as_str() {
+        "state" => {
+            if item.state {
+                match typ.as_str() {
+                    "AAP" | "AAB" => {
+                        item.buffer = vec![0, 0, 0, 0, 0, 0, 0, 0];
+                    }
+                    _ => {}
+                };
+                map_module.insert(item.port, item.clone());
+            } else {
+                map_module.remove(&item.port);
+            };
+            sender_module
+                .send(ModuleMsg::State(ModuleStateChangeEvent {
+                    board: I2C_VIRT_ID.to_string(),
+                    board_addr: config_board.clone(),
+                    port: item.port,
+                    id: item.id.clone(),
+                    state: item.state,
+                }))
+                .await
+                .map_err(|x| MainboardError::from_error(x.to_string()))
+                .unwrap();
+            if item.buffer.len() > 2 {
+                let new_buffer = item.buffer.clone();
+                sender_module
+                    .send(ModuleMsg::Value(ModuleValueValidationEvent {
+                        board: I2C_VIRT_ID.to_string(),
+                        board_addr: config_board.clone(),
+                        port: item.port,
+                        buffer: new_buffer,
+                    }))
+                    .await
+                    .map_err(|x| MainboardError::from_error(x.to_string()))
+                    .unwrap();
+            }
+        }
+        "value" => {
+            let new_buffer = item.buffer.clone();
+            sender_module
+                .send(ModuleMsg::Value(ModuleValueValidationEvent {
+                    board: I2C_VIRT_ID.to_string(),
+                    board_addr: config_board.clone(),
+                    port: item.port,
+                    buffer: new_buffer,
+                }))
+                .await
+                .map_err(|x| MainboardError::from_error(x.to_string()))
+                .unwrap();
+        }
+        _ => {
+            log::error!("invalid event type for action : {}", item.event_type);
+        }
+    }
+
+    if item.timeout > 0 {
+        return Some(tokio::time::Duration::from_millis(item.timeout));
+    }
+    return None;
 }
 
 impl super::interface::ComboardClient for VirtualComboardClient {
     fn run(
-        &self,
-        receiver_config: Receiver<crate::comboard::imple::channel::ModuleConfig>,
+        &mut self,
+        sender_module: Sender<ModuleMsg>,
+        mut receiver_config: tokio::sync::mpsc::Receiver<
+            crate::comboard::imple::channel::ModuleConfig,
+        >,
     ) -> tokio::task::JoinHandle<Result<(), ()>> {
-        let sender_value = CHANNEL_VALUE.0.lock().unwrap().clone();
-        let sender_state = CHANNEL_STATE.0.lock().unwrap().clone();
-
         let config_board = self.config_comboard.config.clone();
+
+        let mut receiver_config_item = self.receiver_config.take().unwrap();
 
         return tokio::spawn(async move {
             // PORT : MODULE_ID
             let mut map_module = HashMap::<i32, VirtualScenarioItem>::new();
 
-            let mut config = get_config(&config_board);
-            // Read json config file
-            let mut i: usize = 0;
-            let mut waiting: Option<std::time::Instant> = None;
-
-            let receiver = VIRTUAL_COMBOARD_CMD.1.lock().unwrap();
-
             loop {
-                if let Ok(mut value) = receiver.try_recv() {
-                    log::info!(
-                        "receive new action for virtual board {}",
-                        config.actions.len()
-                    );
-                    config.actions.append(&mut value);
-                    log::info!(
-                        "receive new action for virtual board {}",
-                        config.actions.len()
-                    );
-                }
-                if let Ok(module_config) = receiver_config.try_recv() {
-                    if let Some(item) = map_module.get_mut(&module_config.port) {
+                tokio::select! {
+                    value = receiver_config_item.recv() => {
+                        let value = value.unwrap();
+                        for mut item in value {
+                            handle_items(&sender_module, &config_board, &mut item, &mut map_module).await;
+                        }
+                    },
+                    module_config = receiver_config.recv() => {
+                        let module_config = module_config.unwrap();
+                        if let Some(item) = map_module.get_mut(&module_config.port) {
                         match &item.id[..3] {
                             "AAP" | "AAB" => {
                                 let new_buffer = if module_config.data.len() == 8 {
@@ -111,110 +181,21 @@ impl super::interface::ComboardClient for VirtualComboardClient {
                                     vec![]
                                 };
 
-                                sender_value
-                                    .send(ModuleValueValidationEvent {
+                                sender_module
+                                    .send(ModuleMsg::Value(ModuleValueValidationEvent {
                                         board: I2C_VIRT_ID.to_string(),
                                         board_addr: config_board.clone(),
                                         port: item.port,
                                         buffer: new_buffer,
-                                    })
+                                    }))
+                                    .await
+                                    .map_err(|x| MainboardError::from_error(x.to_string()))
                                     .unwrap();
                             }
                             _ => {}
                         }
-                    }
-                }
-                if let Ok(config) = receiver_config.try_recv() {
-                    log::debug!("virtual comboard apply config {:?}", config.data);
-
-                    sender_value
-                        .send(ModuleValueValidationEvent {
-                            board: I2C_VIRT_ID.to_string(),
-                            board_addr: config_board.clone(),
-                            port: config.port,
-                            buffer: config.data,
-                        })
-                        .unwrap();
-                }
-
-                if i < config.actions.len() {
-                    // check if we have event to process config change
-                    if waiting.is_none() {
-                        let typ = config.actions[i].id[..3].to_string();
-                        match config.actions[i].event_type.as_str() {
-                            "state" => {
-                                if config.actions[i].state {
-                                    match typ.as_str() {
-                                        "AAP" | "AAB" => {
-                                            config.actions[i].buffer = vec![0, 0, 0, 0, 0, 0, 0, 0];
-                                        }
-                                        _ => {}
-                                    };
-                                    map_module
-                                        .insert(config.actions[i].port, config.actions[i].clone());
-                                } else {
-                                    map_module.remove(&config.actions[i].port);
-                                };
-                                sender_state
-                                    .send(ModuleStateChangeEvent {
-                                        board: I2C_VIRT_ID.to_string(),
-                                        board_addr: config_board.clone(),
-                                        port: config.actions[i].port,
-                                        id: config.actions[i].id.clone(),
-                                        state: config.actions[i].state,
-                                    })
-                                    .unwrap();
-                                if config.actions[i].buffer.len() > 2 {
-                                    let new_buffer = config.actions[i].buffer.clone();
-                                    sender_value
-                                        .send(ModuleValueValidationEvent {
-                                            board: I2C_VIRT_ID.to_string(),
-                                            board_addr: config_board.clone(),
-                                            port: config.actions[i].port,
-                                            buffer: new_buffer,
-                                        })
-                                        .unwrap();
-                                }
-                            }
-                            "value" => {
-                                let new_buffer = config.actions[i].buffer.clone();
-                                sender_value
-                                    .send(ModuleValueValidationEvent {
-                                        board: I2C_VIRT_ID.to_string(),
-                                        board_addr: config_board.clone(),
-                                        port: config.actions[i].port,
-                                        buffer: new_buffer,
-                                    })
-                                    .unwrap();
-                            }
-                            _ => {
-                                log::error!(
-                                    "invalid event type for action : {}",
-                                    config.actions[i].event_type
-                                );
-                            }
-                        }
-
-                        if config.actions[i].timeout > 0 {
-                            waiting = Some(std::time::Instant::now());
-                            println!("sleeping ");
-                            //tokio::time::sleep(tokio::time::Duration::from_millis(config.actions[i].timeout)).await;
-                        }
-
-                        if config.actions[i].return_index > -1 {
-                            i = config.actions[i].return_index as usize;
-                        } else {
-                            i += 1;
-                        }
-                    } else {
-                        if waiting.is_some()
-                            && waiting.unwrap().elapsed()
-                                > std::time::Duration::from_millis(config.actions[i].timeout)
-                        {
-                            println!("done waiting");
-                            waiting = None;
-                        }
-                    }
+                     }
+                    },
                 }
             }
         });

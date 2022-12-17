@@ -87,7 +87,7 @@ impl crate::modulestate::interface::ModuleValueValidator for AASValidator {
         port: i32,
         _t: &str,
         data: std::sync::Arc<Vec<u8>>,
-        _sender_comboard_config: &std::sync::mpsc::Sender<
+        _sender_comboard_config: &tokio::sync::mpsc::Sender<
             crate::comboard::imple::channel::ModuleConfig,
         >,
         _map_handler: &mut std::collections::HashMap<String, tokio_util::sync::CancellationToken>,
@@ -198,7 +198,7 @@ impl crate::modulestate::interface::ModuleValueValidator for AASValidator {
         cmd: &str,
         module_id: &String,
         data: std::sync::Arc<Vec<u8>>,
-        sender_response: &std::sync::mpsc::Sender<crate::protos::message::ActionResponse>,
+        sender_response: tokio::sync::oneshot::Sender<crate::protos::message::ActionResponse>,
         sender_socket: &tokio::sync::mpsc::Sender<(
             String,
             Box<dyn crate::modulestate::interface::ModuleValueParsable>,
@@ -250,7 +250,7 @@ impl crate::modulestate::interface::ModuleValueValidator for AASValidator {
                                 cmd: "mconfig".into(),
                                 topic: format!("/{}", module_id),
                                 data: std::sync::Arc::new(config_bytes),
-                                sender: sender_response.clone(),
+                                sender: sender_response,
                             };
                             return Ok(Some(vec![cmd]));
                         }

@@ -63,7 +63,7 @@ impl crate::modulestate::interface::ModuleValueValidator for AAPValidator {
         port: i32,
         t: &str,
         data: std::sync::Arc<Vec<u8>>,
-        sender_comboard_config: &std::sync::mpsc::Sender<
+        sender_comboard_config: &tokio::sync::mpsc::Sender<
             crate::comboard::imple::channel::ModuleConfig,
         >,
         map_handler: &mut std::collections::HashMap<String, tokio_util::sync::CancellationToken>,
@@ -256,7 +256,7 @@ impl crate::modulestate::interface::ModuleValueValidator for AAPValidator {
         _cmd: &str,
         _module_id: &String,
         _data: std::sync::Arc<Vec<u8>>,
-        _sender_response: &std::sync::mpsc::Sender<crate::protos::message::ActionResponse>,
+        _sender_response: tokio::sync::oneshot::Sender<crate::protos::message::ActionResponse>,
         _sender_socket: &tokio::sync::mpsc::Sender<(
             String,
             Box<dyn crate::modulestate::interface::ModuleValueParsable>,

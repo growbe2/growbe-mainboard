@@ -1,6 +1,6 @@
 use regex::Regex;
-use tokio::sync::mpsc::Sender;
 use std::sync::Arc;
+use tokio::sync::mpsc::Sender;
 
 use super::controller::store::EnvControllerStore;
 use super::modules::get_module_validator;
@@ -43,7 +43,7 @@ fn valid_module_id(module_id: &String) -> bool {
 #[inline]
 pub fn handle_module_state(
     manager: &mut MainboardModuleStateManager,
-    state: &mut ModuleStateChangeEvent,
+    state: &ModuleStateChangeEvent,
     sender_comboard_config: &ComboardSenderMapReference,
     sender_socket: &Sender<(String, Box<dyn super::interface::ModuleValueParsable>)>,
     store: &super::store::ModuleStateStore,
@@ -121,7 +121,10 @@ pub fn handle_module_state(
                     &sender_config,
                     &mut module_mut_ref.handler_map,
                 ) {
-                    Ok((_config, config_comboard)) => sender_config.send(config_comboard).unwrap(),
+                    Ok((_config, config_comboard)) => sender_config
+                        .try_send(config_comboard)
+                        .map_err(|x| MainboardError::from_error(x.to_string()))
+                        .unwrap(),
                     // TODO: Send message to cloud saying we failed to apply config
                     Err(e) => log::error!("validation error to apply the config {}", e),
                 }
@@ -132,7 +135,6 @@ pub fn handle_module_state(
             }
         }
 
-
         // BLOCK TO HANDLE ALARMS
         //
         match alarm_store.get_alarm_for_module(&state.id.clone()) {
@@ -140,10 +142,19 @@ pub fn handle_module_state(
                 log::info!("loading {} alarms for {}", alarms.len(), state.id.as_str());
                 for _n in 0..alarms.len() {
                     if let Some((alarm, state)) = alarms.pop() {
-                        if let Err(err) = alarm_validator.register_field_alarm(alarm.clone(), state.clone()) {
+                        if let Err(err) =
+                            alarm_validator.register_field_alarm(alarm.clone(), state.clone())
+                        {
                             log::error!("failed to register alarm : {:?}", err);
                         }
-                        env_controller.on_alarm_created(&alarm.moduleId, &alarm.property, manager, alarm_store, state, true)?;
+                        env_controller.on_alarm_created(
+                            &alarm.moduleId,
+                            &alarm.property,
+                            manager,
+                            alarm_store,
+                            state,
+                            true,
+                        )?;
                     } else {
                         log::error!("failed to get next alarm in list");
                     }

@@ -1,4 +1,3 @@
-use std::sync::mpsc::{Receiver};
 use tokio::sync::mpsc::Sender;
 use std::sync::{Arc, Mutex};
 
@@ -14,17 +13,6 @@ use protobuf::Message;
 use super::controller::store::EnvControllerStore;
 use super::interface::{ModuleError, ModuleStateCmd};
 use super::{handle_state::send_module_state, state_manager::MainboardModuleStateManager};
-
-lazy_static::lazy_static! {
-    // TODO : not global shit
-    pub static ref CHANNEL_MODULE_STATE_CMD: (
-        Mutex<std::sync::mpsc::Sender<ModuleStateCmd>>,
-        Mutex<Receiver<ModuleStateCmd>>
-    ) = {
-        let (sender, receiver) = std::sync::mpsc::channel::<ModuleStateCmd>();
-        return (Mutex::new(sender), Mutex::new(receiver));
-    };
-}
 
 fn apply_module_config(
     id: &str,
@@ -56,7 +44,7 @@ fn apply_module_config(
                 Ok((config, config_comboard)) => {
                     store.store_module_config(&(id.into()), config)?;
                     sender_config
-                        .send(config_comboard)
+                        .try_send(config_comboard)
                         .map_err(|x| MainboardError::from_error(x.to_string()))?;
                 }
                 Err(e) => return Err(e.into()),
@@ -221,7 +209,7 @@ fn handle_unregister_environment_controller(
 fn handle_validator_command(
     cmd: &str,
     module_id: &String,
-    sender_response: &std::sync::mpsc::Sender<crate::protos::message::ActionResponse>,
+    sender_response: tokio::sync::oneshot::Sender<crate::protos::message::ActionResponse>,
     manager: &mut MainboardModuleStateManager,
     sender_socket: &Sender<(String, Box<dyn super::interface::ModuleValueParsable>)>,
     data: std::sync::Arc<Vec<u8>>,
@@ -243,7 +231,7 @@ pub fn handle_module_command(
     cmd: &String,
     topic: &String,
     data: std::sync::Arc<Vec<u8>>,
-    sender_response: &std::sync::mpsc::Sender<crate::protos::message::ActionResponse>,
+    sender_response: tokio::sync::oneshot::Sender<crate::protos::message::ActionResponse>,
     manager: &mut MainboardModuleStateManager,
     store: &super::store::ModuleStateStore,
     alarm_validator: &mut super::alarm::validator::AlarmFieldValidator,
@@ -301,6 +289,8 @@ pub fn handle_module_command(
             manager,
         ),
         _ => {
+            // TODO: need to fix this , because it's breaking AAS calibration
+            /*
             let module_id = extract_module_id(topic);
             match handle_validator_command(
                 cmd,
@@ -312,7 +302,9 @@ pub fn handle_module_command(
             ) {
                 Ok(option_cmd) => {
                     if let Some(cmds) = option_cmd {
-                        cmds.into_iter().for_each(|cmd| {
+                        if let Some(cmd) = cmds.get(0) {
+                            
+                            let cmd = cmd.clone();
                             if let Err(err) = handle_module_command(
                                 &cmd.cmd,
                                 &cmd.topic,
@@ -329,7 +321,7 @@ pub fn handle_module_command(
                             ) {
                                 log::error!("failed to handle_module_command : {:?}", err);
                             }
-                        });
+                        }
                         Ok(())
                     } else {
                         // end of chain return
@@ -338,6 +330,8 @@ pub fn handle_module_command(
                 }
                 Err(e) => Err(e.into()),
             }
+            */
+            Ok(())
         }
     };
 
@@ -348,6 +342,7 @@ pub fn handle_module_command(
             if let Err(err) = sender_response.send(action_respose) {
                 log::error!("failed to send action response but cmd ok : {:?}", err);
             }
+            println!("sending response for command");
             return Ok(());
         }
         Err(mainboard_error) => {
@@ -357,6 +352,7 @@ pub fn handle_module_command(
                 log::error!("failed to send action response : {:?}", err);
                 log::error!("{:?}", mainboard_error);
             }
+            println!("sending response error for command");
             return Err(mainboard_error);
         }
     }

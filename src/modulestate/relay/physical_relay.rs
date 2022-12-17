@@ -1,5 +1,7 @@
+use crate::mainboardstate::error::MainboardError;
+
 pub struct PhysicalRelay {
-    pub sender: std::sync::mpsc::Sender<crate::comboard::imple::channel::ModuleConfig>,
+    pub sender: tokio::sync::mpsc::Sender<crate::comboard::imple::channel::ModuleConfig>,
     pub port: i32,
     pub action_port: usize,
 }
@@ -9,10 +11,11 @@ impl super::State for PhysicalRelay {
         let mut buffer = [255; 8];
         super::f(&self.action_port, &mut buffer, state);
         self.sender
-            .send(crate::comboard::imple::channel::ModuleConfig {
+            .try_send(crate::comboard::imple::channel::ModuleConfig {
                 port: self.port,
                 data: buffer.try_into().unwrap(),
             })
+            .map_err(|x| MainboardError::from_error(x.to_string()))
             .unwrap();
         return Ok(());
     }
@@ -56,7 +59,7 @@ impl ActionPortUnion {
 }
 
 pub struct BatchPhysicalRelay {
-    pub sender: std::sync::mpsc::Sender<crate::comboard::imple::channel::ModuleConfig>,
+    pub sender: tokio::sync::mpsc::Sender<crate::comboard::imple::channel::ModuleConfig>,
     pub buffer: [u8; 8],
     pub port: i32,
 
@@ -78,10 +81,11 @@ impl super::State for BatchPhysicalRelay {
         }
         if self.auto_send {
             self.sender
-                .send(crate::comboard::imple::channel::ModuleConfig {
+                .try_send(crate::comboard::imple::channel::ModuleConfig {
                     port: self.port,
                     data: self.buffer.try_into().unwrap(),
                 })
+                .map_err(|x| MainboardError::from_error(x.to_string()))
                 .unwrap();
 
             self.buffer = [255; 8];
@@ -123,10 +127,11 @@ impl super::Relay for BatchPhysicalRelay {
 impl super::BatchRelay for BatchPhysicalRelay {
     fn execute(&self) -> Result<(), ()> {
         self.sender
-            .send(crate::comboard::imple::channel::ModuleConfig {
+            .try_send(crate::comboard::imple::channel::ModuleConfig {
                 port: self.port,
                 data: self.buffer.try_into().unwrap(),
             })
+            .map_err(|x| MainboardError::from_error(x.to_string()))
             .unwrap();
         return Ok(());
     }

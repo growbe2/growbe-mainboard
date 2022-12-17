@@ -7,7 +7,7 @@ pub struct MainboardConnectedModule {
     pub board_addr: String,
     pub handler_map: std::collections::HashMap<String, tokio_util::sync::CancellationToken>,
     pub last_value: Option<Box<dyn super::interface::ModuleValueParsable>>,
-    pub validator: Box<dyn super::interface::ModuleValueValidator>,
+    pub validator: Box<dyn super::interface::ModuleValueValidator + Send>,
 }
 
 pub struct MainboardModuleStateManager {

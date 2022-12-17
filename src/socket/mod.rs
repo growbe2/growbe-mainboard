@@ -4,15 +4,17 @@ pub mod ss;
 
 use protobuf::Message;
 use rumqttc::{AsyncClient, Event, MqttOptions, Packet, QoS, SubscribeFilter};
-use std::sync::mpsc::Sender;
-use std::sync::{Arc, Mutex};
-use std::time::{Duration, Instant};
+use std::sync::Arc;
+use std::time::Duration;
 use tokio::select;
-use tokio::sync::mpsc::Receiver;
+use tokio::sync::mpsc::error::TrySendError;
+use tokio::sync::mpsc::{Receiver, Sender};
+use tokio::time::Instant;
 
-use crate::comboard::imple::virt::VIRTUAL_COMBOARD_CMD;
+use crate::comboard::imple::virt::VirtualScenarioItem;
 use crate::mainboardstate::config::rewrite_configuration;
 use crate::mainboardstate::error::MainboardError;
+use crate::modulestate::interface::ModuleMsg;
 use crate::protos::message::ActionCode;
 
 struct SocketMessagingError {
@@ -39,6 +41,15 @@ impl SocketMessagingError {
     }
 }
 
+impl From<TrySendError<SocketMessagingError>> for SocketMessagingError {
+    fn from(value: TrySendError<SocketMessagingError>) -> Self {
+        Self {
+            status: 1,
+            msg: value.to_string(),
+        }
+    }
+}
+
 struct MqttHandler {
     pub subscription: String,
     pub regex: &'static str,
@@ -46,6 +57,7 @@ struct MqttHandler {
     pub handler: fn(
         topic_name: String,
         data: Arc<Vec<u8>>,
+        ctx: &TaskContext,
     ) -> Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError>,
     pub not_prefix: bool,
 }
@@ -54,6 +66,11 @@ struct MqttModuleHanlder {
     pub name: String,
     pub suffix: bool,
     pub action_code: ActionCode,
+}
+
+struct TaskContext {
+    sender_virt: Sender<Vec<VirtualScenarioItem>>,
+    sender_module: Sender<ModuleMsg>,
 }
 
 impl From<(&str, bool, ActionCode)> for MqttModuleHanlder {
@@ -162,6 +179,7 @@ fn get_topic_prefix(subtopic: &str) -> String {
 fn on_set_rtc(
     _topic_name: String,
     _data: Arc<Vec<u8>>,
+    _ctx: &TaskContext,
 ) -> Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError> {
     //let payload = crate::protos::message::RTCTime::parse_from_bytes(&data).unwrap();
     //crate::mainboardstate::rtc::set_rtc(payload);
@@ -173,6 +191,7 @@ fn on_set_rtc(
 fn on_update(
     _topic_name: String,
     data: Arc<Vec<u8>>,
+    _ctx: &TaskContext,
 ) -> Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError> {
     let payload = crate::protos::board::VersionRelease::parse_from_bytes(&data).unwrap();
     let update_executed_result = crate::mainboardstate::update::handle_version_update(&payload);
@@ -189,6 +208,7 @@ fn on_update(
 fn on_update_request(
     _topic_name: String,
     _data: Arc<Vec<u8>>,
+    _ctx: &TaskContext,
 ) -> Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError> {
     let update_executed_result = crate::mainboardstate::update::handle_version_update_request();
     if let Some(update_executed) = update_executed_result {
@@ -213,6 +233,7 @@ fn restart_task() {
 fn on_restart(
     _topic_name: String,
     _data: Arc<Vec<u8>>,
+    _ctx: &TaskContext,
 ) -> Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError> {
     restart_task();
     restart_task();
@@ -231,6 +252,7 @@ fn reboot_task() {
 fn on_reboot(
     _topic_name: String,
     _data: Arc<Vec<u8>>,
+    _ctx: &TaskContext,
 ) -> Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError> {
     reboot_task();
     reboot_task();
@@ -240,6 +262,7 @@ fn on_reboot(
 fn on_helloworld(
     _topic_name: String,
     _data: Arc<Vec<u8>>,
+    _ctx: &TaskContext,
 ) -> Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError> {
     let hello_world = crate::mainboardstate::hello_world::get_hello_world();
     return Ok(Some((
@@ -252,6 +275,7 @@ fn on_helloworld(
 fn on_localconnection(
     _topic_name: String,
     _data: Arc<Vec<u8>>,
+    _ctx: &TaskContext,
 ) -> Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError> {
     let local_connection = crate::mainboardstate::localconnection::get_local_connection();
     return Ok(Some((
@@ -264,6 +288,7 @@ fn on_localconnection(
 fn on_setconfig(
     _topic_name: String,
     data: Arc<Vec<u8>>,
+    _ctx: &TaskContext,
 ) -> Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError> {
     match crate::protos::board::MainboardConfig::parse_from_bytes(&data) {
         Ok(config) => {
@@ -279,12 +304,15 @@ fn on_setconfig(
 fn on_virt_item(
     _topic_name: String,
     data: Arc<Vec<u8>>,
+    ctx: &TaskContext,
 ) -> Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError> {
     println!("on virt item");
 
     match serde_json::from_slice(&data) {
         Ok(config) => {
-            VIRTUAL_COMBOARD_CMD.0.lock().unwrap().send(config).unwrap();
+            ctx.sender_virt
+                .try_send(config)
+                .map_err(|x| SocketMessagingError::new().message(x.to_string()))?;
         }
         Err(_) => {
             return Err(SocketMessagingError::new());
@@ -341,13 +369,39 @@ async fn handle_subscription_topics(
     Ok(())
 }
 
-fn handle_incomming_message(
+async fn handle_hearthbeath(
+    client: &AsyncClient,
+    last_send_instant: Instant,
+    duration: Duration,
+) -> Instant {
+    if last_send_instant.elapsed() >= duration {
+        let mut hearth_beath = crate::protos::message::HearthBeath::new();
+        let now = chrono::Utc::now();
+        hearth_beath.set_rtc(String::from(now.timestamp_nanos().to_string()));
+        let payload = hearth_beath.write_to_bytes().unwrap();
+
+        client
+            .publish(
+                get_topic_prefix("/heartbeath"),
+                QoS::ExactlyOnce,
+                false,
+                payload,
+            )
+            .await
+            .unwrap();
+
+        Instant::now()
+    } else {
+        last_send_instant
+    }
+}
+
+async fn handle_incomming_message(
     client: &AsyncClient,
     handlers: &Vec<MqttHandler>,
     mapping_module: &Vec<MqttModuleHanlder>,
 
-    sender_action_response: &Sender<crate::protos::message::ActionResponse>,
-    receiver_action_response: &std::sync::mpsc::Receiver<crate::protos::message::ActionResponse>,
+    ctx: &TaskContext,
 
     topic_name: String,
     payload: Arc<Vec<u8>>,
@@ -359,12 +413,13 @@ fn handle_incomming_message(
     let mut action_respose = crate::protos::message::ActionResponse::new();
 
     if let Some(item) = item_opt {
-        let handler_result = (item.handler)(String::from(topic_name.as_str()), payload);
+        let handler_result = (item.handler)(String::from(topic_name.as_str()), payload, ctx);
         action_respose.action = item.action_code;
         if let Ok(result) = handler_result {
             if let Some(ret) = result {
                 client
-                    .try_publish(ret.0, QoS::ExactlyOnce, false, ret.1)
+                    .publish(ret.0, QoS::ExactlyOnce, false, ret.1)
+                    .await
                     .unwrap();
             }
             action_respose.status = 0;
@@ -381,24 +436,33 @@ fn handle_incomming_message(
         });
 
         if let Some(handler) = module_cmd_result {
+            let (sender, receiver) = tokio::sync::oneshot::channel();
             // send to modulestate handler and wait for response
-            crate::modulestate::cmd::CHANNEL_MODULE_STATE_CMD
-                .0
-                .lock()
-                .unwrap()
-                .send(crate::modulestate::interface::ModuleStateCmd {
-                    cmd: handler.name.clone(),
-                    topic: topic_name.clone(),
-                    data: payload,
-                    sender: sender_action_response.clone(),
-                })
+            ctx.sender_module
+                .send(ModuleMsg::Cmd(
+                    crate::modulestate::interface::ModuleStateCmd {
+                        cmd: handler.name.clone(),
+                        topic: topic_name.clone(),
+                        data: payload,
+                        sender,
+                    },
+                ))
+                .await
                 .unwrap();
 
             // wait f
             // or not very long for a response from the state_cmd
             let action_code = handler.action_code;
-            let action_response_result =
-                receiver_action_response.recv_timeout(Duration::from_millis(200));
+
+            println!("waiting for response from module cmd");
+            let action_response_result = select! {
+                Ok(value) = receiver => {
+                    Ok(value)
+                },
+                _ = tokio::time::sleep(std::time::Duration::from_millis(200)) => {
+                    Err(())
+                }
+            };
             match action_response_result {
                 Ok(ar) => {
                     action_respose = ar;
@@ -419,12 +483,13 @@ fn handle_incomming_message(
         action_respose.action = ActionCode::SYNC_REQUEST;
     }
     client
-        .try_publish(
+        .publish(
             format!("{}{}", topic_name.as_str(), "/response"),
             QoS::ExactlyOnce,
             false,
             action_respose.write_to_bytes().unwrap(),
         )
+        .await
         .unwrap();
     //last_send_instant = Instant::now();
 }
@@ -434,36 +499,43 @@ pub fn socket_task(
         String,
         Box<dyn crate::modulestate::interface::ModuleValueParsable>,
     )>,
+    sender_virt: Sender<Vec<VirtualScenarioItem>>,
+    sender_module: Sender<ModuleMsg>,
     config_mqtt: &'static mqtt::CloudMQTTConfig,
 ) -> tokio::task::JoinHandle<()> {
     let id_client = format!("pi-{}", growbe_shared::id::get());
 
-    let (sender_action_response, receiver_action_response) =
-        std::sync::mpsc::channel::<crate::protos::message::ActionResponse>();
+    let ctx = TaskContext {
+        sender_virt,
+        sender_module,
+    };
 
     return tokio::spawn(async move {
         let hearth_beath_rate = Duration::from_secs(5);
 
-        let config = MqttOptions::new(
+        let mut config = MqttOptions::new(
             id_client.clone(),
             config_mqtt.url.as_str(),
             config_mqtt.port,
         );
+        config.set_keep_alive(Duration::from_secs(5));
         let (mut client, mut eventloop) = AsyncClient::new(config, 20);
 
         handle_subscription_topics(&client, &MQTT_HANDLES, &MAPPING_MODULES)
             .await
             .unwrap();
 
+        let mut last_message_at = Instant::now();
+
         println!("starting listening socket");
         loop {
-            println!("start loop");
             select! {
                 receive = receiver_socket.recv() => {
-                    println!("receiver");
                     if receive.is_some() {
                         let message = receive.unwrap();
                         let payload = message.1.write_to_bytes().unwrap();
+
+                        println!("OUTGOING {}", message.0);
                         client
                             .publish(
                                 get_topic_prefix(message.0.as_str()),
@@ -473,17 +545,19 @@ pub fn socket_task(
                         )
                         .await
                         .unwrap();
+
+                        last_message_at = Instant::now();
                     }
                 },
                 result = eventloop.poll() => {
-                    println!("event loop");
                     if let Ok(result) = result {
                         match result {
                             Event::Incoming(d) => {
                                 match d {
                                     Packet::Publish(message) => {
                                         let data = Arc::new(message.payload.to_vec());
-                                        handle_incomming_message(&client, &MQTT_HANDLES, &MAPPING_MODULES, &sender_action_response, &receiver_action_response, message.topic, data)
+                                        println!("INCOMMING {}", message.topic);
+                                        handle_incomming_message(&client, &MQTT_HANDLES, &MAPPING_MODULES, &ctx,  message.topic, data).await;
                                     },
                                     Packet::Connect(c) => {
                                         println!("im connected !!! {:?}", c);
@@ -494,30 +568,15 @@ pub fn socket_task(
                             Event::Outgoing(d) => {
                             }
                         }
+                        last_message_at = handle_hearthbeath(&client, last_message_at, hearth_beath_rate).await;
                     } else {
                         println!("errrorororo {:?}", result.unwrap_err());
                     }
                 },
                 _ = tokio::time::sleep(hearth_beath_rate) => {
-                    println!("heartbeath");
-                    let mut hearth_beath = crate::protos::message::HearthBeath::new();
-                    let now = chrono::Utc::now();
-                    hearth_beath.set_rtc(String::from(now.timestamp_nanos().to_string()));
-                    let payload = hearth_beath.write_to_bytes().unwrap();
-
-                    client
-                        .publish(
-                            get_topic_prefix("/heartbeath"),
-                            QoS::ExactlyOnce,
-                            false,
-                            payload,
-                        )
-                        .await
-                        .unwrap();
-
+                    last_message_at = handle_hearthbeath(&client, last_message_at, hearth_beath_rate).await;
                 }
             }
-            println!("end loop");
         }
     });
 }

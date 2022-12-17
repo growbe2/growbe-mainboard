@@ -21,6 +21,9 @@ use crate::{
 
 use crate::mainboardstate::update::autoupdate;
 
+use crate::comboard::imple::virt::create_virtual_comboard_cmd;
+use crate::modulestate::interface::ModuleMsg;
+
 #[tokio::main(flavor = "multi_thread")]
 async fn main() {
     // Check if we try to run a command , if stop program to prevent the main thread to start
@@ -41,12 +44,16 @@ async fn main() {
     // Initializing database
     let conn_database = Arc::new(Mutex::new(store::database::init(None)));
 
+    let (sender_virt, receiver_virt) = create_virtual_comboard_cmd();
+
+    let (sender_module, receiver_module) = channel::<ModuleMsg>(100);
+
     // Get the list of running comboards
-    let boards = comboard::get_comboard_client();
+    let mut boards = comboard::get_comboard_client(receiver_virt);
 
     // Create the channel to send the data to the socket thread
     let (sender_socket, receiver_socket) =
-        channel::<(String, Box<dyn modulestate::interface::ModuleValueParsable>)>(100);
+        channel::<(String, Box<dyn modulestate::interface::ModuleValueParsable>)>(200);
 
     // Create sender copy to give to some starting task
     let sender_socket_hello = sender_socket.clone();
@@ -57,13 +64,13 @@ async fn main() {
     let mut config_channel_manager = ComboardConfigChannelManager::new();
 
     // Create the task to run the comboard
-    boards.iter().for_each(|(info, board)| {
+    for (info, board) in boards.iter_mut() {
         let receiver = config_channel_manager.create_channel(ComboardAddr {
             imple: info.imple.clone(),
             addr: info.addr.clone(),
         });
-        board.run(receiver);
-    });
+        board.run(sender_module.clone(), receiver);
+    }
 
     // Create the task to handle the modules state
     let module_state_task = modulestate::task::module_state_task(
@@ -71,11 +78,15 @@ async fn main() {
         modulestate::store::ModuleStateStore::new(conn_database.clone()),
         config_channel_manager.get_reference(),
         modulestate::alarm::store::ModuleAlarmStore::new(conn_database.clone()),
+        sender_module.clone(),
+        receiver_module,
     );
 
     // Create the task for the communication socket from outside the app
     let socket_task = socket::socket_task(
         receiver_socket,
+        sender_virt,
+        sender_module,
         &mainboardstate::config::CONFIG.mqtt,
     );
 

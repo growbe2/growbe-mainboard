@@ -138,7 +138,7 @@ pub struct WSComboardClient {
 
 impl crate::comboard::imple::interface::ComboardClient for WSComboardClient {
     fn run(
-        &self,
+        &mut self,
         receiver: Receiver<crate::comboard::imple::channel::ModuleConfig>,
     ) -> tokio::task::JoinHandle<Result<(), ()>> {
         let config =

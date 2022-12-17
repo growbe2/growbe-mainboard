@@ -1,7 +1,11 @@
-use std::sync::mpsc::Receiver;
+
+use tokio::sync::mpsc::{Receiver, Sender};
+
+use crate::modulestate::interface::ModuleMsg;
 
 pub static I2C_VIRT_ID: &'static str = "virt";
 
+#[derive(Debug)]
 pub struct ModuleStateChangeEvent {
     pub board: String,
     pub board_addr: String,
@@ -10,6 +14,7 @@ pub struct ModuleStateChangeEvent {
     pub state: bool,
 }
 
+#[derive(Debug)]
 pub struct ModuleValueValidationEvent {
     pub board: String,
     pub board_addr: String,
@@ -23,7 +28,8 @@ pub struct ComboardClientConfig {
 
 pub trait ComboardClient {
     fn run(
-        &self,
+        &mut self,
+        sender_module: Sender<ModuleMsg>,
         receiver_config: Receiver<super::channel::ModuleConfig>,
     ) -> tokio::task::JoinHandle<Result<(), ()>>;
 }

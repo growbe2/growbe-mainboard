@@ -35,7 +35,7 @@ impl crate::modulestate::interface::ModuleValueValidator for PPRValidator {
         _port: i32,
         _t: &str,
         _data: std::sync::Arc<Vec<u8>>,
-        _sender_comboard_config: &std::sync::mpsc::Sender<
+        _sender_comboard_config: &tokio::sync::mpsc::Sender<
             crate::comboard::imple::channel::ModuleConfig,
         >,
         _map_handler: &mut std::collections::HashMap<String, tokio_util::sync::CancellationToken>,
@@ -69,7 +69,7 @@ impl crate::modulestate::interface::ModuleValueValidator for PPRValidator {
         _cmd: &str,
         _module_id: &String,
         _data: std::sync::Arc<Vec<u8>>,
-        _sender_response: &std::sync::mpsc::Sender<crate::protos::message::ActionResponse>,
+        _sender_response: tokio::sync::oneshot::Sender<crate::protos::message::ActionResponse>,
         _sender_socket: &tokio::sync::mpsc::Sender<(
             String,
             Box<dyn crate::modulestate::interface::ModuleValueParsable>,

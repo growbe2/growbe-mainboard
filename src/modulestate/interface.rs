@@ -1,4 +1,4 @@
-use crate::mainboardstate::error::MainboardError;
+use crate::{mainboardstate::error::MainboardError, comboard::imple::interface::{ModuleStateChangeEvent, ModuleValueValidationEvent}};
 
 pub trait ModuleValue {}
 pub trait ModuleValueParsable: ModuleValue + protobuf::Message {}
@@ -104,7 +104,15 @@ pub struct ModuleStateCmd {
     pub cmd: String,
     pub topic: String,
     pub data: std::sync::Arc<Vec<u8>>,
-    pub sender: std::sync::mpsc::Sender<crate::protos::message::ActionResponse>,
+    pub sender: tokio::sync::oneshot::Sender<crate::protos::message::ActionResponse>,
+}
+
+
+#[derive(Debug)]
+pub enum ModuleMsg {
+    Cmd(ModuleStateCmd),
+    State(ModuleStateChangeEvent),
+    Value(ModuleValueValidationEvent),
 }
 
 impl std::fmt::Display for ModuleError {
@@ -166,7 +174,7 @@ pub trait ModuleValueValidator: Downcast {
         cmd: &str,
         module_id: &String,
         data: std::sync::Arc<Vec<u8>>,
-        sender_response: &std::sync::mpsc::Sender<crate::protos::message::ActionResponse>,
+        sender_response: tokio::sync::oneshot::Sender<crate::protos::message::ActionResponse>,
         sender_socket: &tokio::sync::mpsc::Sender<(String, Box<dyn ModuleValueParsable>)>,
     ) -> Result<Option<Vec<ModuleStateCmd>>, ModuleError>;
 
@@ -176,7 +184,7 @@ pub trait ModuleValueValidator: Downcast {
         port: i32,
         t: &str,
         data: std::sync::Arc<Vec<u8>>,
-        sender_comboard_config: &std::sync::mpsc::Sender<
+        sender_comboard_config: &tokio::sync::mpsc::Sender<
             crate::comboard::imple::channel::ModuleConfig,
         >,
         map_handler: &mut std::collections::HashMap<String, tokio_util::sync::CancellationToken>,

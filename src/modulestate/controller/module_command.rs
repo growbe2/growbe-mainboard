@@ -1,18 +1,21 @@
+use tokio::sync::mpsc::Sender;
+use tokio::sync::oneshot::Receiver;
+
 use crate::{
     mainboardstate::error::MainboardError,
-    modulestate::{
-        cmd::CHANNEL_MODULE_STATE_CMD,
-        interface::{ModuleStateCmd, ModuleValueParsable},
-    },
+    modulestate::interface::{ModuleStateCmd, ModuleValueParsable, ModuleMsg},
     protos::{message::ActionResponse, module::RelayOutletConfig},
 };
-use std::sync::mpsc::Receiver;
 
-pub struct ModuleCommandSender {}
+pub struct ModuleCommandSender {
+    sender_module: Sender<ModuleMsg>,
+}
 
 impl ModuleCommandSender {
-    pub fn new() -> Self {
-        Self {}
+    pub fn new(sender_module: Sender<ModuleMsg>) -> Self {
+        Self {
+            sender_module,
+        }
     }
 
     pub fn send_relay_config(
@@ -54,19 +57,16 @@ impl ModuleCommandSender {
         cmd: &'static str,
         id: &str,
         config: Box<dyn ModuleValueParsable>,
-    ) -> Result<std::sync::mpsc::Receiver<ActionResponse>, MainboardError> {
-        let (sender, receiver) = std::sync::mpsc::channel::<ActionResponse>();
+    ) -> Result<tokio::sync::oneshot::Receiver<ActionResponse>, MainboardError> {
+        let (sender, receiver) = tokio::sync::oneshot::channel::<ActionResponse>();
         let cmd = ModuleStateCmd {
             cmd: cmd.into(),
             topic: format!("local:/{}", id),
             sender,
             data: std::sync::Arc::new(config.write_to_bytes()?),
         };
-        CHANNEL_MODULE_STATE_CMD
-            .0
-            .lock()
-            .map_err(|x| MainboardError::from_error(x.to_string()))?
-            .send(cmd)
+        self.sender_module
+            .try_send(ModuleMsg::Cmd(cmd))
             .map_err(|x| MainboardError::from_error(x.to_string()))?;
         return Ok(receiver);
     }

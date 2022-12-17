@@ -14,7 +14,7 @@ use crate::mainboardstate::error::MainboardError;
 
 pub fn get_module_validator(
     module_type: &str,
-) -> Result<Box<dyn super::interface::ModuleValueValidator>, MainboardError> {
+) -> Result<Box<dyn super::interface::ModuleValueValidator + Send>, MainboardError> {
     if module_type == "AAA" {
         return Ok(Box::new(aaa::AAAValidator::new()));
     } else if module_type == "AAS" {

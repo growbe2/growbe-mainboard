@@ -9,6 +9,7 @@ use tokio_util::sync::CancellationToken;
 use crate::mainboardstate::error::MainboardError;
 use crate::modulestate::alarm::model::ModuleAlarmState;
 use crate::modulestate::alarm::store::ModuleAlarmStore;
+use crate::modulestate::interface::ModuleMsg;
 use crate::modulestate::state_manager::MainboardModuleStateManager;
 use crate::protos::env_controller::{
     EnvironmentControllerConfiguration_oneof_implementation, RessourceType,
@@ -42,6 +43,8 @@ pub struct EnvControllerStore {
 
     sender: SenderSocket,
 
+    sender_module: tokio::sync::mpsc::Sender<ModuleMsg>,
+
     pub alarm_senders: HashMap<String, Sender<FieldAlarmEvent>>,
     pub value_senders: HashMap<
         String,
@@ -53,9 +56,11 @@ impl EnvControllerStore {
     pub fn new(
         conn: Arc<Mutex<rusqlite::Connection>>,
         socket: SenderSocket,
+        sender_module: tokio::sync::mpsc::Sender<ModuleMsg>,
     ) -> Self {
         return Self {
             conn,
+            sender_module,
             sender: socket,
             tasks: HashMap::new(),
             alarm_senders: HashMap::new(),
@@ -329,7 +334,7 @@ impl EnvControllerStore {
         Ok(Context {
             config: config.clone(),
             cancellation_token: CancellationToken::new(),
-            module_command_sender: ModuleCommandSender::new(),
+            module_command_sender: ModuleCommandSender::new(self.sender_module.clone()),
             alarm_receivers,
             value_receivers,
             sender_socket: self.sender.clone(),
@@ -416,20 +421,22 @@ mod tests {
         MainboardModuleStateManager,
         EnvControllerStore,
         ModuleAlarmStore,
+        tokio::sync::mpsc::Receiver<ModuleMsg>,
     ) {
         let conn_database = Arc::new(Mutex::new(crate::store::database::init(Some(
             format!("./database_test_env_controller_{}.sqlite", uid),
         ))));
 
         let (ss, rs) = channel::<SenderPayload>(10);
+        let (sm, rm) = tokio::sync::mpsc::channel(10);
 
         let msm = MainboardModuleStateManager::new();
-        let ecs = EnvControllerStore::new(conn_database.clone(), ss.clone().into());
+        let ecs = EnvControllerStore::new(conn_database.clone(), ss.clone().into(), sm);
         let mas = ModuleAlarmStore::new(conn_database);
 
         clear_store(&ecs);
 
-        return (msm, ecs, mas);
+        return (msm, ecs, mas, rm);
     }
 
     fn clear_store(store: &EnvControllerStore) {
