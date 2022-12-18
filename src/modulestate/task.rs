@@ -47,6 +47,7 @@ pub fn module_state_task(
                             &alarm_store,
                             &sender_config,
                             &sender_socket,
+                            &sender,
                             &mut virtual_relay_store,
                             &mut environment_controller,
                         ) {

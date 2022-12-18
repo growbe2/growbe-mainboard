@@ -1,8 +1,7 @@
 use crate::{
     mainboardstate::error::MainboardError,
     modulestate::controller::{
-            context::Context, controller_trait::EnvControllerTask,
-            module_command::ModuleCommandSender,
+        context::Context, controller_trait::EnvControllerTask, module_command::ModuleCommandSender,
     },
     protos::{
         alarm::{AlarmZone, FieldAlarmEvent},
@@ -53,20 +52,6 @@ fn get_config_for_event(
         .filter(|x| x.is_some())
         .map(|x| x.unwrap())
         .collect();
-    /*if let Some(item) = action.actions.get(&index) {
-        if !item.config.is_empty() {
-            let items: Vec<(String, String, RelayOutletConfig)> = item.config.clone().into_iter().map(|(k,v)| {
-                let actor = actors.iter().find(|x| x.name == k).unwrap();
-                (actor.id.clone(), actor.property.clone(), v)
-            }).collect();
-            return Some(items);
-            //let observer = get_env_element!(ctx, observers, observer_id).unwrap();
-            //let v = item.config.clone().unwrap();
-            //if v.has_alarm() || v.has_manual() || v.has_cycle() {
-            //    return Some(v);
-            //}
-        }
-    }*/
 }
 
 fn on_value_event_change(
@@ -81,6 +66,62 @@ fn on_value_event_change(
         context
             .send_mconfig_prop(&k, &p, Box::new(config_relay))
             .unwrap();
+    }
+}
+
+macro_rules! switch_alarms {
+    ($map: ident, $callback: ident, $cancellation_token: expr, $($items: ident),+) => {
+        {
+            println!("starting looping on {} alarms", $map.len());
+            $(let mut $items = $map.pop().unwrap();)+
+            loop {
+                select! {
+                    _ = $cancellation_token.cancelled() => {
+                        return Ok(());
+                    },
+                $(
+                    Ok(_) = $items.changed() => {
+                        println!("receive from alarm");
+                        $callback(&mut $items);
+                    }
+                )+
+                }
+            }
+        }
+    };
+}
+
+async fn select_alarms(
+    ctx: &mut Context,
+    imp: &crate::protos::env_controller::StaticControllerImplementation,
+) -> Result<(), MainboardError> {
+    let len = ctx.alarm_receivers.len();
+
+    let mut receivers: Vec<_> = ctx.alarm_receivers.clone().into_values().collect();
+
+    let callback = |mut receiver_alarm: &mut tokio::sync::watch::Receiver<
+        crate::protos::alarm::FieldAlarmEvent,
+    >| {
+        for action in imp.conditions.iter() {
+            on_value_event_change(
+                &ctx.module_command_sender,
+                &mut receiver_alarm,
+                &action,
+                &ctx.config.actors,
+            );
+            send_event!(ctx, EnvironmentControllerState::CHANGING_CONFIG, true);
+        }
+    };
+    match len {
+        1 => switch_alarms!(receivers, callback, ctx.cancellation_token, a),
+        2 => switch_alarms!(receivers, callback, ctx.cancellation_token, a, b),
+        3 => switch_alarms!(receivers, callback, ctx.cancellation_token, a, b, c),
+        4 => switch_alarms!(receivers, callback, ctx.cancellation_token, a, b, c, d),
+        5 => switch_alarms!(receivers, callback, ctx.cancellation_token, a, b, c, d, e),
+        6 => switch_alarms!(receivers, callback, ctx.cancellation_token, a, b, c, d, e, f),
+        _ => {
+            panic!("");
+        }
     }
 }
 
@@ -100,21 +141,6 @@ impl EnvControllerTask for StaticControllerImplementation {
                 }
                 _ => panic!("failed to be"),
             };
-            //let action = imple.conditions.get(0).unwrap();
-            //let observer_id = action.get_observer_id();
-            //let actor_id = action.get_actor_id();
-            //let observer = get_env_element!(ctx, observers, observer_id).unwrap();
-            //let actor = get_env_element!(ctx, actors, actor_id).unwrap();
-            //let key = format!("{}:{}", observer.get_id(), observer.get_property());
-
-            //let mut receiver_alarm = ctx.alarm_receivers.get_mut(&key).unwrap();
-
-            //on_value_event_change(
-            //    &ctx.module_command_sender,
-            //    &mut receiver_alarm,
-            //    &action,
-            //    &actor,
-            //);
 
             for (_, mut receiver_alarm) in ctx.alarm_receivers.iter_mut() {
                 for action in imple.conditions.iter() {
@@ -127,51 +153,9 @@ impl EnvControllerTask for StaticControllerImplementation {
                 }
             }
 
-            //send_event!(ctx, EnvironmentControllerState::CHANGING_CONFIG, true);
-
             send_event!(ctx, EnvironmentControllerState::WAITING_ALARM, true);
 
-            loop {
-                for (_k, mut receiver_alarm) in ctx.alarm_receivers.iter_mut() {
-                    if let Ok(recv) = receiver_alarm.has_changed() {
-                        if recv {
-                            println!("has changed");
-                            for action in imple.conditions.iter() {
-                                on_value_event_change(
-                                    &ctx.module_command_sender,
-                                    &mut receiver_alarm,
-                                    &action,
-                                    &ctx.config.actors,
-                                );
-                                send_event!(ctx, EnvironmentControllerState::CHANGING_CONFIG, true);
-                            }
-                        }
-                    }
-                }
-                if ctx.cancellation_token.is_cancelled() {
-                    log::info!("static controller stopped");
-                    send_event!(ctx, EnvironmentControllerState::SLEEPING, false);
-                    return Ok(());
-                }
-                /*
-                select! {
-                    _ = ctx.cancellation_token.cancelled() => {
-                        log::info!("static controller stopped");
-                        send_event!(ctx, EnvironmentControllerState::SLEEPING, false);
-                        return Ok(());
-                    },
-                    res = receiver_alarm.changed() => {
-                        if res.is_ok() {
-                            on_value_event_change(&ctx.module_command_sender, &mut receiver_alarm, &action, &actor);
-                            send_event!(ctx, EnvironmentControllerState::CHANGING_CONFIG, true);
-                        }
-                    },
-                    _ = tokio::time::sleep(std::time::Duration::from_millis(5000)) => {
-                        println!("still alive");
-                    }
-                }
-                */
-            }
+            return select_alarms(&mut ctx, &imple).await;
         }));
     }
 }
@@ -187,8 +171,8 @@ mod tests {
 
     use crate::{
         modulestate::{
-            alarm::model::ModuleValueChange,
-            controller::context::Context, controller::module_command::ModuleCommandSender, interface::ModuleMsg,
+            alarm::model::ModuleValueChange, controller::context::Context,
+            controller::module_command::ModuleCommandSender, interface::ModuleMsg,
         },
         protos::{
             alarm::{AlarmZone, FieldAlarmEvent},
@@ -390,9 +374,7 @@ mod tests {
         let mut map_observer_action = HashMap::new();
         map_observer_action.insert(0, relay);
         actor_action.set_config(map_observer_action);
-        condition
-            .actions
-            .insert("test_actor".into(), actor_action);
+        condition.actions.insert("test_actor".into(), actor_action);
 
         let (ctx, sa, sm, sr, _rm, config, ct) = init(
             "AAA0000003",
@@ -419,7 +401,6 @@ mod tests {
         tokio::time::sleep(Duration::from_millis(100)).await;
 
         assert_eq!(handle.is_finished(), false);
-
 
         // TODO :fix
         /*let cmd = CHANNEL_MODULE_STATE_CMD

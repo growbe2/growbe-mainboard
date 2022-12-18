@@ -274,21 +274,25 @@ mod tests {
 
     use std::{
         collections::HashMap,
-        sync::{mpsc::channel, Arc}, time::Duration,
+        sync::Arc, time::Duration,
     };
 
+    use tokio::sync::mpsc::channel;
     use tokio_util::sync::CancellationToken;
 
     use crate::{
         comboard::imple::channel::ModuleConfig, modulestate::interface::ModuleValueValidator, protos::module::ManualConfig,
     };
 
+    use crate::wait_async;
+    use tokio::select;
+
     use super::*;
 
     #[test]
     fn module_aap_apply_full_config() {
         let mut validator = AAPValidator::new();
-        let (s, _r) = channel::<ModuleConfig>();
+        let (s, _r) = channel::<ModuleConfig>(5);
         let config = RelayModuleConfig::new();
         let mut map_handler: HashMap<String, CancellationToken> = HashMap::new();
 
@@ -301,10 +305,10 @@ mod tests {
         ).unwrap();
     }
 
-    #[test]
-    fn module_aap_apply_partial_config() {
+    #[tokio::test]
+    async fn module_aap_apply_partial_config() {
         let mut validator = AAPValidator::new();
-        let (s, r) = channel::<ModuleConfig>();
+        let (s, mut r) = channel::<ModuleConfig>(5);
         let mut config = RelayOutletConfig::new();
         let manual = ManualConfig{ state: true, ..Default::default()};
         config.set_manual(manual);
@@ -322,7 +326,7 @@ mod tests {
 
         assert_eq!(c.p0.as_ref().unwrap().get_manual().state, true);
 
-        let sended_config = r.recv_timeout(Duration::from_millis(100)).unwrap();
+        let sended_config = wait_async!(r.recv(), Duration::from_millis(100), None).unwrap();
         assert_eq!(*sended_config.data.get(0).unwrap(), 1);
         assert_eq!(*sended_config.data.get(1).unwrap(), 255);
     }

@@ -71,8 +71,8 @@ impl From<protobuf::ProtobufError> for MainboardError {
 }
 
 //tokio::sync::mpsc::error::SendError<(std::string::String, Box<(dyn ModuleValueParsable + 'static)>)>>>
-impl From<TrySendError<(String, Box<dyn ModuleValueParsable + 'static>)>> for MainboardError {
-    fn from(value: TrySendError<(String, Box<dyn ModuleValueParsable>)>) -> Self {
+impl <T> From<TrySendError<T>> for MainboardError {
+    fn from(value: TrySendError<T>) -> Self {
         return Self {
             message: value.to_string(),
         };

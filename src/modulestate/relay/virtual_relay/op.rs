@@ -40,7 +40,6 @@ pub fn create_virtual_relay(
         // if only one propertie use a normal relay
         if v.properties.len() == 1 {
             let relay: Box<PhysicalRelay> = Box::new(PhysicalRelay {
-                // TODO remove unwrap
                 sender: sender_comboard_config.get_sender(ComboardAddr {
                     imple: module_ref.board.clone(),
                     addr: module_ref.board_addr.clone(),

@@ -11,6 +11,7 @@ use crate::utils::mqtt::extract_module_id;
 use protobuf::Message;
 
 use super::controller::store::EnvControllerStore;
+use super::interface::ModuleMsg;
 use super::interface::{ModuleError, ModuleStateCmd};
 use super::{handle_state::send_module_state, state_manager::MainboardModuleStateManager};
 
@@ -238,6 +239,7 @@ pub fn handle_module_command(
     alarm_store: &super::alarm::store::ModuleAlarmStore,
     sender_config: &ComboardSenderMapReference,
     sender_socket: &Sender<(String, Box<dyn super::interface::ModuleValueParsable>)>,
+    sender_module: &Sender<ModuleMsg>,
     virtual_relay_store: &mut super::relay::virtual_relay::store::VirtualRelayStore,
     mut env_controller: &mut EnvControllerStore,
 ) -> Result<(), MainboardError> {
@@ -289,10 +291,8 @@ pub fn handle_module_command(
             manager,
         ),
         _ => {
-            // TODO: need to fix this , because it's breaking AAS calibration
-            /*
             let module_id = extract_module_id(topic);
-            match handle_validator_command(
+            return match handle_validator_command(
                 cmd,
                 &module_id,
                 sender_response,
@@ -302,36 +302,14 @@ pub fn handle_module_command(
             ) {
                 Ok(option_cmd) => {
                     if let Some(cmds) = option_cmd {
-                        if let Some(cmd) = cmds.get(0) {
-                            
-                            let cmd = cmd.clone();
-                            if let Err(err) = handle_module_command(
-                                &cmd.cmd,
-                                &cmd.topic,
-                                cmd.data,
-                                sender_response,
-                                manager,
-                                store,
-                                alarm_validator,
-                                alarm_store,
-                                sender_config,
-                                sender_socket,
-                                virtual_relay_store,
-                                &mut env_controller,
-                            ) {
-                                log::error!("failed to handle_module_command : {:?}", err);
-                            }
+                        for cmd in cmds {
+                            sender_module.try_send(ModuleMsg::Cmd(cmd))?;
                         }
-                        Ok(())
-                    } else {
-                        // end of chain return
-                        Ok(())
                     }
+                    Ok(())
                 }
                 Err(e) => Err(e.into()),
-            }
-            */
-            Ok(())
+            };
         }
     };
 
