@@ -165,7 +165,7 @@ mod tests {
 
     use std::{collections::HashMap, hash::Hash, time::Duration};
 
-    use protobuf::RepeatedField;
+    use protobuf::{RepeatedField, Message};
     use tokio::sync::watch::{channel, Sender};
     use tokio_util::sync::CancellationToken;
 
@@ -182,7 +182,7 @@ mod tests {
             },
             module::ManualConfig,
         },
-        socket::ss::SenderPayload,
+        socket::ss::SenderPayload, wait_async, cast_enum
     };
 
     //use serial_test::serial;
@@ -271,12 +271,11 @@ mod tests {
         );
     }
 
-    //#[tokio::test]
-    //#[serial]
+    #[tokio::test]
     async fn env_controller_static_start_and_stop() {
         let mut condition = SCConditionActor::default();
         condition.observer_id = "test_observer".into();
-        let (ctx, sa, sm, mut sr, _rm, config, ct) = init(
+        let (ctx, _sa, _sm, mut sr, _rm, _config, ct) = init(
             "AAA0000003",
             "airTemperature",
             "AAP0000003",
@@ -297,7 +296,6 @@ mod tests {
         assert_eq!(handle.is_finished(), true);
         assert_eq!(ct.is_cancelled(), true);
 
-        /*
         let d = sr.recv().await.unwrap().1;
         let first_message = d
             .as_any()
@@ -308,23 +306,14 @@ mod tests {
             EnvironmentControllerState::WAITING_ALARM
         );
         assert_eq!(first_message.running, true);
-
-        let d = sr.recv().await.unwrap().1;
-        let first_message = d
-            .as_any()
-            .downcast_ref::<EnvironmentControllerEvent>()
-            .unwrap();
-        assert_eq!(first_message.state, EnvironmentControllerState::SLEEPING);
-        assert_eq!(first_message.running, false);
-        */
     }
 
-    //#[tokio::test]
+    #[tokio::test]
     //#[serial]
     async fn env_controller_static_reat_alarm_undefined_zone_dont_send() {
         let mut condition = SCConditionActor::default();
         condition.observer_id = "test_observer".into();
-        let (ctx, sa, sm, sr, _rm, config, ct) = init(
+        let (ctx, sa, _sm, _sr, mut rm, _config, ct) = init(
             "AAA0000003",
             "airTemperature",
             "AAP0000003",
@@ -350,18 +339,14 @@ mod tests {
 
         assert_eq!(handle.is_finished(), false);
 
-        //let result = CHANNEL_MODULE_STATE_CMD
-        //    .1
-        //    .lock()
-        //    .unwrap()
-        //    .try_recv();
-        //assert_eq!(result.is_err(), true);
+        let result = wait_async!(rm.recv(), Duration::from_millis(50), None);
+
+        assert_eq!(result.is_none(), true);
 
         ct.cancel();
     }
 
-    //#[tokio::test]
-    //#[serial]
+    #[tokio::test]
     async fn env_controller_static_reat_alarm_defined_zone_send() {
         let mut condition = SCConditionActor::default();
         condition.observer_id = "test_observer".into();
@@ -376,7 +361,7 @@ mod tests {
         actor_action.set_config(map_observer_action);
         condition.actions.insert("test_actor".into(), actor_action);
 
-        let (ctx, sa, sm, sr, _rm, config, ct) = init(
+        let (ctx, sa, _sm, _sr, mut rm, _config, ct) = init(
             "AAA0000003",
             "airTemperature",
             "AAP0000003",
@@ -391,9 +376,22 @@ mod tests {
         assert_eq!(handle.is_finished(), false);
         assert_eq!(ct.is_cancelled(), false);
 
+        // Should have send a config on startup with alarm on unknow
+        let msg = wait_async!(rm.recv(), Duration::from_millis(50), None).unwrap();
+        let cmd = cast_enum!(msg, ModuleMsg::Cmd);
+
+        assert_eq!(cmd.cmd, "pmconfig");
+
+        let config = RelayOutletConfig::parse_from_bytes(&cmd.data).unwrap();
+
+        let manual = config.get_manual();
+
+        assert_eq!(manual.state, true);
+
         sa.send(FieldAlarmEvent {
             moduleId: "AAA0000003".into(),
             property: "airTemperature".into(),
+            currentZone: AlarmZone::UNKNOW,
             ..Default::default()
         })
         .unwrap();
@@ -402,16 +400,16 @@ mod tests {
 
         assert_eq!(handle.is_finished(), false);
 
-        // TODO :fix
-        /*let cmd = CHANNEL_MODULE_STATE_CMD
-            .1
-            .lock()
-            .unwrap()
-            .try_recv()
-            .unwrap();
+        let msg = wait_async!(rm.recv(), Duration::from_millis(50), None).unwrap();
+        let cmd = cast_enum!(msg, ModuleMsg::Cmd);
 
         assert_eq!(cmd.cmd, "pmconfig");
-        */
+
+        let config = RelayOutletConfig::parse_from_bytes(&cmd.data).unwrap();
+
+        let manual = config.get_manual();
+
+        assert_eq!(manual.state, true);
 
         ct.cancel();
     }

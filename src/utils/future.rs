@@ -11,3 +11,14 @@ macro_rules! wait_async {
         }
     };
 }
+
+#[macro_export]
+macro_rules! cast_enum {
+    ($source: expr, $type: path) => {{
+        if let $type(a) = $source {
+            a
+        } else {
+            panic!("mismatch variant when cast to {}", stringify!($type));
+        }
+    }};
+}
