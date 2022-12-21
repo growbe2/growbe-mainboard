@@ -9,7 +9,6 @@ use crate::{
 };
 
 use futures_util::{SinkExt, StreamExt};
-use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio_tungstenite::{connect_async, tungstenite::protocol::Message};
 
 #[derive(Serialize, Deserialize)]
@@ -49,18 +48,12 @@ async fn send_module_state(
         sender_module.send(
             ModuleMsg::State(ModuleStateChangeEvent{
                board: "ws".into(),
-               board_addr: "".into(),
-
+               board_addr: url.host_str().unwrap().into(),
+               id: id.clone(),
+               port: i as i32,
+               state,
             })
         ).await?;
-        /*comboard_send_state(
-            "ws".to_string(),
-            url.host_str().unwrap().to_string(),
-            i as i32,
-            id.clone(),
-            state,
-        )
-        .unwrap();*/
     }
     Ok(())
 }
@@ -92,7 +85,7 @@ async fn on_data(
 
             if !ctx.connected && ctx.module_id != "" && ctx.supported_modules.len() > 0 {
                 ctx.connected = true;
-                send_module_state(&sender_module, &ctx.module_id, &ctx.supported_modules, &url, true).await;
+                send_module_state(&sender_module, &ctx.module_id, &ctx.supported_modules, &url, true).await?;
             }
         }
         Err(_err) => {
