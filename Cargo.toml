@@ -22,53 +22,53 @@ members = [ "crates/*" ]
 [dependencies]
 growbe_shared = { path = "./crates/growbe-shared"}
 
-chrono = "0.4.0"
-rumqttc = "0.18.0"
-env_logger = "0.9.0"
-log = "0.4.14"
-protobuf = "2.25.2"
-lazy_static = "1.4.0"
-rusqlite = { version = "0.28.0", features = ["bundled"] }
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0.59"
-tokio = { version = "1.14", features = ["full", "time", "rt-multi-thread"] }
-tokio-util = "0.6.9"
-regex = "1.5"
+chrono = "*"
+rumqttc = "*"
+env_logger = "*"
+log = "*"
+protobuf = "*"
+lazy_static = "*"
+rusqlite = { version = "*", features = ["bundled"] }
+serde = { version = "*", features = ["derive"] }
+serde_json = "*"
+tokio = { version = "*", features = ["full", "time", "rt-multi-thread"] }
+tokio-util = "*"
+regex = "*"
 
-reqwest = { version = "0.11", features = ["json"] }
+reqwest = { version = "*", features = ["json"] }
 
-nix = { version = "0.23.0", optional = false }
+nix = { version = "*", optional = false }
 
-cty = { version = "0.2.2", optional = true }
+cty = { version = "*", optional = true }
 
-futures = { version = "0.3", optional = true }
+futures = { version = "*", optional = true }
 
 # dependencies for web server
-warp = { version = "0.3" , optional = true}
+warp = { version = "*" , optional = true}
 
 # dependencies for web socket
 tokio-tungstenite = { version = "*",  optional = true }
-url = { version = "2.0.0", optional = true }
+url = { version = "*", optional = true }
 futures-util = { version = "*", optional = true }
 
 # dependencies for ble
-uuid = { version = "1.1.2", optional = true }
-tokio-stream = { version = "0.1.9", features = ["sync"], optional = true }
+uuid = { version = "*", optional = true }
+tokio-stream = { version = "*", features = ["sync"], optional = true }
 
 [target.'cfg(any(target_os = "macos", target_os = "windows"))'.dependencies]
-btleplug = { version = "0.10", features = ["serde"], optional = true }
+btleplug = { version = "*", features = ["serde"], optional = true }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 uname = { git = "https://github.com/icorderi/rust-uname" , optional = false }
 
 [target.'cfg(target_os = "linux")'.dependencies]
 uname = { git = "https://github.com/icorderi/rust-uname" , optional = false }
-bluer = {version = "0.15.0", features = ["bluetoothd"], optional = true}
+bluer = {version = "*", features = ["bluetoothd"], optional = true}
 # for gpio
-rppal = { version = "0.13.1", optional = true }
+rppal = { version = "*", optional = true }
 
 [dev-dependencies]
 serial_test = "*"
 
 [build-dependencies]
-protoc-rust = "2.25.2"
+protoc-rust = "*"
