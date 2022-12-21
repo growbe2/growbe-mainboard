@@ -1,4 +1,4 @@
-use std::sync::mpsc::Receiver;
+use tokio::sync::mpsc::Receiver;
 
 use serde::{Deserialize, Serialize};
 

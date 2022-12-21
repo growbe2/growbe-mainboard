@@ -1,22 +1,9 @@
-use std::{
-    collections::HashMap,
-    sync::{
-        mpsc::{channel, Receiver, Sender},
-        Arc, Mutex,
-    },
-};
+use std::collections::HashMap;
 
-pub fn mutex_channel<T>() -> (Mutex<Sender<T>>, Mutex<Receiver<T>>) {
-    let (sender, receive) = channel::<T>();
-
-    return (Mutex::new(sender), Mutex::new(receive));
-}
+use tokio::sync::mpsc::{channel, Receiver, Sender};
 
 pub type ModuleValue = (String, Vec<u8>);
 
-lazy_static::lazy_static! {
-    pub static ref CHANNEL_VALUE:(Mutex<Sender<ModuleValue>>, Mutex<Receiver<ModuleValue>>)  = mutex_channel();
-}
 
 pub struct ModuleConfig {
     pub port: i32,
@@ -26,7 +13,7 @@ pub struct ModuleConfig {
 pub type ModuleSenderMap = HashMap<String, Sender<ModuleConfig>>;
 
 pub struct ModuleSenderMapReference {
-    map: Arc<Mutex<ModuleSenderMap>>,
+    map: ModuleSenderMap,
 }
 
 impl ModuleSenderMapReference {
@@ -64,7 +51,7 @@ impl ModuleConfigChannelManager {
     }
 
     pub fn create_channel(&mut self, addr: i32) -> Receiver<ModuleConfig> {
-        let (sender, receiver) = channel::<ModuleConfig>();
+        let (sender, receiver) = channel::<ModuleConfig>(5);
         self.senders
             .lock()
             .unwrap()
