@@ -1,4 +1,4 @@
-use tokio::sync::mpsc::error::TrySendError;
+use tokio::sync::mpsc::error::{TrySendError, SendError};
 
 use crate::modulestate::interface::ModuleError;
 use crate::modulestate::interface::ModuleValueParsable;
@@ -70,9 +70,25 @@ impl From<protobuf::ProtobufError> for MainboardError {
     }
 }
 
+impl From<tokio_tungstenite::tungstenite::Error> for MainboardError {
+    fn from(value: tokio_tungstenite::tungstenite::Error) -> Self {
+        return Self {
+            message: value.to_string(),
+        }
+    }
+}
+
 //tokio::sync::mpsc::error::SendError<(std::string::String, Box<(dyn ModuleValueParsable + 'static)>)>>>
 impl <T> From<TrySendError<T>> for MainboardError {
     fn from(value: TrySendError<T>) -> Self {
+        return Self {
+            message: value.to_string(),
+        };
+    }
+}
+
+impl <T> From<SendError<T>> for MainboardError {
+    fn from(value: SendError<T>) -> Self {
         return Self {
             message: value.to_string(),
         };

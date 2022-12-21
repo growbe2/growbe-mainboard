@@ -617,6 +617,7 @@ dependencies = [
  "cty",
  "env_logger",
  "futures",
+ "futures-util",
  "growbe_shared",
  "lazy_static",
  "log",
