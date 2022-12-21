@@ -128,6 +128,10 @@ async fn handle_device_loop(
                     },
                     Err(err) => {
                         log::error!("ws error : {:?}", err);
+                        if ctx.connected == true {
+                            send_module_state(&sender_module, &ctx.module_id, &ctx.supported_modules, &url, false).await?;
+                            return Err(MainboardError { message: "disconnection from target".into() })
+                        }
                     }
                 }
             },

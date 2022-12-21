@@ -75,7 +75,7 @@ async fn main() {
 
     // Create the task to handle the modules state
     let module_state_task = modulestate::task::module_state_task(
-        sender_socket,
+        sender_socket.clone(),
         modulestate::store::ModuleStateStore::new(conn_database.clone()),
         config_channel_manager.get_reference(),
         modulestate::alarm::store::ModuleAlarmStore::new(conn_database.clone()),
@@ -119,6 +119,27 @@ async fn main() {
     #[cfg(not(feature = "http_server"))]
     let server_task = async {};
 
-    let _ = tokio::join!(server_task, module_state_task, socket_task);
     //let _ = tokio::join!(server_task, socket_task);
+    tokio::spawn(async move {
+        match tokio::signal::ctrl_c().await {
+            Ok(()) => {
+                println!("closing down");
+                sender_socket
+                    .send((
+                        "/disconnecting".into(),
+                        Box::new(crate::protos::board::HelloWord::new()),
+                    ))
+                    .await
+                    .unwrap();
+                tokio::time::sleep(std::time::Duration::from_millis(500)).await;
+                std::process::exit(0);
+            }
+            Err(err) => {
+                log::error!("unable to listen for shutdown signal {}", err);
+            }
+        }
+    });
+
+    let _ = tokio::join!(server_task, module_state_task, socket_task);
+
 }

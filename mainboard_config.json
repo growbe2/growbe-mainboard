@@ -7,6 +7,10 @@
         {
                 "config": "",
                 "imple": "virt"
+        },
+        {
+                "config": "localhost",
+                "imple": "ws"
         }
 	],
 	"server": {

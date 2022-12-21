@@ -1,9 +1,11 @@
 use std::thread;
 
 use crate::{
-    channel::CHANNEL_VALUE,
+    channel::{ModuleValue, ModuleConfig},
     protos::module::{ComputerStatsData, CpuData, CpuLoadData, MemoryData, NetworkData},
 };
+
+use tokio::sync::mpsc::{Receiver, Sender};
 
 use super::ModuleClient;
 
@@ -20,7 +22,8 @@ impl SystemStatsModule {
 impl ModuleClient for SystemStatsModule {
     fn run(
         &self,
-        _receiver_config: std::sync::mpsc::Receiver<crate::channel::ModuleConfig>,
+        _receiver_value: Receiver<ModuleConfig>,
+        sender_value: Sender<ModuleValue>,
     ) -> tokio::task::JoinHandle<Result<(), ()>> {
         return tokio::spawn(async move {
             log::info!("starting module for SystemStats");
@@ -91,11 +94,9 @@ impl ModuleClient for SystemStatsModule {
                     );
                 }
 
-                CHANNEL_VALUE
-                    .0
-                    .lock()
-                    .unwrap()
+                sender_value
                     .send(("CSS".to_string(), data.write_to_bytes().unwrap()))
+                    .await
                     .unwrap();
 
                 tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
