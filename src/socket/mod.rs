@@ -523,7 +523,7 @@ pub fn socket_task(
             config_mqtt.port,
         );
         config.set_keep_alive(Duration::from_secs(5));
-        let (mut client, mut eventloop) = AsyncClient::new(config, 20);
+        let (client, mut eventloop) = AsyncClient::new(config, 20);
 
         handle_subscription_topics(&client, &MQTT_HANDLES, &MAPPING_MODULES)
             .await
@@ -569,7 +569,7 @@ pub fn socket_task(
                                     _ => {}
                                 }
                             },
-                            Event::Outgoing(d) => {
+                            Event::Outgoing(_d) => {
                             }
                         }
                         last_message_at = handle_hearthbeath(&client, last_message_at, hearth_beath_rate).await;

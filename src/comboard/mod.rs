@@ -1,6 +1,6 @@
-use crate::{protos::board::RunningComboard, modulestate::interface::ModuleMsg};
+use crate::{protos::board::RunningComboard};
 
-use self::{config::ComboardConfig, imple::interface::ComboardClientConfig};
+use self::{imple::interface::ComboardClientConfig};
 
 use tokio::sync::mpsc::Receiver;
 
@@ -60,7 +60,7 @@ pub fn get_comboard_client(
         }
     }
 
-    if let Some(element) = i2c {
+    if let Some(_element) = i2c {
         #[cfg(all(target_os = "linux", feature = "com_i2c"))]
         {
             let bo = Box::new(get_comboard_i2c(ComboardClientConfig {
@@ -82,7 +82,7 @@ pub fn get_comboard_client(
         println!("no i2c");
     }
 
-    if let Some(element) = ble {
+    if let Some(_element) = ble {
         #[cfg(feature = "com_ble")]
         {
             let bo = get_ble_comboard(element.config.clone());

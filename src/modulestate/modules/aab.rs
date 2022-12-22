@@ -65,7 +65,7 @@ impl crate::modulestate::interface::ModuleValueValidator for AABValidator {
             crate::comboard::imple::channel::ModuleConfig,
         >,
         map_handler: &mut std::collections::HashMap<String, tokio_util::sync::CancellationToken>,
-        actor: crate::protos::module::Actor,
+        _actor: crate::protos::module::Actor,
     ) -> Result<
         (
             Box<dyn protobuf::Message>,

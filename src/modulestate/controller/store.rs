@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
 use protobuf::Message;
-use tokio::sync::watch::{channel, Receiver, Sender};
+use tokio::sync::watch::{channel, Sender};
 use tokio_util::sync::CancellationToken;
 
 use crate::mainboardstate::error::MainboardError;

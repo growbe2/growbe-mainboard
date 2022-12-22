@@ -20,9 +20,9 @@ impl ModuleCommandSender {
 
     pub fn send_relay_config(
         &self,
-        type_relay: &str,
-        id: &str,
-        config: RelayOutletConfig,
+        _type_relay: &str,
+        _id: &str,
+        _config: RelayOutletConfig,
     ) -> Result<Receiver<ActionResponse>, MainboardError> {
         return Err(MainboardError::new());
     }

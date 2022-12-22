@@ -4,13 +4,12 @@ use crate::{
         context::Context, controller_trait::EnvControllerTask, module_command::ModuleCommandSender,
     },
     protos::{
-        alarm::{AlarmZone, FieldAlarmEvent},
+        alarm::{FieldAlarmEvent},
         env_controller::{
             EnvironmentControllerConfiguration_oneof_implementation, EnvironmentControllerEvent,
-            EnvironmentControllerState, MActor, MObserver, SCConditionActor,
+            EnvironmentControllerState, MActor, SCConditionActor,
         },
-        message::ActionCode,
-        module::{RelayModuleConfig, RelayOutletConfig, Actor},
+        module::{RelayOutletConfig, Actor},
     },
     send_event,
 };
@@ -166,7 +165,7 @@ impl EnvControllerTask for StaticControllerImplementation {
 //#[cfg(test)]
 mod tests {
 
-    use std::{collections::HashMap, hash::Hash, time::Duration};
+    use std::{collections::HashMap};
 
     use protobuf::{RepeatedField, Message};
     use tokio::sync::watch::{channel, Sender};
@@ -181,11 +180,10 @@ mod tests {
             alarm::{AlarmZone, FieldAlarmEvent},
             env_controller::{
                 EnvironmentControllerConfiguration, MObserver, RessourceType, SCConditionActor,
-                SCObserverAction,
             },
-            module::{ManualConfig, ActorType},
+            module::{ActorType},
         },
-        socket::ss::SenderPayload, wait_async, cast_enum
+        socket::ss::SenderPayload
     };
 
     //use serial_test::serial;

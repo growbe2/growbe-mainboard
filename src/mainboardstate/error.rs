@@ -3,7 +3,7 @@ use std::ffi::OsString;
 use tokio::sync::mpsc::error::{TrySendError, SendError};
 
 use crate::modulestate::interface::ModuleError;
-use crate::modulestate::interface::ModuleValueParsable;
+
 
 #[derive(Debug, Clone)]
 pub struct MainboardError {
@@ -106,7 +106,7 @@ impl From<nix::errno::Errno> for MainboardError {
 }
 
 impl From<OsString> for MainboardError {
-    fn from(value: OsString) -> Self {
+    fn from(_value: OsString) -> Self {
         return Self {
             message: "failed to cast os string".into(),
         }

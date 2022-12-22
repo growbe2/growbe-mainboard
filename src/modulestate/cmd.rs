@@ -1,5 +1,5 @@
 use tokio::sync::mpsc::Sender;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc};
 
 use crate::comboard::imple::channel::ComboardAddr;
 use crate::comboard::imple::channel::ComboardSenderMapReference;
