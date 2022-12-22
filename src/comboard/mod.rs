@@ -60,7 +60,7 @@ pub fn get_comboard_client(
         }
     }
 
-    if let Some(_element) = i2c {
+    if let Some(element) = i2c {
         #[cfg(all(target_os = "linux", feature = "com_i2c"))]
         {
             let bo = Box::new(get_comboard_i2c(ComboardClientConfig {
@@ -77,7 +77,7 @@ pub fn get_comboard_client(
             println!("adding i2c");
         }
         #[cfg(not(feature = "com_i2c"))]
-        panic!("i2c comboard not compiled in the version");
+        panic!("i2c comboard not compiled in the version {}", element.config);
     } else {
         println!("no i2c");
     }
