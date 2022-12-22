@@ -14,6 +14,7 @@ use crate::modulestate::state_manager::MainboardModuleStateManager;
 use crate::protos::env_controller::{
     EnvironmentControllerConfiguration_oneof_implementation, RessourceType,
 };
+use crate::protos::module::{Actor, ActorType};
 use crate::socket::ss::SenderSocket;
 use crate::store::database::get_many_field_from_table;
 use crate::{
@@ -330,6 +331,10 @@ impl EnvControllerStore {
             }
         }
 
+        let mut actor = Actor::new();
+        actor.id = config.id.clone();
+        actor.name = config.id.clone();
+        actor.field_type = ActorType::ENV_CONTROLLER_ACTOR;
 
         Ok(Context {
             config: config.clone(),
@@ -338,6 +343,7 @@ impl EnvControllerStore {
             alarm_receivers,
             value_receivers,
             sender_socket: self.sender.clone(),
+            actor,
         })
     }
 

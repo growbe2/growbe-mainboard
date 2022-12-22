@@ -39,6 +39,7 @@ impl crate::modulestate::interface::ModuleValueValidator for PCSValidator {
             crate::comboard::imple::channel::ModuleConfig,
         >,
         _map_handler: &mut std::collections::HashMap<String, tokio_util::sync::CancellationToken>,
+        actor: crate::protos::module::Actor,
     ) -> Result<
         (
             Box<dyn protobuf::Message>,
@@ -60,7 +61,7 @@ impl crate::modulestate::interface::ModuleValueValidator for PCSValidator {
         ));
     }
 
-    fn remove_config(&mut self) -> Result<(), crate::modulestate::interface::ModuleError> {
+    fn remove_config(&mut self,_actor: crate::protos::module::Actor,) -> Result<(), crate::modulestate::interface::ModuleError> {
         return Ok(());
     }
 
@@ -85,6 +86,7 @@ impl crate::modulestate::interface::ModuleValueValidator for PCSValidator {
             String,
             Box<dyn crate::modulestate::interface::ModuleValueParsable>,
         )>,
+_actor: crate::protos::module::Actor,
     ) -> Result<
         Option<Vec<crate::modulestate::interface::ModuleStateCmd>>,
         crate::modulestate::interface::ModuleError,

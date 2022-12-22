@@ -10,7 +10,7 @@ use crate::{
             EnvironmentControllerState, MActor, MObserver, SCConditionActor,
         },
         message::ActionCode,
-        module::{RelayModuleConfig, RelayOutletConfig},
+        module::{RelayModuleConfig, RelayOutletConfig, Actor},
     },
     send_event,
 };
@@ -59,12 +59,13 @@ fn on_value_event_change(
     receiver_alarm: &mut Receiver<FieldAlarmEvent>,
     action: &SCConditionActor,
     actors: &RepeatedField<MActor>,
+    actor: &Actor,
 ) {
     let initial_value = receiver_alarm.borrow_and_update().clone();
     let config_relays = get_config_for_event(&actors, &initial_value, action);
     for (k, p, config_relay) in config_relays {
         context
-            .send_mconfig_prop(&k, &p, Box::new(config_relay))
+            .send_mconfig_prop(&k, &p, Box::new(config_relay), actor.clone())
             .unwrap();
     }
 }
@@ -108,6 +109,7 @@ async fn select_alarms(
                 &mut receiver_alarm,
                 &action,
                 &ctx.config.actors,
+                &ctx.actor,
             );
             send_event!(ctx, EnvironmentControllerState::CHANGING_CONFIG, true);
         }
@@ -149,6 +151,7 @@ impl EnvControllerTask for StaticControllerImplementation {
                         &mut receiver_alarm,
                         &action,
                         &ctx.config.actors,
+                        &ctx.actor,
                     );
                 }
             }
@@ -180,7 +183,7 @@ mod tests {
                 EnvironmentControllerConfiguration, MObserver, RessourceType, SCConditionActor,
                 SCObserverAction,
             },
-            module::ManualConfig,
+            module::{ManualConfig, ActorType},
         },
         socket::ss::SenderPayload, wait_async, cast_enum
     };
@@ -204,6 +207,10 @@ mod tests {
         EnvironmentControllerConfiguration,
         CancellationToken,
     ) {
+        let mut actor = Actor::new();
+        actor.id = "test".into();
+        actor.name = "test".into();
+        actor.field_type = ActorType::ENV_CONTROLLER_ACTOR;
         let (sa, ra) = channel(FieldAlarmEvent {
             moduleId: module_id.into(),
             property: property.into(),
@@ -261,6 +268,7 @@ mod tests {
                 alarm_receivers,
                 value_receivers,
                 sender_socket: ss.into(),
+                actor
             },
             sa,
             sm,

@@ -31,7 +31,6 @@ impl crate::modulestate::interface::ModuleValueValidator for AAAValidator {
 
         let mut v = std::ptr::null_mut();
 
-
         unsafe {
             if value_event.buffer.len() >= 105 {
                 data.airTemperature = round_decimal(strtof(value_event.buffer.as_ptr(), &mut v));
@@ -59,6 +58,7 @@ impl crate::modulestate::interface::ModuleValueValidator for AAAValidator {
             crate::comboard::imple::channel::ModuleConfig,
         >,
         _map_handler: &mut std::collections::HashMap<String, tokio_util::sync::CancellationToken>,
+        actor: crate::protos::module::Actor,
     ) -> Result<
         (
             Box<dyn protobuf::Message>,
@@ -69,7 +69,10 @@ impl crate::modulestate::interface::ModuleValueValidator for AAAValidator {
         Err(crate::modulestate::interface::ModuleError::new())
     }
 
-    fn remove_config(&mut self) -> Result<(), crate::modulestate::interface::ModuleError> {
+    fn remove_config(
+        &mut self,
+        _actor: crate::protos::module::Actor,
+    ) -> Result<(), crate::modulestate::interface::ModuleError> {
         return Ok(());
     }
 
@@ -117,6 +120,7 @@ impl crate::modulestate::interface::ModuleValueValidator for AAAValidator {
             String,
             Box<dyn crate::modulestate::interface::ModuleValueParsable>,
         )>,
+        _actor: crate::protos::module::Actor,
     ) -> Result<
         Option<Vec<crate::modulestate::interface::ModuleStateCmd>>,
         crate::modulestate::interface::ModuleError,

@@ -54,7 +54,7 @@ impl crate::modulestate::interface::ModuleValueValidator for AAPValidator {
         }
     }
 
-    fn remove_config(&mut self) -> Result<(), crate::modulestate::interface::ModuleError> {
+    fn remove_config(&mut self,_actor: crate::protos::module::Actor,) -> Result<(), crate::modulestate::interface::ModuleError> {
         return Ok(());
     }
 
@@ -67,6 +67,7 @@ impl crate::modulestate::interface::ModuleValueValidator for AAPValidator {
             crate::comboard::imple::channel::ModuleConfig,
         >,
         map_handler: &mut std::collections::HashMap<String, tokio_util::sync::CancellationToken>,
+        actor: crate::protos::module::Actor,
     ) -> Result<
         (
             Box<dyn protobuf::Message>,
@@ -261,6 +262,7 @@ impl crate::modulestate::interface::ModuleValueValidator for AAPValidator {
             String,
             Box<dyn crate::modulestate::interface::ModuleValueParsable>,
         )>,
+_actor: crate::protos::module::Actor,
     ) -> Result<
         Option<Vec<crate::modulestate::interface::ModuleStateCmd>>,
         crate::modulestate::interface::ModuleError,
@@ -280,6 +282,7 @@ mod tests {
     use tokio::sync::mpsc::channel;
     use tokio_util::sync::CancellationToken;
 
+    use crate::modulestate::actor::new_actor;
     use crate::{
         comboard::imple::channel::ModuleConfig, modulestate::interface::ModuleValueValidator, protos::module::ManualConfig,
     };
@@ -295,6 +298,7 @@ mod tests {
         let (s, _r) = channel::<ModuleConfig>(5);
         let config = RelayModuleConfig::new();
         let mut map_handler: HashMap<String, CancellationToken> = HashMap::new();
+        let actor = new_actor("a", crate::protos::module::ActorType::MANUAL_USER_ACTOR);
 
         validator.apply_parse_config(
             0,
@@ -302,6 +306,7 @@ mod tests {
             Arc::new(config.write_to_bytes().unwrap()),
             &s,
             &mut map_handler,
+            actor,
         ).unwrap();
     }
 
@@ -314,12 +319,15 @@ mod tests {
         config.set_manual(manual);
         let mut map_handler: HashMap<String, CancellationToken> = HashMap::new();
 
+        let actor = new_actor("a", crate::protos::module::ActorType::MANUAL_USER_ACTOR);
+
         let (c, _) = validator.apply_parse_config(
             0,
             "AAP:p0",
             Arc::new(config.write_to_bytes().unwrap()),
             &s,
             &mut map_handler,
+            actor
         ).unwrap();
 
         let c = c.as_any().downcast_ref::<RelayModuleConfig>().unwrap();

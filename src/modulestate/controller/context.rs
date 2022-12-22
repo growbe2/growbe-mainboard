@@ -5,7 +5,7 @@ use tokio_util::sync::CancellationToken;
 
 use crate::{
     modulestate::alarm::model::ModuleValueChange,
-    protos::{alarm::FieldAlarmEvent, env_controller::{EnvironmentControllerConfiguration, EnvironmentControllerEvent, EnvironmentControllerState, MActor, MObserver}},socket::ss::SenderSocket,
+    protos::{alarm::FieldAlarmEvent, env_controller::{EnvironmentControllerConfiguration, EnvironmentControllerEvent, EnvironmentControllerState, MActor, MObserver}, module::Actor},socket::ss::SenderSocket,
 };
 
 use super::module_command::ModuleCommandSender;
@@ -23,6 +23,9 @@ pub struct Context {
 
     // Receiver value change, map with a watch receiver for each module
     pub value_receivers: HashMap<String, tokio::sync::watch::Receiver<ModuleValueChange<f32>>>,
+
+    // myself
+    pub actor: Actor
 }
 
 

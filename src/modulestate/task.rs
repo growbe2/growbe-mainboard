@@ -39,6 +39,7 @@ pub fn module_state_task(
                         if let Err(err) = super::cmd::handle_module_command(
                             &cmd.cmd,
                             &cmd.topic,
+                            &cmd.actor,
                             cmd.data,
                             cmd.sender,
                             &mut manager,

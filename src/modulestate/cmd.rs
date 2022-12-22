@@ -6,6 +6,7 @@ use crate::comboard::imple::channel::ComboardSenderMapReference;
 use crate::mainboardstate::error::MainboardError;
 use crate::protos::alarm::FieldAlarm;
 use crate::protos::env_controller::EnvironmentControllerConfiguration;
+use crate::protos::module::Actor;
 use crate::utils::mqtt::extract_module_id;
 
 use protobuf::Message;
@@ -22,6 +23,7 @@ fn apply_module_config(
     sender_config: &ComboardSenderMapReference,
     store: &super::store::ModuleStateStore,
     suffix: &str,
+    from_actor: &Actor,
 ) -> Result<(), MainboardError> {
     let module_ref_option = manager.connected_module.get_mut(id);
 
@@ -41,6 +43,7 @@ fn apply_module_config(
                 data,
                 &sender_config,
                 &mut module_ref.handler_map,
+                from_actor.clone(),
             ) {
                 Ok((config, config_comboard)) => {
                     store.store_module_config(&(id.into()), config)?;
@@ -68,12 +71,13 @@ fn handle_module_config(
     sender_config: &ComboardSenderMapReference,
     _sender_socket: &Sender<(String, Box<dyn super::interface::ModuleValueParsable>)>,
     store: &super::store::ModuleStateStore,
+    from_actor: &Actor,
 ) -> Result<(), MainboardError> {
     let id = crate::utils::mqtt::last_element_path(topic).ok_or(
         MainboardError::new().message("failed to get last element from mqtt topic".to_string()),
     )?;
 
-    return apply_module_config(&id, data, manager, sender_config, store, "");
+    return apply_module_config(&id, data, manager, sender_config, store, "", from_actor);
 }
 
 fn handle_pmodule_config(
@@ -83,12 +87,13 @@ fn handle_pmodule_config(
     sender_config: &ComboardSenderMapReference,
     _sender_socket: &Sender<(String, Box<dyn super::interface::ModuleValueParsable>)>,
     store: &super::store::ModuleStateStore,
+    from_actor: &Actor,
 ) -> Result<(), MainboardError> {
     let (id, property) = crate::utils::mqtt::last_2_element_path(topic).ok_or(
         MainboardError::new().message("failed to get last element from mqtt topic".to_string()),
     )?;
 
-    return apply_module_config(&id, data, manager, sender_config, store, &property);
+    return apply_module_config(&id, data, manager, sender_config, store, &property, from_actor);
 }
 
 fn handle_remove_module_config(
@@ -98,13 +103,15 @@ fn handle_remove_module_config(
     _sender_config: &ComboardSenderMapReference,
     _sender_socket: &Sender<(String, Box<dyn super::interface::ModuleValueParsable>)>,
     store: &super::store::ModuleStateStore,
+    from_actor: &Actor,
 ) -> Result<(), MainboardError> {
+    // TODO: for actor need to validate that i can delete a config if all property are owned by me
     let id = crate::utils::mqtt::last_element_path(topic).ok_or(
         ModuleError::new().message("failed to get last element from mqtt topic".to_string()),
     )?;
     let module_ref_option = manager.connected_module.get_mut(id.as_str());
     if let Some(module_ref) = module_ref_option {
-        module_ref.validator.remove_config()?;
+        module_ref.validator.remove_config(from_actor.clone())?;
         store.delete_module_config(&id)?;
     } else {
         return Err(super::interface::ModuleError::not_found(&id).into());
@@ -214,6 +221,7 @@ fn handle_validator_command(
     manager: &mut MainboardModuleStateManager,
     sender_socket: &Sender<(String, Box<dyn super::interface::ModuleValueParsable>)>,
     data: std::sync::Arc<Vec<u8>>,
+    from_actor: &Actor,
 ) -> Result<std::option::Option<Vec<ModuleStateCmd>>, super::interface::ModuleError> {
     if let Some(module) = manager.connected_module.get_mut(module_id) {
         return module.validator.handle_command_validator(
@@ -222,6 +230,7 @@ fn handle_validator_command(
             data,
             sender_response,
             sender_socket,
+            from_actor.clone(),
         );
     } else {
         return Err(super::interface::ModuleError::not_found(module_id));
@@ -231,6 +240,7 @@ fn handle_validator_command(
 pub fn handle_module_command(
     cmd: &String,
     topic: &String,
+    actor: &Actor,
     data: std::sync::Arc<Vec<u8>>,
     sender_response: tokio::sync::oneshot::Sender<crate::protos::message::ActionResponse>,
     manager: &mut MainboardModuleStateManager,
@@ -246,10 +256,10 @@ pub fn handle_module_command(
     let result: Result<(), MainboardError> = match cmd.as_str() {
         "sync" => handle_sync_request(manager, &sender_socket),
         "pmconfig" => {
-            handle_pmodule_config(topic, data, manager, &sender_config, &sender_socket, &store)
+            handle_pmodule_config(topic, data, manager, &sender_config, &sender_socket, &store, &actor)
         },
         "mconfig" => {
-            handle_module_config(topic, data, manager, &sender_config, &sender_socket, &store)
+            handle_module_config(topic, data, manager, &sender_config, &sender_socket, &store, &actor)
         }
         "rmconfig" => handle_remove_module_config(
             topic,
@@ -258,6 +268,7 @@ pub fn handle_module_command(
             &sender_config,
             &sender_socket,
             &store,
+            &actor,
         ),
         "aEnv" => handle_register_environment_controller(&alarm_store, manager, &mut env_controller, data),
         "rEnv" => handle_unregister_environment_controller(&mut env_controller, topic),
@@ -299,6 +310,7 @@ pub fn handle_module_command(
                 manager,
                 &sender_socket,
                 data,
+                &actor,
             ) {
                 Ok(option_cmd) => {
                     if let Some(cmds) = option_cmd {

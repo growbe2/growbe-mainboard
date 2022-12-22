@@ -1,4 +1,4 @@
-use crate::{mainboardstate::error::MainboardError, comboard::imple::interface::{ModuleStateChangeEvent, ModuleValueValidationEvent}};
+use crate::{mainboardstate::error::MainboardError, comboard::imple::interface::{ModuleStateChangeEvent, ModuleValueValidationEvent}, protos::module::Actor};
 
 pub trait ModuleValue {}
 pub trait ModuleValueParsable: ModuleValue + protobuf::Message {}
@@ -103,6 +103,7 @@ impl From<rusqlite::Error> for ModuleError {
 pub struct ModuleStateCmd {
     pub cmd: String,
     pub topic: String,
+    pub actor: Actor,
     pub data: std::sync::Arc<Vec<u8>>,
     pub sender: tokio::sync::oneshot::Sender<crate::protos::message::ActionResponse>,
 }
@@ -176,9 +177,9 @@ pub trait ModuleValueValidator: Downcast {
         data: std::sync::Arc<Vec<u8>>,
         sender_response: tokio::sync::oneshot::Sender<crate::protos::message::ActionResponse>,
         sender_socket: &tokio::sync::mpsc::Sender<(String, Box<dyn ModuleValueParsable>)>,
+        actor: Actor,
     ) -> Result<Option<Vec<ModuleStateCmd>>, ModuleError>;
 
-    // need to be option result
     fn apply_parse_config(
         &mut self,
         port: i32,
@@ -188,6 +189,7 @@ pub trait ModuleValueValidator: Downcast {
             crate::comboard::imple::channel::ModuleConfig,
         >,
         map_handler: &mut std::collections::HashMap<String, tokio_util::sync::CancellationToken>,
+        actor: Actor,
     ) -> Result<
         (
             Box<dyn protobuf::Message>,
@@ -196,5 +198,5 @@ pub trait ModuleValueValidator: Downcast {
         ModuleError,
     >;
 
-    fn remove_config(&mut self) -> Result<(), ModuleError>;
+    fn remove_config(&mut self, actor: Actor) -> Result<(), ModuleError>;
 }

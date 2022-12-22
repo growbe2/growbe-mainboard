@@ -52,7 +52,7 @@ impl crate::modulestate::interface::ModuleValueValidator for AABValidator {
         return Ok(Box::new(data));
     }
 
-    fn remove_config(&mut self) -> Result<(), crate::modulestate::interface::ModuleError> {
+    fn remove_config(&mut self,_actor: crate::protos::module::Actor,) -> Result<(), crate::modulestate::interface::ModuleError> {
         return Ok(());
     }
 
@@ -65,6 +65,7 @@ impl crate::modulestate::interface::ModuleValueValidator for AABValidator {
             crate::comboard::imple::channel::ModuleConfig,
         >,
         map_handler: &mut std::collections::HashMap<String, tokio_util::sync::CancellationToken>,
+        actor: crate::protos::module::Actor,
     ) -> Result<
         (
             Box<dyn protobuf::Message>,
@@ -259,6 +260,7 @@ impl crate::modulestate::interface::ModuleValueValidator for AABValidator {
             String,
             Box<dyn crate::modulestate::interface::ModuleValueParsable>,
         )>,
+_actor: crate::protos::module::Actor,
     ) -> Result<
         Option<Vec<crate::modulestate::interface::ModuleStateCmd>>,
         crate::modulestate::interface::ModuleError,
@@ -280,7 +282,7 @@ mod tests {
     use tokio::select;
 
     use crate::{
-        comboard::imple::channel::ModuleConfig, modulestate::interface::ModuleValueValidator,
+        comboard::imple::channel::ModuleConfig, modulestate::{interface::ModuleValueValidator, actor::new_actor},
         protos::module::ManualConfig, wait_async,
     };
 
@@ -292,6 +294,7 @@ mod tests {
         let (s, _r) = channel::<ModuleConfig>(10);
         let config = WCModuleConfig::new();
         let mut map_handler: HashMap<String, CancellationToken> = HashMap::new();
+        let actor = new_actor("a", crate::protos::module::ActorType::MANUAL_USER_ACTOR);
 
         validator
             .apply_parse_config(
@@ -300,6 +303,7 @@ mod tests {
                 Arc::new(config.write_to_bytes().unwrap()),
                 &s,
                 &mut map_handler,
+                actor,
             )
             .unwrap();
     }
@@ -315,6 +319,7 @@ mod tests {
         };
         config.set_manual(manual);
         let mut map_handler: HashMap<String, CancellationToken> = HashMap::new();
+        let actor = new_actor("a", crate::protos::module::ActorType::MANUAL_USER_ACTOR);
 
         let (c, _) = validator
             .apply_parse_config(
@@ -323,6 +328,7 @@ mod tests {
                 Arc::new(config.write_to_bytes().unwrap()),
                 &s,
                 &mut map_handler,
+                actor
             )
             .unwrap();
 

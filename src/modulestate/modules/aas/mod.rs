@@ -77,7 +77,7 @@ impl crate::modulestate::interface::ModuleValueValidator for AASValidator {
         return Ok(Box::new(data));
     }
 
-    fn remove_config(&mut self) -> Result<(), crate::modulestate::interface::ModuleError> {
+    fn remove_config(&mut self,_actor: crate::protos::module::Actor,) -> Result<(), crate::modulestate::interface::ModuleError> {
         self.option_config = None;
         return Ok(());
     }
@@ -91,6 +91,7 @@ impl crate::modulestate::interface::ModuleValueValidator for AASValidator {
             crate::comboard::imple::channel::ModuleConfig,
         >,
         _map_handler: &mut std::collections::HashMap<String, tokio_util::sync::CancellationToken>,
+        actor: crate::protos::module::Actor,
     ) -> Result<
         (
             Box<dyn protobuf::Message>,
@@ -202,7 +203,7 @@ impl crate::modulestate::interface::ModuleValueValidator for AASValidator {
         sender_socket: &tokio::sync::mpsc::Sender<(
             String,
             Box<dyn crate::modulestate::interface::ModuleValueParsable>,
-        )>,
+        )>,actor: crate::protos::module::Actor,
     ) -> Result<
         Option<Vec<crate::modulestate::interface::ModuleStateCmd>>,
         crate::modulestate::interface::ModuleError,
@@ -251,6 +252,7 @@ impl crate::modulestate::interface::ModuleValueValidator for AASValidator {
                                 topic: format!("/{}", module_id),
                                 data: std::sync::Arc::new(config_bytes),
                                 sender: sender_response,
+                                actor,
                             };
                             return Ok(Some(vec![cmd]));
                         }

@@ -1,6 +1,6 @@
 use std::collections::HashMap;
-use std::sync::Mutex;
 use tokio::sync::mpsc::{Receiver, Sender};
+use tokio::sync::Mutex;
 
 use crate::comboard::imple::interface::{
     ModuleStateChangeEvent, ModuleValueValidationEvent, I2C_VIRT_ID,
@@ -72,7 +72,7 @@ async fn handle_items(
     sender_module: &Sender<ModuleMsg>,
     config_board: &String,
     item: &mut VirtualScenarioItem,
-    map_module: &mut HashMap<i32, VirtualScenarioItem>,
+    map_module: &mut std::sync::Arc<Mutex<HashMap<i32, VirtualScenarioItem>>>,
 ) -> Option<std::time::Duration> {
 
     let typ = item.id[..3].to_string();
@@ -85,9 +85,9 @@ async fn handle_items(
                     }
                     _ => {}
                 };
-                map_module.insert(item.port, item.clone());
+                map_module.lock().await.insert(item.port, item.clone());
             } else {
-                map_module.remove(&item.port);
+                map_module.lock().await.remove(&item.port);
             };
             sender_module
                 .send(ModuleMsg::State(ModuleStateChangeEvent {
@@ -152,19 +152,32 @@ impl super::interface::ComboardClient for VirtualComboardClient {
 
         return tokio::spawn(async move {
             // PORT : MODULE_ID
-            let mut map_module = HashMap::<i32, VirtualScenarioItem>::new();
+            let mut map_module = std::sync::Arc::new(Mutex::new(HashMap::<i32, VirtualScenarioItem>::new()));
 
             loop {
                 tokio::select! {
                     value = receiver_config_item.recv() => {
                         let value = value.unwrap();
                         for mut item in value {
-                            handle_items(&sender_module, &config_board, &mut item, &mut map_module).await;
+                            if item.timeout > 0 {
+                                let sender_module = sender_module.clone();
+                                let config_board = config_board.clone();
+                                let mut map_module = std::sync::Arc::clone(&map_module);
+
+                                // to not spawn to many task i may need to group all item by
+                                // timeout duration and schedule them together but this will
+                                // be for another time
+                                tokio::spawn(async move {
+                                    handle_items(&sender_module, &config_board, &mut item, &mut map_module).await;
+                                });
+                            } else {
+                                handle_items(&sender_module, &config_board, &mut item, &mut map_module).await;
+                            }
                         }
                     },
                     module_config = receiver_config.recv() => {
                         let module_config = module_config.unwrap();
-                        if let Some(item) = map_module.get_mut(&module_config.port) {
+                        if let Some(item) = map_module.lock().await.get_mut(&module_config.port) {
                         match &item.id[..3] {
                             "AAP" | "AAB" => {
                                 let new_buffer = if module_config.data.len() == 8 {

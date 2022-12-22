@@ -16,6 +16,7 @@ use crate::mainboardstate::config::rewrite_configuration;
 use crate::mainboardstate::error::MainboardError;
 use crate::modulestate::interface::ModuleMsg;
 use crate::protos::message::ActionCode;
+use crate::protos::module::{Actor, ActorType};
 
 struct SocketMessagingError {
     pub status: u32,
@@ -437,7 +438,9 @@ async fn handle_incomming_message(
 
         if let Some(handler) = module_cmd_result {
             let (sender, receiver) = tokio::sync::oneshot::channel();
-            // send to modulestate handler and wait for response
+            let mut actor = Actor::new();
+            actor.id = "user".to_string();
+            actor.field_type = ActorType::MANUAL_USER_ACTOR;
             ctx.sender_module
                 .send(ModuleMsg::Cmd(
                     crate::modulestate::interface::ModuleStateCmd {
@@ -445,6 +448,7 @@ async fn handle_incomming_message(
                         topic: topic_name.clone(),
                         data: payload,
                         sender,
+                        actor
                     },
                 ))
                 .await

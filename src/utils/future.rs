@@ -13,6 +13,17 @@ macro_rules! wait_async {
 }
 
 #[macro_export]
+macro_rules! postpone {
+    ($timeout: expr, $body: expr) => {{
+        tokio::spawn(async {
+            tokio::time::sleep($timeout).await;
+            $body
+        })
+    }};
+}
+
+
+#[macro_export]
 macro_rules! cast_enum {
     ($source: expr, $type: path) => {{
         if let $type(a) = $source {
@@ -22,3 +33,4 @@ macro_rules! cast_enum {
         }
     }};
 }
+

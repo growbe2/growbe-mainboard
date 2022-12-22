@@ -10,6 +10,7 @@ use crate::comboard::imple::{
     channel::ComboardSenderMapReference, interface::ModuleStateChangeEvent,
 };
 use crate::mainboardstate::error::MainboardError;
+use crate::modulestate::actor::new_actor;
 
 lazy_static::lazy_static! {
     static ref REGEX_MODULE_ID: Regex = Regex::new("[A-Z]{3}[A-Z0-9]{9}").unwrap();
@@ -114,12 +115,14 @@ pub fn handle_module_state(
                     imple: module_mut_ref.board.clone(),
                     addr: module_mut_ref.board_addr.clone(),
                 })?;
+                let actor = new_actor("handle_state", crate::protos::module::ActorType::MANUAL_USER_ACTOR);
                 match module_mut_ref.validator.apply_parse_config(
                     state.port,
                     t,
                     bytes,
                     &sender_config,
                     &mut module_mut_ref.handler_map,
+                    actor, 
                 ) {
                     Ok((_config, config_comboard)) => sender_config
                         .try_send(config_comboard)
