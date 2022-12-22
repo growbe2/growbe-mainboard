@@ -4,13 +4,15 @@ version = "0.2.0"
 edition = "2021"
 
 [features]
-default = ["com_virt", "com_ws"]
+default = ["com_virt", "com_ws", "debug"]
 gpio = ["rppal"]
 com_ble = ["bluer", "btleplug", "futures", "uuid", "tokio-stream"]
 com_virt = []
 com_ws = ["tokio-tungstenite", "url", "futures-util"]
 com_i2c = ["gpio", "cty"]
 http_server = ["warp"]
+
+debug = ["growbe_shared/debug", "tokio/tracing"]
 
 pi = ["com_i2c"]
 pc = ["com_ws"]
@@ -54,6 +56,11 @@ futures-util = { version = "*", optional = true }
 # dependencies for ble
 uuid = { version = "*", optional = true }
 tokio-stream = { version = "*", features = ["sync"], optional = true }
+
+tracing = { version = "*", optional = true }
+tracing-subscriber = { version = "*", optional = true }
+tracing-journald = { version = "*", optional = true }
+console-subscriber = { version = "0.1.5", optional = true }
 
 [target.'cfg(any(target_os = "macos", target_os = "windows"))'.dependencies]
 btleplug = { version = "*", features = ["serde"], optional = true }

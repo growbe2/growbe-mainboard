@@ -1,3 +1,5 @@
+use std::ffi::OsString;
+
 use tokio::sync::mpsc::error::{TrySendError, SendError};
 
 use crate::modulestate::interface::ModuleError;
@@ -92,5 +94,21 @@ impl <T> From<SendError<T>> for MainboardError {
         return Self {
             message: value.to_string(),
         };
+    }
+}
+
+impl From<nix::errno::Errno> for MainboardError {
+    fn from(value: nix::errno::Errno) -> Self {
+        return Self {
+            message: value.to_string(),
+        }
+    }
+}
+
+impl From<OsString> for MainboardError {
+    fn from(value: OsString) -> Self {
+        return Self {
+            message: "failed to cast os string".into(),
+        }
     }
 }

@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 use nix::sys::socket::AddressFamily;
 
 use crate::mainboardstate::error::MainboardError;
+use nix::sys::socket::SockaddrLike;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct NetworkIterface {
@@ -54,7 +55,7 @@ pub fn get_net_info() -> Result<NetworkInfo, MainboardError> {
         }
         let mut item = hashmap.get_mut(&ifaddr.interface_name).unwrap();
         match ifaddr.address {
-            Some(address) => match address.family() {
+            Some(address) => match address.family().unwrap() {
                 AddressFamily::Inet => {
                     item.ip = address.to_string().replace(":0", "");
                     if let Some(netmask) = ifaddr.netmask {

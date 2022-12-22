@@ -13,6 +13,7 @@ mod utils;
 
 use std::sync::{Arc, Mutex};
 
+use growbe_shared::init_tracing;
 use tokio::sync::mpsc::channel;
 
 use crate::{
@@ -32,14 +33,14 @@ async fn main() {
         return;
     }
 
-    // starting main thread
+    init_tracing();
 
+    #[cfg(not(feature = "debug"))]
     growbe_shared::logger::setup_log(&crate::mainboardstate::config::CONFIG.logger);
 
     log::info!("starting mainboard with id {}", growbe_shared::id::get());
 
     // try to perform an autoupdate if the feature is started
-
     autoupdate();
 
     // Initializing database

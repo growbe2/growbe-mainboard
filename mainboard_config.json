@@ -18,7 +18,7 @@
 		"port": 3031
 	},
 	"logger": {
-		"target": "growbe_mainboard"
+		"target": "growbe_mainboard,growbe_shared"
 	},
 	"update": {
 		"autoupdate": false,
