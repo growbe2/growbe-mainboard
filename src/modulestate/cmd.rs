@@ -82,7 +82,7 @@ fn handle_module_config(
     data: Arc<Vec<u8>>,
     manager: &mut MainboardModuleStateManager,
     sender_config: &ComboardSenderMapReference,
-    sender_socket: &Sender<(String, Box<dyn super::interface::ModuleValueParsable>)>,
+    sender_socket: &Sender<SenderPayload>,
     store: &super::store::ModuleStateStore,
     from_actor: &Actor,
 ) -> Result<(), MainboardError> {
@@ -98,7 +98,7 @@ fn handle_pmodule_config(
     data: Arc<Vec<u8>>,
     manager: &mut MainboardModuleStateManager,
     sender_config: &ComboardSenderMapReference,
-    sender_socket: &Sender<(String, Box<dyn super::interface::ModuleValueParsable>)>,
+    sender_socket: &Sender<SenderPayload>,
     store: &super::store::ModuleStateStore,
     from_actor: &Actor,
 ) -> Result<(), MainboardError> {
@@ -114,7 +114,7 @@ fn handle_remove_module_config(
     _data: Arc<Vec<u8>>,
     manager: &mut MainboardModuleStateManager,
     _sender_config: &ComboardSenderMapReference,
-    _sender_socket: &Sender<(String, Box<dyn super::interface::ModuleValueParsable>)>,
+    _sender_socket: &Sender<SenderPayload>,
     store: &super::store::ModuleStateStore,
     from_actor: &Actor,
 ) -> Result<(), MainboardError> {
@@ -135,7 +135,7 @@ fn handle_remove_module_config(
 
 fn handle_sync_request(
     manager: &mut MainboardModuleStateManager,
-    sender_socket: &Sender<(String, Box<dyn super::interface::ModuleValueParsable>)>,
+    sender_socket: &Sender<SenderPayload>,
 ) -> Result<(), MainboardError> {
     log::debug!("send sync request to the cloud");
     for (_k, v) in manager.connected_module.iter() {
@@ -232,7 +232,7 @@ fn handle_validator_command(
     module_id: &String,
     sender_response: tokio::sync::oneshot::Sender<crate::protos::message::ActionResponse>,
     manager: &mut MainboardModuleStateManager,
-    sender_socket: &Sender<(String, Box<dyn super::interface::ModuleValueParsable>)>,
+    sender_socket: &Sender<SenderPayload>,
     data: std::sync::Arc<Vec<u8>>,
     from_actor: &Actor,
 ) -> Result<std::option::Option<Vec<ModuleStateCmd>>, super::interface::ModuleError> {
@@ -261,7 +261,7 @@ pub fn handle_module_command(
     alarm_validator: &mut super::alarm::validator::AlarmFieldValidator,
     alarm_store: &super::alarm::store::ModuleAlarmStore,
     sender_config: &ComboardSenderMapReference,
-    sender_socket: &Sender<(String, Box<dyn super::interface::ModuleValueParsable>)>,
+    sender_socket: &Sender<SenderPayload>,
     sender_module: &Sender<ModuleMsg>,
     virtual_relay_store: &mut super::relay::virtual_relay::store::VirtualRelayStore,
     mut env_controller: &mut EnvControllerStore,

@@ -2,6 +2,8 @@ use crate::modulestate::interface::{ModuleValue, ModuleValueParsable};
 use crate::modulestate::relay::{Relay, State};
 use crate::protos::module::{RelayOutletData, VirtualRelayData, VirtualRelayState};
 
+
+use crate::ss::socket::SenderPayload;
 impl ModuleValue for VirtualRelayData {}
 impl ModuleValueParsable for VirtualRelayData {}
 impl ModuleValue for VirtualRelayState {}
@@ -14,20 +16,14 @@ impl ModuleValueParsable for RelayOutletData {}
 // together in a group
 pub struct VirtualRelay {
     pub name: String,
-    pub sender_socket: tokio::sync::mpsc::Sender<(
-        String,
-        Box<dyn crate::modulestate::interface::ModuleValueParsable>,
-    )>,
+    pub sender_socket: tokio::sync::mpsc::Sender<crate::ss::socket::SenderPayload>,
     pub relays: Vec<Box<dyn Relay>>,
 }
 
 impl VirtualRelay {
     pub fn new(
         name: &str,
-        sender_socket: &tokio::sync::mpsc::Sender<(
-            String,
-            Box<dyn crate::modulestate::interface::ModuleValueParsable>,
-        )>,
+        sender_socket: &tokio::sync::mpsc::Sender<crate::ss::socket::SenderPayload>,
     ) -> Self {
         return VirtualRelay {
             name: name.to_string(),

@@ -4,6 +4,7 @@ use crate::protos::module::PhonePositionData;
 
 use crate::modulestate::interface::ModuleError;
 
+use crate::ss::socket::SenderPayload;
 pub struct PPOValidator {}
 
 impl PPOValidator {
@@ -71,10 +72,7 @@ impl crate::modulestate::interface::ModuleValueValidator for PPOValidator {
         _module_id: &String,
         _data: std::sync::Arc<Vec<u8>>,
         _sender_response: tokio::sync::oneshot::Sender<crate::protos::message::ActionResponse>,
-        _sender_socket: &tokio::sync::mpsc::Sender<(
-            String,
-            Box<dyn crate::modulestate::interface::ModuleValueParsable>,
-        )>,
+        _sender_socket: &tokio::sync::mpsc::Sender<crate::ss::socket::SenderPayload>,
 _actor: crate::protos::module::Actor,
     ) -> Result<
         Option<Vec<crate::modulestate::interface::ModuleStateCmd>>,

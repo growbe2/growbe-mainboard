@@ -6,6 +6,8 @@ use crate::{
     protos::board::{HelloWord, RunningComboard},
 };
 
+use crate::ss::socket::SenderPayload;
+
 use super::error::MainboardError;
 
 use growbe_shared::version::VERSION;
@@ -14,10 +16,7 @@ impl crate::modulestate::interface::ModuleValue for crate::protos::board::HelloW
 impl crate::modulestate::interface::ModuleValueParsable for crate::protos::board::HelloWord {}
 
 pub async fn task_hello_world(
-    sender: Sender<(
-        String,
-        Box<dyn crate::modulestate::interface::ModuleValueParsable>,
-    )>,
+    sender: Sender<SenderPayload>,
     running_boards: Vec<RunningComboard>,
 ) -> Result<(), MainboardError> {
     let mut hello = get_hello_world();

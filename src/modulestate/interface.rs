@@ -1,4 +1,5 @@
 use crate::{mainboardstate::error::MainboardError, comboard::imple::interface::{ModuleStateChangeEvent, ModuleValueValidationEvent}, protos::module::Actor};
+use crate::ss::socket::SenderPayload;
 
 pub trait ModuleValue {}
 pub trait ModuleValueParsable: ModuleValue + protobuf::Message {}
@@ -176,7 +177,7 @@ pub trait ModuleValueValidator: Downcast {
         module_id: &String,
         data: std::sync::Arc<Vec<u8>>,
         sender_response: tokio::sync::oneshot::Sender<crate::protos::message::ActionResponse>,
-        sender_socket: &tokio::sync::mpsc::Sender<(String, Box<dyn ModuleValueParsable>)>,
+        sender_socket: &tokio::sync::mpsc::Sender<crate::ss::socket::SenderPayload>,
         actor: Actor,
     ) -> Result<Option<Vec<ModuleStateCmd>>, ModuleError>;
 

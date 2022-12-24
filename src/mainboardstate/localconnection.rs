@@ -1,16 +1,14 @@
 use crate::protos::board::LocalConnection;
 use tokio::sync::mpsc::Sender;
 
+use crate::ss::socket::SenderPayload;
 use super::error::MainboardError;
 
 impl crate::modulestate::interface::ModuleValue for crate::protos::board::LocalConnection {}
 impl crate::modulestate::interface::ModuleValueParsable for crate::protos::board::LocalConnection {}
 
 pub async fn task_local_connection(
-    sender: Sender<(
-        String,
-        Box<dyn crate::modulestate::interface::ModuleValueParsable>,
-    )>,
+    sender: Sender<SenderPayload>,
 ) -> Result<(), MainboardError> {
     let local_connection = get_local_connection();
     sender

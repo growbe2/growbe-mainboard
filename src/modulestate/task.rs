@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use tokio::sync::mpsc::{Receiver, Sender};
+use crate::ss::socket::SenderPayload;
 
 use super::{
     controller::store::EnvControllerStore, interface::ModuleMsg,
@@ -8,7 +9,7 @@ use super::{
 use crate::comboard::imple::channel::ComboardSenderMapReference;
 
 pub fn module_state_task(
-    sender_socket: Sender<(String, Box<dyn super::interface::ModuleValueParsable>)>,
+    sender_socket: Sender<SenderPayload>,
     store: super::store::ModuleStateStore,
     sender_config: ComboardSenderMapReference,
     alarm_store: super::alarm::store::ModuleAlarmStore,

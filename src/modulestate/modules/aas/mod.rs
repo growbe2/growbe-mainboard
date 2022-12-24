@@ -2,6 +2,7 @@ pub mod calibration;
 
 use protobuf::Message;
 
+use crate::ss::socket::SenderPayload;
 use crate::protos::module::{
     CalibrationError, CalibrationStep, SOILCalibrationStep, SOILCalibrationStepEvent,
     SOILModuleConfig, SOILModuleData,
@@ -200,10 +201,7 @@ impl crate::modulestate::interface::ModuleValueValidator for AASValidator {
         module_id: &String,
         data: std::sync::Arc<Vec<u8>>,
         sender_response: tokio::sync::oneshot::Sender<crate::protos::message::ActionResponse>,
-        sender_socket: &tokio::sync::mpsc::Sender<(
-            String,
-            Box<dyn crate::modulestate::interface::ModuleValueParsable>,
-        )>,actor: crate::protos::module::Actor,
+        sender_socket: &tokio::sync::mpsc::Sender<crate::ss::socket::SenderPayload>,actor: crate::protos::module::Actor,
     ) -> Result<
         Option<Vec<crate::modulestate::interface::ModuleStateCmd>>,
         crate::modulestate::interface::ModuleError,
