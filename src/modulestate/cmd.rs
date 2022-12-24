@@ -7,6 +7,8 @@ use crate::mainboardstate::error::MainboardError;
 use crate::protos::alarm::FieldAlarm;
 use crate::protos::env_controller::EnvironmentControllerConfiguration;
 use crate::protos::module::Actor;
+use crate::protos::module::ActorType;
+use crate::socket::ss::SenderPayload;
 use crate::utils::mqtt::extract_module_id;
 
 use protobuf::Message;
@@ -21,6 +23,7 @@ fn apply_module_config(
     data: Arc<Vec<u8>>,
     manager: &mut MainboardModuleStateManager,
     sender_config: &ComboardSenderMapReference,
+    sender_socket: &Sender<SenderPayload>, 
     store: &super::store::ModuleStateStore,
     suffix: &str,
     from_actor: &Actor,
@@ -46,10 +49,20 @@ fn apply_module_config(
                 from_actor.clone(),
             ) {
                 Ok((config, config_comboard)) => {
+                    
                     store.store_module_config(&(id.into()), config)?;
+                    
                     sender_config
                         .try_send(config_comboard)
                         .map_err(|x| MainboardError::from_error(x.to_string()))?;
+
+                    if from_actor.field_type != ActorType::MANUAL_USER_ACTOR {
+                            sender_socket
+                                .try_send((
+                                    format!("/m/{}/config_updated", id),
+                                    config,
+                                ))?;
+                    } 
                 }
                 Err(e) => return Err(e.into()),
             }
@@ -69,7 +82,7 @@ fn handle_module_config(
     data: Arc<Vec<u8>>,
     manager: &mut MainboardModuleStateManager,
     sender_config: &ComboardSenderMapReference,
-    _sender_socket: &Sender<(String, Box<dyn super::interface::ModuleValueParsable>)>,
+    sender_socket: &Sender<(String, Box<dyn super::interface::ModuleValueParsable>)>,
     store: &super::store::ModuleStateStore,
     from_actor: &Actor,
 ) -> Result<(), MainboardError> {
@@ -77,7 +90,7 @@ fn handle_module_config(
         MainboardError::new().message("failed to get last element from mqtt topic".to_string()),
     )?;
 
-    return apply_module_config(&id, data, manager, sender_config, store, "", from_actor);
+    return apply_module_config(&id, data, manager, sender_config, sender_socket, store, "", from_actor);
 }
 
 fn handle_pmodule_config(
@@ -85,7 +98,7 @@ fn handle_pmodule_config(
     data: Arc<Vec<u8>>,
     manager: &mut MainboardModuleStateManager,
     sender_config: &ComboardSenderMapReference,
-    _sender_socket: &Sender<(String, Box<dyn super::interface::ModuleValueParsable>)>,
+    sender_socket: &Sender<(String, Box<dyn super::interface::ModuleValueParsable>)>,
     store: &super::store::ModuleStateStore,
     from_actor: &Actor,
 ) -> Result<(), MainboardError> {
@@ -93,7 +106,7 @@ fn handle_pmodule_config(
         MainboardError::new().message("failed to get last element from mqtt topic".to_string()),
     )?;
 
-    return apply_module_config(&id, data, manager, sender_config, store, &property, from_actor);
+    return apply_module_config(&id, data, manager, sender_config, sender_socket, store, &property, from_actor);
 }
 
 fn handle_remove_module_config(

@@ -11,6 +11,7 @@ use crate::comboard::imple::{
 };
 use crate::mainboardstate::error::MainboardError;
 use crate::modulestate::actor::new_actor;
+use crate::socket::ss::SenderPayload;
 
 lazy_static::lazy_static! {
     static ref REGEX_MODULE_ID: Regex = Regex::new("[A-Z]{3}[A-Z0-9]{9}").unwrap();
@@ -22,7 +23,7 @@ pub fn send_module_state(
     state: bool,
     board: &String,
     board_addr: &String,
-    sender_socket: &Sender<(String, Box<dyn super::interface::ModuleValueParsable>)>,
+    sender_socket: &Sender<SenderPayload>,
 ) -> Result<(), MainboardError> {
     let mut send_state = crate::protos::module::ModuleData::new();
     send_state.id = String::from(id);
@@ -46,7 +47,7 @@ pub fn handle_module_state(
     manager: &mut MainboardModuleStateManager,
     state: &ModuleStateChangeEvent,
     sender_comboard_config: &ComboardSenderMapReference,
-    sender_socket: &Sender<(String, Box<dyn super::interface::ModuleValueParsable>)>,
+    sender_socket: &Sender<SenderPayload>,
     store: &super::store::ModuleStateStore,
     alarm_validator: &mut super::alarm::validator::AlarmFieldValidator,
     alarm_store: &super::alarm::store::ModuleAlarmStore,
@@ -235,8 +236,8 @@ mod tests {
         ModuleAlarmStore,
         VirtualRelayStore,
         ComboardSenderMapReference,
-        Sender<(String, Box<dyn ModuleValueParsable>)>,
-        Receiver<(String, Box<dyn ModuleValueParsable>)>,
+        Sender<SenderPayload>,
+        Receiver<SenderPayload>,
         ModuleStateStore,
     ) {
         let conn_database = Arc::new(Mutex::new(crate::store::database::init(None)));
@@ -255,10 +256,7 @@ mod tests {
 
         let mut config_channel_manager = ComboardConfigChannelManager::new();
 
-        let (sender_socket, receiver_socket) = channel::<(
-            String,
-            Box<dyn crate::modulestate::interface::ModuleValueParsable>,
-        )>(10);
+        let (sender_socket, receiver_socket) = channel::<SenderPayload>(10);
 
         let module_state_store =
             crate::modulestate::store::ModuleStateStore::new(conn_database.clone());

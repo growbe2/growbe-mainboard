@@ -3,7 +3,7 @@ use tokio::sync::mpsc::Sender;
 use crate::{modulestate::interface::ModuleValueParsable, mainboardstate::error::MainboardError};
 
 
-pub type SenderPayload = (String, Box<dyn ModuleValueParsable>);
+pub type SenderPayload = (String, Box<dyn protobuf::Message>);
 
 
 pub struct SenderSocket {

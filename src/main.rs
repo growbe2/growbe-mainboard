@@ -1,4 +1,4 @@
-//#![feature(let_chains)]
+#![feature(trait_upcasting)]
 extern crate lazy_static;
 
 mod comboard;
