@@ -1,6 +1,6 @@
 use tokio_util::sync::CancellationToken;
 
-use crate::ss::socket::SenderPayload;
+use crate::socket::ss::SenderPayload;
 use crate::mainboardstate::error::MainboardError;
 use crate::{
     comboard::imple::channel::{ComboardAddr, ComboardSenderMapReference},
@@ -14,7 +14,7 @@ use super::{store::VirtualRelayStore, virtual_relay::VirtualRelay};
 
 pub fn create_virtual_relay(
     relay_config: &crate::protos::module::VirtualRelay,
-    sender_socket: &tokio::sync::mpsc::Sender<crate::ss::socket::SenderPayload>,
+    sender_socket: &tokio::sync::mpsc::Sender<crate::socket::ss::SenderPayload>,
     sender_comboard_config: &ComboardSenderMapReference,
     manager: &crate::modulestate::state_manager::MainboardModuleStateManager,
     store_virtual_relay: &mut VirtualRelayStore,
@@ -76,7 +76,7 @@ pub fn create_virtual_relay(
 pub fn delete_virtual_relay(
     name: &str,
     _sender_comboard_config: &ComboardSenderMapReference,
-    sender_socket: &tokio::sync::mpsc::Sender<crate::ss::socket::SenderPayload>,
+    sender_socket: &tokio::sync::mpsc::Sender<crate::socket::ss::SenderPayload>,
     _store: &crate::modulestate::store::ModuleStateStore,
     store_virtual_relay: &mut VirtualRelayStore,
     _manager: &mut crate::modulestate::state_manager::MainboardModuleStateManager,
@@ -98,7 +98,7 @@ pub fn delete_virtual_relay(
 pub fn initialize_virtual_relay(
     relay_config: &crate::protos::module::VirtualRelay,
     sender_comboard_config: &ComboardSenderMapReference,
-    sender_socket: &tokio::sync::mpsc::Sender<crate::ss::socket::SenderPayload>,
+    sender_socket: &tokio::sync::mpsc::Sender<crate::socket::ss::SenderPayload>,
     store: &crate::modulestate::store::ModuleStateStore,
     store_virtual_relay: &mut VirtualRelayStore,
     manager: &mut crate::modulestate::state_manager::MainboardModuleStateManager,
@@ -159,7 +159,7 @@ pub fn apply_config_virtual_relay(
     id: &String,
     config: &crate::protos::module::RelayOutletConfig,
     _sender_comboard_config: &ComboardSenderMapReference,
-    _sender_socket: &tokio::sync::mpsc::Sender<crate::ss::socket::SenderPayload>,
+    _sender_socket: &tokio::sync::mpsc::Sender<crate::socket::ss::SenderPayload>,
     _store: &crate::modulestate::store::ModuleStateStore,
     store_virtual_relay: &mut VirtualRelayStore,
     _manager: &mut crate::modulestate::state_manager::MainboardModuleStateManager,
@@ -210,7 +210,7 @@ pub fn initialize_virtual_relay_and_apply_config(
     virtual_relay: &crate::protos::module::VirtualRelay,
     virtual_config: &Option<crate::protos::module::RelayOutletConfig>,
     sender_comboard_config: &ComboardSenderMapReference,
-    sender_socket: &tokio::sync::mpsc::Sender<crate::ss::socket::SenderPayload>,
+    sender_socket: &tokio::sync::mpsc::Sender<crate::socket::ss::SenderPayload>,
     store: &crate::modulestate::store::ModuleStateStore,
     store_virtual_relay: &mut VirtualRelayStore,
     manager: &mut crate::modulestate::state_manager::MainboardModuleStateManager,

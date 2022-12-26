@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use tokio::sync::mpsc::{Receiver, Sender};
-use crate::ss::socket::SenderPayload;
+use crate::socket::ss::SenderPayload;
 
 use super::{
     controller::store::EnvControllerStore, interface::ModuleMsg,

@@ -6,7 +6,7 @@ use crate::{
     protos::board::{HelloWord, RunningComboard},
 };
 
-use crate::ss::socket::SenderPayload;
+use crate::socket::ss::SenderPayload;
 
 use super::error::MainboardError;
 

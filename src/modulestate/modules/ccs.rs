@@ -4,7 +4,7 @@ use crate::protos::module::{ComputerStreamingConfig, ComputerStreamingData};
 
 use crate::modulestate::interface::ModuleError;
 
-use crate::ss::socket::SenderPayload;
+use crate::socket::ss::SenderPayload;
 pub struct CCSValidator {}
 
 impl CCSValidator {
@@ -84,7 +84,7 @@ impl crate::modulestate::interface::ModuleValueValidator for CCSValidator {
         _module_id: &String,
         _data: std::sync::Arc<Vec<u8>>,
         _sender_response: tokio::sync::oneshot::Sender<crate::protos::message::ActionResponse>,
-        _sender_socket: &tokio::sync::mpsc::Sender<crate::ss::socket::SenderPayload>,_actor: crate::protos::module::Actor,
+        _sender_socket: &tokio::sync::mpsc::Sender<crate::socket::ss::SenderPayload>,_actor: crate::protos::module::Actor,
     ) -> Result<
         Option<Vec<crate::modulestate::interface::ModuleStateCmd>>,
         crate::modulestate::interface::ModuleError,

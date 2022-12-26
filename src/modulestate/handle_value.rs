@@ -7,7 +7,7 @@ use tokio::sync::mpsc::Sender;
 pub fn handle_module_value<'a>(
     manager: &mut MainboardModuleStateManager,
     value: &ModuleValueValidationEvent,
-    sender_socket: &Sender<SenderPayload>,
+    sender_socket: &Sender<crate::socket::ss::SenderPayload>,
     alarm_validator: &mut super::alarm::validator::AlarmFieldValidator,
     alarm_store: &super::alarm::store::ModuleAlarmStore,
     env_controller: &mut EnvControllerStore,

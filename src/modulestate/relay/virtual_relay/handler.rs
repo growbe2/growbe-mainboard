@@ -5,7 +5,7 @@ use crate::{
     modulestate::relay::virtual_relay::op::initialize_virtual_relay_and_apply_config,
 };
 
-use crate::ss::socket::SenderPayload;
+use crate::socket::ss::SenderPayload;
 use super::{
     op::{
         apply_config_virtual_relay, delete_virtual_relay, get_missing_required_module,
@@ -17,7 +17,7 @@ use super::{
 pub fn on_module_state_changed_virtual_relays(
     state: bool,
     sender_comboard_config: &ComboardSenderMapReference,
-    sender_socket: &tokio::sync::mpsc::Sender<crate::ss::socket::SenderPayload>,
+    sender_socket: &tokio::sync::mpsc::Sender<crate::socket::ss::SenderPayload>,
     store: &crate::modulestate::store::ModuleStateStore,
     store_virtual_relay: &mut VirtualRelayStore,
     manager: &mut crate::modulestate::state_manager::MainboardModuleStateManager,
@@ -93,7 +93,7 @@ pub fn on_module_state_changed_virtual_relays(
 pub fn handle_virtual_relay(
     data: std::sync::Arc<Vec<u8>>,
     sender_comboard_config: &ComboardSenderMapReference,
-    sender_socket: &tokio::sync::mpsc::Sender<crate::ss::socket::SenderPayload>,
+    sender_socket: &tokio::sync::mpsc::Sender<crate::socket::ss::SenderPayload>,
     store: &crate::modulestate::store::ModuleStateStore,
     store_virtual_relay: &mut VirtualRelayStore,
     manager: &mut crate::modulestate::state_manager::MainboardModuleStateManager,
@@ -114,7 +114,7 @@ pub fn handle_apply_config_virtual_relay(
     topic: &String,
     data: std::sync::Arc<Vec<u8>>,
     sender_comboard_config: &ComboardSenderMapReference,
-    sender_socket: &tokio::sync::mpsc::Sender<crate::ss::socket::SenderPayload>,
+    sender_socket: &tokio::sync::mpsc::Sender<crate::socket::ss::SenderPayload>,
     store: &crate::modulestate::store::ModuleStateStore,
     store_virtual_relay: &mut VirtualRelayStore,
     manager: &mut crate::modulestate::state_manager::MainboardModuleStateManager,
@@ -140,7 +140,7 @@ pub fn handle_delete_virtual_relay(
     topic: &String,
     _data: std::sync::Arc<Vec<u8>>,
     sender_comboard_config: &ComboardSenderMapReference,
-    sender_socket: &tokio::sync::mpsc::Sender<crate::ss::socket::SenderPayload>,
+    sender_socket: &tokio::sync::mpsc::Sender<crate::socket::ss::SenderPayload>,
     store: &crate::modulestate::store::ModuleStateStore,
     store_virtual_relay: &mut VirtualRelayStore,
     manager: &mut crate::modulestate::state_manager::MainboardModuleStateManager,

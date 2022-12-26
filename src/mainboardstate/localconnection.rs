@@ -1,7 +1,7 @@
 use crate::protos::board::LocalConnection;
 use tokio::sync::mpsc::Sender;
 
-use crate::ss::socket::SenderPayload;
+use crate::socket::ss::SenderPayload;
 use super::error::MainboardError;
 
 impl crate::modulestate::interface::ModuleValue for crate::protos::board::LocalConnection {}

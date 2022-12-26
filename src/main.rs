@@ -55,7 +55,7 @@ async fn main() {
 
     // Create the channel to send the data to the socket thread
     let (sender_socket, receiver_socket) =
-        channel::<(String, Box<dyn modulestate::interface::ModuleValueParsable>)>(200);
+        channel::<crate::socket::ss::SenderPayload>(200);
 
     // Create sender copy to give to some starting task
     let sender_socket_hello = sender_socket.clone();

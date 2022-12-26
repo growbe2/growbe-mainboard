@@ -18,6 +18,8 @@ use crate::modulestate::interface::ModuleMsg;
 use crate::protos::message::ActionCode;
 use crate::protos::module::{Actor, ActorType};
 
+use self::ss::SenderPayload;
+
 struct SocketMessagingError {
     pub status: u32,
     pub msg: String,
@@ -499,10 +501,7 @@ async fn handle_incomming_message(
 }
 
 pub fn socket_task(
-    mut receiver_socket: Receiver<(
-        String,
-        Box<dyn crate::modulestate::interface::ModuleValueParsable>,
-    )>,
+    mut receiver_socket: Receiver<SenderPayload>,
     sender_virt: Sender<Vec<VirtualScenarioItem>>,
     sender_module: Sender<ModuleMsg>,
     config_mqtt: &'static mqtt::CloudMQTTConfig,
