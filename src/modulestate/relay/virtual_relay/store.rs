@@ -54,12 +54,13 @@ impl VirtualRelayStore {
         &self,
         config: &crate::protos::module::VirtualRelay,
     ) -> Result<(), MainboardError> {
+        let box_config: Box<dyn protobuf::Message> = Box::new(config.clone());
         return crate::store::database::store_field_from_table(
             &self.conn,
             "virtual_relay",
             &String::from(config.get_name()),
             "relay",
-            Box::new(config.clone()),
+            &box_config,
         );
     }
 

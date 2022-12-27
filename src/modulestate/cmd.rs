@@ -1,5 +1,5 @@
+use std::sync::Arc;
 use tokio::sync::mpsc::Sender;
-use std::sync::{Arc};
 
 use crate::comboard::imple::channel::ComboardAddr;
 use crate::comboard::imple::channel::ComboardSenderMapReference;
@@ -23,7 +23,7 @@ fn apply_module_config(
     data: Arc<Vec<u8>>,
     manager: &mut MainboardModuleStateManager,
     sender_config: &ComboardSenderMapReference,
-    sender_socket: &Sender<SenderPayload>, 
+    sender_socket: &Sender<SenderPayload>,
     store: &super::store::ModuleStateStore,
     suffix: &str,
     from_actor: &Actor,
@@ -37,8 +37,11 @@ fn apply_module_config(
             imple: module_ref.board.clone(),
             addr: module_ref.board_addr.clone(),
         }) {
-
-            let t = if suffix.is_empty() { t.to_string() } else { format!("{}:{}", t, suffix) };
+            let t = if suffix.is_empty() {
+                t.to_string()
+            } else {
+                format!("{}:{}", t, suffix)
+            };
 
             match module_ref.validator.apply_parse_config(
                 module_ref.port,
@@ -49,24 +52,19 @@ fn apply_module_config(
                 from_actor.clone(),
             ) {
                 Ok((config, config_comboard)) => {
-                    
-                    store.store_module_config(&(id.into()), config)?;
-                    
+                    store.store_module_config(&(id.into()), &config)?;
+
                     sender_config
                         .try_send(config_comboard)
                         .map_err(|x| MainboardError::from_error(x.to_string()))?;
 
                     if from_actor.field_type != ActorType::MANUAL_USER_ACTOR {
-                            sender_socket
-                                .try_send((
-                                    format!("/m/{}/config_updated", id),
-                                    config,
-                                ))?;
-                    } 
+                        sender_socket.try_send((format!("/m/{}/config_updated", id), config))?;
+                    }
                 }
                 Err(e) => return Err(e.into()),
             }
-            tokio::task::spawn(async {});
+            //tokio::task::spawn(async {});
         } else {
             return Err(super::interface::ModuleError::sender_not_found(&id).into());
         }
@@ -75,7 +73,6 @@ fn apply_module_config(
     }
     return Ok(());
 }
-
 
 fn handle_module_config(
     topic: &String,
@@ -90,7 +87,16 @@ fn handle_module_config(
         MainboardError::new().message("failed to get last element from mqtt topic".to_string()),
     )?;
 
-    return apply_module_config(&id, data, manager, sender_config, sender_socket, store, "", from_actor);
+    return apply_module_config(
+        &id,
+        data,
+        manager,
+        sender_config,
+        sender_socket,
+        store,
+        "",
+        from_actor,
+    );
 }
 
 fn handle_pmodule_config(
@@ -106,7 +112,16 @@ fn handle_pmodule_config(
         MainboardError::new().message("failed to get last element from mqtt topic".to_string()),
     )?;
 
-    return apply_module_config(&id, data, manager, sender_config, sender_socket, store, &property, from_actor);
+    return apply_module_config(
+        &id,
+        data,
+        manager,
+        sender_config,
+        sender_socket,
+        store,
+        &property,
+        from_actor,
+    );
 }
 
 fn handle_remove_module_config(
@@ -163,7 +178,14 @@ fn handle_add_alarm(
     alarm_store.add_alarm_field(&field_alarm)?;
     alarm_validator.register_field_alarm(field_alarm.clone(), None)?;
 
-    env_controller.on_alarm_created(&field_alarm.moduleId, &field_alarm.property, module_state_manager, alarm_store, None, false)?;
+    env_controller.on_alarm_created(
+        &field_alarm.moduleId,
+        &field_alarm.property,
+        module_state_manager,
+        alarm_store,
+        None,
+        false,
+    )?;
 
     return Ok(());
 }
@@ -179,8 +201,20 @@ fn handle_update_alarm(
     alarm_store.update_alarm_field(&field_alarm)?;
     alarm_validator.register_field_alarm(field_alarm.clone(), None)?;
 
-    env_controller.on_alarm_deleted(&field_alarm.moduleId, &field_alarm.property, module_state_manager, alarm_store)?;
-    env_controller.on_alarm_created(&field_alarm.moduleId, &field_alarm.property, module_state_manager, alarm_store, None, false)?;
+    env_controller.on_alarm_deleted(
+        &field_alarm.moduleId,
+        &field_alarm.property,
+        module_state_manager,
+        alarm_store,
+    )?;
+    env_controller.on_alarm_created(
+        &field_alarm.moduleId,
+        &field_alarm.property,
+        module_state_manager,
+        alarm_store,
+        None,
+        false,
+    )?;
 
     return Ok(());
 }
@@ -196,7 +230,12 @@ fn handle_remove_alarm(
     alarm_store.remove_alarm_field(&field_alarm)?;
     alarm_validator.deregister_field_alarm(field_alarm.clone())?;
 
-    env_controller.on_alarm_deleted(&field_alarm.moduleId, &field_alarm.property, module_state_manager, alarm_store)?;
+    env_controller.on_alarm_deleted(
+        &field_alarm.moduleId,
+        &field_alarm.property,
+        module_state_manager,
+        alarm_store,
+    )?;
 
     return Ok(());
 }
@@ -224,8 +263,6 @@ fn handle_unregister_environment_controller(
 
     return env_controller.unregister_controller(&id);
 }
-
-
 
 fn handle_validator_command(
     cmd: &str,
@@ -268,12 +305,24 @@ pub fn handle_module_command(
 ) -> Result<(), MainboardError> {
     let result: Result<(), MainboardError> = match cmd.as_str() {
         "sync" => handle_sync_request(manager, &sender_socket),
-        "pmconfig" => {
-            handle_pmodule_config(topic, data, manager, &sender_config, &sender_socket, &store, &actor)
-        },
-        "mconfig" => {
-            handle_module_config(topic, data, manager, &sender_config, &sender_socket, &store, &actor)
-        }
+        "pmconfig" => handle_pmodule_config(
+            topic,
+            data,
+            manager,
+            &sender_config,
+            &sender_socket,
+            &store,
+            &actor,
+        ),
+        "mconfig" => handle_module_config(
+            topic,
+            data,
+            manager,
+            &sender_config,
+            &sender_socket,
+            &store,
+            &actor,
+        ),
         "rmconfig" => handle_remove_module_config(
             topic,
             data,
@@ -283,11 +332,31 @@ pub fn handle_module_command(
             &store,
             &actor,
         ),
-        "aEnv" => handle_register_environment_controller(&alarm_store, manager, &mut env_controller, data),
+        "aEnv" => {
+            handle_register_environment_controller(&alarm_store, manager, &mut env_controller, data)
+        }
         "rEnv" => handle_unregister_environment_controller(&mut env_controller, topic),
-        "aAl" => handle_add_alarm(alarm_validator, &alarm_store, manager, &mut env_controller, data),
-        "rAl" => handle_remove_alarm(alarm_validator, &alarm_store, manager, &mut env_controller, data),
-        "uAl" => handle_update_alarm(alarm_validator, &alarm_store, manager, &mut env_controller, data),
+        "aAl" => handle_add_alarm(
+            alarm_validator,
+            &alarm_store,
+            manager,
+            &mut env_controller,
+            data,
+        ),
+        "rAl" => handle_remove_alarm(
+            alarm_validator,
+            &alarm_store,
+            manager,
+            &mut env_controller,
+            data,
+        ),
+        "uAl" => handle_update_alarm(
+            alarm_validator,
+            &alarm_store,
+            manager,
+            &mut env_controller,
+            data,
+        ),
         "addVr" => super::relay::virtual_relay::handler::handle_virtual_relay(
             data,
             &sender_config,
@@ -359,4 +428,75 @@ pub fn handle_module_command(
             return Err(mainboard_error);
         }
     }
+}
+
+#[cfg(test)]
+mod tests {
+
+    use crate::{
+        protos::module::RelayOutletConfig,
+        utils::tests::tests::{init_context, AAP_MODULE_ID},
+    };
+
+    use super::*;
+
+    #[test]
+    fn apply_module_config_from_system_send_config_cloud() {
+        let mut ctx = init_context("system_send_config_cloud");
+
+        let data = RelayOutletConfig::new();
+
+        let mut actor = Actor::new();
+        actor.id = "actor".into();
+        actor.set_field_type(ActorType::ENV_CONTROLLER_ACTOR);
+
+        let data = Arc::new(data.write_to_bytes().unwrap());
+
+        let result = apply_module_config(
+            AAP_MODULE_ID.as_str(),
+            data,
+            &mut ctx.2,
+            &ctx.7,
+            &ctx.8,
+            &ctx.3,
+            "".into(),
+            &actor,
+        );
+
+        assert_eq!(result.is_ok(), true);
+
+        let sended_msg = ctx.9.try_recv().unwrap();
+
+        assert_eq!(sended_msg.0.as_str(), "/m/AAP0000003/config_updated");
+    }
+
+    #[test]
+    fn apply_module_config_from_user_dont_send_config_cloud() {
+        let mut ctx = init_context("user_dont_send_config_cloud");
+
+        let data = RelayOutletConfig::new();
+
+        let mut actor = Actor::new();
+        actor.id = "actor".into();
+        actor.set_field_type(ActorType::MANUAL_USER_ACTOR);
+
+        let data = Arc::new(data.write_to_bytes().unwrap());
+
+        let result = apply_module_config(
+            AAP_MODULE_ID.as_str(),
+            data,
+            &mut ctx.2,
+            &ctx.7,
+            &ctx.8,
+            &ctx.3,
+            "".into(),
+            &actor,
+        );
+
+        assert_eq!(result.is_ok(), true);
+
+        assert_eq!(ctx.9.try_recv().is_err(), true);
+
+    }
+
 }

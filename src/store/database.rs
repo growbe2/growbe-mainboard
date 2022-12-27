@@ -103,7 +103,7 @@ pub fn store_field_from_table(
     table_name: &'static str,
     id: &String,
     property: &'static str,
-    data: Box<dyn protobuf::Message>,
+    data: &Box<dyn protobuf::Message>,
 ) -> Result<(), MainboardError> {
     let payload = data.write_to_bytes()?;
     let update = lock_conn(&conn)?.execute(

@@ -165,7 +165,7 @@ impl EnvControllerTask for StaticControllerImplementation {
 //#[cfg(test)]
 mod tests {
 
-    use std::{collections::HashMap};
+    use std::{collections::HashMap, time::Duration};
 
     use protobuf::{RepeatedField, Message};
     use tokio::sync::watch::{channel, Sender};
@@ -180,8 +180,9 @@ mod tests {
             alarm::{AlarmZone, FieldAlarmEvent},
             env_controller::{
                 EnvironmentControllerConfiguration, MObserver, RessourceType, SCConditionActor,
+                SCObserverAction,
             },
-            module::{ActorType},
+            module::{ActorType, ManualConfig},
         },
         socket::ss::SenderPayload
     };
@@ -297,7 +298,7 @@ mod tests {
         assert_eq!(ct.is_cancelled(), false);
 
         ct.cancel();
-        tokio::time::sleep(Duration::from_millis(100)).await;
+        tokio::time::sleep(std::time::Duration::from_millis(100)).await;
 
         assert_eq!(handle.is_finished(), true);
         assert_eq!(ct.is_cancelled(), true);
@@ -345,7 +346,7 @@ mod tests {
 
         assert_eq!(handle.is_finished(), false);
 
-        let result = wait_async!(rm.recv(), Duration::from_millis(50), None);
+        let result = crate::wait_async!(rm.recv(), Duration::from_millis(50), None);
 
         assert_eq!(result.is_none(), true);
 
@@ -383,8 +384,8 @@ mod tests {
         assert_eq!(ct.is_cancelled(), false);
 
         // Should have send a config on startup with alarm on unknow
-        let msg = wait_async!(rm.recv(), Duration::from_millis(50), None).unwrap();
-        let cmd = cast_enum!(msg, ModuleMsg::Cmd);
+        let msg = crate::wait_async!(rm.recv(), Duration::from_millis(50), None).unwrap();
+        let cmd = crate::cast_enum!(msg, ModuleMsg::Cmd);
 
         assert_eq!(cmd.cmd, "pmconfig");
 
@@ -406,8 +407,8 @@ mod tests {
 
         assert_eq!(handle.is_finished(), false);
 
-        let msg = wait_async!(rm.recv(), Duration::from_millis(50), None).unwrap();
-        let cmd = cast_enum!(msg, ModuleMsg::Cmd);
+        let msg = crate::wait_async!(rm.recv(), Duration::from_millis(50), None).unwrap();
+        let cmd = crate::cast_enum!(msg, ModuleMsg::Cmd);
 
         assert_eq!(cmd.cmd, "pmconfig");
 

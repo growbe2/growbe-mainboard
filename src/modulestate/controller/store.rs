@@ -189,23 +189,26 @@ impl EnvControllerStore {
 
         self.can_be_created(&config)?;
 
+        let id = config.id.clone();
+        let box_config: Box<dyn protobuf::Message> = Box::new(config.clone());
+
         // save to database
         crate::store::database::store_field_from_table(
             &self.conn,
             "environment_controller",
-            &config.id,
+            &id,
             "config",
-            Box::new(config.clone()),
+            &box_config
         )?;
 
 
-        log::debug!("environment_controller {} has been register to the database", config.id);
+        log::debug!("environment_controller {} has been register to the database", id);
 
         if self.can_be_initialize(&module_state_manager, &module_alarm_store, &config) {
             return self.create_task(&config).map(|_| true);
         }
 
-        log::debug!("environment_controller {} cannot be started for now, missing ressources", config.id);
+        log::debug!("environment_controller {} cannot be started for now, missing ressources", id);
 
         return Ok(false);
     }

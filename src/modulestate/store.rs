@@ -103,7 +103,7 @@ impl ModuleStateStore {
     pub fn store_module_config(
         &self,
         id: &String,
-        config: Box<dyn protobuf::Message>,
+        config: &Box<dyn protobuf::Message>,
     ) -> Result<(), MainboardError> {
         if is_supported(id) {
             log::debug!("store module config {}", id);
@@ -125,9 +125,9 @@ impl ModuleStateStore {
 mod tests {
 
     use super::*;
-    use crate::{protos::board::HelloWord, store::database::nbr_entry};
+    use crate::{protos::board::HelloWord, store::database::nbr_entry, mainboardstate::hello_world};
     use std::sync::{Arc, Mutex};
-
+    
     fn supported_modules() -> Vec<&'static str> {
         return vec!["AAP", "AAB", "AAS", "PCS", "CCS"];
     }
@@ -178,9 +178,9 @@ mod tests {
     fn store_module_config_existing() {
         let store = get_store();
 
-        let config = RelayModuleConfig::new();
+        let config: Box<dyn Message> = Box::new(RelayModuleConfig::new());
         store
-            .store_module_config(&module_id(), Box::new(config))
+            .store_module_config(&module_id(), &config)
             .unwrap();
 
         store.get_module_config(&module_id()).unwrap();
@@ -196,8 +196,9 @@ mod tests {
         hello_world.set_version("my version".to_string());
 
         for module in get_modules() {
+            let hello_world: Box<dyn protobuf::Message> = Box::new(hello_world.clone());
             store
-                .store_module_config(&module, Box::new(hello_world.clone()))
+                .store_module_config(&module, &hello_world)
                 .unwrap();
 
             assert_eq!(store.get_module_config(&module).is_none(), true);
@@ -218,9 +219,9 @@ mod tests {
         let store = get_store();
 
         for module in get_modules() {
-            let config = SOILModuleConfig::new();
+            let config: Box<dyn protobuf::Message> = Box::new(SOILModuleConfig::new());
             store
-                .store_module_config(&module, Box::new(config))
+                .store_module_config(&module, &config)
                 .unwrap();
             store.get_module_config(&module).unwrap();
         }
@@ -229,11 +230,11 @@ mod tests {
     #[test]
     fn store_unsupported_module_type() {
         let store = get_store();
-        let config = SOILModuleConfig::new();
+        let config: Box<dyn protobuf::Message> = Box::new(SOILModuleConfig::new());
         let id = "KKK0000001".to_string();
 
         store
-            .store_module_config(&id, Box::new(config))
+            .store_module_config(&id, &config)
             .unwrap_err();
 
         assert_eq!(store.get_module_config(&id).is_none(), true);

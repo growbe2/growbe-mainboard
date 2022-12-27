@@ -7,7 +7,7 @@ pub mod state_manager;
 pub mod store;
 pub mod task;
 pub mod controller;
+pub mod modules;
 
 mod handle_state;
 mod handle_value;
-mod modules;
