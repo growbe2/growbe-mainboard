@@ -35,25 +35,21 @@ fn is_changing(
                 // Match pour regarder si ca la changer
                 match config.mode {
                     RelayOutletMode::MANUAL => {
-                        if config.get_manual().state == prev_config.get_manual().state {
-                            return true;
-                        }
+                        return config.get_manual().state != prev_config.get_manual().state;
                     }
                     RelayOutletMode::ALARM => {
-                        if compare_alarm(config.get_alarm(), prev_config.get_alarm()) {
-                            return true;
-                        }
+                        return !compare_alarm(config.get_alarm(), prev_config.get_alarm());
                     }
                     RelayOutletMode::CYCLE => {
-                        if compare_cycle(config.get_cycle(), prev_config.get_cycle()) {
-                            return true;
-                        }
+                        return !compare_cycle(config.get_cycle(), prev_config.get_cycle());
                     }
-                    _ => {}
+                    _ => {
+                        return true;
+                    }
                 }
+            } else {
+                return true;
             }
-            return false;
-
 }
 
 pub fn authorize_relay_change(

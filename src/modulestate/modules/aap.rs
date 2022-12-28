@@ -40,6 +40,9 @@ impl crate::modulestate::interface::ModuleValueValidator for AAPValidator {
     ) -> Result<Box<dyn protobuf::Message>, crate::modulestate::interface::ModuleError> {
         let mut config = config.as_any().downcast_ref::<RelayModuleConfig>().unwrap().clone();
 
+
+        println!("previous config : {:?}", self.previous_config);
+
         change_ownership_relay_property(
             "p0",
             &request.property,
