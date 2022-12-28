@@ -1,5 +1,9 @@
-use crate::{mainboardstate::error::MainboardError, comboard::imple::interface::{ModuleStateChangeEvent, ModuleValueValidationEvent}, protos::module::Actor};
 use crate::socket::ss::SenderPayload;
+use crate::{
+    comboard::imple::interface::{ModuleStateChangeEvent, ModuleValueValidationEvent},
+    mainboardstate::error::MainboardError,
+    protos::module::Actor,
+};
 
 pub trait ModuleValue {}
 pub trait ModuleValueParsable: ModuleValue + protobuf::Message {}
@@ -109,7 +113,6 @@ pub struct ModuleStateCmd {
     pub sender: tokio::sync::oneshot::Sender<crate::protos::message::ActionResponse>,
 }
 
-
 #[derive(Debug)]
 pub enum ModuleMsg {
     Cmd(ModuleStateCmd),
@@ -200,4 +203,11 @@ pub trait ModuleValueValidator: Downcast {
     >;
 
     fn remove_config(&mut self, actor: Actor) -> Result<(), ModuleError>;
+
+    fn edit_ownership(
+        &mut self,
+        config: Box<dyn protobuf::Message>,
+        request: crate::protos::module::ModuleActorOwnershipRequest,
+        actor: &Actor,
+    ) -> Result<Box<dyn protobuf::Message>, ModuleError>;
 }

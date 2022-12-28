@@ -8,6 +8,7 @@ use crate::protos::alarm::FieldAlarm;
 use crate::protos::env_controller::EnvironmentControllerConfiguration;
 use crate::protos::module::Actor;
 use crate::protos::module::ActorType;
+use crate::protos::module::ModuleActorOwnershipRequest;
 use crate::socket::ss::SenderPayload;
 use crate::utils::mqtt::extract_module_id;
 
@@ -53,6 +54,77 @@ fn apply_module_config(
             ) {
                 Ok((config, config_comboard)) => {
                     store.store_module_config(&(id.into()), &config)?;
+
+                    sender_config
+                        .try_send(config_comboard)
+                        .map_err(|x| MainboardError::from_error(x.to_string()))?;
+
+                    if from_actor.field_type != ActorType::MANUAL_USER_ACTOR {
+                        sender_socket.try_send((format!("/m/{}/config_updated", id), config))?;
+                    }
+                }
+                Err(e) => return Err(e.into()),
+            }
+            //tokio::task::spawn(async {});
+        } else {
+            return Err(super::interface::ModuleError::sender_not_found(&id).into());
+        }
+    } else {
+        return Err(super::interface::ModuleError::not_found(&id).into());
+    }
+    return Ok(());
+}
+
+fn handle_request_ownership(
+    topic: &String,
+    data: Arc<Vec<u8>>,
+    manager: &mut MainboardModuleStateManager,
+    sender_config: &ComboardSenderMapReference,
+    sender_socket: &Sender<SenderPayload>,
+    store: &super::store::ModuleStateStore,
+    from_actor: &Actor,
+) -> Result<(), MainboardError> {
+    let id = crate::utils::mqtt::last_element_path(topic).ok_or(
+        MainboardError::new().message("failed to get last element from mqtt topic".to_string()),
+    )?;
+
+    let request = ModuleActorOwnershipRequest::parse_from_bytes(&data).unwrap();
+
+    let module_ref_option = manager.connected_module.get_mut(&id);
+
+    if let Some(module_ref) = module_ref_option {
+        let t = &module_ref.id[..3];
+
+        if let Ok(sender_config) = sender_config.get_sender(ComboardAddr {
+            imple: module_ref.board.clone(),
+            addr: module_ref.board_addr.clone(),
+        }) {
+            // make the owneship reqest
+            let config = store.get_module_config(&id);
+            if config.is_none() {
+                return Err(MainboardError::from_error(
+                    "failed to get module config to get ownership".into(),
+                ));
+            }
+            let config = config.unwrap();
+
+            let config = module_ref
+                .validator
+                .edit_ownership(config, request, from_actor)?;
+
+            let data = Arc::new(config.write_to_bytes()?);
+
+            // send to the config
+            match module_ref.validator.apply_parse_config(
+                module_ref.port,
+                &t,
+                data,
+                &sender_config,
+                &mut module_ref.handler_map,
+                from_actor.clone(),
+            ) {
+                Ok((config, config_comboard)) => {
+                    store.store_module_config(&(id.clone().into()), &config)?;
 
                     sender_config
                         .try_send(config_comboard)
@@ -314,6 +386,15 @@ pub fn handle_module_command(
             &store,
             &actor,
         ),
+        "oconfig" => handle_request_ownership(
+            topic,
+            data,
+            manager,
+            &sender_config,
+            &sender_socket,
+            &store,
+            &actor,
+        ),
         "mconfig" => handle_module_config(
             topic,
             data,
@@ -373,6 +454,7 @@ pub fn handle_module_command(
             store,
             virtual_relay_store,
             manager,
+            &actor,
         ),
         "rmVr" => super::relay::virtual_relay::handler::handle_delete_virtual_relay(
             topic,
@@ -496,7 +578,5 @@ mod tests {
         assert_eq!(result.is_ok(), true);
 
         assert_eq!(ctx.9.try_recv().is_err(), true);
-
     }
-
 }

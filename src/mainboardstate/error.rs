@@ -1,4 +1,4 @@
-use std::ffi::OsString;
+use std::{ffi::OsString, fmt::format};
 
 use tokio::sync::mpsc::error::{TrySendError, SendError};
 
@@ -33,6 +33,12 @@ impl MainboardError {
     pub fn from_protobuf_err(err: protobuf::ProtobufError) -> Self {
         return Self {
             message: err.to_string(),
+        };
+    }
+
+    pub fn unauthorized(msg: &str) -> Self {
+        return Self {
+            message: format!("unauthorized: {}", msg)
         };
     }
 

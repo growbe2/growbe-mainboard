@@ -12,10 +12,6 @@
     {
       "imple": "virt",
       "config": ""
-    },
-    {
-      "imple": "ws",
-      "config": "localhost"
     }
   ],
   "server": {

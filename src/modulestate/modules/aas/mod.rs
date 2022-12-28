@@ -2,7 +2,6 @@ pub mod calibration;
 
 use protobuf::Message;
 
-use crate::socket::ss::SenderPayload;
 use crate::protos::module::{
     CalibrationError, CalibrationStep, SOILCalibrationStep, SOILCalibrationStepEvent,
     SOILModuleConfig, SOILModuleData,
@@ -284,4 +283,14 @@ impl crate::modulestate::interface::ModuleValueValidator for AASValidator {
             .unwrap();
         return Ok(None);
     }
+
+    fn edit_ownership(
+        &mut self,
+        config: Box<dyn protobuf::Message>,
+        request: crate::protos::module::ModuleActorOwnershipRequest,
+        actor: &crate::protos::module::Actor,
+    ) -> Result<Box<dyn protobuf::Message>, crate::modulestate::interface::ModuleError> {
+        return Ok(config);
+    }
+
 }

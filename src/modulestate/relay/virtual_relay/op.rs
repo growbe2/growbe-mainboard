@@ -1,5 +1,7 @@
 use tokio_util::sync::CancellationToken;
 
+use crate::modulestate::actor::new_actor;
+use crate::protos::module::Actor;
 use crate::socket::ss::SenderPayload;
 use crate::mainboardstate::error::MainboardError;
 use crate::{
@@ -163,21 +165,24 @@ pub fn apply_config_virtual_relay(
     _store: &crate::modulestate::store::ModuleStateStore,
     store_virtual_relay: &mut VirtualRelayStore,
     _manager: &mut crate::modulestate::state_manager::MainboardModuleStateManager,
+    actor: &Actor,
 ) -> Result<(), MainboardError> {
+    let mut mconfig = config.clone();
     match store_virtual_relay.virtual_relay_maps.get_mut(id) {
         Some(relay) => {
             configure_relay(
                 true,
-                &config,
+                &mut mconfig,
                 false,
                 &config,
                 relay,
                 &mut store_virtual_relay.cancellation_token_maps,
-                None,
-            );
+                &actor,
+                false,
+            ).unwrap();
             //configure_relay(true, &config, relay, & mut store_virtual_relay.cancellation_token_maps, None);
             tokio::spawn(async {});
-            store_virtual_relay.store_relay_config(id, config)?;
+            store_virtual_relay.store_relay_config(id, &mconfig)?;
             return Ok(());
         }
         None => return Err(MainboardError::not_found("virtual_relay", id.as_str())),
@@ -224,6 +229,8 @@ pub fn initialize_virtual_relay_and_apply_config(
         manager,
     )?;
 
+    let actor = new_actor("handle_state", crate::protos::module::ActorType::MANUAL_USER_ACTOR);
+
     if let Some(config) = virtual_config.as_ref() {
         apply_config_virtual_relay(
             &String::from(virtual_relay.get_name()),
@@ -233,6 +240,7 @@ pub fn initialize_virtual_relay_and_apply_config(
             store,
             store_virtual_relay,
             manager,
+            &actor,
         )?;
     }
 

@@ -711,6 +711,217 @@ impl ::protobuf::reflect::ProtobufValue for ActorWithOwnership {
 }
 
 #[derive(PartialEq,Clone,Default)]
+pub struct ModuleActorOwnershipRequest {
+    // message fields
+    pub actor: ::protobuf::SingularPtrField<Actor>,
+    pub property: ::std::collections::HashMap<::std::string::String, bool>,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a ModuleActorOwnershipRequest {
+    fn default() -> &'a ModuleActorOwnershipRequest {
+        <ModuleActorOwnershipRequest as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl ModuleActorOwnershipRequest {
+    pub fn new() -> ModuleActorOwnershipRequest {
+        ::std::default::Default::default()
+    }
+
+    // .Actor actor = 1;
+
+
+    pub fn get_actor(&self) -> &Actor {
+        self.actor.as_ref().unwrap_or_else(|| <Actor as ::protobuf::Message>::default_instance())
+    }
+    pub fn clear_actor(&mut self) {
+        self.actor.clear();
+    }
+
+    pub fn has_actor(&self) -> bool {
+        self.actor.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_actor(&mut self, v: Actor) {
+        self.actor = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_actor(&mut self) -> &mut Actor {
+        if self.actor.is_none() {
+            self.actor.set_default();
+        }
+        self.actor.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_actor(&mut self) -> Actor {
+        self.actor.take().unwrap_or_else(|| Actor::new())
+    }
+
+    // repeated .ModuleActorOwnershipRequest.PropertyEntry property = 2;
+
+
+    pub fn get_property(&self) -> &::std::collections::HashMap<::std::string::String, bool> {
+        &self.property
+    }
+    pub fn clear_property(&mut self) {
+        self.property.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_property(&mut self, v: ::std::collections::HashMap<::std::string::String, bool>) {
+        self.property = v;
+    }
+
+    // Mutable pointer to the field.
+    pub fn mut_property(&mut self) -> &mut ::std::collections::HashMap<::std::string::String, bool> {
+        &mut self.property
+    }
+
+    // Take field
+    pub fn take_property(&mut self) -> ::std::collections::HashMap<::std::string::String, bool> {
+        ::std::mem::replace(&mut self.property, ::std::collections::HashMap::new())
+    }
+}
+
+impl ::protobuf::Message for ModuleActorOwnershipRequest {
+    fn is_initialized(&self) -> bool {
+        for v in &self.actor {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.actor)?;
+                },
+                2 => {
+                    ::protobuf::rt::read_map_into::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeBool>(wire_type, is, &mut self.property)?;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if let Some(ref v) = self.actor.as_ref() {
+            let len = v.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        }
+        my_size += ::protobuf::rt::compute_map_size::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeBool>(2, &self.property);
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if let Some(ref v) = self.actor.as_ref() {
+            os.write_tag(1, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        }
+        ::protobuf::rt::write_map_with_cached_sizes::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeBool>(2, &self.property, os)?;
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> ModuleActorOwnershipRequest {
+        ModuleActorOwnershipRequest::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<Actor>>(
+                "actor",
+                |m: &ModuleActorOwnershipRequest| { &m.actor },
+                |m: &mut ModuleActorOwnershipRequest| { &mut m.actor },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_map_accessor::<_, ::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeBool>(
+                "property",
+                |m: &ModuleActorOwnershipRequest| { &m.property },
+                |m: &mut ModuleActorOwnershipRequest| { &mut m.property },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<ModuleActorOwnershipRequest>(
+                "ModuleActorOwnershipRequest",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static ModuleActorOwnershipRequest {
+        static instance: ::protobuf::rt::LazyV2<ModuleActorOwnershipRequest> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(ModuleActorOwnershipRequest::new)
+    }
+}
+
+impl ::protobuf::Clear for ModuleActorOwnershipRequest {
+    fn clear(&mut self) {
+        self.actor.clear();
+        self.property.clear();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for ModuleActorOwnershipRequest {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for ModuleActorOwnershipRequest {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
 pub struct ModuleData {
     // message fields
     pub id: ::std::string::String,
@@ -4643,6 +4854,7 @@ pub struct RelayOutletConfig {
     pub field_virtual: ::protobuf::SingularPtrField<VirtualRelayConfig>,
     pub cycle: ::protobuf::SingularPtrField<CycleConfig>,
     pub actor_owner_id: ::std::string::String,
+    pub actor_owner_type: ActorType,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -4831,6 +5043,21 @@ impl RelayOutletConfig {
     pub fn take_actor_owner_id(&mut self) -> ::std::string::String {
         ::std::mem::replace(&mut self.actor_owner_id, ::std::string::String::new())
     }
+
+    // .ActorType actor_owner_type = 7;
+
+
+    pub fn get_actor_owner_type(&self) -> ActorType {
+        self.actor_owner_type
+    }
+    pub fn clear_actor_owner_type(&mut self) {
+        self.actor_owner_type = ActorType::MANUAL_USER_ACTOR;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_actor_owner_type(&mut self, v: ActorType) {
+        self.actor_owner_type = v;
+    }
 }
 
 impl ::protobuf::Message for RelayOutletConfig {
@@ -4880,6 +5107,9 @@ impl ::protobuf::Message for RelayOutletConfig {
                 6 => {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.actor_owner_id)?;
                 },
+                7 => {
+                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.actor_owner_type, 7, &mut self.unknown_fields)?
+                },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
                 },
@@ -4914,6 +5144,9 @@ impl ::protobuf::Message for RelayOutletConfig {
         if !self.actor_owner_id.is_empty() {
             my_size += ::protobuf::rt::string_size(6, &self.actor_owner_id);
         }
+        if self.actor_owner_type != ActorType::MANUAL_USER_ACTOR {
+            my_size += ::protobuf::rt::enum_size(7, self.actor_owner_type);
+        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -4945,6 +5178,9 @@ impl ::protobuf::Message for RelayOutletConfig {
         }
         if !self.actor_owner_id.is_empty() {
             os.write_string(6, &self.actor_owner_id)?;
+        }
+        if self.actor_owner_type != ActorType::MANUAL_USER_ACTOR {
+            os.write_enum(7, ::protobuf::ProtobufEnum::value(&self.actor_owner_type))?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -5014,6 +5250,11 @@ impl ::protobuf::Message for RelayOutletConfig {
                 |m: &RelayOutletConfig| { &m.actor_owner_id },
                 |m: &mut RelayOutletConfig| { &mut m.actor_owner_id },
             ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<ActorType>>(
+                "actor_owner_type",
+                |m: &RelayOutletConfig| { &m.actor_owner_type },
+                |m: &mut RelayOutletConfig| { &mut m.actor_owner_type },
+            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<RelayOutletConfig>(
                 "RelayOutletConfig",
                 fields,
@@ -5036,6 +5277,7 @@ impl ::protobuf::Clear for RelayOutletConfig {
         self.field_virtual.clear();
         self.cycle.clear();
         self.actor_owner_id.clear();
+        self.actor_owner_type = ActorType::MANUAL_USER_ACTOR;
         self.unknown_fields.clear();
     }
 }
@@ -15029,100 +15271,106 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     ressourceId\x18\x02\x20\x01(\tR\x0bressourceId\x12\x1a\n\x08property\x18\
     \x03\x20\x01(\tR\x08property\"c\n\x12ActorWithOwnership\x12\x1c\n\x05act\
     or\x18\x01\x20\x01(\x0b2\x06.ActorR\x05actor\x12/\n\nownerships\x18\x02\
-    \x20\x03(\x0b2\x0f.ActorOwnershipR\nownerships\"\xd4\x01\n\nModuleData\
-    \x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\x12\n\x04name\x18\x02\x20\
-    \x01(\tR\x04name\x12\x1c\n\treadCount\x18\x04\x20\x01(\x05R\treadCount\
-    \x12\"\n\x0cboardVersion\x18\x05\x20\x01(\tR\x0cboardVersion\x12\x12\n\
-    \x04plug\x18\x06\x20\x01(\x08R\x04plug\x12\x18\n\x07atIndex\x18\x07\x20\
-    \x01(\x05R\x07atIndex\x12\x14\n\x05board\x18\x08\x20\x01(\tR\x05board\
-    \x12\x1c\n\tboardAddr\x18\t\x20\x01(\tR\tboardAddr\"q\n\rTHLModuleData\
-    \x12\x1a\n\x08humidity\x18\x02\x20\x01(\x02R\x08humidity\x12&\n\x0eairTe\
-    mperature\x18\x03\x20\x01(\x02R\x0eairTemperature\x12\x1c\n\ttimestamp\
-    \x18\t\x20\x01(\x05R\ttimestamp\"\xcc\x01\n\x0eSOILModuleData\x12\x0e\n\
-    \x02p0\x18\x01\x20\x01(\x05R\x02p0\x12\x0e\n\x02p1\x18\x02\x20\x01(\x05R\
-    \x02p1\x12\x0e\n\x02p2\x18\x03\x20\x01(\x05R\x02p2\x12\x0e\n\x02p3\x18\
-    \x04\x20\x01(\x05R\x02p3\x12\x0e\n\x02p4\x18\x05\x20\x01(\x05R\x02p4\x12\
-    \x0e\n\x02p5\x18\x06\x20\x01(\x05R\x02p5\x12\x0e\n\x02p6\x18\x07\x20\x01\
-    (\x05R\x02p6\x12\x0e\n\x02p7\x18\x08\x20\x01(\x05R\x02p7\x12\x1c\n\ttime\
-    stamp\x18\t\x20\x01(\x05R\ttimestamp\x12\x1c\n\tvaluetype\x18\n\x20\x01(\
-    \tR\tvaluetype\"7\n\x0fSOILProbeConfig\x12\x10\n\x03low\x18\x01\x20\x01(\
-    \x05R\x03low\x12\x12\n\x04high\x18\x02\x20\x01(\x05R\x04high\"\xa2\x02\n\
-    \x10SOILModuleConfig\x12\x20\n\x02p0\x18\x01\x20\x01(\x0b2\x10.SOILProbe\
-    ConfigR\x02p0\x12\x20\n\x02p1\x18\x02\x20\x01(\x0b2\x10.SOILProbeConfigR\
-    \x02p1\x12\x20\n\x02p2\x18\x03\x20\x01(\x0b2\x10.SOILProbeConfigR\x02p2\
-    \x12\x20\n\x02p3\x18\x04\x20\x01(\x0b2\x10.SOILProbeConfigR\x02p3\x12\
-    \x20\n\x02p4\x18\x05\x20\x01(\x0b2\x10.SOILProbeConfigR\x02p4\x12\x20\n\
-    \x02p5\x18\x06\x20\x01(\x0b2\x10.SOILProbeConfigR\x02p5\x12\x20\n\x02p6\
-    \x18\x07\x20\x01(\x0b2\x10.SOILProbeConfigR\x02p6\x12\x20\n\x02p7\x18\
-    \x08\x20\x01(\x0b2\x10.SOILProbeConfigR\x02p7\"\x16\n\x14SOILCalibration\
-    Start\"N\n\x13SOILCalibrationStep\x127\n\x0erequested_step\x18\x01\x20\
-    \x01(\x0e2\x10.CalibrationStepR\rrequestedStep\"\xf7\x01\n\x18SOILCalibr\
-    ationStepEvent\x12$\n\x04step\x18\x01\x20\x01(\x0e2\x10.CalibrationStepR\
-    \x04step\x12.\n\x06status\x18\x02\x20\x01(\x0e2\x16.CalibrationStepStatu\
-    sR\x06status\x12%\n\x04erro\x18\x03\x20\x01(\x0e2\x11.CalibrationErrorR\
-    \x04erro\x12\x16\n\x06messag\x18\x04\x20\x01(\tR\x06messag\x12!\n\x03low\
-    \x18\x05\x20\x03(\x0b2\x0f.SOILModuleDataR\x03low\x12#\n\x04high\x18\x06\
-    \x20\x03(\x0b2\x0f.SOILModuleDataR\x04high\"n\n\x0cWAModuleData\x12\x0e\
-    \n\x02PH\x18\x02\x20\x01(\x05R\x02PH\x12\x0e\n\x02EC\x18\x03\x20\x01(\
-    \x05R\x02EC\x12\x20\n\x0btemperature\x18\x04\x20\x01(\x05R\x0btemperatur\
-    e\x12\x1c\n\ttimestamp\x18\t\x20\x01(\x05R\ttimestamp\"\x82\x01\n\x08Cro\
-    nItem\x12\x16\n\x06minute\x18\x01\x20\x01(\x05R\x06minute\x12\x12\n\x04h\
-    our\x18\x02\x20\x01(\x05R\x04hour\x12\x1a\n\x08dayMonth\x18\x03\x20\x01(\
-    \x05R\x08dayMonth\x12\x14\n\x05month\x18\x04\x20\x01(\x05R\x05month\x12\
-    \x18\n\x07dayWeek\x18\x05\x20\x01(\x05R\x07dayWeek\"Q\n\x0bCycleConfig\
-    \x12\x20\n\x0bwaitingTime\x18\x01\x20\x01(\x05R\x0bwaitingTime\x12\x20\n\
-    \x0brunningTime\x18\x02\x20\x01(\x05R\x0brunningTime\"Q\n\x0bAlarmConfig\
-    \x12%\n\x08begining\x18\x01\x20\x01(\x0b2\t.CronItemR\x08begining\x12\
-    \x1b\n\x03end\x18\x02\x20\x01(\x0b2\t.CronItemR\x03end\"@\n\x0cManualCon\
-    fig\x12\x14\n\x05state\x18\x01\x20\x01(\x08R\x05state\x12\x1a\n\x08durat\
-    ion\x18\x02\x20\x01(\x05R\x08duration\"'\n\x0fRelayOutletData\x12\x14\n\
-    \x05state\x18\x01\x20\x01(\x08R\x05state\"\x14\n\x12VirtualRelayConfig\"\
-    \xfd\x01\n\x11RelayOutletConfig\x12$\n\x04mode\x18\x01\x20\x01(\x0e2\x10\
-    .RelayOutletModeR\x04mode\x12\"\n\x05alarm\x18\x02\x20\x01(\x0b2\x0c.Ala\
-    rmConfigR\x05alarm\x12%\n\x06manual\x18\x03\x20\x01(\x0b2\r.ManualConfig\
-    R\x06manual\x12-\n\x07virtual\x18\x04\x20\x01(\x0b2\x13.VirtualRelayConf\
-    igR\x07virtual\x12\"\n\x05cycle\x18\x05\x20\x01(\x0b2\x0c.CycleConfigR\
-    \x05cycle\x12$\n\x0eactor_owner_id\x18\x06\x20\x01(\tR\x0cactorOwnerId\"\
-    v\n\x1aVirtualRelayPropertyConfig\x12\x1a\n\x08property\x18\x01\x20\x01(\
-    \x05R\x08property\x12\x1e\n\nfalseState\x18\x02\x20\x01(\x08R\nfalseStat\
-    e\x12\x1c\n\ttrueState\x18\x03\x20\x01(\x08R\ttrueState\"O\n\x10VirtualR\
-    elayItem\x12;\n\nproperties\x18\x01\x20\x03(\x0b2\x1b.VirtualRelayProper\
-    tyConfigR\nproperties\"Q\n\x17VirtualRelayPropetyItem\x12\x1a\n\x08modul\
-    eId\x18\x01\x20\x01(\tR\x08moduleId\x12\x1a\n\x08property\x18\x02\x20\
-    \x03(\x05R\x08property\"F\n\x14VirtualRelayProperty\x12.\n\x05items\x18\
-    \x01\x20\x03(\x0b2\x18.VirtualRelayPropetyItemR\x05items\"\xde\x02\n\x0c\
-    VirtualRelay\x12\x12\n\x04name\x18\x01\x20\x01(\tR\x04name\x121\n\x06rel\
-    ays\x18\x02\x20\x03(\x0b2\x19.VirtualRelay.RelaysEntryR\x06relays\x12=\n\
-    \nproperties\x18\x03\x20\x03(\x0b2\x1d.VirtualRelay.PropertiesEntryR\npr\
-    operties\x12$\n\x0eactor_owner_id\x18\x06\x20\x01(\tR\x0cactorOwnerId\
-    \x1aL\n\x0bRelaysEntry\x12\x10\n\x03key\x18\x01\x20\x01(\tR\x03key\x12'\
-    \n\x05value\x18\x02\x20\x01(\x0b2\x11.VirtualRelayItemR\x05value:\x028\
-    \x01\x1aT\n\x0fPropertiesEntry\x12\x10\n\x03key\x18\x01\x20\x01(\tR\x03k\
-    ey\x12+\n\x05value\x18\x02\x20\x01(\x0b2\x15.VirtualRelayPropertyR\x05va\
-    lue:\x028\x01\"6\n\rVirtualRelays\x12%\n\x06relays\x18\x01\x20\x03(\x0b2\
-    \r.VirtualRelayR\x06relays\"V\n\x10VirtualRelayData\x12$\n\x04data\x18\
-    \x01\x20\x01(\x0b2\x10.RelayOutletDataR\x04data\x12\x1c\n\ttimestamp\x18\
-    \x02\x20\x01(\x05R\ttimestamp\"S\n\x11VirtualRelayState\x12\x0e\n\x02id\
-    \x18\x01\x20\x01(\tR\x02id\x12\x14\n\x05state\x18\x02\x20\x01(\x08R\x05s\
-    tate\x12\x18\n\x07message\x18\x03\x20\x01(\tR\x07message\"\xdd\x02\n\x0f\
-    RelayModuleData\x12\x20\n\x02p0\x18\x01\x20\x01(\x0b2\x10.RelayOutletDat\
-    aR\x02p0\x12\x20\n\x02p1\x18\x02\x20\x01(\x0b2\x10.RelayOutletDataR\x02p\
-    1\x12\x20\n\x02p2\x18\x03\x20\x01(\x0b2\x10.RelayOutletDataR\x02p2\x12\
-    \x20\n\x02p3\x18\x04\x20\x01(\x0b2\x10.RelayOutletDataR\x02p3\x12\x20\n\
-    \x02p4\x18\x05\x20\x01(\x0b2\x10.RelayOutletDataR\x02p4\x12\x20\n\x02p5\
-    \x18\x06\x20\x01(\x0b2\x10.RelayOutletDataR\x02p5\x12\x20\n\x02p6\x18\
-    \x07\x20\x01(\x0b2\x10.RelayOutletDataR\x02p6\x12\x20\n\x02p7\x18\x08\
-    \x20\x01(\x0b2\x10.RelayOutletDataR\x02p7\x12\x1c\n\ttimestamp\x18\t\x20\
-    \x01(\x05R\ttimestamp\x12\x1c\n\x05actor\x18\n\x20\x01(\x0b2\x06.ActorR\
-    \x05actor\"\xd1\x02\n\x11RelayModuleConfig\x12\"\n\x02p0\x18\x01\x20\x01\
-    (\x0b2\x12.RelayOutletConfigR\x02p0\x12\"\n\x02p1\x18\x02\x20\x01(\x0b2\
-    \x12.RelayOutletConfigR\x02p1\x12\"\n\x02p2\x18\x03\x20\x01(\x0b2\x12.Re\
-    layOutletConfigR\x02p2\x12\"\n\x02p3\x18\x04\x20\x01(\x0b2\x12.RelayOutl\
-    etConfigR\x02p3\x12\"\n\x02p4\x18\x05\x20\x01(\x0b2\x12.RelayOutletConfi\
-    gR\x02p4\x12\"\n\x02p5\x18\x06\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p\
-    5\x12\"\n\x02p6\x18\x07\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p6\x12\"\
-    \n\x02p7\x18\x08\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p7\x12\x1c\n\tt\
-    imestamp\x18\t\x20\x01(\x05R\ttimestamp\"\xf8\x02\n\x0cWCModuleData\x12\
+    \x20\x03(\x0b2\x0f.ActorOwnershipR\nownerships\"\xc0\x01\n\x1bModuleActo\
+    rOwnershipRequest\x12\x1c\n\x05actor\x18\x01\x20\x01(\x0b2\x06.ActorR\
+    \x05actor\x12F\n\x08property\x18\x02\x20\x03(\x0b2*.ModuleActorOwnership\
+    Request.PropertyEntryR\x08property\x1a;\n\rPropertyEntry\x12\x10\n\x03ke\
+    y\x18\x01\x20\x01(\tR\x03key\x12\x14\n\x05value\x18\x02\x20\x01(\x08R\
+    \x05value:\x028\x01\"\xd4\x01\n\nModuleData\x12\x0e\n\x02id\x18\x01\x20\
+    \x01(\tR\x02id\x12\x12\n\x04name\x18\x02\x20\x01(\tR\x04name\x12\x1c\n\t\
+    readCount\x18\x04\x20\x01(\x05R\treadCount\x12\"\n\x0cboardVersion\x18\
+    \x05\x20\x01(\tR\x0cboardVersion\x12\x12\n\x04plug\x18\x06\x20\x01(\x08R\
+    \x04plug\x12\x18\n\x07atIndex\x18\x07\x20\x01(\x05R\x07atIndex\x12\x14\n\
+    \x05board\x18\x08\x20\x01(\tR\x05board\x12\x1c\n\tboardAddr\x18\t\x20\
+    \x01(\tR\tboardAddr\"q\n\rTHLModuleData\x12\x1a\n\x08humidity\x18\x02\
+    \x20\x01(\x02R\x08humidity\x12&\n\x0eairTemperature\x18\x03\x20\x01(\x02\
+    R\x0eairTemperature\x12\x1c\n\ttimestamp\x18\t\x20\x01(\x05R\ttimestamp\
+    \"\xcc\x01\n\x0eSOILModuleData\x12\x0e\n\x02p0\x18\x01\x20\x01(\x05R\x02\
+    p0\x12\x0e\n\x02p1\x18\x02\x20\x01(\x05R\x02p1\x12\x0e\n\x02p2\x18\x03\
+    \x20\x01(\x05R\x02p2\x12\x0e\n\x02p3\x18\x04\x20\x01(\x05R\x02p3\x12\x0e\
+    \n\x02p4\x18\x05\x20\x01(\x05R\x02p4\x12\x0e\n\x02p5\x18\x06\x20\x01(\
+    \x05R\x02p5\x12\x0e\n\x02p6\x18\x07\x20\x01(\x05R\x02p6\x12\x0e\n\x02p7\
+    \x18\x08\x20\x01(\x05R\x02p7\x12\x1c\n\ttimestamp\x18\t\x20\x01(\x05R\tt\
+    imestamp\x12\x1c\n\tvaluetype\x18\n\x20\x01(\tR\tvaluetype\"7\n\x0fSOILP\
+    robeConfig\x12\x10\n\x03low\x18\x01\x20\x01(\x05R\x03low\x12\x12\n\x04hi\
+    gh\x18\x02\x20\x01(\x05R\x04high\"\xa2\x02\n\x10SOILModuleConfig\x12\x20\
+    \n\x02p0\x18\x01\x20\x01(\x0b2\x10.SOILProbeConfigR\x02p0\x12\x20\n\x02p\
+    1\x18\x02\x20\x01(\x0b2\x10.SOILProbeConfigR\x02p1\x12\x20\n\x02p2\x18\
+    \x03\x20\x01(\x0b2\x10.SOILProbeConfigR\x02p2\x12\x20\n\x02p3\x18\x04\
+    \x20\x01(\x0b2\x10.SOILProbeConfigR\x02p3\x12\x20\n\x02p4\x18\x05\x20\
+    \x01(\x0b2\x10.SOILProbeConfigR\x02p4\x12\x20\n\x02p5\x18\x06\x20\x01(\
+    \x0b2\x10.SOILProbeConfigR\x02p5\x12\x20\n\x02p6\x18\x07\x20\x01(\x0b2\
+    \x10.SOILProbeConfigR\x02p6\x12\x20\n\x02p7\x18\x08\x20\x01(\x0b2\x10.SO\
+    ILProbeConfigR\x02p7\"\x16\n\x14SOILCalibrationStart\"N\n\x13SOILCalibra\
+    tionStep\x127\n\x0erequested_step\x18\x01\x20\x01(\x0e2\x10.CalibrationS\
+    tepR\rrequestedStep\"\xf7\x01\n\x18SOILCalibrationStepEvent\x12$\n\x04st\
+    ep\x18\x01\x20\x01(\x0e2\x10.CalibrationStepR\x04step\x12.\n\x06status\
+    \x18\x02\x20\x01(\x0e2\x16.CalibrationStepStatusR\x06status\x12%\n\x04er\
+    ro\x18\x03\x20\x01(\x0e2\x11.CalibrationErrorR\x04erro\x12\x16\n\x06mess\
+    ag\x18\x04\x20\x01(\tR\x06messag\x12!\n\x03low\x18\x05\x20\x03(\x0b2\x0f\
+    .SOILModuleDataR\x03low\x12#\n\x04high\x18\x06\x20\x03(\x0b2\x0f.SOILMod\
+    uleDataR\x04high\"n\n\x0cWAModuleData\x12\x0e\n\x02PH\x18\x02\x20\x01(\
+    \x05R\x02PH\x12\x0e\n\x02EC\x18\x03\x20\x01(\x05R\x02EC\x12\x20\n\x0btem\
+    perature\x18\x04\x20\x01(\x05R\x0btemperature\x12\x1c\n\ttimestamp\x18\t\
+    \x20\x01(\x05R\ttimestamp\"\x82\x01\n\x08CronItem\x12\x16\n\x06minute\
+    \x18\x01\x20\x01(\x05R\x06minute\x12\x12\n\x04hour\x18\x02\x20\x01(\x05R\
+    \x04hour\x12\x1a\n\x08dayMonth\x18\x03\x20\x01(\x05R\x08dayMonth\x12\x14\
+    \n\x05month\x18\x04\x20\x01(\x05R\x05month\x12\x18\n\x07dayWeek\x18\x05\
+    \x20\x01(\x05R\x07dayWeek\"Q\n\x0bCycleConfig\x12\x20\n\x0bwaitingTime\
+    \x18\x01\x20\x01(\x05R\x0bwaitingTime\x12\x20\n\x0brunningTime\x18\x02\
+    \x20\x01(\x05R\x0brunningTime\"Q\n\x0bAlarmConfig\x12%\n\x08begining\x18\
+    \x01\x20\x01(\x0b2\t.CronItemR\x08begining\x12\x1b\n\x03end\x18\x02\x20\
+    \x01(\x0b2\t.CronItemR\x03end\"@\n\x0cManualConfig\x12\x14\n\x05state\
+    \x18\x01\x20\x01(\x08R\x05state\x12\x1a\n\x08duration\x18\x02\x20\x01(\
+    \x05R\x08duration\"'\n\x0fRelayOutletData\x12\x14\n\x05state\x18\x01\x20\
+    \x01(\x08R\x05state\"\x14\n\x12VirtualRelayConfig\"\xb3\x02\n\x11RelayOu\
+    tletConfig\x12$\n\x04mode\x18\x01\x20\x01(\x0e2\x10.RelayOutletModeR\x04\
+    mode\x12\"\n\x05alarm\x18\x02\x20\x01(\x0b2\x0c.AlarmConfigR\x05alarm\
+    \x12%\n\x06manual\x18\x03\x20\x01(\x0b2\r.ManualConfigR\x06manual\x12-\n\
+    \x07virtual\x18\x04\x20\x01(\x0b2\x13.VirtualRelayConfigR\x07virtual\x12\
+    \"\n\x05cycle\x18\x05\x20\x01(\x0b2\x0c.CycleConfigR\x05cycle\x12$\n\x0e\
+    actor_owner_id\x18\x06\x20\x01(\tR\x0cactorOwnerId\x124\n\x10actor_owner\
+    _type\x18\x07\x20\x01(\x0e2\n.ActorTypeR\x0eactorOwnerType\"v\n\x1aVirtu\
+    alRelayPropertyConfig\x12\x1a\n\x08property\x18\x01\x20\x01(\x05R\x08pro\
+    perty\x12\x1e\n\nfalseState\x18\x02\x20\x01(\x08R\nfalseState\x12\x1c\n\
+    \ttrueState\x18\x03\x20\x01(\x08R\ttrueState\"O\n\x10VirtualRelayItem\
+    \x12;\n\nproperties\x18\x01\x20\x03(\x0b2\x1b.VirtualRelayPropertyConfig\
+    R\nproperties\"Q\n\x17VirtualRelayPropetyItem\x12\x1a\n\x08moduleId\x18\
+    \x01\x20\x01(\tR\x08moduleId\x12\x1a\n\x08property\x18\x02\x20\x03(\x05R\
+    \x08property\"F\n\x14VirtualRelayProperty\x12.\n\x05items\x18\x01\x20\
+    \x03(\x0b2\x18.VirtualRelayPropetyItemR\x05items\"\xde\x02\n\x0cVirtualR\
+    elay\x12\x12\n\x04name\x18\x01\x20\x01(\tR\x04name\x121\n\x06relays\x18\
+    \x02\x20\x03(\x0b2\x19.VirtualRelay.RelaysEntryR\x06relays\x12=\n\nprope\
+    rties\x18\x03\x20\x03(\x0b2\x1d.VirtualRelay.PropertiesEntryR\npropertie\
+    s\x12$\n\x0eactor_owner_id\x18\x06\x20\x01(\tR\x0cactorOwnerId\x1aL\n\
+    \x0bRelaysEntry\x12\x10\n\x03key\x18\x01\x20\x01(\tR\x03key\x12'\n\x05va\
+    lue\x18\x02\x20\x01(\x0b2\x11.VirtualRelayItemR\x05value:\x028\x01\x1aT\
+    \n\x0fPropertiesEntry\x12\x10\n\x03key\x18\x01\x20\x01(\tR\x03key\x12+\n\
+    \x05value\x18\x02\x20\x01(\x0b2\x15.VirtualRelayPropertyR\x05value:\x028\
+    \x01\"6\n\rVirtualRelays\x12%\n\x06relays\x18\x01\x20\x03(\x0b2\r.Virtua\
+    lRelayR\x06relays\"V\n\x10VirtualRelayData\x12$\n\x04data\x18\x01\x20\
+    \x01(\x0b2\x10.RelayOutletDataR\x04data\x12\x1c\n\ttimestamp\x18\x02\x20\
+    \x01(\x05R\ttimestamp\"S\n\x11VirtualRelayState\x12\x0e\n\x02id\x18\x01\
+    \x20\x01(\tR\x02id\x12\x14\n\x05state\x18\x02\x20\x01(\x08R\x05state\x12\
+    \x18\n\x07message\x18\x03\x20\x01(\tR\x07message\"\xdd\x02\n\x0fRelayMod\
+    uleData\x12\x20\n\x02p0\x18\x01\x20\x01(\x0b2\x10.RelayOutletDataR\x02p0\
+    \x12\x20\n\x02p1\x18\x02\x20\x01(\x0b2\x10.RelayOutletDataR\x02p1\x12\
+    \x20\n\x02p2\x18\x03\x20\x01(\x0b2\x10.RelayOutletDataR\x02p2\x12\x20\n\
+    \x02p3\x18\x04\x20\x01(\x0b2\x10.RelayOutletDataR\x02p3\x12\x20\n\x02p4\
+    \x18\x05\x20\x01(\x0b2\x10.RelayOutletDataR\x02p4\x12\x20\n\x02p5\x18\
+    \x06\x20\x01(\x0b2\x10.RelayOutletDataR\x02p5\x12\x20\n\x02p6\x18\x07\
+    \x20\x01(\x0b2\x10.RelayOutletDataR\x02p6\x12\x20\n\x02p7\x18\x08\x20\
+    \x01(\x0b2\x10.RelayOutletDataR\x02p7\x12\x1c\n\ttimestamp\x18\t\x20\x01\
+    (\x05R\ttimestamp\x12\x1c\n\x05actor\x18\n\x20\x01(\x0b2\x06.ActorR\x05a\
+    ctor\"\xd1\x02\n\x11RelayModuleConfig\x12\"\n\x02p0\x18\x01\x20\x01(\x0b\
+    2\x12.RelayOutletConfigR\x02p0\x12\"\n\x02p1\x18\x02\x20\x01(\x0b2\x12.R\
+    elayOutletConfigR\x02p1\x12\"\n\x02p2\x18\x03\x20\x01(\x0b2\x12.RelayOut\
+    letConfigR\x02p2\x12\"\n\x02p3\x18\x04\x20\x01(\x0b2\x12.RelayOutletConf\
+    igR\x02p3\x12\"\n\x02p4\x18\x05\x20\x01(\x0b2\x12.RelayOutletConfigR\x02\
+    p4\x12\"\n\x02p5\x18\x06\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p5\x12\
+    \"\n\x02p6\x18\x07\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p6\x12\"\n\
+    \x02p7\x18\x08\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p7\x12\x1c\n\ttim\
+    estamp\x18\t\x20\x01(\x05R\ttimestamp\"\xf8\x02\n\x0cWCModuleData\x12\
     \x20\n\x02p0\x18\x01\x20\x01(\x0b2\x10.RelayOutletDataR\x02p0\x12\x20\n\
     \x02p1\x18\x02\x20\x01(\x0b2\x10.RelayOutletDataR\x02p1\x12\x20\n\x02p2\
     \x18\x03\x20\x01(\x0b2\x10.RelayOutletDataR\x02p2\x12&\n\x05drain\x18\

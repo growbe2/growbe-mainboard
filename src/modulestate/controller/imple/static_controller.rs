@@ -70,13 +70,14 @@ fn on_value_event_change(
 }
 
 macro_rules! switch_alarms {
-    ($map: ident, $callback: ident, $cancellation_token: expr, $($items: ident),+) => {
+    ($ctx: ident, $map: ident, $callback: ident, $cancellation_token: expr, $($items: ident),+) => {
         {
             println!("starting looping on {} alarms", $map.len());
             $(let mut $items = $map.pop().unwrap();)+
             loop {
                 select! {
                     _ = $cancellation_token.cancelled() => {
+                        $ctx.module_command_sender.send_reserve_actor($ctx.config.actors.to_vec(), $ctx.actor.clone(), false)?;
                         return Ok(());
                     },
                 $(
@@ -114,12 +115,12 @@ async fn select_alarms(
         }
     };
     match len {
-        1 => switch_alarms!(receivers, callback, ctx.cancellation_token, a),
-        2 => switch_alarms!(receivers, callback, ctx.cancellation_token, a, b),
-        3 => switch_alarms!(receivers, callback, ctx.cancellation_token, a, b, c),
-        4 => switch_alarms!(receivers, callback, ctx.cancellation_token, a, b, c, d),
-        5 => switch_alarms!(receivers, callback, ctx.cancellation_token, a, b, c, d, e),
-        6 => switch_alarms!(receivers, callback, ctx.cancellation_token, a, b, c, d, e, f),
+        1 => switch_alarms!(ctx,receivers, callback, ctx.cancellation_token, a),
+        2 => switch_alarms!(ctx,receivers, callback, ctx.cancellation_token, a, b),
+        3 => switch_alarms!(ctx,receivers, callback, ctx.cancellation_token, a, b, c),
+        4 => switch_alarms!(ctx,receivers, callback, ctx.cancellation_token, a, b, c, d),
+        5 => switch_alarms!(ctx, receivers, callback, ctx.cancellation_token, a, b, c, d, e),
+        6 => switch_alarms!(ctx, receivers, callback, ctx.cancellation_token, a, b, c, d, e, f),
         _ => {
             panic!("");
         }
@@ -142,6 +143,8 @@ impl EnvControllerTask for StaticControllerImplementation {
                 }
                 _ => panic!("failed to be"),
             };
+
+            ctx.module_command_sender.send_reserve_actor(ctx.config.actors.to_vec(), ctx.actor.clone(), true)?;
 
             for (_, mut receiver_alarm) in ctx.alarm_receivers.iter_mut() {
                 for action in imple.conditions.iter() {
@@ -346,6 +349,8 @@ mod tests {
 
         assert_eq!(handle.is_finished(), false);
 
+        // discord first for oconfig
+        crate::wait_async!(rm.recv(), Duration::from_millis(50), None);
         let result = crate::wait_async!(rm.recv(), Duration::from_millis(50), None);
 
         assert_eq!(result.is_none(), true);
@@ -382,6 +387,11 @@ mod tests {
 
         assert_eq!(handle.is_finished(), false);
         assert_eq!(ct.is_cancelled(), false);
+
+        let msg = crate::wait_async!(rm.recv(), Duration::from_millis(50), None).unwrap();
+        let cmd = crate::cast_enum!(msg, ModuleMsg::Cmd);
+
+        assert_eq!(cmd.cmd, "oconfig");
 
         // Should have send a config on startup with alarm on unknow
         let msg = crate::wait_async!(rm.recv(), Duration::from_millis(50), None).unwrap();

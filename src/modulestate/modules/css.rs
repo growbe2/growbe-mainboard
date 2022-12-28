@@ -18,6 +18,16 @@ impl crate::modulestate::interface::ModuleValue for ComputerStatsData {}
 impl crate::modulestate::interface::ModuleValueParsable for ComputerStatsData {}
 
 impl crate::modulestate::interface::ModuleValueValidator for CSSValidator {
+    fn edit_ownership(
+        &mut self,
+        config: Box<dyn protobuf::Message>,
+        request: crate::protos::module::ModuleActorOwnershipRequest,
+        actor: &crate::protos::module::Actor,
+    ) -> Result<Box<dyn protobuf::Message>, crate::modulestate::interface::ModuleError> {
+        return Ok(config);
+    }
+
+
     fn convert_to_value(
         &mut self,
         value_event: &crate::comboard::imple::interface::ModuleValueValidationEvent,
