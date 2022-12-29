@@ -11,7 +11,7 @@ use crate::comboard::imple::{
 };
 use crate::mainboardstate::error::MainboardError;
 use crate::modulestate::actor::new_actor;
-use crate::socket::ss::SenderPayload;
+use crate::socket::ss::{SenderPayload, SenderPayloadData};
 
 lazy_static::lazy_static! {
     static ref REGEX_MODULE_ID: Regex = Regex::new("[A-Z]{3}[A-Z0-9]{9}").unwrap();
@@ -33,7 +33,7 @@ pub fn send_module_state(
     send_state.boardAddr = board_addr.clone();
     sender_socket.try_send((
         String::from(format!("/m/{}/state", id)),
-        Box::new(send_state),
+        SenderPayloadData::ProtobufMessage(Box::new(send_state)),
     ))?;
     Ok(())
 }

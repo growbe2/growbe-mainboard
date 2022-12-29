@@ -3,8 +3,13 @@ use tokio::sync::mpsc::Sender;
 use crate::{modulestate::interface::ModuleValueParsable, mainboardstate::error::MainboardError};
 
 
-pub type SenderPayload = (String, Box<dyn protobuf::Message>);
+#[derive(Debug)]
+pub enum SenderPayloadData {
+    ProtobufMessage(Box<dyn protobuf::Message>),
+    Buffer(Vec<u8>),
+}
 
+pub type SenderPayload = (String, SenderPayloadData);
 
 pub struct SenderSocket {
     sender_socket: Sender<SenderPayload>,
@@ -19,7 +24,7 @@ impl Clone for SenderSocket {
 
 impl SenderSocket {
     pub fn send(&self, topic: String, value: Box<dyn ModuleValueParsable>) -> Result<(), MainboardError> {
-        self.sender_socket.try_send((topic, value))?;
+        self.sender_socket.try_send((topic, SenderPayloadData::ProtobufMessage(value)))?;
         Ok(())
     }
 }

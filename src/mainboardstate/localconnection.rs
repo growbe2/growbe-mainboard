@@ -1,4 +1,4 @@
-use crate::protos::board::LocalConnection;
+use crate::{protos::board::LocalConnection, socket::ss::SenderPayloadData};
 use tokio::sync::mpsc::Sender;
 
 use crate::socket::ss::SenderPayload;
@@ -12,8 +12,8 @@ pub async fn task_local_connection(
 ) -> Result<(), MainboardError> {
     let local_connection = get_local_connection();
     sender
-        .send((String::from("/localconnection"), Box::new(local_connection)))
-        .await.unwrap();
+        .send((String::from("/localconnection"), SenderPayloadData::ProtobufMessage(Box::new(local_connection))))
+        .await?;
     Ok(())
 }
 

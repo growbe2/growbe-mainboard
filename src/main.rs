@@ -1,4 +1,5 @@
 #![feature(trait_upcasting)]
+#![feature(async_fn_in_trait)]
 extern crate lazy_static;
 
 mod comboard;
@@ -14,11 +15,13 @@ mod utils;
 use std::sync::{Arc, Mutex};
 
 use growbe_shared::init_tracing;
+use mainboardstate::config::CONFIG;
 use tokio::sync::mpsc::channel;
 
 use crate::{
     comboard::imple::channel::{ComboardAddr, ComboardConfigChannelManager},
     protos::board::RunningComboard,
+    socket::ss::SenderPayloadData,
 };
 
 use crate::mainboardstate::update::autoupdate;
@@ -54,8 +57,7 @@ async fn main() {
     let mut boards = comboard::get_comboard_client(receiver_virt);
 
     // Create the channel to send the data to the socket thread
-    let (sender_socket, receiver_socket) =
-        channel::<crate::socket::ss::SenderPayload>(200);
+    let (sender_socket, receiver_socket) = channel::<crate::socket::ss::SenderPayload>(200);
 
     // Create sender copy to give to some starting task
     let sender_socket_hello = sender_socket.clone();
@@ -87,8 +89,8 @@ async fn main() {
     // Create the task for the communication socket from outside the app
     let socket_task = socket::socket_task(
         receiver_socket,
-        sender_virt,
-        sender_module,
+        sender_virt.clone(),
+        sender_module.clone(),
         &mainboardstate::config::CONFIG.mqtt,
     );
 
@@ -120,6 +122,17 @@ async fn main() {
     #[cfg(not(feature = "http_server"))]
     let server_task = async {};
 
+    #[cfg(feature = "reverse_proxy_cmd")]
+    let reverse_proxy_task = crate::socket::reverse_proxy_cmd::task_reverse_proxy_cmd(
+        CONFIG.proxy.clone(),
+        sender_socket.clone(),
+        sender_virt,
+        sender_module,
+    );
+
+    #[cfg(not(feature = "reverse_proxy_cmd"))]
+    let reverse_proxy_task = async {};
+
     //let _ = tokio::join!(server_task, socket_task);
     tokio::spawn(async move {
         match tokio::signal::ctrl_c().await {
@@ -128,10 +141,10 @@ async fn main() {
                 sender_socket
                     .send((
                         "/disconnecting".into(),
-                        Box::new(crate::protos::board::HelloWord::new()),
+                        SenderPayloadData::ProtobufMessage(
+                        Box::new(crate::protos::board::HelloWord::new())),
                     ))
-                    .await
-                    .unwrap();
+                    .await;
                 tokio::time::sleep(std::time::Duration::from_millis(500)).await;
                 std::process::exit(0);
             }
@@ -141,6 +154,10 @@ async fn main() {
         }
     });
 
-    let _ = tokio::join!(server_task, module_state_task, socket_task);
-
+    let _ = tokio::join!(
+        server_task,
+        module_state_task,
+        socket_task,
+        reverse_proxy_task
+    );
 }

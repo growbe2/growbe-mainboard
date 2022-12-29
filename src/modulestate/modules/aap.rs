@@ -165,7 +165,8 @@ impl crate::modulestate::interface::ModuleValueValidator for AAPValidator {
     > {
         let mut config: Box<RelayModuleConfig> = if t == "AAP" {
             Box::new(RelayModuleConfig::parse_from_bytes(&data).map_err(|_e| {
-                crate::modulestate::interface::ModuleError::new().message(_e.to_string())
+                println!("{:?}", data);
+                crate::modulestate::interface::ModuleError::new().message(_e.to_string() + " failed to parse AAP")
             })?)
         } else {
             let property = t.split(":").last();

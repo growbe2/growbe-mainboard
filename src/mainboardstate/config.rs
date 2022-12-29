@@ -10,6 +10,7 @@ use crate::protos::board::{
     ComboardConfig, HttpServerConfig, LoggerConfig as ProtoLoggerConfig, MQTTConfig,
     MainboardConfig, UpdaterConfig, ApiConfig,
 };
+use crate::socket::reverse_proxy_cmd::ReverseProxyConf;
 
 impl crate::modulestate::interface::ModuleValue for crate::protos::board::MainboardConfig {}
 impl crate::modulestate::interface::ModuleValueParsable for crate::protos::board::MainboardConfig {}
@@ -30,6 +31,10 @@ fn get_default_comboard() -> crate::comboard::config::ComboardConfig {
         config: "".to_string(),
         imple: "".to_string(),
     };
+}
+
+fn get_default_reverse_config() -> ReverseProxyConf {
+    return ReverseProxyConf { url: "wss://proxy.growbe.ca".into() }
 }
 
 lazy_static::lazy_static! {
@@ -61,6 +66,8 @@ pub struct MainboardProcessConfig {
     pub update: UpdateConfig,
     #[serde(default = "get_default_api_config")]
     pub api: APIConfig,
+    #[serde(default = "get_default_reverse_config")]
+    pub proxy: ReverseProxyConf,
 }
 
 pub fn get(config: &String) -> Result<MainboardProcessConfig, ()> {
@@ -107,6 +114,7 @@ pub fn rewrite_configuration(config: MainboardConfig) -> () {
         api: APIConfig {
             url: config.api.get_ref().url.clone(),
         },
+        proxy: get_default_reverse_config(),
     };
 
     let d = serde_json::to_string_pretty(&config_json).unwrap();

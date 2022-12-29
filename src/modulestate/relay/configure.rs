@@ -27,29 +27,26 @@ fn compare_cycle(current: &CycleConfig, previous: &CycleConfig) -> bool {
         && current.waitingTime == previous.waitingTime;
 }
 
-fn is_changing(
-    config: &RelayOutletConfig,
-    prev_config: &RelayOutletConfig,
-) -> bool {
-            if prev_config.mode == config.mode {
-                // Match pour regarder si ca la changer
-                match config.mode {
-                    RelayOutletMode::MANUAL => {
-                        return config.get_manual().state != prev_config.get_manual().state;
-                    }
-                    RelayOutletMode::ALARM => {
-                        return !compare_alarm(config.get_alarm(), prev_config.get_alarm());
-                    }
-                    RelayOutletMode::CYCLE => {
-                        return !compare_cycle(config.get_cycle(), prev_config.get_cycle());
-                    }
-                    _ => {
-                        return true;
-                    }
-                }
-            } else {
+fn is_changing(config: &RelayOutletConfig, prev_config: &RelayOutletConfig) -> bool {
+    if prev_config.mode == config.mode {
+        // Match pour regarder si ca la changer
+        match config.mode {
+            RelayOutletMode::MANUAL => {
+                return config.get_manual().state != prev_config.get_manual().state;
+            }
+            RelayOutletMode::ALARM => {
+                return !compare_alarm(config.get_alarm(), prev_config.get_alarm());
+            }
+            RelayOutletMode::CYCLE => {
+                return !compare_cycle(config.get_cycle(), prev_config.get_cycle());
+            }
+            _ => {
                 return true;
             }
+        }
+    } else {
+        return true;
+    }
 }
 
 pub fn authorize_relay_change(
@@ -59,7 +56,11 @@ pub fn authorize_relay_change(
     prev_config: &RelayOutletConfig,
     actor: &Actor,
 ) -> Result<(), ModuleError> {
-    if actor.id != "handle_state" && has_field && has_field_previous && is_changing(config, prev_config) {
+    if actor.id != "handle_state"
+        && has_field
+        && has_field_previous
+        && is_changing(config, prev_config)
+    {
         if prev_config.get_actor_owner_id() != "" && prev_config.get_actor_owner_id() != actor.id {
             return Err(ModuleError::new().message(format!(
                 "cant change property already owned by other actor : {} -> {} , {:?} {:?}",
@@ -156,21 +157,22 @@ pub fn configure_relay(
 
         match config.mode {
             RelayOutletMode::MANUAL => {
-                let manual_config = config.manual.as_ref().unwrap();
-                if manual_config.state == true {
-                    relay.set_state(1).unwrap();
-                } else {
-                    relay.set_state(0).unwrap();
-                }
+                if let Some(manual_config) = config.manual.as_ref() {
+                    if manual_config.state == true {
+                        relay.set_state(1).unwrap();
+                    } else {
+                        relay.set_state(0).unwrap();
+                    }
 
-                if manual_config.duration > 0 {
-                    let token = CancellationToken::new();
-                    super::duration::set_duration_relay(
-                        manual_config.duration as u64,
-                        relay,
-                        token.clone(),
-                    );
-                    map_handler.insert(id, token);
+                    if manual_config.duration > 0 {
+                        let token = CancellationToken::new();
+                        super::duration::set_duration_relay(
+                            manual_config.duration as u64,
+                            relay,
+                            token.clone(),
+                        );
+                        map_handler.insert(id, token);
+                    }
                 }
                 return Ok(());
             }

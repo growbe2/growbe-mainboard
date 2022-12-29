@@ -2,7 +2,7 @@ use tokio_util::sync::CancellationToken;
 
 use crate::modulestate::actor::new_actor;
 use crate::protos::module::Actor;
-use crate::socket::ss::SenderPayload;
+use crate::socket::ss::{SenderPayload, SenderPayloadData};
 use crate::mainboardstate::error::MainboardError;
 use crate::{
     comboard::imple::channel::{ComboardAddr, ComboardSenderMapReference},
@@ -88,7 +88,8 @@ pub fn delete_virtual_relay(
         let mut state = crate::protos::module::VirtualRelayState::new();
         state.set_id(name.to_string());
         state.set_state(false);
-        sender_socket.try_send((format!("/vr/{}/vrstate", name), Box::new(state))).unwrap();
+        sender_socket.try_send((format!("/vr/{}/vrstate", name),
+           SenderPayloadData::ProtobufMessage(Box::new(state))))?;
     }
 
     store_virtual_relay.remove_relay(name)?;
@@ -152,7 +153,8 @@ pub fn initialize_virtual_relay(
     let mut state = crate::protos::module::VirtualRelayState::new();
     state.set_id(relay.name.clone());
     state.set_state(true);
-    sender_socket.try_send((format!("/vr/{}/vrstate", state.get_id()), Box::new(state))).unwrap();
+    sender_socket.try_send((format!("/vr/{}/vrstate", state.get_id()),
+       SenderPayloadData::ProtobufMessage(Box::new(state))))?;
 
     return Ok(());
 }

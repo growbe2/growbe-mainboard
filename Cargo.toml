@@ -4,13 +4,15 @@ version = "0.2.0"
 edition = "2021"
 
 [features]
-default = ["com_virt", "com_ws"]
+default = ["com_virt", "com_ws", "reverse_proxy_cmd"]
 gpio = ["rppal"]
+ws = ["tokio-tungstenite", "url", "futures-util"]
 com_ble = ["bluer", "btleplug", "futures", "uuid", "tokio-stream"]
 com_virt = []
-com_ws = ["tokio-tungstenite", "url", "futures-util"]
+com_ws = ["ws"]
 com_i2c = ["gpio", "cty"]
 http_server = ["warp"]
+reverse_proxy_cmd = ["ws"]
 
 debug = ["growbe_shared/debug", "tokio/tracing"]
 
@@ -49,7 +51,7 @@ futures = { version = "*", optional = true }
 warp = { version = "*" , optional = true}
 
 # dependencies for web socket
-tokio-tungstenite = { version = "*",  optional = true }
+tokio-tungstenite = { version = "*",  optional = true, features = ["native-tls"] }
 url = { version = "*", optional = true }
 futures-util = { version = "*", optional = true }
 
@@ -73,9 +75,6 @@ uname = { git = "https://github.com/icorderi/rust-uname" , optional = false }
 bluer = {version = "*", features = ["bluetoothd"], optional = true}
 # for gpio
 rppal = { version = "*", optional = true }
-
-[dev-dependencies]
-serial_test = "*"
 
 [build-dependencies]
 protoc-rust = "*"

@@ -187,7 +187,7 @@ mod tests {
             },
             module::{ActorType, ManualConfig},
         },
-        socket::ss::SenderPayload
+        socket::ss::{SenderPayload, SenderPayloadData}, cast_enum
     };
 
     //use serial_test::serial;
@@ -307,6 +307,7 @@ mod tests {
         assert_eq!(ct.is_cancelled(), true);
 
         let d = sr.recv().await.unwrap().1;
+        let d = cast_enum!(d, SenderPayloadData::ProtobufMessage);
         let first_message = d
             .as_any()
             .downcast_ref::<EnvironmentControllerEvent>()

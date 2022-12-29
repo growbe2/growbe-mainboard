@@ -10,6 +10,7 @@ use crate::protos::module::Actor;
 use crate::protos::module::ActorType;
 use crate::protos::module::ModuleActorOwnershipRequest;
 use crate::socket::ss::SenderPayload;
+use crate::socket::ss::SenderPayloadData;
 use crate::utils::mqtt::extract_module_id;
 
 use protobuf::Message;
@@ -60,7 +61,9 @@ fn apply_module_config(
                         .map_err(|x| MainboardError::from_error(x.to_string()))?;
 
                     if from_actor.field_type != ActorType::MANUAL_USER_ACTOR {
-                        sender_socket.try_send((format!("/m/{}/config_updated", id), config))?;
+                        sender_socket.try_send(
+                            (format!("/m/{}/config_updated", id), SenderPayloadData::ProtobufMessage(config))
+                        );
                     }
                 }
                 Err(e) => return Err(e.into()),
@@ -131,7 +134,9 @@ fn handle_request_ownership(
                         .map_err(|x| MainboardError::from_error(x.to_string()))?;
 
                     if from_actor.field_type != ActorType::MANUAL_USER_ACTOR {
-                        sender_socket.try_send((format!("/m/{}/config_updated", id), config))?;
+                        sender_socket.try_send(
+                            (format!("/m/{}/config_updated", id), SenderPayloadData::ProtobufMessage(config))
+                        )?;
                     }
                 }
                 Err(e) => return Err(e.into()),

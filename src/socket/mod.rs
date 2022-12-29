@@ -1,5 +1,7 @@
 pub mod http;
 pub mod mqtt;
+#[cfg(feature = "com_ws")]
+pub mod reverse_proxy_cmd;
 pub mod ss;
 
 use protobuf::Message;
@@ -17,10 +19,11 @@ use crate::mainboardstate::error::MainboardError;
 use crate::modulestate::interface::ModuleMsg;
 use crate::protos::message::ActionCode;
 use crate::protos::module::{Actor, ActorType};
+use crate::socket::ss::SenderPayloadData;
 
 use self::ss::SenderPayload;
 
-struct SocketMessagingError {
+pub struct SocketMessagingError {
     pub status: u32,
     pub msg: String,
 }
@@ -53,7 +56,7 @@ impl From<TrySendError<SocketMessagingError>> for SocketMessagingError {
     }
 }
 
-struct MqttHandler {
+pub struct MqttHandler {
     pub subscription: String,
     pub regex: &'static str,
     pub action_code: crate::protos::message::ActionCode,
@@ -65,13 +68,13 @@ struct MqttHandler {
     pub not_prefix: bool,
 }
 
-struct MqttModuleHanlder {
+pub struct MqttModuleHanlder {
     pub name: String,
     pub suffix: bool,
     pub action_code: ActionCode,
 }
 
-struct TaskContext {
+pub struct TaskContext {
     sender_virt: Sender<Vec<VirtualScenarioItem>>,
     sender_module: Sender<ModuleMsg>,
 }
@@ -86,7 +89,7 @@ impl From<(&str, bool, ActionCode)> for MqttModuleHanlder {
     }
 }
 lazy_static::lazy_static! {
-    static ref MQTT_HANDLES: Vec<MqttHandler> = vec![
+    pub static ref MQTT_HANDLES: Vec<MqttHandler> = vec![
         MqttHandler {
             subscription: String::from("/board/setTime"),
             regex: "setTime",
@@ -130,6 +133,13 @@ lazy_static::lazy_static! {
             not_prefix: false,
         },
         MqttHandler {
+            subscription: "/board/config".to_string(),
+            regex: "config",
+            action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
+            handler: on_set_config_cloud,
+            not_prefix: false,
+        },
+        MqttHandler {
             subscription: "/board/virt/item".to_string(),
             regex: "virt",
             action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
@@ -152,7 +162,7 @@ lazy_static::lazy_static! {
         },
     ];
 
-    static ref MAPPING_MODULES: Vec<MqttModuleHanlder> = vec![
+    pub static ref MAPPING_MODULES: Vec<MqttModuleHanlder> = vec![
         ("sync", false, ActionCode::SYNC_REQUEST).into(),
         ("mconfig", true, ActionCode::MODULE_CONFIG),
         ("rmconfig", true, ActionCode::MODULE_CONFIG),
@@ -304,6 +314,14 @@ fn on_setconfig(
     }
 }
 
+fn on_set_config_cloud(
+    _topic_name: String,
+    data: Arc<Vec<u8>>,
+    _ctx: &TaskContext,
+) -> Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError> {
+    return Ok(None);
+}
+
 fn on_virt_item(
     _topic_name: String,
     data: Arc<Vec<u8>>,
@@ -400,7 +418,6 @@ async fn handle_hearthbeath(
 }
 
 async fn handle_incomming_message(
-    client: &AsyncClient,
     handlers: &Vec<MqttHandler>,
     mapping_module: &Vec<MqttModuleHanlder>,
 
@@ -408,22 +425,21 @@ async fn handle_incomming_message(
 
     topic_name: String,
     payload: Arc<Vec<u8>>,
-) {
+) -> Vec<(String, Vec<u8>)> {
     log::debug!("receive message from cloud, {}", topic_name);
     let item_opt = handlers.iter().find(|&x| {
         return topic_name.contains(x.regex);
     });
     let mut action_respose = crate::protos::message::ActionResponse::new();
 
+    let mut rets = vec![];
+
     if let Some(item) = item_opt {
         let handler_result = (item.handler)(String::from(topic_name.as_str()), payload, ctx);
         action_respose.action = item.action_code;
         if let Ok(result) = handler_result {
             if let Some(ret) = result {
-                client
-                    .publish(ret.0, QoS::ExactlyOnce, false, ret.1)
-                    .await
-                    .unwrap();
+                rets.push((ret.0, ret.1));
             }
             action_respose.status = 0;
             action_respose.set_action(item.action_code);
@@ -450,7 +466,7 @@ async fn handle_incomming_message(
                         topic: topic_name.clone(),
                         data: payload,
                         sender,
-                        actor
+                        actor,
                     },
                 ))
                 .await
@@ -488,18 +504,14 @@ async fn handle_incomming_message(
     if action_respose.action == ActionCode::PARSING {
         action_respose.action = ActionCode::SYNC_REQUEST;
     }
-    client
-        .publish(
-            format!("{}{}", topic_name.as_str(), "/response"),
-            QoS::ExactlyOnce,
-            false,
-            action_respose.write_to_bytes().unwrap(),
-        )
-        .await
-        .unwrap();
-    //last_send_instant = Instant::now();
+    rets.push((
+        format!("{}{}", topic_name.as_str(), "/response"),
+        action_respose.write_to_bytes().unwrap(),
+    ));
+    return rets;
 }
 
+// task for the mqtt socket , to send payload out and can also get request in
 pub fn socket_task(
     mut receiver_socket: Receiver<SenderPayload>,
     sender_virt: Sender<Vec<VirtualScenarioItem>>,
@@ -536,12 +548,15 @@ pub fn socket_task(
                 receive = receiver_socket.recv() => {
                     if receive.is_some() {
                         let message = receive.unwrap();
-                        let payload = message.1.write_to_bytes().unwrap();
+                        let (topic, payload) = match message.1 {
+                            SenderPayloadData::ProtobufMessage(msg) => (get_topic_prefix(message.0.as_str()),msg.write_to_bytes().unwrap()),
+                            SenderPayloadData::Buffer(data) => (message.0, data),
+                        };
 
-                        println!("OUTGOING {}", message.0);
+                        println!("OUTGOING {}", topic);
                         client
                             .publish(
-                                get_topic_prefix(message.0.as_str()),
+                                topic,
                                 QoS::ExactlyOnce,
                                 false,
                             payload,
@@ -559,8 +574,14 @@ pub fn socket_task(
                                 match d {
                                     Packet::Publish(message) => {
                                         let data = Arc::new(message.payload.to_vec());
-                                        println!("INCOMMING {}", message.topic);
-                                        handle_incomming_message(&client, &MQTT_HANDLES, &MAPPING_MODULES, &ctx,  message.topic, data).await;
+                                        let messages = handle_incomming_message(&MQTT_HANDLES, &MAPPING_MODULES, &ctx,  message.topic, data).await;
+                                        for message in messages {
+                                            println!("OUTGOING {}", message.0);
+                                            client
+                                                .publish(message.0, QoS::ExactlyOnce, false, message.1)
+                                                .await
+                                                .unwrap();
+                                        }
                                     },
                                     Packet::Connect(c) => {
                                         println!("im connected !!! {:?}", c);

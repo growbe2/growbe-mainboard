@@ -2,6 +2,7 @@ use super::controller::store::EnvControllerStore;
 use super::state_manager::MainboardModuleStateManager;
 use crate::comboard::imple::interface::ModuleValueValidationEvent;
 use crate::mainboardstate::error::MainboardError;
+use crate::socket::ss::SenderPayloadData;
 use tokio::sync::mpsc::Sender;
 
 pub fn handle_module_value<'a>(
@@ -39,7 +40,7 @@ pub fn handle_module_value<'a>(
                     .validator
                     .have_data_change(&sensor_value, last_value);
                 if change.0 == true {
-                    on_change(sensor_value);
+                    on_change(crate::socket::ss::SenderPayloadData::ProtobufMessage(sensor_value));
                     if let Ok(previous_value) =
                         reference_connected_module.validator.convert_to_value(value)
                     {
@@ -62,7 +63,7 @@ pub fn handle_module_value<'a>(
                                 .for_each(|(event, state)| {
                                     if let Err(err) = sender_socket.try_send((
                                         format!("/m/{}/alarm", event.moduleId),
-                                        Box::new(event.clone_me()),
+                                        SenderPayloadData::ProtobufMessage(Box::new(event.clone_me())),
                                     )) {
                                         log::error!("failed to send alarm state : {:?}", err);
                                     }
@@ -84,7 +85,7 @@ pub fn handle_module_value<'a>(
                     }
                 }
             } else {
-                on_change(sensor_value);
+                on_change(SenderPayloadData::ProtobufMessage(sensor_value));
 
                 if let Ok(previous_value) =
                     reference_connected_module.validator.convert_to_value(value)

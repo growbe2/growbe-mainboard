@@ -6,7 +6,7 @@ use crate::{
     modulestate::relay::virtual_relay::op::initialize_virtual_relay_and_apply_config,
 };
 
-use crate::socket::ss::SenderPayload;
+use crate::socket::ss::{SenderPayload, SenderPayloadData};
 use super::{
     op::{
         apply_config_virtual_relay, delete_virtual_relay, get_missing_required_module,
@@ -22,7 +22,7 @@ pub fn on_module_state_changed_virtual_relays(
     store: &crate::modulestate::store::ModuleStateStore,
     store_virtual_relay: &mut VirtualRelayStore,
     manager: &mut crate::modulestate::state_manager::MainboardModuleStateManager,
-) -> Result<(), ()> {
+) -> Result<(), MainboardError> {
     let config_relays = store_virtual_relay.get_stored_relays().unwrap();
     let connected_modules = manager.get_connected_modules();
 
@@ -53,8 +53,8 @@ pub fn on_module_state_changed_virtual_relays(
                         get_missing_required_module(&connected_modules, &vr).join(" ")
                     ));
                     sender_socket
-                        .try_send((format!("/vr/{}/vrstate", vr.get_name()), Box::new(state)))
-                        .unwrap();
+                        .try_send((format!("/vr/{}/vrstate", vr.get_name()),
+                           SenderPayloadData::ProtobufMessage(Box::new(state))))?;
                 }
             } else {
                 // already created do nothing
@@ -75,8 +75,8 @@ pub fn on_module_state_changed_virtual_relays(
                         get_missing_required_module(&connected_modules, &vr).join(" ")
                     ));
                     sender_socket
-                        .try_send((format!("/vr/{}/vrstate", vr.get_name()), Box::new(state)))
-                        .unwrap();
+                        .try_send((format!("/vr/{}/vrstate", vr.get_name()),
+                            SenderPayloadData::ProtobufMessage(Box::new(state))))?;
                 }
             }
         }

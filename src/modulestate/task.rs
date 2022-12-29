@@ -70,7 +70,7 @@ pub fn module_state_task(
                             log::error!("failed to handle_modle_state : {:?}", err);
                         }
 
-                        if let Err(()) =
+                        if let Err(err) =
                         super::relay::virtual_relay::handler::on_module_state_changed_virtual_relays(
                             state.state,
                             &sender_config,
@@ -80,7 +80,7 @@ pub fn module_state_task(
                             &mut manager,
                         )
                     {
-                        log::error!("failed to changed virtual_relay state");
+                        log::error!("failed to changed virtual_relay state {:#?}", err);
                     }
                     }
                     ModuleMsg::Value(value) => {

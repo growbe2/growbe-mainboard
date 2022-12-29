@@ -3,7 +3,7 @@ use crate::modulestate::relay::{Relay, State};
 use crate::protos::module::{RelayOutletData, VirtualRelayData, VirtualRelayState};
 
 
-use crate::socket::ss::SenderPayload;
+use crate::socket::ss::{SenderPayload, SenderPayloadData};
 impl ModuleValue for VirtualRelayData {}
 impl ModuleValueParsable for VirtualRelayData {}
 impl ModuleValue for VirtualRelayState {}
@@ -51,7 +51,7 @@ impl State for VirtualRelay {
                 .as_secs() as i32,
         );
         self.sender_socket
-            .try_send((format!("/vr/{}/vrdata", self.name), Box::new(vr_data))).unwrap();
+            .try_send((format!("/vr/{}/vrdata", self.name), SenderPayloadData::ProtobufMessage(Box::new(vr_data))));
         return Ok(());
     }
 }

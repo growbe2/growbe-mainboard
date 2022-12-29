@@ -6,6 +6,7 @@ use crate::protos::module::{
     CalibrationError, CalibrationStep, SOILCalibrationStep, SOILCalibrationStepEvent,
     SOILModuleConfig, SOILModuleData,
 };
+use crate::socket::ss::SenderPayloadData;
 use crate::utils::validation::difference_of;
 
 use self::calibration::transform_value_with_calibration;
@@ -240,9 +241,8 @@ impl crate::modulestate::interface::ModuleValueValidator for AASValidator {
                             sender_socket
                                 .try_send((
                                     format!("/m/{}/config_updated", module_id),
-                                    Box::new(config),
-                                ))
-                                .unwrap();
+                                    SenderPayloadData::ProtobufMessage(Box::new(config)),
+                                ));
 
                             let cmd = crate::modulestate::interface::ModuleStateCmd {
                                 cmd: "mconfig".into(),
@@ -278,9 +278,8 @@ impl crate::modulestate::interface::ModuleValueValidator for AASValidator {
         sender_socket
             .try_send((
                 format!("/m/{}/calibrationEvent", module_id.as_str()),
-                Box::new(event),
-            ))
-            .unwrap();
+                SenderPayloadData::ProtobufMessage(Box::new(event)),
+            ));
         return Ok(None);
     }
 

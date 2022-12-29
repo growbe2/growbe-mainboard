@@ -3,7 +3,7 @@ use tokio::sync::mpsc::Sender;
 use crate::{
     mainboardstate::config::get_configuration_proto,
     plateform::uname::get_host_information,
-    protos::board::{HelloWord, RunningComboard},
+    protos::board::{HelloWord, RunningComboard}, socket::ss::SenderPayloadData,
 };
 
 use crate::socket::ss::SenderPayload;
@@ -30,11 +30,11 @@ pub async fn task_hello_world(
 
     log::info!("hello world starting with version {}", hello.version);
     sender
-        .send((String::from("/hello"), Box::new(hello)))
-        .await.unwrap();
+        .send((String::from("/hello"), SenderPayloadData::ProtobufMessage(Box::new(hello))))
+        .await?;
     sender
-        .send((String::from("/config"), Box::new(config)))
-        .await.unwrap();
+        .send((String::from("/config"), SenderPayloadData::ProtobufMessage(Box::new(config))))
+        .await?;
 
     return Ok(());
 }
