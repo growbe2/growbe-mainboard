@@ -13,7 +13,7 @@ use tokio::sync::mpsc::error::TrySendError;
 use tokio::sync::mpsc::{Receiver, Sender};
 use tokio::time::Instant;
 
-use crate::comboard::imple::virt::VirtualScenarioItem;
+use crate::protos::virt::{VirtualScenarioItem, VirtualScenarioItems};
 use crate::mainboardstate::config::rewrite_configuration;
 use crate::mainboardstate::error::MainboardError;
 use crate::modulestate::interface::ModuleMsg;
@@ -133,8 +133,8 @@ lazy_static::lazy_static! {
             not_prefix: false,
         },
         MqttHandler {
-            subscription: "/board/config".to_string(),
-            regex: "config",
+            subscription: "/board/cloudconfig".to_string(),
+            regex: "cloudconfig",
             action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
             handler: on_set_config_cloud,
             not_prefix: false,
@@ -327,15 +327,16 @@ fn on_virt_item(
     data: Arc<Vec<u8>>,
     ctx: &TaskContext,
 ) -> Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError> {
-    println!("on virt item");
 
-    match serde_json::from_slice(&data) {
+    match VirtualScenarioItems::parse_from_bytes(&data) {
         Ok(config) => {
+            println!("Virtual relay config {:#?}", config);
             ctx.sender_virt
-                .try_send(config)
+                .try_send(config.items.to_vec())
                 .map_err(|x| SocketMessagingError::new().message(x.to_string()))?;
         }
-        Err(_) => {
+        Err(err) => {
+            println!("errro {} {}", err, String::from_utf8_lossy(&data));
             return Err(SocketMessagingError::new());
         }
     }
@@ -426,7 +427,6 @@ async fn handle_incomming_message(
     topic_name: String,
     payload: Arc<Vec<u8>>,
 ) -> Vec<(String, Vec<u8>)> {
-    log::debug!("receive message from cloud, {}", topic_name);
     let item_opt = handlers.iter().find(|&x| {
         return topic_name.contains(x.regex);
     });
@@ -435,6 +435,7 @@ async fn handle_incomming_message(
     let mut rets = vec![];
 
     if let Some(item) = item_opt {
+        println!("running handler {}", item.regex);
         let handler_result = (item.handler)(String::from(topic_name.as_str()), payload, ctx);
         action_respose.action = item.action_code;
         if let Ok(result) = handler_result {
@@ -454,7 +455,9 @@ async fn handle_incomming_message(
             return topic_name.contains(x.name.as_str());
         });
 
+
         if let Some(handler) = module_cmd_result {
+            println!("running module cmd {}", handler.name);
             let (sender, receiver) = tokio::sync::oneshot::channel();
             let mut actor = Actor::new();
             actor.id = "user".to_string();
@@ -553,7 +556,7 @@ pub fn socket_task(
                             SenderPayloadData::Buffer(data) => (message.0, data),
                         };
 
-                        println!("OUTGOING {}", topic);
+                        println!("OUTGOING RS {}", topic);
                         client
                             .publish(
                                 topic,
@@ -576,7 +579,7 @@ pub fn socket_task(
                                         let data = Arc::new(message.payload.to_vec());
                                         let messages = handle_incomming_message(&MQTT_HANDLES, &MAPPING_MODULES, &ctx,  message.topic, data).await;
                                         for message in messages {
-                                            println!("OUTGOING {}", message.0);
+                                            println!("OUTGOING EL {}", message.0);
                                             client
                                                 .publish(message.0, QoS::ExactlyOnce, false, message.1)
                                                 .await

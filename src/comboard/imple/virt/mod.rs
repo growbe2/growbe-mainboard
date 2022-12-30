@@ -8,59 +8,13 @@ use crate::comboard::imple::interface::{
 
 use crate::mainboardstate::error::MainboardError;
 use crate::modulestate::interface::ModuleMsg;
-
-use serde::{Deserialize, Serialize};
-
-lazy_static::lazy_static! {
-    pub static ref VIRTUAL_COMBOARD_CMD: (
-        Mutex<Sender<Vec<VirtualScenarioItem>>>,
-        Mutex<Receiver<Vec<VirtualScenarioItem>>>
-    ) = {
-        let (sender, receiver) = tokio::sync::mpsc::channel::<Vec<VirtualScenarioItem>>(10);
-        return (Mutex::new(sender), Mutex::new(receiver));
-    };
-}
+use crate::protos::virt::VirtualScenarioItem;
 
 pub fn create_virtual_comboard_cmd() -> (
     Sender<Vec<VirtualScenarioItem>>,
     Receiver<Vec<VirtualScenarioItem>>,
 ) {
     return tokio::sync::mpsc::channel::<Vec<VirtualScenarioItem>>(10);
-}
-
-fn default_index() -> i32 {
-    return -1;
-}
-
-#[derive(Serialize, Deserialize, Clone)]
-pub struct VirtualScenarioItem {
-    pub event_type: String,
-    #[serde(default)]
-    pub port: i32,
-    #[serde(default)]
-    pub id: String,
-    #[serde(default)]
-    pub state: bool,
-    #[serde(default)]
-    pub buffer: Vec<u8>,
-    #[serde(default = "default_index")]
-    pub return_index: i32,
-    #[serde(default)]
-    pub timeout: u64, // in milliseconds
-}
-
-#[derive(Serialize, Deserialize, Default)]
-struct VirtualScenario {
-    pub actions: Vec<VirtualScenarioItem>,
-}
-
-fn get_config(config: &String) -> VirtualScenario {
-    if let Ok(file) = std::fs::File::open(config) {
-        if let Ok(scenario) = serde_json::from_reader(file) {
-            return scenario;
-        }
-    }
-    return VirtualScenario::default();
 }
 
 pub struct VirtualComboardClient {
@@ -100,6 +54,7 @@ async fn handle_items(
                 .await
                 .map_err(|x| MainboardError::from_error(x.to_string()))
                 .unwrap();
+            /* 
             if item.buffer.len() > 2 {
                 let new_buffer = item.buffer.clone();
                 sender_module
@@ -112,7 +67,7 @@ async fn handle_items(
                     .await
                     .map_err(|x| MainboardError::from_error(x.to_string()))
                     .unwrap();
-            }
+            }*/
         }
         "value" => {
             let new_buffer = item.buffer.clone();
@@ -133,7 +88,7 @@ async fn handle_items(
     }
 
     if item.timeout > 0 {
-        return Some(tokio::time::Duration::from_millis(item.timeout));
+        return Some(tokio::time::Duration::from_millis(item.timeout as u64));
     }
     return None;
 }

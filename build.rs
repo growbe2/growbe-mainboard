@@ -12,6 +12,7 @@ fn main() {
                 "proto/board.proto",
                 "proto/message.proto",
                 "proto/module.proto",
+                "proto/virt.proto",
                 "proto/env_controller.proto"
             ])
             .include("proto")

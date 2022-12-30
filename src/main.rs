@@ -1,5 +1,4 @@
 #![feature(trait_upcasting)]
-#![feature(async_fn_in_trait)]
 extern crate lazy_static;
 
 mod comboard;

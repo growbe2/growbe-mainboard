@@ -7,7 +7,7 @@ use crate::protos::board::{GrowbeCommand, MQTTConfig};
 use crate::socket::ss::SenderPayloadData;
 use crate::socket::{TaskContext, MAPPING_MODULES, MQTT_HANDLES};
 use crate::{
-    comboard::imple::virt::VirtualScenarioItem, mainboardstate::error::MainboardError,
+    protos::virt::VirtualScenarioItem, mainboardstate::error::MainboardError,
     modulestate::interface::ModuleMsg,
 };
 use protobuf::Message;
@@ -46,7 +46,7 @@ async fn handle_proxy_loop(
                     let data = message.into_data();
                     let message = GrowbeCommand::parse_from_bytes(&data).unwrap();
 
-                    log::debug!("got message {:?}", message.topic);
+                    log::debug!("got message {:?} ", message.topic);
 
                     let data = std::sync::Arc::new(message.payload);
 

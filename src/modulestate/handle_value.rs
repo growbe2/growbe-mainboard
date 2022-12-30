@@ -25,6 +25,7 @@ pub fn handle_module_value<'a>(
     let reference_connected_module = reference_connected_module_option.unwrap();
 
     let on_change = |value| -> () {
+        println!("ddsads");
         if let Err(err) = sender_socket.try_send((
             String::from(format!("/m/{}/data", reference_connected_module.id)),
             value,

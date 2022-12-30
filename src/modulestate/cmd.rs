@@ -380,6 +380,7 @@ pub fn handle_module_command(
     virtual_relay_store: &mut super::relay::virtual_relay::store::VirtualRelayStore,
     mut env_controller: &mut EnvControllerStore,
 ) -> Result<(), MainboardError> {
+    println!("module command {}", cmd);
     let result: Result<(), MainboardError> = match cmd.as_str() {
         "sync" => handle_sync_request(manager, &sender_socket),
         "pmconfig" => handle_pmodule_config(

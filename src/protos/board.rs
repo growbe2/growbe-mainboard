@@ -27,6 +27,7 @@
 pub struct GrowbeMainboardConfig {
     // message fields
     pub hearthBeath: i32,
+    pub preferedCommandConnection: CommandConnectionType,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -57,6 +58,21 @@ impl GrowbeMainboardConfig {
     pub fn set_hearthBeath(&mut self, v: i32) {
         self.hearthBeath = v;
     }
+
+    // .CommandConnectionType preferedCommandConnection = 2;
+
+
+    pub fn get_preferedCommandConnection(&self) -> CommandConnectionType {
+        self.preferedCommandConnection
+    }
+    pub fn clear_preferedCommandConnection(&mut self) {
+        self.preferedCommandConnection = CommandConnectionType::MQTT;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_preferedCommandConnection(&mut self, v: CommandConnectionType) {
+        self.preferedCommandConnection = v;
+    }
 }
 
 impl ::protobuf::Message for GrowbeMainboardConfig {
@@ -75,6 +91,9 @@ impl ::protobuf::Message for GrowbeMainboardConfig {
                     let tmp = is.read_int32()?;
                     self.hearthBeath = tmp;
                 },
+                2 => {
+                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.preferedCommandConnection, 2, &mut self.unknown_fields)?
+                },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
                 },
@@ -90,6 +109,9 @@ impl ::protobuf::Message for GrowbeMainboardConfig {
         if self.hearthBeath != 0 {
             my_size += ::protobuf::rt::value_size(1, self.hearthBeath, ::protobuf::wire_format::WireTypeVarint);
         }
+        if self.preferedCommandConnection != CommandConnectionType::MQTT {
+            my_size += ::protobuf::rt::enum_size(2, self.preferedCommandConnection);
+        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -98,6 +120,9 @@ impl ::protobuf::Message for GrowbeMainboardConfig {
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
         if self.hearthBeath != 0 {
             os.write_int32(1, self.hearthBeath)?;
+        }
+        if self.preferedCommandConnection != CommandConnectionType::MQTT {
+            os.write_enum(2, ::protobuf::ProtobufEnum::value(&self.preferedCommandConnection))?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -142,6 +167,11 @@ impl ::protobuf::Message for GrowbeMainboardConfig {
                 |m: &GrowbeMainboardConfig| { &m.hearthBeath },
                 |m: &mut GrowbeMainboardConfig| { &mut m.hearthBeath },
             ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<CommandConnectionType>>(
+                "preferedCommandConnection",
+                |m: &GrowbeMainboardConfig| { &m.preferedCommandConnection },
+                |m: &mut GrowbeMainboardConfig| { &mut m.preferedCommandConnection },
+            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<GrowbeMainboardConfig>(
                 "GrowbeMainboardConfig",
                 fields,
@@ -159,6 +189,7 @@ impl ::protobuf::Message for GrowbeMainboardConfig {
 impl ::protobuf::Clear for GrowbeMainboardConfig {
     fn clear(&mut self) {
         self.hearthBeath = 0;
+        self.preferedCommandConnection = CommandConnectionType::MQTT;
         self.unknown_fields.clear();
     }
 }
@@ -3728,46 +3759,99 @@ impl ::protobuf::reflect::ProtobufValue for MainboardConfig {
     }
 }
 
+#[derive(Clone,PartialEq,Eq,Debug,Hash)]
+pub enum CommandConnectionType {
+    MQTT = 0,
+    WS_PROXY = 1,
+}
+
+impl ::protobuf::ProtobufEnum for CommandConnectionType {
+    fn value(&self) -> i32 {
+        *self as i32
+    }
+
+    fn from_i32(value: i32) -> ::std::option::Option<CommandConnectionType> {
+        match value {
+            0 => ::std::option::Option::Some(CommandConnectionType::MQTT),
+            1 => ::std::option::Option::Some(CommandConnectionType::WS_PROXY),
+            _ => ::std::option::Option::None
+        }
+    }
+
+    fn values() -> &'static [Self] {
+        static values: &'static [CommandConnectionType] = &[
+            CommandConnectionType::MQTT,
+            CommandConnectionType::WS_PROXY,
+        ];
+        values
+    }
+
+    fn enum_descriptor_static() -> &'static ::protobuf::reflect::EnumDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::EnumDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            ::protobuf::reflect::EnumDescriptor::new_pb_name::<CommandConnectionType>("CommandConnectionType", file_descriptor_proto())
+        })
+    }
+}
+
+impl ::std::marker::Copy for CommandConnectionType {
+}
+
+impl ::std::default::Default for CommandConnectionType {
+    fn default() -> Self {
+        CommandConnectionType::MQTT
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for CommandConnectionType {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Enum(::protobuf::ProtobufEnum::descriptor(self))
+    }
+}
+
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x0bboard.proto\"9\n\x15GrowbeMainboardConfig\x12\x20\n\x0bhearthBeath\
-    \x18\x01\x20\x01(\x05R\x0bhearthBeath\"\xbf\x01\n\x0fHostInformation\x12\
-    \x1a\n\x08hostname\x18\x01\x20\x01(\tR\x08hostname\x12\x16\n\x06kernel\
-    \x18\x02\x20\x01(\tR\x06kernel\x12$\n\rkernelVersion\x18\x03\x20\x01(\tR\
-    \rkernelVersion\x12\"\n\x0carchitecture\x18\x04\x20\x01(\tR\x0carchitect\
-    ure\x12\x0e\n\x02os\x18\x05\x20\x01(\tR\x02os\x12\x1e\n\ndeviceType\x18\
-    \x06\x20\x01(\tR\ndeviceType\"\xab\x01\n\tHelloWord\x12\x18\n\x07version\
-    \x18\x01\x20\x01(\tR\x07version\x12\"\n\x0ccloudVersion\x18\x02\x20\x01(\
-    \tR\x0ccloudVersion\x12\x10\n\x03RTC\x18\x03\x20\x01(\tR\x03RTC\x12(\n\
-    \x06boards\x18\x04\x20\x03(\x0b2\x10.RunningComboardR\x06boards\x12$\n\
-    \x04host\x18\x05\x20\x01(\x0b2\x10.HostInformationR\x04host\"D\n\x0eVers\
-    ionRelease\x12\x18\n\x07version\x18\x01\x20\x01(\tR\x07version\x12\x18\n\
-    \x07channel\x18\x02\x20\x01(\tR\x07channel\"G\n\rUpdateExecute\x12\x18\n\
-    \x07version\x18\x01\x20\x01(\tR\x07version\x12\x1c\n\trestarted\x18\x02\
-    \x20\x01(\x08R\trestarted\"\x10\n\x0eRestartRequest\"_\n\x0fLocalConnect\
-    ion\x12\x12\n\x04ssid\x18\x01\x20\x01(\tR\x04ssid\x12\x20\n\x0bsignalLev\
-    el\x18\x02\x20\x01(\x05R\x0bsignalLevel\x12\x16\n\x06ipAddr\x18\x03\x20\
-    \x01(\tR\x06ipAddr\"2\n\nMQTTConfig\x12\x10\n\x03url\x18\x01\x20\x01(\tR\
-    \x03url\x12\x12\n\x04port\x18\x02\x20\x01(\x05R\x04port\">\n\x0eComboard\
-    Config\x12\x16\n\x06config\x18\x01\x20\x01(\tR\x06config\x12\x14\n\x05im\
-    ple\x18\x02\x20\x01(\tR\x05imple\";\n\x0fRunningComboard\x12\x14\n\x05im\
-    ple\x18\x01\x20\x01(\tR\x05imple\x12\x12\n\x04addr\x18\x02\x20\x01(\tR\
-    \x04addr\"?\n\rGrowbeCommand\x12\x14\n\x05topic\x18\x01\x20\x01(\tR\x05t\
-    opic\x12\x18\n\x07payload\x18\x02\x20\x01(\x0cR\x07payload\":\n\x10HttpS\
-    erverConfig\x12\x12\n\x04addr\x18\x01\x20\x01(\tR\x04addr\x12\x12\n\x04p\
-    ort\x18\x02\x20\x01(\x05R\x04port\"&\n\x0cLoggerConfig\x12\x16\n\x06targ\
-    et\x18\x01\x20\x01(\tR\x06target\"a\n\rUpdaterConfig\x12\x1e\n\nautoupda\
-    te\x18\x01\x20\x01(\x08R\nautoupdate\x12\x18\n\x07channel\x18\x02\x20\
-    \x01(\tR\x07channel\x12\x16\n\x06reboot\x18\x03\x20\x01(\x08R\x06reboot\
-    \"\x1d\n\tApiConfig\x12\x10\n\x03url\x18\x01\x20\x01(\tR\x03url\"\xb6\
-    \x02\n\x0fMainboardConfig\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\
-    \x1f\n\x04mqtt\x18\x02\x20\x01(\x0b2\x0b.MQTTConfigR\x04mqtt\x12+\n\x08c\
-    omboard\x18\x03\x20\x01(\x0b2\x0f.ComboardConfigR\x08comboard\x12-\n\tco\
-    mboards\x18\x07\x20\x03(\x0b2\x0f.ComboardConfigR\tcomboards\x12)\n\x06s\
-    erver\x18\x04\x20\x01(\x0b2\x11.HttpServerConfigR\x06server\x12%\n\x06lo\
-    gger\x18\x05\x20\x01(\x0b2\r.LoggerConfigR\x06logger\x12&\n\x06update\
-    \x18\x06\x20\x01(\x0b2\x0e.UpdaterConfigR\x06update\x12\x1c\n\x03api\x18\
-    \x08\x20\x01(\x0b2\n.ApiConfigR\x03apiB+\n)ca.berlingoqc.growbe_android_\
-    module.protob\x06proto3\
+    \n\x0bboard.proto\"\x8f\x01\n\x15GrowbeMainboardConfig\x12\x20\n\x0bhear\
+    thBeath\x18\x01\x20\x01(\x05R\x0bhearthBeath\x12T\n\x19preferedCommandCo\
+    nnection\x18\x02\x20\x01(\x0e2\x16.CommandConnectionTypeR\x19preferedCom\
+    mandConnection\"\xbf\x01\n\x0fHostInformation\x12\x1a\n\x08hostname\x18\
+    \x01\x20\x01(\tR\x08hostname\x12\x16\n\x06kernel\x18\x02\x20\x01(\tR\x06\
+    kernel\x12$\n\rkernelVersion\x18\x03\x20\x01(\tR\rkernelVersion\x12\"\n\
+    \x0carchitecture\x18\x04\x20\x01(\tR\x0carchitecture\x12\x0e\n\x02os\x18\
+    \x05\x20\x01(\tR\x02os\x12\x1e\n\ndeviceType\x18\x06\x20\x01(\tR\ndevice\
+    Type\"\xab\x01\n\tHelloWord\x12\x18\n\x07version\x18\x01\x20\x01(\tR\x07\
+    version\x12\"\n\x0ccloudVersion\x18\x02\x20\x01(\tR\x0ccloudVersion\x12\
+    \x10\n\x03RTC\x18\x03\x20\x01(\tR\x03RTC\x12(\n\x06boards\x18\x04\x20\
+    \x03(\x0b2\x10.RunningComboardR\x06boards\x12$\n\x04host\x18\x05\x20\x01\
+    (\x0b2\x10.HostInformationR\x04host\"D\n\x0eVersionRelease\x12\x18\n\x07\
+    version\x18\x01\x20\x01(\tR\x07version\x12\x18\n\x07channel\x18\x02\x20\
+    \x01(\tR\x07channel\"G\n\rUpdateExecute\x12\x18\n\x07version\x18\x01\x20\
+    \x01(\tR\x07version\x12\x1c\n\trestarted\x18\x02\x20\x01(\x08R\trestarte\
+    d\"\x10\n\x0eRestartRequest\"_\n\x0fLocalConnection\x12\x12\n\x04ssid\
+    \x18\x01\x20\x01(\tR\x04ssid\x12\x20\n\x0bsignalLevel\x18\x02\x20\x01(\
+    \x05R\x0bsignalLevel\x12\x16\n\x06ipAddr\x18\x03\x20\x01(\tR\x06ipAddr\"\
+    2\n\nMQTTConfig\x12\x10\n\x03url\x18\x01\x20\x01(\tR\x03url\x12\x12\n\
+    \x04port\x18\x02\x20\x01(\x05R\x04port\">\n\x0eComboardConfig\x12\x16\n\
+    \x06config\x18\x01\x20\x01(\tR\x06config\x12\x14\n\x05imple\x18\x02\x20\
+    \x01(\tR\x05imple\";\n\x0fRunningComboard\x12\x14\n\x05imple\x18\x01\x20\
+    \x01(\tR\x05imple\x12\x12\n\x04addr\x18\x02\x20\x01(\tR\x04addr\"?\n\rGr\
+    owbeCommand\x12\x14\n\x05topic\x18\x01\x20\x01(\tR\x05topic\x12\x18\n\
+    \x07payload\x18\x02\x20\x01(\x0cR\x07payload\":\n\x10HttpServerConfig\
+    \x12\x12\n\x04addr\x18\x01\x20\x01(\tR\x04addr\x12\x12\n\x04port\x18\x02\
+    \x20\x01(\x05R\x04port\"&\n\x0cLoggerConfig\x12\x16\n\x06target\x18\x01\
+    \x20\x01(\tR\x06target\"a\n\rUpdaterConfig\x12\x1e\n\nautoupdate\x18\x01\
+    \x20\x01(\x08R\nautoupdate\x12\x18\n\x07channel\x18\x02\x20\x01(\tR\x07c\
+    hannel\x12\x16\n\x06reboot\x18\x03\x20\x01(\x08R\x06reboot\"\x1d\n\tApiC\
+    onfig\x12\x10\n\x03url\x18\x01\x20\x01(\tR\x03url\"\xb6\x02\n\x0fMainboa\
+    rdConfig\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\x1f\n\x04mqtt\x18\
+    \x02\x20\x01(\x0b2\x0b.MQTTConfigR\x04mqtt\x12+\n\x08comboard\x18\x03\
+    \x20\x01(\x0b2\x0f.ComboardConfigR\x08comboard\x12-\n\tcomboards\x18\x07\
+    \x20\x03(\x0b2\x0f.ComboardConfigR\tcomboards\x12)\n\x06server\x18\x04\
+    \x20\x01(\x0b2\x11.HttpServerConfigR\x06server\x12%\n\x06logger\x18\x05\
+    \x20\x01(\x0b2\r.LoggerConfigR\x06logger\x12&\n\x06update\x18\x06\x20\
+    \x01(\x0b2\x0e.UpdaterConfigR\x06update\x12\x1c\n\x03api\x18\x08\x20\x01\
+    (\x0b2\n.ApiConfigR\x03api*/\n\x15CommandConnectionType\x12\x08\n\x04MQT\
+    T\x10\0\x12\x0c\n\x08WS_PROXY\x10\x01B+\n)ca.berlingoqc.growbe_android_m\
+    odule.protob\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

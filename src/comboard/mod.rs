@@ -4,7 +4,7 @@ use self::{imple::interface::ComboardClientConfig};
 
 use tokio::sync::mpsc::Receiver;
 
-use self::imple::virt::VirtualScenarioItem;
+use crate::protos::virt::VirtualScenarioItem;
 
 #[cfg(feature = "com_ble")]
 use self::imple::ble::get_ble_comboard;
