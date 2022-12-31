@@ -559,13 +559,13 @@ mod tests {
     }
 
     #[test]
-    fn apply_module_config_from_user_dont_send_config_cloud() {
+    fn apply_module_config_from_handle_state_dont_send_config_cloud() {
         let mut ctx = init_context("user_dont_send_config_cloud");
 
         let data = RelayOutletConfig::new();
 
         let mut actor = Actor::new();
-        actor.id = "actor".into();
+        actor.id = "handle_state".into();
         actor.set_field_type(ActorType::MANUAL_USER_ACTOR);
 
         let data = Arc::new(data.write_to_bytes().unwrap());
