@@ -40,10 +40,7 @@ impl crate::modulestate::interface::ModuleValueValidator for AAPValidator {
     ) -> Result<Box<dyn protobuf::Message>, crate::modulestate::interface::ModuleError> {
         let mut config = config.as_any().downcast_ref::<RelayModuleConfig>().unwrap().clone();
 
-
-        println!("previous config : {:?}", self.previous_config);
-
-        change_ownership_relay_property(
+       change_ownership_relay_property(
             "p0",
             &request.property,
             config.mut_p0(),
@@ -165,7 +162,6 @@ impl crate::modulestate::interface::ModuleValueValidator for AAPValidator {
     > {
         let mut config: Box<RelayModuleConfig> = if t == "AAP" {
             Box::new(RelayModuleConfig::parse_from_bytes(&data).map_err(|_e| {
-                println!("{:?}", data);
                 crate::modulestate::interface::ModuleError::new().message(_e.to_string() + " failed to parse AAP")
             })?)
         } else {
@@ -362,8 +358,6 @@ impl crate::modulestate::interface::ModuleValueValidator for AAPValidator {
 
         self.previous_config = *config.clone();
         self.clear_actor = false;
-
-        println!("Applying config : {:?}", self.previous_config);
 
         return Ok((
             config,

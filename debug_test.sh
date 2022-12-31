@@ -17,4 +17,4 @@ BODY=$(cat <<-END
 	END
 	)
 
-echo $BODY > .vimspector.json
+echo $BODY | jq > .vimspector.json

@@ -60,7 +60,7 @@ fn apply_module_config(
                         .try_send(config_comboard)
                         .map_err(|x| MainboardError::from_error(x.to_string()))?;
 
-                    if from_actor.field_type != ActorType::MANUAL_USER_ACTOR {
+                    if from_actor.id != "handle_state" {
                         sender_socket.try_send(
                             (format!("/m/{}/config_updated", id), SenderPayloadData::ProtobufMessage(config))
                         );

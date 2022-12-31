@@ -1,0 +1,12 @@
+{
+  "configurations": {
+    "Rust - Test": {
+      "adapter": "CodeLLDB",
+      "configuration": {
+        "request": "launch",
+        "program": "/home/wq/Project/growbe/growbe-mainboard/target/debug/growbe-mainboard",
+        "args": ["./mainboard_config.json"]
+      }
+    }
+  }
+}

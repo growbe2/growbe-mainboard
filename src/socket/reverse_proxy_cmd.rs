@@ -46,8 +46,6 @@ async fn handle_proxy_loop(
                     let data = message.into_data();
                     let message = GrowbeCommand::parse_from_bytes(&data).unwrap();
 
-                    log::debug!("got message {:?} ", message.topic);
-
                     let data = std::sync::Arc::new(message.payload);
 
                     let messages = handle_incomming_message(
@@ -104,7 +102,8 @@ pub fn task_reverse_proxy_cmd(
 ) -> tokio::task::JoinHandle<()> {
     return tokio::spawn(async move {
         let config = format!(
-            "wss://proxy.growbe.ca/mainboard/{}",
+            "{}/mainboard/{}",
+            config.url,
             growbe_shared::id::get()
         );
 

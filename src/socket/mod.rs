@@ -330,13 +330,11 @@ fn on_virt_item(
 
     match VirtualScenarioItems::parse_from_bytes(&data) {
         Ok(config) => {
-            println!("Virtual relay config {:#?}", config);
             ctx.sender_virt
                 .try_send(config.items.to_vec())
                 .map_err(|x| SocketMessagingError::new().message(x.to_string()))?;
         }
         Err(err) => {
-            println!("errro {} {}", err, String::from_utf8_lossy(&data));
             return Err(SocketMessagingError::new());
         }
     }
@@ -435,7 +433,6 @@ async fn handle_incomming_message(
     let mut rets = vec![];
 
     if let Some(item) = item_opt {
-        println!("running handler {}", item.regex);
         let handler_result = (item.handler)(String::from(topic_name.as_str()), payload, ctx);
         action_respose.action = item.action_code;
         if let Ok(result) = handler_result {
@@ -457,7 +454,6 @@ async fn handle_incomming_message(
 
 
         if let Some(handler) = module_cmd_result {
-            println!("running module cmd {}", handler.name);
             let (sender, receiver) = tokio::sync::oneshot::channel();
             let mut actor = Actor::new();
             actor.id = "user".to_string();
@@ -479,7 +475,6 @@ async fn handle_incomming_message(
             // or not very long for a response from the state_cmd
             let action_code = handler.action_code;
 
-            println!("waiting for response from module cmd");
             let action_response_result = select! {
                 Ok(value) = receiver => {
                     Ok(value)
@@ -545,7 +540,6 @@ pub fn socket_task(
 
         let mut last_message_at = Instant::now();
 
-        println!("starting listening socket");
         loop {
             select! {
                 receive = receiver_socket.recv() => {
@@ -556,7 +550,6 @@ pub fn socket_task(
                             SenderPayloadData::Buffer(data) => (message.0, data),
                         };
 
-                        println!("OUTGOING RS {}", topic);
                         client
                             .publish(
                                 topic,
@@ -579,7 +572,6 @@ pub fn socket_task(
                                         let data = Arc::new(message.payload.to_vec());
                                         let messages = handle_incomming_message(&MQTT_HANDLES, &MAPPING_MODULES, &ctx,  message.topic, data).await;
                                         for message in messages {
-                                            println!("OUTGOING EL {}", message.0);
                                             client
                                                 .publish(message.0, QoS::ExactlyOnce, false, message.1)
                                                 .await
@@ -587,7 +579,6 @@ pub fn socket_task(
                                         }
                                     },
                                     Packet::Connect(c) => {
-                                        println!("im connected !!! {:?}", c);
                                     },
                                     _ => {}
                                 }

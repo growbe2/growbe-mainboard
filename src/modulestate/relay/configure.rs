@@ -61,6 +61,7 @@ pub fn authorize_relay_change(
         && has_field_previous
         && is_changing(config, prev_config)
     {
+        println!("{} {}", prev_config.get_actor_owner_id(), actor.id);
         if prev_config.get_actor_owner_id() != "" && prev_config.get_actor_owner_id() != actor.id {
             return Err(ModuleError::new().message(format!(
                 "cant change property already owned by other actor : {} -> {} , {:?} {:?}",
