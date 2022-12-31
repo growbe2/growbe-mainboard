@@ -27,6 +27,7 @@
 pub struct GrowbeMainboardConfig {
     // message fields
     pub hearthBeath: i32,
+    pub preferedCommandConnection: CommandConnectionType,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -57,6 +58,21 @@ impl GrowbeMainboardConfig {
     pub fn set_hearthBeath(&mut self, v: i32) {
         self.hearthBeath = v;
     }
+
+    // .CommandConnectionType preferedCommandConnection = 2;
+
+
+    pub fn get_preferedCommandConnection(&self) -> CommandConnectionType {
+        self.preferedCommandConnection
+    }
+    pub fn clear_preferedCommandConnection(&mut self) {
+        self.preferedCommandConnection = CommandConnectionType::MQTT;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_preferedCommandConnection(&mut self, v: CommandConnectionType) {
+        self.preferedCommandConnection = v;
+    }
 }
 
 impl ::protobuf::Message for GrowbeMainboardConfig {
@@ -75,6 +91,9 @@ impl ::protobuf::Message for GrowbeMainboardConfig {
                     let tmp = is.read_int32()?;
                     self.hearthBeath = tmp;
                 },
+                2 => {
+                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.preferedCommandConnection, 2, &mut self.unknown_fields)?
+                },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
                 },
@@ -90,6 +109,9 @@ impl ::protobuf::Message for GrowbeMainboardConfig {
         if self.hearthBeath != 0 {
             my_size += ::protobuf::rt::value_size(1, self.hearthBeath, ::protobuf::wire_format::WireTypeVarint);
         }
+        if self.preferedCommandConnection != CommandConnectionType::MQTT {
+            my_size += ::protobuf::rt::enum_size(2, self.preferedCommandConnection);
+        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -98,6 +120,9 @@ impl ::protobuf::Message for GrowbeMainboardConfig {
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
         if self.hearthBeath != 0 {
             os.write_int32(1, self.hearthBeath)?;
+        }
+        if self.preferedCommandConnection != CommandConnectionType::MQTT {
+            os.write_enum(2, ::protobuf::ProtobufEnum::value(&self.preferedCommandConnection))?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -142,6 +167,11 @@ impl ::protobuf::Message for GrowbeMainboardConfig {
                 |m: &GrowbeMainboardConfig| { &m.hearthBeath },
                 |m: &mut GrowbeMainboardConfig| { &mut m.hearthBeath },
             ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<CommandConnectionType>>(
+                "preferedCommandConnection",
+                |m: &GrowbeMainboardConfig| { &m.preferedCommandConnection },
+                |m: &mut GrowbeMainboardConfig| { &mut m.preferedCommandConnection },
+            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<GrowbeMainboardConfig>(
                 "GrowbeMainboardConfig",
                 fields,
@@ -159,6 +189,7 @@ impl ::protobuf::Message for GrowbeMainboardConfig {
 impl ::protobuf::Clear for GrowbeMainboardConfig {
     fn clear(&mut self) {
         self.hearthBeath = 0;
+        self.preferedCommandConnection = CommandConnectionType::MQTT;
         self.unknown_fields.clear();
     }
 }
@@ -2237,6 +2268,207 @@ impl ::protobuf::reflect::ProtobufValue for RunningComboard {
 }
 
 #[derive(PartialEq,Clone,Default)]
+pub struct GrowbeCommand {
+    // message fields
+    pub topic: ::std::string::String,
+    pub payload: ::std::vec::Vec<u8>,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a GrowbeCommand {
+    fn default() -> &'a GrowbeCommand {
+        <GrowbeCommand as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl GrowbeCommand {
+    pub fn new() -> GrowbeCommand {
+        ::std::default::Default::default()
+    }
+
+    // string topic = 1;
+
+
+    pub fn get_topic(&self) -> &str {
+        &self.topic
+    }
+    pub fn clear_topic(&mut self) {
+        self.topic.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_topic(&mut self, v: ::std::string::String) {
+        self.topic = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_topic(&mut self) -> &mut ::std::string::String {
+        &mut self.topic
+    }
+
+    // Take field
+    pub fn take_topic(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.topic, ::std::string::String::new())
+    }
+
+    // bytes payload = 2;
+
+
+    pub fn get_payload(&self) -> &[u8] {
+        &self.payload
+    }
+    pub fn clear_payload(&mut self) {
+        self.payload.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_payload(&mut self, v: ::std::vec::Vec<u8>) {
+        self.payload = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_payload(&mut self) -> &mut ::std::vec::Vec<u8> {
+        &mut self.payload
+    }
+
+    // Take field
+    pub fn take_payload(&mut self) -> ::std::vec::Vec<u8> {
+        ::std::mem::replace(&mut self.payload, ::std::vec::Vec::new())
+    }
+}
+
+impl ::protobuf::Message for GrowbeCommand {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.topic)?;
+                },
+                2 => {
+                    ::protobuf::rt::read_singular_proto3_bytes_into(wire_type, is, &mut self.payload)?;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if !self.topic.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.topic);
+        }
+        if !self.payload.is_empty() {
+            my_size += ::protobuf::rt::bytes_size(2, &self.payload);
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if !self.topic.is_empty() {
+            os.write_string(1, &self.topic)?;
+        }
+        if !self.payload.is_empty() {
+            os.write_bytes(2, &self.payload)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> GrowbeCommand {
+        GrowbeCommand::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "topic",
+                |m: &GrowbeCommand| { &m.topic },
+                |m: &mut GrowbeCommand| { &mut m.topic },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBytes>(
+                "payload",
+                |m: &GrowbeCommand| { &m.payload },
+                |m: &mut GrowbeCommand| { &mut m.payload },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<GrowbeCommand>(
+                "GrowbeCommand",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static GrowbeCommand {
+        static instance: ::protobuf::rt::LazyV2<GrowbeCommand> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(GrowbeCommand::new)
+    }
+}
+
+impl ::protobuf::Clear for GrowbeCommand {
+    fn clear(&mut self) {
+        self.topic.clear();
+        self.payload.clear();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for GrowbeCommand {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for GrowbeCommand {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
 pub struct HttpServerConfig {
     // message fields
     pub addr: ::std::string::String,
@@ -2819,6 +3051,165 @@ impl ::protobuf::reflect::ProtobufValue for UpdaterConfig {
 }
 
 #[derive(PartialEq,Clone,Default)]
+pub struct ApiConfig {
+    // message fields
+    pub url: ::std::string::String,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a ApiConfig {
+    fn default() -> &'a ApiConfig {
+        <ApiConfig as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl ApiConfig {
+    pub fn new() -> ApiConfig {
+        ::std::default::Default::default()
+    }
+
+    // string url = 1;
+
+
+    pub fn get_url(&self) -> &str {
+        &self.url
+    }
+    pub fn clear_url(&mut self) {
+        self.url.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_url(&mut self, v: ::std::string::String) {
+        self.url = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_url(&mut self) -> &mut ::std::string::String {
+        &mut self.url
+    }
+
+    // Take field
+    pub fn take_url(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.url, ::std::string::String::new())
+    }
+}
+
+impl ::protobuf::Message for ApiConfig {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.url)?;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if !self.url.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.url);
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if !self.url.is_empty() {
+            os.write_string(1, &self.url)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> ApiConfig {
+        ApiConfig::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "url",
+                |m: &ApiConfig| { &m.url },
+                |m: &mut ApiConfig| { &mut m.url },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<ApiConfig>(
+                "ApiConfig",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static ApiConfig {
+        static instance: ::protobuf::rt::LazyV2<ApiConfig> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(ApiConfig::new)
+    }
+}
+
+impl ::protobuf::Clear for ApiConfig {
+    fn clear(&mut self) {
+        self.url.clear();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for ApiConfig {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for ApiConfig {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
 pub struct MainboardConfig {
     // message fields
     pub id: ::std::string::String,
@@ -2828,6 +3219,7 @@ pub struct MainboardConfig {
     pub server: ::protobuf::SingularPtrField<HttpServerConfig>,
     pub logger: ::protobuf::SingularPtrField<LoggerConfig>,
     pub update: ::protobuf::SingularPtrField<UpdaterConfig>,
+    pub api: ::protobuf::SingularPtrField<ApiConfig>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -3059,6 +3451,39 @@ impl MainboardConfig {
     pub fn take_update(&mut self) -> UpdaterConfig {
         self.update.take().unwrap_or_else(|| UpdaterConfig::new())
     }
+
+    // .ApiConfig api = 8;
+
+
+    pub fn get_api(&self) -> &ApiConfig {
+        self.api.as_ref().unwrap_or_else(|| <ApiConfig as ::protobuf::Message>::default_instance())
+    }
+    pub fn clear_api(&mut self) {
+        self.api.clear();
+    }
+
+    pub fn has_api(&self) -> bool {
+        self.api.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_api(&mut self, v: ApiConfig) {
+        self.api = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_api(&mut self) -> &mut ApiConfig {
+        if self.api.is_none() {
+            self.api.set_default();
+        }
+        self.api.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_api(&mut self) -> ApiConfig {
+        self.api.take().unwrap_or_else(|| ApiConfig::new())
+    }
 }
 
 impl ::protobuf::Message for MainboardConfig {
@@ -3093,6 +3518,11 @@ impl ::protobuf::Message for MainboardConfig {
                 return false;
             }
         };
+        for v in &self.api {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
         true
     }
 
@@ -3120,6 +3550,9 @@ impl ::protobuf::Message for MainboardConfig {
                 },
                 6 => {
                     ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.update)?;
+                },
+                8 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.api)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -3160,6 +3593,10 @@ impl ::protobuf::Message for MainboardConfig {
             let len = v.compute_size();
             my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
         }
+        if let Some(ref v) = self.api.as_ref() {
+            let len = v.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -3196,6 +3633,11 @@ impl ::protobuf::Message for MainboardConfig {
         }
         if let Some(ref v) = self.update.as_ref() {
             os.write_tag(6, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        }
+        if let Some(ref v) = self.api.as_ref() {
+            os.write_tag(8, ::protobuf::wire_format::WireTypeLengthDelimited)?;
             os.write_raw_varint32(v.get_cached_size())?;
             v.write_to_with_cached_sizes(os)?;
         }
@@ -3272,6 +3714,11 @@ impl ::protobuf::Message for MainboardConfig {
                 |m: &MainboardConfig| { &m.update },
                 |m: &mut MainboardConfig| { &mut m.update },
             ));
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<ApiConfig>>(
+                "api",
+                |m: &MainboardConfig| { &m.api },
+                |m: &mut MainboardConfig| { &mut m.api },
+            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<MainboardConfig>(
                 "MainboardConfig",
                 fields,
@@ -3295,6 +3742,7 @@ impl ::protobuf::Clear for MainboardConfig {
         self.server.clear();
         self.logger.clear();
         self.update.clear();
+        self.api.clear();
         self.unknown_fields.clear();
     }
 }
@@ -3311,42 +3759,99 @@ impl ::protobuf::reflect::ProtobufValue for MainboardConfig {
     }
 }
 
+#[derive(Clone,PartialEq,Eq,Debug,Hash)]
+pub enum CommandConnectionType {
+    MQTT = 0,
+    WS_PROXY = 1,
+}
+
+impl ::protobuf::ProtobufEnum for CommandConnectionType {
+    fn value(&self) -> i32 {
+        *self as i32
+    }
+
+    fn from_i32(value: i32) -> ::std::option::Option<CommandConnectionType> {
+        match value {
+            0 => ::std::option::Option::Some(CommandConnectionType::MQTT),
+            1 => ::std::option::Option::Some(CommandConnectionType::WS_PROXY),
+            _ => ::std::option::Option::None
+        }
+    }
+
+    fn values() -> &'static [Self] {
+        static values: &'static [CommandConnectionType] = &[
+            CommandConnectionType::MQTT,
+            CommandConnectionType::WS_PROXY,
+        ];
+        values
+    }
+
+    fn enum_descriptor_static() -> &'static ::protobuf::reflect::EnumDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::EnumDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            ::protobuf::reflect::EnumDescriptor::new_pb_name::<CommandConnectionType>("CommandConnectionType", file_descriptor_proto())
+        })
+    }
+}
+
+impl ::std::marker::Copy for CommandConnectionType {
+}
+
+impl ::std::default::Default for CommandConnectionType {
+    fn default() -> Self {
+        CommandConnectionType::MQTT
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for CommandConnectionType {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Enum(::protobuf::ProtobufEnum::descriptor(self))
+    }
+}
+
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x0bboard.proto\"9\n\x15GrowbeMainboardConfig\x12\x20\n\x0bhearthBeath\
-    \x18\x01\x20\x01(\x05R\x0bhearthBeath\"\xbf\x01\n\x0fHostInformation\x12\
-    \x1a\n\x08hostname\x18\x01\x20\x01(\tR\x08hostname\x12\x16\n\x06kernel\
-    \x18\x02\x20\x01(\tR\x06kernel\x12$\n\rkernelVersion\x18\x03\x20\x01(\tR\
-    \rkernelVersion\x12\"\n\x0carchitecture\x18\x04\x20\x01(\tR\x0carchitect\
-    ure\x12\x0e\n\x02os\x18\x05\x20\x01(\tR\x02os\x12\x1e\n\ndeviceType\x18\
-    \x06\x20\x01(\tR\ndeviceType\"\xab\x01\n\tHelloWord\x12\x18\n\x07version\
-    \x18\x01\x20\x01(\tR\x07version\x12\"\n\x0ccloudVersion\x18\x02\x20\x01(\
-    \tR\x0ccloudVersion\x12\x10\n\x03RTC\x18\x03\x20\x01(\tR\x03RTC\x12(\n\
-    \x06boards\x18\x04\x20\x03(\x0b2\x10.RunningComboardR\x06boards\x12$\n\
-    \x04host\x18\x05\x20\x01(\x0b2\x10.HostInformationR\x04host\"D\n\x0eVers\
-    ionRelease\x12\x18\n\x07version\x18\x01\x20\x01(\tR\x07version\x12\x18\n\
-    \x07channel\x18\x02\x20\x01(\tR\x07channel\"G\n\rUpdateExecute\x12\x18\n\
-    \x07version\x18\x01\x20\x01(\tR\x07version\x12\x1c\n\trestarted\x18\x02\
-    \x20\x01(\x08R\trestarted\"\x10\n\x0eRestartRequest\"_\n\x0fLocalConnect\
-    ion\x12\x12\n\x04ssid\x18\x01\x20\x01(\tR\x04ssid\x12\x20\n\x0bsignalLev\
-    el\x18\x02\x20\x01(\x05R\x0bsignalLevel\x12\x16\n\x06ipAddr\x18\x03\x20\
-    \x01(\tR\x06ipAddr\"2\n\nMQTTConfig\x12\x10\n\x03url\x18\x01\x20\x01(\tR\
-    \x03url\x12\x12\n\x04port\x18\x02\x20\x01(\x05R\x04port\">\n\x0eComboard\
-    Config\x12\x16\n\x06config\x18\x01\x20\x01(\tR\x06config\x12\x14\n\x05im\
-    ple\x18\x02\x20\x01(\tR\x05imple\";\n\x0fRunningComboard\x12\x14\n\x05im\
-    ple\x18\x01\x20\x01(\tR\x05imple\x12\x12\n\x04addr\x18\x02\x20\x01(\tR\
-    \x04addr\":\n\x10HttpServerConfig\x12\x12\n\x04addr\x18\x01\x20\x01(\tR\
-    \x04addr\x12\x12\n\x04port\x18\x02\x20\x01(\x05R\x04port\"&\n\x0cLoggerC\
-    onfig\x12\x16\n\x06target\x18\x01\x20\x01(\tR\x06target\"a\n\rUpdaterCon\
-    fig\x12\x1e\n\nautoupdate\x18\x01\x20\x01(\x08R\nautoupdate\x12\x18\n\
-    \x07channel\x18\x02\x20\x01(\tR\x07channel\x12\x16\n\x06reboot\x18\x03\
-    \x20\x01(\x08R\x06reboot\"\x98\x02\n\x0fMainboardConfig\x12\x0e\n\x02id\
-    \x18\x01\x20\x01(\tR\x02id\x12\x1f\n\x04mqtt\x18\x02\x20\x01(\x0b2\x0b.M\
-    QTTConfigR\x04mqtt\x12+\n\x08comboard\x18\x03\x20\x01(\x0b2\x0f.Comboard\
-    ConfigR\x08comboard\x12-\n\tcomboards\x18\x07\x20\x03(\x0b2\x0f.Comboard\
-    ConfigR\tcomboards\x12)\n\x06server\x18\x04\x20\x01(\x0b2\x11.HttpServer\
-    ConfigR\x06server\x12%\n\x06logger\x18\x05\x20\x01(\x0b2\r.LoggerConfigR\
-    \x06logger\x12&\n\x06update\x18\x06\x20\x01(\x0b2\x0e.UpdaterConfigR\x06\
-    updateB+\n)ca.berlingoqc.growbe_android_module.protob\x06proto3\
+    \n\x0bboard.proto\"\x8f\x01\n\x15GrowbeMainboardConfig\x12\x20\n\x0bhear\
+    thBeath\x18\x01\x20\x01(\x05R\x0bhearthBeath\x12T\n\x19preferedCommandCo\
+    nnection\x18\x02\x20\x01(\x0e2\x16.CommandConnectionTypeR\x19preferedCom\
+    mandConnection\"\xbf\x01\n\x0fHostInformation\x12\x1a\n\x08hostname\x18\
+    \x01\x20\x01(\tR\x08hostname\x12\x16\n\x06kernel\x18\x02\x20\x01(\tR\x06\
+    kernel\x12$\n\rkernelVersion\x18\x03\x20\x01(\tR\rkernelVersion\x12\"\n\
+    \x0carchitecture\x18\x04\x20\x01(\tR\x0carchitecture\x12\x0e\n\x02os\x18\
+    \x05\x20\x01(\tR\x02os\x12\x1e\n\ndeviceType\x18\x06\x20\x01(\tR\ndevice\
+    Type\"\xab\x01\n\tHelloWord\x12\x18\n\x07version\x18\x01\x20\x01(\tR\x07\
+    version\x12\"\n\x0ccloudVersion\x18\x02\x20\x01(\tR\x0ccloudVersion\x12\
+    \x10\n\x03RTC\x18\x03\x20\x01(\tR\x03RTC\x12(\n\x06boards\x18\x04\x20\
+    \x03(\x0b2\x10.RunningComboardR\x06boards\x12$\n\x04host\x18\x05\x20\x01\
+    (\x0b2\x10.HostInformationR\x04host\"D\n\x0eVersionRelease\x12\x18\n\x07\
+    version\x18\x01\x20\x01(\tR\x07version\x12\x18\n\x07channel\x18\x02\x20\
+    \x01(\tR\x07channel\"G\n\rUpdateExecute\x12\x18\n\x07version\x18\x01\x20\
+    \x01(\tR\x07version\x12\x1c\n\trestarted\x18\x02\x20\x01(\x08R\trestarte\
+    d\"\x10\n\x0eRestartRequest\"_\n\x0fLocalConnection\x12\x12\n\x04ssid\
+    \x18\x01\x20\x01(\tR\x04ssid\x12\x20\n\x0bsignalLevel\x18\x02\x20\x01(\
+    \x05R\x0bsignalLevel\x12\x16\n\x06ipAddr\x18\x03\x20\x01(\tR\x06ipAddr\"\
+    2\n\nMQTTConfig\x12\x10\n\x03url\x18\x01\x20\x01(\tR\x03url\x12\x12\n\
+    \x04port\x18\x02\x20\x01(\x05R\x04port\">\n\x0eComboardConfig\x12\x16\n\
+    \x06config\x18\x01\x20\x01(\tR\x06config\x12\x14\n\x05imple\x18\x02\x20\
+    \x01(\tR\x05imple\";\n\x0fRunningComboard\x12\x14\n\x05imple\x18\x01\x20\
+    \x01(\tR\x05imple\x12\x12\n\x04addr\x18\x02\x20\x01(\tR\x04addr\"?\n\rGr\
+    owbeCommand\x12\x14\n\x05topic\x18\x01\x20\x01(\tR\x05topic\x12\x18\n\
+    \x07payload\x18\x02\x20\x01(\x0cR\x07payload\":\n\x10HttpServerConfig\
+    \x12\x12\n\x04addr\x18\x01\x20\x01(\tR\x04addr\x12\x12\n\x04port\x18\x02\
+    \x20\x01(\x05R\x04port\"&\n\x0cLoggerConfig\x12\x16\n\x06target\x18\x01\
+    \x20\x01(\tR\x06target\"a\n\rUpdaterConfig\x12\x1e\n\nautoupdate\x18\x01\
+    \x20\x01(\x08R\nautoupdate\x12\x18\n\x07channel\x18\x02\x20\x01(\tR\x07c\
+    hannel\x12\x16\n\x06reboot\x18\x03\x20\x01(\x08R\x06reboot\"\x1d\n\tApiC\
+    onfig\x12\x10\n\x03url\x18\x01\x20\x01(\tR\x03url\"\xb6\x02\n\x0fMainboa\
+    rdConfig\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\x1f\n\x04mqtt\x18\
+    \x02\x20\x01(\x0b2\x0b.MQTTConfigR\x04mqtt\x12+\n\x08comboard\x18\x03\
+    \x20\x01(\x0b2\x0f.ComboardConfigR\x08comboard\x12-\n\tcomboards\x18\x07\
+    \x20\x03(\x0b2\x0f.ComboardConfigR\tcomboards\x12)\n\x06server\x18\x04\
+    \x20\x01(\x0b2\x11.HttpServerConfigR\x06server\x12%\n\x06logger\x18\x05\
+    \x20\x01(\x0b2\r.LoggerConfigR\x06logger\x12&\n\x06update\x18\x06\x20\
+    \x01(\x0b2\x0e.UpdaterConfigR\x06update\x12\x1c\n\x03api\x18\x08\x20\x01\
+    (\x0b2\n.ApiConfigR\x03api*/\n\x15CommandConnectionType\x12\x08\n\x04MQT\
+    T\x10\0\x12\x0c\n\x08WS_PROXY\x10\x01B+\n)ca.berlingoqc.growbe_android_m\
+    odule.protob\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

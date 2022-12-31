@@ -1,7 +1,8 @@
-use std::sync::mpsc::SendError;
+use std::{ffi::OsString, fmt::format};
+
+use tokio::sync::mpsc::error::{SendError, TrySendError};
 
 use crate::modulestate::interface::ModuleError;
-use crate::modulestate::interface::ModuleValueParsable;
 
 #[derive(Debug, Clone)]
 pub struct MainboardError {
@@ -22,13 +23,6 @@ impl MainboardError {
         };
     }
 
-    pub fn from_send_error<T>(err: SendError<T>) -> Self {
-        log::error!("{:?}", err);
-        return Self {
-            message: "failed to send payload to mpsc sender".to_string(),
-        };
-    }
-
     pub fn from_sqlite_err(err: rusqlite::Error) -> Self {
         return Self {
             message: err.to_string(),
@@ -38,6 +32,12 @@ impl MainboardError {
     pub fn from_protobuf_err(err: protobuf::ProtobufError) -> Self {
         return Self {
             message: err.to_string(),
+        };
+    }
+
+    pub fn unauthorized(msg: &str) -> Self {
+        return Self {
+            message: format!("unauthorized: {}", msg),
         };
     }
 
@@ -77,10 +77,43 @@ impl From<protobuf::ProtobufError> for MainboardError {
     }
 }
 
-impl From<SendError<(String, Box<dyn ModuleValueParsable>)>> for MainboardError {
-    fn from(value: SendError<(String, Box<dyn ModuleValueParsable>)>) -> Self {
+impl From<tokio_tungstenite::tungstenite::Error> for MainboardError {
+    fn from(value: tokio_tungstenite::tungstenite::Error) -> Self {
         return Self {
             message: value.to_string(),
+        };
+    }
+}
+
+//tokio::sync::mpsc::error::SendError<(std::string::String, Box<(dyn ModuleValueParsable + 'static)>)>>>
+impl<T> From<TrySendError<T>> for MainboardError {
+    fn from(value: TrySendError<T>) -> Self {
+        return Self {
+            message: value.to_string(),
+        };
+    }
+}
+
+impl<T> From<SendError<T>> for MainboardError {
+    fn from(value: SendError<T>) -> Self {
+        return Self {
+            message: value.to_string(),
+        };
+    }
+}
+
+impl From<nix::errno::Errno> for MainboardError {
+    fn from(value: nix::errno::Errno) -> Self {
+        return Self {
+            message: value.to_string(),
+        };
+    }
+}
+
+impl From<OsString> for MainboardError {
+    fn from(_value: OsString) -> Self {
+        return Self {
+            message: "failed to cast os string".into(),
         };
     }
 }

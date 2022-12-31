@@ -2,6 +2,7 @@ use crate::modulestate::interface::{ModuleValue, ModuleValueParsable};
 use crate::modulestate::relay::{Relay, State};
 use crate::protos::module::{RelayOutletData, VirtualRelayData, VirtualRelayState};
 
+use crate::socket::ss::{SenderPayload, SenderPayloadData};
 impl ModuleValue for VirtualRelayData {}
 impl ModuleValueParsable for VirtualRelayData {}
 impl ModuleValue for VirtualRelayState {}
@@ -14,20 +15,14 @@ impl ModuleValueParsable for RelayOutletData {}
 // together in a group
 pub struct VirtualRelay {
     pub name: String,
-    pub sender_socket: std::sync::mpsc::Sender<(
-        String,
-        Box<dyn crate::modulestate::interface::ModuleValueParsable>,
-    )>,
+    pub sender_socket: tokio::sync::mpsc::Sender<crate::socket::ss::SenderPayload>,
     pub relays: Vec<Box<dyn Relay>>,
 }
 
 impl VirtualRelay {
     pub fn new(
         name: &str,
-        sender_socket: &std::sync::mpsc::Sender<(
-            String,
-            Box<dyn crate::modulestate::interface::ModuleValueParsable>,
-        )>,
+        sender_socket: &tokio::sync::mpsc::Sender<crate::socket::ss::SenderPayload>,
     ) -> Self {
         return VirtualRelay {
             name: name.to_string(),
@@ -54,9 +49,10 @@ impl State for VirtualRelay {
                 .unwrap()
                 .as_secs() as i32,
         );
-        self.sender_socket
-            .send((format!("/vr/{}/vrdata", self.name), Box::new(vr_data)))
-            .unwrap();
+        self.sender_socket.try_send((
+            format!("/vr/{}/vrdata", self.name),
+            SenderPayloadData::ProtobufMessage(Box::new(vr_data)),
+        ));
         return Ok(());
     }
 }

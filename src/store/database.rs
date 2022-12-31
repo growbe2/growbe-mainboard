@@ -32,6 +32,25 @@ pub fn get_field_from_table<T>(
     return id2(&v).map_err(|x| MainboardError::from_protobuf_err(x));
 }
 
+pub fn get_many_field_from_table<T>(
+    conn: &Arc<Mutex<Connection>>,
+    table_name: &'static str,
+    id2: for<'r> fn(&'r [u8]) -> std::result::Result<T, protobuf::ProtobufError>,
+) -> Result<Vec<T>, MainboardError> {
+    let conn = lock_conn(&conn)?;
+    let mut statement = conn
+        .prepare((format!("SELECT config FROM {}", table_name)).as_str())
+        .map_err(|err| MainboardError::from_sqlite_err(err))?;
+
+    return statement
+        .query_map([], |row| {
+            let buffer: Vec<u8> = row.get(0)?;
+            return id2(&buffer).map_err(|x| rusqlite::Error::InvalidColumnName(x.to_string()));
+        })?
+        .map(|x| x.map_err(|x| MainboardError::from_sqlite_err(x)))
+        .collect();
+}
+
 pub fn get_fields_from_table<T, D>(
     conn: &Arc<Mutex<Connection>>,
     table_name: &'static str,
@@ -82,7 +101,7 @@ pub fn store_field_from_table(
     table_name: &'static str,
     id: &String,
     property: &'static str,
-    data: Box<dyn protobuf::Message>,
+    data: &Box<dyn protobuf::Message>,
 ) -> Result<(), MainboardError> {
     let payload = data.write_to_bytes()?;
     let update = lock_conn(&conn)?.execute(
@@ -237,6 +256,15 @@ pub fn init(path: Option<String>) -> Connection {
 			relay BLOB,
 			config BLOB
 		)",
+        [],
+    )
+    .unwrap();
+
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS environment_controller (
+            id TEXT PRIMARY KEY,
+            config BLOB
+        )",
         [],
     )
     .unwrap();

@@ -1,6 +1,9 @@
 use tokio_util::sync::CancellationToken;
 
 use crate::mainboardstate::error::MainboardError;
+use crate::modulestate::actor::new_actor;
+use crate::protos::module::Actor;
+use crate::socket::ss::{SenderPayload, SenderPayloadData};
 use crate::{
     comboard::imple::channel::{ComboardAddr, ComboardSenderMapReference},
     modulestate::relay::{
@@ -13,10 +16,7 @@ use super::{store::VirtualRelayStore, virtual_relay::VirtualRelay};
 
 pub fn create_virtual_relay(
     relay_config: &crate::protos::module::VirtualRelay,
-    sender_socket: &std::sync::mpsc::Sender<(
-        String,
-        Box<dyn crate::modulestate::interface::ModuleValueParsable>,
-    )>,
+    sender_socket: &tokio::sync::mpsc::Sender<crate::socket::ss::SenderPayload>,
     sender_comboard_config: &ComboardSenderMapReference,
     manager: &crate::modulestate::state_manager::MainboardModuleStateManager,
     store_virtual_relay: &mut VirtualRelayStore,
@@ -40,7 +40,6 @@ pub fn create_virtual_relay(
         // if only one propertie use a normal relay
         if v.properties.len() == 1 {
             let relay: Box<PhysicalRelay> = Box::new(PhysicalRelay {
-                // TODO remove unwrap
                 sender: sender_comboard_config.get_sender(ComboardAddr {
                     imple: module_ref.board.clone(),
                     addr: module_ref.board_addr.clone(),
@@ -79,10 +78,7 @@ pub fn create_virtual_relay(
 pub fn delete_virtual_relay(
     name: &str,
     _sender_comboard_config: &ComboardSenderMapReference,
-    sender_socket: &std::sync::mpsc::Sender<(
-        String,
-        Box<dyn crate::modulestate::interface::ModuleValueParsable>,
-    )>,
+    sender_socket: &tokio::sync::mpsc::Sender<crate::socket::ss::SenderPayload>,
     _store: &crate::modulestate::store::ModuleStateStore,
     store_virtual_relay: &mut VirtualRelayStore,
     _manager: &mut crate::modulestate::state_manager::MainboardModuleStateManager,
@@ -92,7 +88,10 @@ pub fn delete_virtual_relay(
         let mut state = crate::protos::module::VirtualRelayState::new();
         state.set_id(name.to_string());
         state.set_state(false);
-        sender_socket.send((format!("/vr/{}/vrstate", name), Box::new(state)))?;
+        sender_socket.try_send((
+            format!("/vr/{}/vrstate", name),
+            SenderPayloadData::ProtobufMessage(Box::new(state)),
+        ))?;
     }
 
     store_virtual_relay.remove_relay(name)?;
@@ -104,10 +103,7 @@ pub fn delete_virtual_relay(
 pub fn initialize_virtual_relay(
     relay_config: &crate::protos::module::VirtualRelay,
     sender_comboard_config: &ComboardSenderMapReference,
-    sender_socket: &std::sync::mpsc::Sender<(
-        String,
-        Box<dyn crate::modulestate::interface::ModuleValueParsable>,
-    )>,
+    sender_socket: &tokio::sync::mpsc::Sender<crate::socket::ss::SenderPayload>,
     store: &crate::modulestate::store::ModuleStateStore,
     store_virtual_relay: &mut VirtualRelayStore,
     manager: &mut crate::modulestate::state_manager::MainboardModuleStateManager,
@@ -159,7 +155,10 @@ pub fn initialize_virtual_relay(
     let mut state = crate::protos::module::VirtualRelayState::new();
     state.set_id(relay.name.clone());
     state.set_state(true);
-    sender_socket.send((format!("/vr/{}/vrstate", state.get_id()), Box::new(state)))?;
+    sender_socket.try_send((
+        format!("/vr/{}/vrstate", state.get_id()),
+        SenderPayloadData::ProtobufMessage(Box::new(state)),
+    ))?;
 
     return Ok(());
 }
@@ -168,28 +167,29 @@ pub fn apply_config_virtual_relay(
     id: &String,
     config: &crate::protos::module::RelayOutletConfig,
     _sender_comboard_config: &ComboardSenderMapReference,
-    _sender_socket: &std::sync::mpsc::Sender<(
-        String,
-        Box<dyn crate::modulestate::interface::ModuleValueParsable>,
-    )>,
+    _sender_socket: &tokio::sync::mpsc::Sender<crate::socket::ss::SenderPayload>,
     _store: &crate::modulestate::store::ModuleStateStore,
     store_virtual_relay: &mut VirtualRelayStore,
     _manager: &mut crate::modulestate::state_manager::MainboardModuleStateManager,
+    actor: &Actor,
 ) -> Result<(), MainboardError> {
+    let mut mconfig = config.clone();
     match store_virtual_relay.virtual_relay_maps.get_mut(id) {
         Some(relay) => {
             configure_relay(
                 true,
-                &config,
+                &mut mconfig,
                 false,
                 &config,
                 relay,
                 &mut store_virtual_relay.cancellation_token_maps,
-                None,
-            );
+                &actor,
+                false,
+            )
+            .unwrap();
             //configure_relay(true, &config, relay, & mut store_virtual_relay.cancellation_token_maps, None);
             tokio::spawn(async {});
-            store_virtual_relay.store_relay_config(id, config)?;
+            store_virtual_relay.store_relay_config(id, &mconfig)?;
             return Ok(());
         }
         None => return Err(MainboardError::not_found("virtual_relay", id.as_str())),
@@ -222,10 +222,7 @@ pub fn initialize_virtual_relay_and_apply_config(
     virtual_relay: &crate::protos::module::VirtualRelay,
     virtual_config: &Option<crate::protos::module::RelayOutletConfig>,
     sender_comboard_config: &ComboardSenderMapReference,
-    sender_socket: &std::sync::mpsc::Sender<(
-        String,
-        Box<dyn crate::modulestate::interface::ModuleValueParsable>,
-    )>,
+    sender_socket: &tokio::sync::mpsc::Sender<crate::socket::ss::SenderPayload>,
     store: &crate::modulestate::store::ModuleStateStore,
     store_virtual_relay: &mut VirtualRelayStore,
     manager: &mut crate::modulestate::state_manager::MainboardModuleStateManager,
@@ -239,6 +236,11 @@ pub fn initialize_virtual_relay_and_apply_config(
         manager,
     )?;
 
+    let actor = new_actor(
+        "handle_state",
+        crate::protos::module::ActorType::MANUAL_USER_ACTOR,
+    );
+
     if let Some(config) = virtual_config.as_ref() {
         apply_config_virtual_relay(
             &String::from(virtual_relay.get_name()),
@@ -248,6 +250,7 @@ pub fn initialize_virtual_relay_and_apply_config(
             store,
             store_virtual_relay,
             manager,
+            &actor,
         )?;
     }
 

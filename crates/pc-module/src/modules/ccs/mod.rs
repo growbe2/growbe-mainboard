@@ -1,10 +1,10 @@
 use protobuf::{Clear, Message};
 use tokio::process::{Child, Command};
+use tokio::sync::mpsc::{Receiver, Sender};
 
-use crate::{
-    channel::CHANNEL_VALUE,
-    protos::module::{ComputerStreamingConfig, ComputerStreamingData, PhoneStreamingStatus},
-};
+use crate::channel::{ModuleConfig, ModuleValue};
+
+use crate::protos::module::{ComputerStreamingConfig, ComputerStreamingData, PhoneStreamingStatus};
 
 use super::ModuleClient;
 
@@ -21,7 +21,8 @@ impl StreamingModule {
 impl ModuleClient for StreamingModule {
     fn run(
         &self,
-        receiver_config: std::sync::mpsc::Receiver<crate::channel::ModuleConfig>,
+        mut receiver_config: Receiver<ModuleConfig>,
+        sender_value: Sender<ModuleValue>,
     ) -> tokio::task::JoinHandle<Result<(), ()>> {
         return tokio::spawn(async move {
             log::info!("start modle");
@@ -63,11 +64,9 @@ impl ModuleClient for StreamingModule {
                         v.set_status(PhoneStreamingStatus::STOPPED);
                     }
 
-                    CHANNEL_VALUE
-                        .0
-                        .lock()
-                        .unwrap()
+                    sender_value
                         .send(("CCS".to_string(), v.write_to_bytes().unwrap()))
+                        .await
                         .unwrap();
                 }
 
@@ -82,11 +81,9 @@ impl ModuleClient for StreamingModule {
                             v.set_status(PhoneStreamingStatus::ERROR);
                             v.set_error(format!("error code : {}", exit_status));
 
-                            CHANNEL_VALUE
-                                .0
-                                .lock()
-                                .unwrap()
+                            sender_value
                                 .send(("CCS".to_string(), v.write_to_bytes().unwrap()))
+                                .await
                                 .unwrap();
                         }
                     }

@@ -6,6 +6,7 @@ use crate::protos::module::{
     CalibrationError, CalibrationStep, SOILCalibrationStep, SOILCalibrationStepEvent,
     SOILModuleConfig, SOILModuleData,
 };
+use crate::socket::ss::SenderPayloadData;
 use crate::utils::validation::difference_of;
 
 use self::calibration::transform_value_with_calibration;
@@ -46,7 +47,7 @@ impl crate::modulestate::interface::ModuleValueValidator for AASValidator {
     > {
         let mut data = SOILModuleData::new();
 
-        if value_event.buffer.len() > 350 {
+        if value_event.buffer.len() >= 72 {
             data.p0 = two_u8_to_u16(value_event.buffer[0], value_event.buffer[1]) as i32;
             data.p1 = two_u8_to_u16(value_event.buffer[10], value_event.buffer[11]) as i32;
             data.p2 = two_u8_to_u16(value_event.buffer[20], value_event.buffer[21]) as i32;
@@ -77,7 +78,10 @@ impl crate::modulestate::interface::ModuleValueValidator for AASValidator {
         return Ok(Box::new(data));
     }
 
-    fn remove_config(&mut self) -> Result<(), crate::modulestate::interface::ModuleError> {
+    fn remove_config(
+        &mut self,
+        _actor: crate::protos::module::Actor,
+    ) -> Result<(), crate::modulestate::interface::ModuleError> {
         self.option_config = None;
         return Ok(());
     }
@@ -87,10 +91,11 @@ impl crate::modulestate::interface::ModuleValueValidator for AASValidator {
         port: i32,
         _t: &str,
         data: std::sync::Arc<Vec<u8>>,
-        _sender_comboard_config: &std::sync::mpsc::Sender<
+        _sender_comboard_config: &tokio::sync::mpsc::Sender<
             crate::comboard::imple::channel::ModuleConfig,
         >,
         _map_handler: &mut std::collections::HashMap<String, tokio_util::sync::CancellationToken>,
+        _actor: crate::protos::module::Actor,
     ) -> Result<
         (
             Box<dyn protobuf::Message>,
@@ -198,11 +203,9 @@ impl crate::modulestate::interface::ModuleValueValidator for AASValidator {
         cmd: &str,
         module_id: &String,
         data: std::sync::Arc<Vec<u8>>,
-        sender_response: &std::sync::mpsc::Sender<crate::protos::message::ActionResponse>,
-        sender_socket: &std::sync::mpsc::Sender<(
-            String,
-            Box<dyn crate::modulestate::interface::ModuleValueParsable>,
-        )>,
+        sender_response: tokio::sync::oneshot::Sender<crate::protos::message::ActionResponse>,
+        sender_socket: &tokio::sync::mpsc::Sender<crate::socket::ss::SenderPayload>,
+        actor: crate::protos::module::Actor,
     ) -> Result<
         Option<Vec<crate::modulestate::interface::ModuleStateCmd>>,
         crate::modulestate::interface::ModuleError,
@@ -239,18 +242,17 @@ impl crate::modulestate::interface::ModuleValueValidator for AASValidator {
                             self.calibration_process = None;
                             let config_bytes = config.write_to_bytes().unwrap();
 
-                            sender_socket
-                                .send((
-                                    format!("/m/{}/config_updated", module_id),
-                                    Box::new(config),
-                                ))
-                                .unwrap();
+                            sender_socket.try_send((
+                                format!("/m/{}/config_updated", module_id),
+                                SenderPayloadData::ProtobufMessage(Box::new(config)),
+                            ));
 
                             let cmd = crate::modulestate::interface::ModuleStateCmd {
-                                cmd: "mconfig",
+                                cmd: "mconfig".into(),
                                 topic: format!("/{}", module_id),
                                 data: std::sync::Arc::new(config_bytes),
-                                sender: sender_response.clone(),
+                                sender: sender_response,
+                                actor,
                             };
                             return Ok(Some(vec![cmd]));
                         }
@@ -276,12 +278,19 @@ impl crate::modulestate::interface::ModuleValueValidator for AASValidator {
                     .status(crate::modulestate::interface::CMD_NOT_SUPPORTED));
             }
         }
-        sender_socket
-            .send((
-                format!("/m/{}/calibrationEvent", module_id.as_str()),
-                Box::new(event),
-            ))
-            .unwrap();
+        sender_socket.try_send((
+            format!("/m/{}/calibrationEvent", module_id.as_str()),
+            SenderPayloadData::ProtobufMessage(Box::new(event)),
+        ));
         return Ok(None);
+    }
+
+    fn edit_ownership(
+        &mut self,
+        config: Box<dyn protobuf::Message>,
+        request: crate::protos::module::ModuleActorOwnershipRequest,
+        actor: &crate::protos::module::Actor,
+    ) -> Result<Box<dyn protobuf::Message>, crate::modulestate::interface::ModuleError> {
+        return Ok(config);
     }
 }

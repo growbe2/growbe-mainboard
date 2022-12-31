@@ -2,6 +2,10 @@ use crate::protos::board::RunningComboard;
 
 use self::imple::interface::ComboardClientConfig;
 
+use tokio::sync::mpsc::Receiver;
+
+use crate::protos::virt::VirtualScenarioItem;
+
 #[cfg(feature = "com_ble")]
 use self::imple::ble::get_ble_comboard;
 #[cfg(feature = "com_ws")]
@@ -17,60 +21,114 @@ fn get_comboard_i2c(config: ComboardClientConfig) -> imple::i2c_linux::I2CLinuxC
     };
 }
 
-#[cfg(feature = "com_virt")]
-fn get_comboard_virt(config: ComboardClientConfig) -> imple::virt::VirtualComboardClient {
+fn get_comboard_virt(
+    config: ComboardClientConfig,
+    receiver: Receiver<Vec<VirtualScenarioItem>>,
+) -> imple::virt::VirtualComboardClient {
     return imple::virt::VirtualComboardClient {
         config_comboard: config,
+        receiver_config: Some(receiver),
     };
 }
 
-pub fn get_comboard_client() -> Vec<(RunningComboard, Box<dyn imple::interface::ComboardClient>)> {
+pub fn get_comboard_client(
+    receiver_virt: Receiver<Vec<VirtualScenarioItem>>,
+) -> Vec<(RunningComboard, Box<dyn imple::interface::ComboardClient>)> {
     let mut boards: Vec<(RunningComboard, Box<dyn imple::interface::ComboardClient>)> = vec![];
 
-    for element in crate::mainboardstate::config::CONFIG.comboards.iter() {
-        let mut board: Vec<Box<dyn imple::interface::ComboardClient>> = vec![];
+    let virt = crate::mainboardstate::config::CONFIG
+        .comboards
+        .iter()
+        .find(|x| x.imple == "virt");
+    let i2c = crate::mainboardstate::config::CONFIG
+        .comboards
+        .iter()
+        .find(|x| x.imple == "i2c");
+    let ble = crate::mainboardstate::config::CONFIG
+        .comboards
+        .iter()
+        .find(|x| x.imple == "ble");
+    let ws = crate::mainboardstate::config::CONFIG
+        .comboards
+        .iter()
+        .find(|x| x.imple == "ws");
 
-        if element.imple == "virt" {
-            #[cfg(feature = "com_virt")]
-            board.push(Box::new(get_comboard_virt(ComboardClientConfig {
-                config: element.config.clone(),
-            })));
-            #[cfg(not(feature = "com_virt"))]
-            panic!("virtual comboard not compiled in the version");
-        } else if element.imple == "i2c" {
-            #[cfg(all(target_os = "linux", feature = "com_i2c"))]
-            board.push(Box::new(get_comboard_i2c(ComboardClientConfig {
-                config: element.config.clone(),
-            })));
-            #[cfg(not(feature = "i2c"))]
-            panic!("i2c comboard not compiled in the version");
-        } else if element.imple == "ble" {
-            #[cfg(feature = "com_ble")]
-            board.push(get_ble_comboard(element.config.clone()));
-            #[cfg(not(feature = "com_ble"))]
-            panic!("ble comboard not compiled in the version");
-        } else if element.imple == "ws" {
-            #[cfg(feature = "com_ws")]
-            board.push(get_ws_comboard(element.config.clone()));
-            #[cfg(not(feature = "com_ws"))]
-            panic!("ws comboard not compiled in the version");
-        };
-
-        if board.len() == 1 {
+    if let Some(element) = virt {
+        {
+            let bo = Box::new(get_comboard_virt(
+                ComboardClientConfig {
+                    config: element.config.clone(),
+                },
+                receiver_virt,
+            ));
             boards.push((
                 RunningComboard {
                     imple: element.imple.clone(),
                     addr: element.config.clone(),
                     ..Default::default()
                 },
-                board.pop().unwrap(),
+                bo,
             ));
-        } else {
-            panic!(
-                "comboard is not supported {} : either it does not exists or it's not build in",
-                element.imple
-            );
         }
+    }
+
+    if let Some(element) = i2c {
+        #[cfg(all(target_os = "linux", feature = "com_i2c"))]
+        {
+            let bo = Box::new(get_comboard_i2c(ComboardClientConfig {
+                config: element.config.clone(),
+            }));
+            boards.push((
+                RunningComboard {
+                    imple: element.imple.clone(),
+                    addr: element.config.clone(),
+                    ..Default::default()
+                },
+                bo,
+            ));
+            println!("adding i2c");
+        }
+        #[cfg(not(feature = "com_i2c"))]
+        panic!(
+            "i2c comboard not compiled in the version {}",
+            element.config
+        );
+    } else {
+        println!("no i2c");
+    }
+
+    if let Some(_element) = ble {
+        #[cfg(feature = "com_ble")]
+        {
+            let bo = get_ble_comboard(element.config.clone());
+            boards.push((
+                RunningComboard {
+                    imple: element.imple.clone(),
+                    addr: element.config.clone(),
+                    ..Default::default()
+                },
+                bo,
+            ));
+        }
+        #[cfg(not(feature = "com_ble"))]
+        panic!("ble comboard not compiled in the version");
+    }
+
+    if let Some(element) = ws {
+        #[cfg(feature = "com_ws")]
+        {
+            let bo = get_ws_comboard(element.config.clone());
+            boards.push((
+                RunningComboard {
+                    imple: element.imple.clone(),
+                    addr: element.config.clone(),
+                    ..Default::default()
+                },
+                bo,
+            ));
+        }
+        #[cfg(not(feature = "com_ws"))]
+        panic!("ws comboard not compiled in the version");
     }
 
     return boards;

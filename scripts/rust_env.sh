@@ -9,4 +9,4 @@ fi
 #    ARGS="$ARGS --env-file ./docker/coverage.env --env RUSTFLAGS=-Cinstrument-coverage"
 #fi
 
-docker run $ARGS docker.pkg.github.com/growbe2/growbe-mainboard/dev "$@"
+docker run $ARGS ghcr.io/growbe2/growbe-mainboard/dev "$@"

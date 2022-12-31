@@ -1,3 +1,4 @@
+use crate::mainboardstate::error::MainboardError;
 use crate::modulestate::interface::{conv_err, ModuleError};
 use crate::protos::alarm::FieldAlarm;
 use crate::store::database::{
@@ -6,17 +7,64 @@ use crate::store::database::{
 };
 
 use protobuf::Message;
+use rusqlite::Row;
 
 use std::sync::{Arc, Mutex};
 
+use super::model::ModuleAlarmState;
+
 pub struct ModuleAlarmStore {
     pub conn: Arc<Mutex<rusqlite::Connection>>,
+}
+
+fn handle_row(row: &Row) -> Result<(FieldAlarm, Option<ModuleAlarmState<f32>>), rusqlite::Error> {
+    let buffer: Vec<u8> = row.get(0)?;
+    let buffer_state: Option<Vec<u8>> = row.get(1)?;
+    let buffer_state = buffer_state.unwrap_or_default();
+    let state = if buffer_state.len() > 0 {
+        Some(serde_json::from_slice(&buffer_state).map_err(to_sqerror)?)
+    } else {
+        None
+    };
+    Ok((
+        FieldAlarm::parse_from_bytes(&buffer).map_err(to_sqerror)?,
+        state,
+    ))
 }
 
 // ModuleAlarmStore is the store where we keep our alarm field config
 impl ModuleAlarmStore {
     pub fn new(conn: Arc<Mutex<rusqlite::Connection>>) -> Self {
         return ModuleAlarmStore { conn };
+    }
+
+    pub fn get_alarm_for_module_property(
+        &self,
+        module_id: &str,
+        property: &str,
+    ) -> Result<(FieldAlarm, Option<super::model::ModuleAlarmState<f32>>), MainboardError> {
+        let conn = self.conn.lock().unwrap();
+        let mut stmt = conn
+            .prepare("SELECT config, state FROM module_field_alarm WHERE id = ? AND property = ?")
+            .unwrap();
+        let dd: Result<
+            Vec<(FieldAlarm, Option<super::model::ModuleAlarmState<f32>>)>,
+            ModuleError,
+        > = stmt
+            .query_map([module_id, property], handle_row)?
+            .map(|x| x.map_err(|x| ModuleError::from_rusqlite_err(module_id, x)))
+            .collect();
+
+        let mut dd = dd?;
+
+        if let Some(value) = dd.pop() {
+            return Ok(value);
+        } else {
+            return Err(MainboardError::from_error(format!(
+                "alarm not found [{}:{}]",
+                module_id, property
+            )));
+        }
     }
 
     pub fn get_alarm_for_module(
@@ -28,20 +76,7 @@ impl ModuleAlarmStore {
             .prepare("SELECT config, state FROM module_field_alarm WHERE id = ?")
             .unwrap();
         return stmt
-            .query_map([module_id.as_str()], |row| {
-                let buffer: Vec<u8> = row.get(0)?;
-                let buffer_state: Option<Vec<u8>> = row.get(1)?;
-                let buffer_state = buffer_state.unwrap_or_default();
-                let state = if buffer_state.len() > 0 {
-                    Some(serde_json::from_slice(&buffer_state).map_err(to_sqerror)?)
-                } else {
-                    None
-                };
-                Ok((
-                    FieldAlarm::parse_from_bytes(&buffer).map_err(to_sqerror)?,
-                    state,
-                ))
-            })?
+            .query_map([module_id.as_str()], handle_row)?
             .map(|x| x.map_err(|x| ModuleError::from_rusqlite_err(module_id, x)))
             .collect();
     }

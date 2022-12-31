@@ -17,7 +17,7 @@ lazy_static::lazy_static! {
 
 pub fn default_logger() -> LoggerConfig {
     return LoggerConfig {
-        target: String::from("growbe_pc_module=warn"),
+        target: String::from("growbe_pc_module="),
         systemd: false,
     };
 }

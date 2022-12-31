@@ -1,14 +1,17 @@
+use super::controller::store::EnvControllerStore;
 use super::state_manager::MainboardModuleStateManager;
 use crate::comboard::imple::interface::ModuleValueValidationEvent;
 use crate::mainboardstate::error::MainboardError;
-use std::sync::mpsc::Sender;
+use crate::socket::ss::SenderPayloadData;
+use tokio::sync::mpsc::Sender;
 
 pub fn handle_module_value<'a>(
     manager: &mut MainboardModuleStateManager,
     value: &ModuleValueValidationEvent,
-    sender_socket: &Sender<(String, Box<dyn super::interface::ModuleValueParsable>)>,
+    sender_socket: &Sender<crate::socket::ss::SenderPayload>,
     alarm_validator: &mut super::alarm::validator::AlarmFieldValidator,
     alarm_store: &super::alarm::store::ModuleAlarmStore,
+    env_controller: &mut EnvControllerStore,
 ) -> Result<(), MainboardError> {
     let reference_connected_module_option =
         manager.get_module_at_index_mut(&value.board, &value.board_addr, value.port);
@@ -22,7 +25,8 @@ pub fn handle_module_value<'a>(
     let reference_connected_module = reference_connected_module_option.unwrap();
 
     let on_change = |value| -> () {
-        if let Err(err) = sender_socket.send((
+        println!("ddsads");
+        if let Err(err) = sender_socket.try_send((
             String::from(format!("/m/{}/data", reference_connected_module.id)),
             value,
         )) {
@@ -37,7 +41,9 @@ pub fn handle_module_value<'a>(
                     .validator
                     .have_data_change(&sensor_value, last_value);
                 if change.0 == true {
-                    on_change(sensor_value);
+                    on_change(crate::socket::ss::SenderPayloadData::ProtobufMessage(
+                        sensor_value,
+                    ));
                     if let Ok(previous_value) =
                         reference_connected_module.validator.convert_to_value(value)
                     {
@@ -58,9 +64,11 @@ pub fn handle_module_value<'a>(
                                 .on_module_value_change(&module_value_change)
                                 .iter()
                                 .for_each(|(event, state)| {
-                                    if let Err(err) = sender_socket.send((
+                                    if let Err(err) = sender_socket.try_send((
                                         format!("/m/{}/alarm", event.moduleId),
-                                        Box::new(event.clone_me()),
+                                        SenderPayloadData::ProtobufMessage(Box::new(
+                                            event.clone_me(),
+                                        )),
                                     )) {
                                         log::error!("failed to send alarm state : {:?}", err);
                                     }
@@ -71,12 +79,23 @@ pub fn handle_module_value<'a>(
                                     ) {
                                         log::error!("failed to update alarm state : {:?}", err);
                                     }
+                                    if let Some(sender) =
+                                        env_controller.alarm_senders.get(&format!(
+                                            "{}:{}",
+                                            event.get_moduleId(),
+                                            event.get_property()
+                                        ))
+                                    {
+                                        if let Err(_err) = sender.send(event.clone()) {
+                                            //log::error!("failed sender env_controller : {:?}", err);
+                                        }
+                                    }
                                 });
                         }
                     }
                 }
             } else {
-                on_change(sensor_value);
+                on_change(SenderPayloadData::ProtobufMessage(sensor_value));
 
                 if let Ok(previous_value) =
                     reference_connected_module.validator.convert_to_value(value)

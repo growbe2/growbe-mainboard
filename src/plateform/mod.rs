@@ -1,3 +1,4 @@
+pub mod external;
 pub mod net;
 pub mod process;
 pub mod restart;

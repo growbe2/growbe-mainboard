@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use tokio::net::TcpListener;
+use tokio::{net::TcpListener, sync::mpsc::Receiver};
 use tokio_tungstenite::tungstenite::Message;
 
 use crate::{
@@ -27,23 +27,28 @@ async fn main() {
     growbe_shared::logger::setup_log(&config::CONFIG.logger);
 
     log::info!("starting module with id {}", id::get());
+    log::info!("binding tcp to {}", CONFIG.server.to_string());
 
     let server = match TcpListener::bind(CONFIG.server.to_string()).await {
         Ok(e) => e,
         Err(err) => {
-            log::error!("{:?}", err);
+            log::error!("TcpListener::bind : {:?}", err);
             return;
         }
     };
 
+    let (sender_module, receiver_module) = tokio::sync::mpsc::channel(10);
+
     let modules: Vec<Module> = CONFIG.modules.clone();
-    let mut channel_manager = ModuleConfigChannelManager::new();
+    let mut channel_manager = ModuleConfigChannelManager::new(sender_module);
 
     for d in modules.iter() {
         let client = get_module_client(&d.name).unwrap();
-        let receiver = channel_manager.create_channel(d.port);
-        client.run(receiver);
+        let (receiver, sender) = channel_manager.create_channel(d.port);
+        client.run(receiver, sender);
     }
+
+    let receiver_module = tokio::sync::Mutex::<_>::new(receiver_module);
 
     while let Ok((raw_stream, addr)) = server.accept().await {
         let ws_stream = match tokio_tungstenite::accept_async(raw_stream).await {
@@ -55,6 +60,8 @@ async fn main() {
         };
 
         println!("got connection");
+
+        // IF ALREADY CONNECT BLOCK NEW CONNECTION
 
         let (mut outgoing, incoming) = ws_stream.split();
 
@@ -98,18 +105,13 @@ async fn main() {
         });
 
         let receive_from_others = {
-            let modules = modules.clone();
-            async move {
+            async {
+                let modules = modules.clone();
                 loop {
                     if let Err(_) = outgoing.send(Message::Ping(vec![])).await {
                         break;
                     }
-                    if let Ok(mut value) = channel::CHANNEL_VALUE
-                        .1
-                        .lock()
-                        .unwrap()
-                        .recv_timeout(Duration::from_millis(1))
-                    {
+                    if let Ok(mut value) = receiver_module.lock().await.try_recv() {
                         let mut index: i32 = -1;
                         for (i, val) in modules.iter().enumerate() {
                             if val.name == value.0 {

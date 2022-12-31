@@ -1,6 +1,8 @@
-use std::sync::mpsc::Receiver;
+use tokio::sync::mpsc::{Receiver, Sender};
 
 use serde::{Deserialize, Serialize};
+
+use crate::channel::{ModuleConfig, ModuleValue};
 
 use self::{ccs::StreamingModule, css::SystemStatsModule};
 
@@ -16,7 +18,8 @@ pub struct Module {
 pub trait ModuleClient {
     fn run(
         &self,
-        receiver_config: Receiver<super::channel::ModuleConfig>,
+        receiver_config: Receiver<ModuleConfig>,
+        sender_value: Sender<ModuleValue>,
     ) -> tokio::task::JoinHandle<Result<(), ()>>;
 }
 

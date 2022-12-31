@@ -1,23 +1,10 @@
 use std::collections::HashMap;
-use std::sync::mpsc::{Receiver, Sender};
-use std::sync::Arc;
-use std::sync::{mpsc::channel, Mutex};
+use std::sync::{Arc, Mutex};
+use tokio::sync::mpsc::{channel, Receiver, Sender};
 
 use crate::mainboardstate::error::MainboardError;
 
-use super::interface::{ModuleStateChangeEvent, ModuleValueValidationEvent};
-
-pub fn mutex_channel<T>() -> (Mutex<Sender<T>>, Mutex<Receiver<T>>) {
-    let (sender, receive) = channel::<T>();
-
-    return (Mutex::new(sender), Mutex::new(receive));
-}
-
-lazy_static::lazy_static! {
-    pub static ref CHANNEL_STATE:(Mutex<Sender<super::interface::ModuleStateChangeEvent>>, Mutex<Receiver<super::interface::ModuleStateChangeEvent>>)  = mutex_channel();
-    pub static ref CHANNEL_VALUE:(Mutex<Sender<super::interface::ModuleValueValidationEvent>>, Mutex<Receiver<super::interface::ModuleValueValidationEvent>>)  = mutex_channel();
-}
-
+/*
 pub fn comboard_send_value(
     board: String,
     board_addr: String,
@@ -28,11 +15,11 @@ pub fn comboard_send_value(
         .0
         .lock()
         .unwrap()
-        .send(ModuleValueValidationEvent {
-            port: port,
-            board: board,
-            board_addr: board_addr,
-            buffer: buffer,
+        .try_send(ModuleValueValidationEvent {
+            port,
+            board,
+            board_addr,
+            buffer,
         })
         .map_err(|_| ());
 }
@@ -48,15 +35,16 @@ pub fn comboard_send_state(
         .0
         .lock()
         .unwrap()
-        .send(ModuleStateChangeEvent {
-            board: board,
-            board_addr: board_addr,
-            port: port,
-            id: id,
-            state: state,
+        .try_send(ModuleStateChangeEvent {
+            board,
+            board_addr,
+            port,
+            id,
+            state,
         })
         .map_err(|_| ());
 }
+*/
 
 pub trait ModuleDataContainer<T> {
     fn get_data(&self) -> Result<T, ()>;
@@ -85,18 +73,6 @@ pub struct ComboardSenderMapReference {
 }
 
 impl ComboardSenderMapReference {
-    /*
-    pub fn send(&self, module_addr: ComboardAddr, module_config: ModuleConfig) -> Result<(), ()> {
-        let addr = module_addr.to_string();
-
-        if let Some(sender) = &self.map.lock().unwrap().get(&addr) {
-            return sender.send(module_config).map_err(|_| ());
-        }
-
-        return Err(());
-    }
-    */
-
     pub fn get_sender(
         &self,
         module_addr: ComboardAddr,
@@ -123,7 +99,7 @@ impl ComboardConfigChannelManager {
     }
 
     pub fn create_channel(&mut self, addr: ComboardAddr) -> Receiver<ModuleConfig> {
-        let (sender, receiver) = channel::<ModuleConfig>();
+        let (sender, receiver) = channel::<ModuleConfig>(50);
         self.senders
             .lock()
             .unwrap()

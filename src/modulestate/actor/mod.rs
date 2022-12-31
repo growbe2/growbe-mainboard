@@ -1,6 +1,15 @@
 use std::collections::HashMap;
 
-use crate::protos::module::Actor;
+use crate::protos::module::{Actor, ActorType};
+
+pub fn new_actor(id: &str, typ: ActorType) -> Actor {
+    return Actor {
+        id: id.into(),
+        name: id.into(),
+        field_type: typ,
+        ..Default::default()
+    };
+}
 
 /*
 pub struct ActorStore {

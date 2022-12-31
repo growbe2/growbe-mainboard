@@ -34,3 +34,14 @@ pub trait Relay: State + Send {
 pub trait BatchRelay: Relay {
     fn execute(&self) -> Result<(), ()>;
 }
+
+#[macro_export]
+macro_rules! set_property {
+    ($this: ident, $property: ident, $data: ident, $($name: ident),+) => {
+        $(
+            if $property == stringify!($name) {
+                $this.$name = SingularPtrField::from(Some($data.clone()));
+            }
+        )+
+    };
+}

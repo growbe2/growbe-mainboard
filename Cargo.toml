@@ -4,15 +4,19 @@ version = "0.2.0"
 edition = "2021"
 
 [features]
-default = ["com_virt", "com_ws"]
+default = ["com_virt", "com_ws", "reverse_proxy_cmd"]
 gpio = ["rppal"]
+ws = ["tokio-tungstenite", "url", "futures-util"]
 com_ble = ["bluer", "btleplug", "futures", "uuid", "tokio-stream"]
 com_virt = []
-com_ws = ["tungstenite", "url"]
+com_ws = ["ws"]
 com_i2c = ["gpio", "cty"]
 http_server = ["warp"]
+reverse_proxy_cmd = ["ws"]
 
-pi = ["com_ws", "com_i2c"]
+debug = ["growbe_shared/debug", "tokio/tracing"]
+
+pi = ["com_i2c"]
 pc = ["com_ws"]
 
 [workspace]
@@ -22,50 +26,55 @@ members = [ "crates/*" ]
 [dependencies]
 growbe_shared = { path = "./crates/growbe-shared"}
 
-chrono = "0.4.0"
-rumqtt = "0.31.0"
-env_logger = "0.9.0"
-log = "0.4.14"
-protobuf = "2.25.2"
-lazy_static = "1.4.0"
-rusqlite = { version = "0.28.0", features = ["bundled"] }
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0.59"
-tokio = { version = "1.14", features = ["full", "time", "rt-multi-thread"] }
-tokio-util = "0.6.9"
-regex = "1.5"
+chrono = "*"
+rumqttc = "*"
+env_logger = "*"
+log = "*"
+protobuf = "*"
+lazy_static = "*"
+rusqlite = { version = "*", features = ["bundled"] }
+serde = { version = "*", features = ["derive"] }
+serde_json = "*"
+tokio = { version = "*", features = ["full", "time", "rt-multi-thread"] }
+tokio-util = "*"
+regex = "*"
 
-reqwest = { version = "0.11", features = ["json"] }
+reqwest = { version = "*", features = ["json"] }
 
-nix = { version = "0.23.0", optional = false }
+nix = { version = "*", optional = false }
 
-cty = { version = "0.2.2", optional = true }
+cty = { version = "*", optional = true }
 
-futures = { version = "0.3", optional = true }
+futures = { version = "*", optional = true }
 
 # dependencies for web server
-warp = { version = "0.3" , optional = true}
+warp = { version = "*" , optional = true}
 
 # dependencies for web socket
-tungstenite = { version = "*",  optional = true }
-url = { version = "2.0.0", optional = true }
+tokio-tungstenite = { version = "*",  optional = true, features = ["native-tls"] }
+url = { version = "*", optional = true }
+futures-util = { version = "*", optional = true }
 
 # dependencies for ble
-uuid = { version = "1.1.2", optional = true }
-tokio-stream = { version = "0.1.9", features = ["sync"], optional = true }
+uuid = { version = "*", optional = true }
+tokio-stream = { version = "*", features = ["sync"], optional = true }
+
+tracing = { version = "*", optional = true }
+tracing-subscriber = { version = "*", optional = true }
+tracing-journald = { version = "*", optional = true }
+console-subscriber = { version = "0.1.5", optional = true }
 
 [target.'cfg(any(target_os = "macos", target_os = "windows"))'.dependencies]
-btleplug = { version = "0.10", features = ["serde"], optional = true }
+btleplug = { version = "*", features = ["serde"], optional = true }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 uname = { git = "https://github.com/icorderi/rust-uname" , optional = false }
 
 [target.'cfg(target_os = "linux")'.dependencies]
 uname = { git = "https://github.com/icorderi/rust-uname" , optional = false }
-bluer = {version = "0.15.0", features = ["bluetoothd"], optional = true}
+bluer = {version = "*", features = ["bluetoothd"], optional = true}
 # for gpio
-rppal = { version = "0.13.1", optional = true }
-
+rppal = { version = "*", optional = true }
 
 [build-dependencies]
-protoc-rust = "2.25.2"
+protoc-rust = "*"

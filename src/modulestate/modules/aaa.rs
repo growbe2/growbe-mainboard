@@ -20,6 +20,15 @@ impl crate::modulestate::interface::ModuleValue for THLModuleData {}
 impl crate::modulestate::interface::ModuleValueParsable for THLModuleData {}
 
 impl crate::modulestate::interface::ModuleValueValidator for AAAValidator {
+    fn edit_ownership(
+        &mut self,
+        config: Box<dyn protobuf::Message>,
+        request: crate::protos::module::ModuleActorOwnershipRequest,
+        actor: &crate::protos::module::Actor,
+    ) -> Result<Box<dyn protobuf::Message>, crate::modulestate::interface::ModuleError> {
+        return Ok(config);
+    }
+
     fn convert_to_value(
         &mut self,
         value_event: &crate::comboard::imple::interface::ModuleValueValidationEvent,
@@ -32,7 +41,7 @@ impl crate::modulestate::interface::ModuleValueValidator for AAAValidator {
         let mut v = std::ptr::null_mut();
 
         unsafe {
-            if value_event.buffer.len() > 150 {
+            if value_event.buffer.len() >= 105 {
                 data.airTemperature = round_decimal(strtof(value_event.buffer.as_ptr(), &mut v));
                 data.humidity =
                     round_decimal(strtof(value_event.buffer.as_ptr().offset(100), &mut v));
@@ -54,10 +63,11 @@ impl crate::modulestate::interface::ModuleValueValidator for AAAValidator {
         _port: i32,
         _t: &str,
         _data: std::sync::Arc<Vec<u8>>,
-        _sender_comboard_config: &std::sync::mpsc::Sender<
+        _sender_comboard_config: &tokio::sync::mpsc::Sender<
             crate::comboard::imple::channel::ModuleConfig,
         >,
         _map_handler: &mut std::collections::HashMap<String, tokio_util::sync::CancellationToken>,
+        _actor: crate::protos::module::Actor,
     ) -> Result<
         (
             Box<dyn protobuf::Message>,
@@ -68,7 +78,10 @@ impl crate::modulestate::interface::ModuleValueValidator for AAAValidator {
         Err(crate::modulestate::interface::ModuleError::new())
     }
 
-    fn remove_config(&mut self) -> Result<(), crate::modulestate::interface::ModuleError> {
+    fn remove_config(
+        &mut self,
+        _actor: crate::protos::module::Actor,
+    ) -> Result<(), crate::modulestate::interface::ModuleError> {
         return Ok(());
     }
 
@@ -111,11 +124,9 @@ impl crate::modulestate::interface::ModuleValueValidator for AAAValidator {
         _cmd: &str,
         _module_id: &String,
         _data: std::sync::Arc<Vec<u8>>,
-        _sender_response: &std::sync::mpsc::Sender<crate::protos::message::ActionResponse>,
-        _sender_socket: &std::sync::mpsc::Sender<(
-            String,
-            Box<dyn crate::modulestate::interface::ModuleValueParsable>,
-        )>,
+        _sender_response: tokio::sync::oneshot::Sender<crate::protos::message::ActionResponse>,
+        _sender_socket: &tokio::sync::mpsc::Sender<crate::socket::ss::SenderPayload>,
+        _actor: crate::protos::module::Actor,
     ) -> Result<
         Option<Vec<crate::modulestate::interface::ModuleStateCmd>>,
         crate::modulestate::interface::ModuleError,

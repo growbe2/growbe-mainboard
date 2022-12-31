@@ -1,10 +1,13 @@
-use std::sync::mpsc::Sender;
+use tokio::sync::mpsc::Sender;
 
 use crate::{
     mainboardstate::config::get_configuration_proto,
     plateform::uname::get_host_information,
     protos::board::{HelloWord, RunningComboard},
+    socket::ss::SenderPayloadData,
 };
+
+use crate::socket::ss::SenderPayload;
 
 use super::error::MainboardError;
 
@@ -14,10 +17,7 @@ impl crate::modulestate::interface::ModuleValue for crate::protos::board::HelloW
 impl crate::modulestate::interface::ModuleValueParsable for crate::protos::board::HelloWord {}
 
 pub async fn task_hello_world(
-    sender: Sender<(
-        String,
-        Box<dyn crate::modulestate::interface::ModuleValueParsable>,
-    )>,
+    sender: Sender<SenderPayload>,
     running_boards: Vec<RunningComboard>,
 ) -> Result<(), MainboardError> {
     let mut hello = get_hello_world();
@@ -31,11 +31,17 @@ pub async fn task_hello_world(
 
     log::info!("hello world starting with version {}", hello.version);
     sender
-        .send((String::from("/hello"), Box::new(hello)))
-        .map_err(MainboardError::from_send_error)?;
+        .send((
+            String::from("/hello"),
+            SenderPayloadData::ProtobufMessage(Box::new(hello)),
+        ))
+        .await?;
     sender
-        .send((String::from("/config"), Box::new(config)))
-        .map_err(MainboardError::from_send_error)?;
+        .send((
+            String::from("/config"),
+            SenderPayloadData::ProtobufMessage(Box::new(config)),
+        ))
+        .await?;
 
     return Ok(());
 }

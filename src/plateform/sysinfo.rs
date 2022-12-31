@@ -25,11 +25,11 @@ pub fn get_sys_info() -> Result<SysInfo, MainboardError> {
     let hostname = nix::unistd::gethostname(&mut buf)
         .map_err(|x| MainboardError::from_error(x.to_string()))?;
 
-    let uts_name = nix::sys::utsname::uname();
+    let uts_name = nix::sys::utsname::uname()?;
     let mut info = SysInfo {
         hostname: hostname.to_str().unwrap_or_default().to_owned(),
-        uname: format!("{} {}", uts_name.machine(), uts_name.release()),
-        os: uts_name.sysname().to_string(),
+        uname: format!("{:?} {:?}", uts_name.machine(), uts_name.release()),
+        os: uts_name.sysname().to_os_string().into_string()?,
         uptime: 0,
         load_average: [0., 0., 0.],
         ram_total: 0,

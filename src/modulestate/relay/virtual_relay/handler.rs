@@ -1,5 +1,6 @@
 use protobuf::Message;
 
+use crate::protos::module::Actor;
 use crate::{
     comboard::imple::channel::ComboardSenderMapReference, mainboardstate::error::MainboardError,
     modulestate::relay::virtual_relay::op::initialize_virtual_relay_and_apply_config,
@@ -12,18 +13,16 @@ use super::{
     },
     store::VirtualRelayStore,
 };
+use crate::socket::ss::{SenderPayload, SenderPayloadData};
 
 pub fn on_module_state_changed_virtual_relays(
     state: bool,
     sender_comboard_config: &ComboardSenderMapReference,
-    sender_socket: &std::sync::mpsc::Sender<(
-        String,
-        Box<dyn crate::modulestate::interface::ModuleValueParsable>,
-    )>,
+    sender_socket: &tokio::sync::mpsc::Sender<crate::socket::ss::SenderPayload>,
     store: &crate::modulestate::store::ModuleStateStore,
     store_virtual_relay: &mut VirtualRelayStore,
     manager: &mut crate::modulestate::state_manager::MainboardModuleStateManager,
-) -> Result<(), ()> {
+) -> Result<(), MainboardError> {
     let config_relays = store_virtual_relay.get_stored_relays().unwrap();
     let connected_modules = manager.get_connected_modules();
 
@@ -53,9 +52,10 @@ pub fn on_module_state_changed_virtual_relays(
                         "[missing] {}",
                         get_missing_required_module(&connected_modules, &vr).join(" ")
                     ));
-                    sender_socket
-                        .send((format!("/vr/{}/vrstate", vr.get_name()), Box::new(state)))
-                        .unwrap();
+                    sender_socket.try_send((
+                        format!("/vr/{}/vrstate", vr.get_name()),
+                        SenderPayloadData::ProtobufMessage(Box::new(state)),
+                    ))?;
                 }
             } else {
                 // already created do nothing
@@ -75,9 +75,10 @@ pub fn on_module_state_changed_virtual_relays(
                         "[missing] {}",
                         get_missing_required_module(&connected_modules, &vr).join(" ")
                     ));
-                    sender_socket
-                        .send((format!("/vr/{}/vrstate", vr.get_name()), Box::new(state)))
-                        .unwrap();
+                    sender_socket.try_send((
+                        format!("/vr/{}/vrstate", vr.get_name()),
+                        SenderPayloadData::ProtobufMessage(Box::new(state)),
+                    ))?;
                 }
             }
         }
@@ -95,10 +96,7 @@ pub fn on_module_state_changed_virtual_relays(
 pub fn handle_virtual_relay(
     data: std::sync::Arc<Vec<u8>>,
     sender_comboard_config: &ComboardSenderMapReference,
-    sender_socket: &std::sync::mpsc::Sender<(
-        String,
-        Box<dyn crate::modulestate::interface::ModuleValueParsable>,
-    )>,
+    sender_socket: &tokio::sync::mpsc::Sender<crate::socket::ss::SenderPayload>,
     store: &crate::modulestate::store::ModuleStateStore,
     store_virtual_relay: &mut VirtualRelayStore,
     manager: &mut crate::modulestate::state_manager::MainboardModuleStateManager,
@@ -119,13 +117,11 @@ pub fn handle_apply_config_virtual_relay(
     topic: &String,
     data: std::sync::Arc<Vec<u8>>,
     sender_comboard_config: &ComboardSenderMapReference,
-    sender_socket: &std::sync::mpsc::Sender<(
-        String,
-        Box<dyn crate::modulestate::interface::ModuleValueParsable>,
-    )>,
+    sender_socket: &tokio::sync::mpsc::Sender<crate::socket::ss::SenderPayload>,
     store: &crate::modulestate::store::ModuleStateStore,
     store_virtual_relay: &mut VirtualRelayStore,
     manager: &mut crate::modulestate::state_manager::MainboardModuleStateManager,
+    actor: &Actor,
 ) -> Result<(), MainboardError> {
     let id = crate::utils::mqtt::last_element_path(topic).ok_or(
         MainboardError::new().message("failed to get last element from mqtt topic".to_string()),
@@ -141,6 +137,7 @@ pub fn handle_apply_config_virtual_relay(
         store,
         store_virtual_relay,
         manager,
+        actor,
     );
 }
 
@@ -148,10 +145,7 @@ pub fn handle_delete_virtual_relay(
     topic: &String,
     _data: std::sync::Arc<Vec<u8>>,
     sender_comboard_config: &ComboardSenderMapReference,
-    sender_socket: &std::sync::mpsc::Sender<(
-        String,
-        Box<dyn crate::modulestate::interface::ModuleValueParsable>,
-    )>,
+    sender_socket: &tokio::sync::mpsc::Sender<crate::socket::ss::SenderPayload>,
     store: &crate::modulestate::store::ModuleStateStore,
     store_virtual_relay: &mut VirtualRelayStore,
     manager: &mut crate::modulestate::state_manager::MainboardModuleStateManager,

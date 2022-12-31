@@ -4,6 +4,7 @@ use crate::protos::module::{ComputerStreamingConfig, ComputerStreamingData};
 
 use crate::modulestate::interface::ModuleError;
 
+use crate::socket::ss::SenderPayload;
 pub struct CCSValidator {}
 
 impl CCSValidator {
@@ -17,6 +18,15 @@ impl crate::modulestate::interface::ModuleValue for ComputerStreamingData {}
 impl crate::modulestate::interface::ModuleValueParsable for ComputerStreamingData {}
 
 impl crate::modulestate::interface::ModuleValueValidator for CCSValidator {
+    fn edit_ownership(
+        &mut self,
+        config: Box<dyn protobuf::Message>,
+        request: crate::protos::module::ModuleActorOwnershipRequest,
+        actor: &crate::protos::module::Actor,
+    ) -> Result<Box<dyn protobuf::Message>, crate::modulestate::interface::ModuleError> {
+        return Ok(config);
+    }
+
     fn convert_to_value(
         &mut self,
         value_event: &crate::comboard::imple::interface::ModuleValueValidationEvent,
@@ -35,10 +45,11 @@ impl crate::modulestate::interface::ModuleValueValidator for CCSValidator {
         port: i32,
         _t: &str,
         data: std::sync::Arc<Vec<u8>>,
-        _sender_comboard_config: &std::sync::mpsc::Sender<
+        _sender_comboard_config: &tokio::sync::mpsc::Sender<
             crate::comboard::imple::channel::ModuleConfig,
         >,
         _map_handler: &mut std::collections::HashMap<String, tokio_util::sync::CancellationToken>,
+        _actor: crate::protos::module::Actor,
     ) -> Result<
         (
             Box<dyn protobuf::Message>,
@@ -61,7 +72,10 @@ impl crate::modulestate::interface::ModuleValueValidator for CCSValidator {
         ));
     }
 
-    fn remove_config(&mut self) -> Result<(), crate::modulestate::interface::ModuleError> {
+    fn remove_config(
+        &mut self,
+        _actor: crate::protos::module::Actor,
+    ) -> Result<(), crate::modulestate::interface::ModuleError> {
         return Ok(());
     }
 
@@ -81,11 +95,9 @@ impl crate::modulestate::interface::ModuleValueValidator for CCSValidator {
         _cmd: &str,
         _module_id: &String,
         _data: std::sync::Arc<Vec<u8>>,
-        _sender_response: &std::sync::mpsc::Sender<crate::protos::message::ActionResponse>,
-        _sender_socket: &std::sync::mpsc::Sender<(
-            String,
-            Box<dyn crate::modulestate::interface::ModuleValueParsable>,
-        )>,
+        _sender_response: tokio::sync::oneshot::Sender<crate::protos::message::ActionResponse>,
+        _sender_socket: &tokio::sync::mpsc::Sender<crate::socket::ss::SenderPayload>,
+        _actor: crate::protos::module::Actor,
     ) -> Result<
         Option<Vec<crate::modulestate::interface::ModuleStateCmd>>,
         crate::modulestate::interface::ModuleError,

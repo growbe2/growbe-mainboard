@@ -1,20 +1,26 @@
 use crate::modulestate::actor::get_owner;
+use crate::modulestate::relay::configure::authorize_relay_change;
 use crate::modulestate::relay::BatchRelay;
 use crate::modulestate::relay::{
     configure::configure_relay, get_outlet_data, physical_relay::ActionPortUnion,
 };
-use crate::protos::module::{Actor, WCModuleConfig, WCModuleData};
+use crate::protos::module::{Actor, RelayOutletConfig, WCModuleConfig, WCModuleData};
+use crate::set_property;
 use protobuf::Message;
+use protobuf::SingularPtrField;
 use std::collections::HashMap;
 
+use crate::socket::ss::SenderPayload;
 pub struct AABValidator {
     pub actors_property: HashMap<String, Actor>,
     pub previous_config: WCModuleConfig,
+    pub clear_actor: bool,
 }
 
 impl AABValidator {
     pub fn new() -> AABValidator {
         return AABValidator {
+            clear_actor: false,
             actors_property: HashMap::new(),
             previous_config: WCModuleConfig::new(),
         };
@@ -26,6 +32,15 @@ impl crate::modulestate::interface::ModuleValue for WCModuleData {}
 impl crate::modulestate::interface::ModuleValueParsable for WCModuleData {}
 
 impl crate::modulestate::interface::ModuleValueValidator for AABValidator {
+    fn edit_ownership(
+        &mut self,
+        config: Box<dyn protobuf::Message>,
+        request: crate::protos::module::ModuleActorOwnershipRequest,
+        actor: &crate::protos::module::Actor,
+    ) -> Result<Box<dyn protobuf::Message>, crate::modulestate::interface::ModuleError> {
+        return Ok(config);
+    }
+
     fn convert_to_value(
         &mut self,
         value_event: &crate::comboard::imple::interface::ModuleValueValidationEvent,
@@ -50,19 +65,23 @@ impl crate::modulestate::interface::ModuleValueValidator for AABValidator {
         return Ok(Box::new(data));
     }
 
-    fn remove_config(&mut self) -> Result<(), crate::modulestate::interface::ModuleError> {
+    fn remove_config(
+        &mut self,
+        _actor: crate::protos::module::Actor,
+    ) -> Result<(), crate::modulestate::interface::ModuleError> {
         return Ok(());
     }
 
     fn apply_parse_config(
         &mut self,
         port: i32,
-        _t: &str,
+        t: &str,
         data: std::sync::Arc<Vec<u8>>,
-        sender_comboard_config: &std::sync::mpsc::Sender<
+        sender_comboard_config: &tokio::sync::mpsc::Sender<
             crate::comboard::imple::channel::ModuleConfig,
         >,
         map_handler: &mut std::collections::HashMap<String, tokio_util::sync::CancellationToken>,
+        actor: crate::protos::module::Actor,
     ) -> Result<
         (
             Box<dyn protobuf::Message>,
@@ -70,113 +89,205 @@ impl crate::modulestate::interface::ModuleValueValidator for AABValidator {
         ),
         crate::modulestate::interface::ModuleError,
     > {
-        let config: Box<WCModuleConfig> = Box::new(
-            WCModuleConfig::parse_from_bytes(&data)
-                .map_err(|_e| crate::modulestate::interface::ModuleError::new())?,
-        );
+        let mut config: Box<WCModuleConfig> = if t == "AAB" {
+            Box::new(
+                WCModuleConfig::parse_from_bytes(&data)
+                    .map_err(|_e| crate::modulestate::interface::ModuleError::new())?,
+            )
+        } else {
+            let property = t.split(":").last();
+            if property.is_none() {
+                Box::new(WCModuleConfig::new())
+            } else {
+                let property = property.unwrap();
+                let relay_outlet = RelayOutletConfig::parse_from_bytes(&data)
+                    .map_err(|_e| crate::modulestate::interface::ModuleError::new())?;
+
+                let mut config = self.previous_config.clone();
+                set_property!(
+                    config,
+                    property,
+                    relay_outlet,
+                    p0,
+                    p1,
+                    p2,
+                    drain,
+                    pump0,
+                    pump1,
+                    pump2,
+                    pump3
+                );
+
+                Box::new(config)
+            }
+        };
 
         let buffer = [255; 8];
-
-        let previous_owner: Option<&Actor> = get_owner(&self.actors_property, "p0");
 
         let mut batch_relay = crate::modulestate::relay::physical_relay::BatchPhysicalRelay {
             action_port: ActionPortUnion::new_port(0),
             buffer: [255; 8],
             auto_send: false,
-            port: port,
+            port,
             sender: sender_comboard_config.clone(),
         };
 
-        configure_relay(
+        authorize_relay_change(
             config.has_p0(),
             config.get_p0(),
             self.previous_config.has_p0(),
             self.previous_config.get_p0(),
-            &mut batch_relay,
-            map_handler,
-            previous_owner,
-        );
-
-        batch_relay.action_port.port = 1;
-        configure_relay(
+            &actor,
+        )?;
+        authorize_relay_change(
             config.has_p1(),
             config.get_p1(),
             self.previous_config.has_p1(),
             self.previous_config.get_p1(),
-            &mut batch_relay,
-            map_handler,
-            previous_owner,
-        );
-
-        batch_relay.action_port.port = 2;
-        configure_relay(
+            &actor,
+        )?;
+        authorize_relay_change(
             config.has_p2(),
             config.get_p2(),
             self.previous_config.has_p2(),
             self.previous_config.get_p2(),
-            &mut batch_relay,
-            map_handler,
-            previous_owner,
-        );
-
-        batch_relay.action_port.port = 3;
-        configure_relay(
+            &actor,
+        )?;
+        authorize_relay_change(
             config.has_drain(),
             config.get_drain(),
             self.previous_config.has_drain(),
             self.previous_config.get_drain(),
-            &mut batch_relay,
-            map_handler,
-            previous_owner,
-        );
-
-        batch_relay.action_port.port = 4;
-        configure_relay(
+            &actor,
+        )?;
+        authorize_relay_change(
             config.has_pump0(),
             config.get_pump0(),
             self.previous_config.has_pump0(),
             self.previous_config.get_pump0(),
-            &mut batch_relay,
-            map_handler,
-            previous_owner,
-        );
-
-        batch_relay.action_port.port = 5;
-        configure_relay(
+            &actor,
+        )?;
+        authorize_relay_change(
             config.has_pump1(),
             config.get_pump1(),
             self.previous_config.has_pump1(),
             self.previous_config.get_pump1(),
-            &mut batch_relay,
-            map_handler,
-            previous_owner,
-        );
-
-        batch_relay.action_port.port = 6;
-        configure_relay(
+            &actor,
+        )?;
+        authorize_relay_change(
             config.has_pump2(),
             config.get_pump2(),
             self.previous_config.has_pump2(),
             self.previous_config.get_pump2(),
-            &mut batch_relay,
-            map_handler,
-            previous_owner,
-        );
-
-        batch_relay.action_port.port = 7;
-        configure_relay(
+            &actor,
+        )?;
+        authorize_relay_change(
             config.has_pump3(),
             config.get_pump3(),
             self.previous_config.has_pump3(),
             self.previous_config.get_pump3(),
+            &actor,
+        )?;
+
+        configure_relay(
+            config.has_p0(),
+            config.mut_p0(),
+            self.previous_config.has_p0(),
+            self.previous_config.get_p0(),
             &mut batch_relay,
             map_handler,
-            previous_owner,
-        );
+            &actor,
+            self.clear_actor,
+        )?;
+
+        batch_relay.action_port.port = 1;
+        configure_relay(
+            config.has_p1(),
+            config.mut_p1(),
+            self.previous_config.has_p1(),
+            self.previous_config.get_p1(),
+            &mut batch_relay,
+            map_handler,
+            &actor,
+            self.clear_actor,
+        )?;
+
+        batch_relay.action_port.port = 2;
+        configure_relay(
+            config.has_p2(),
+            config.mut_p2(),
+            self.previous_config.has_p2(),
+            self.previous_config.get_p2(),
+            &mut batch_relay,
+            map_handler,
+            &actor,
+            self.clear_actor,
+        )?;
+
+        batch_relay.action_port.port = 3;
+        configure_relay(
+            config.has_drain(),
+            config.mut_drain(),
+            self.previous_config.has_drain(),
+            self.previous_config.get_drain(),
+            &mut batch_relay,
+            map_handler,
+            &actor,
+            self.clear_actor,
+        )?;
+
+        batch_relay.action_port.port = 4;
+        configure_relay(
+            config.has_pump0(),
+            config.mut_pump0(),
+            self.previous_config.has_pump0(),
+            self.previous_config.get_pump0(),
+            &mut batch_relay,
+            map_handler,
+            &actor,
+            self.clear_actor,
+        )?;
+
+        batch_relay.action_port.port = 5;
+        configure_relay(
+            config.has_pump1(),
+            config.mut_pump1(),
+            self.previous_config.has_pump1(),
+            self.previous_config.get_pump1(),
+            &mut batch_relay,
+            map_handler,
+            &actor,
+            self.clear_actor,
+        )?;
+
+        batch_relay.action_port.port = 6;
+        configure_relay(
+            config.has_pump2(),
+            config.mut_pump2(),
+            self.previous_config.has_pump2(),
+            self.previous_config.get_pump2(),
+            &mut batch_relay,
+            map_handler,
+            &actor,
+            self.clear_actor,
+        )?;
+
+        batch_relay.action_port.port = 7;
+        configure_relay(
+            config.has_pump3(),
+            config.mut_pump3(),
+            self.previous_config.has_pump3(),
+            self.previous_config.get_pump3(),
+            &mut batch_relay,
+            map_handler,
+            &actor,
+            self.clear_actor,
+        )?;
 
         batch_relay.execute().unwrap();
 
         self.previous_config = *config.clone();
+        self.clear_actor = false;
 
         return Ok((
             config,
@@ -224,15 +335,86 @@ impl crate::modulestate::interface::ModuleValueValidator for AABValidator {
         _cmd: &str,
         _module_id: &String,
         _data: std::sync::Arc<Vec<u8>>,
-        _sender_response: &std::sync::mpsc::Sender<crate::protos::message::ActionResponse>,
-        _sender_socket: &std::sync::mpsc::Sender<(
-            String,
-            Box<dyn crate::modulestate::interface::ModuleValueParsable>,
-        )>,
+        _sender_response: tokio::sync::oneshot::Sender<crate::protos::message::ActionResponse>,
+        _sender_socket: &tokio::sync::mpsc::Sender<crate::socket::ss::SenderPayload>,
+        _actor: crate::protos::module::Actor,
     ) -> Result<
         Option<Vec<crate::modulestate::interface::ModuleStateCmd>>,
         crate::modulestate::interface::ModuleError,
     > {
         return Ok(None);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+
+    use std::{collections::HashMap, sync::Arc};
+
+    use tokio::select;
+    use tokio::sync::mpsc::channel;
+    use tokio_util::sync::CancellationToken;
+
+    use crate::{
+        comboard::imple::channel::ModuleConfig,
+        modulestate::{actor::new_actor, interface::ModuleValueValidator},
+        protos::module::ManualConfig,
+        wait_async,
+    };
+
+    use super::*;
+
+    #[test]
+    fn module_aab_apply_full_config() {
+        let mut validator = AABValidator::new();
+        let (s, _r) = channel::<ModuleConfig>(10);
+        let config = WCModuleConfig::new();
+        let mut map_handler: HashMap<String, CancellationToken> = HashMap::new();
+        let actor = new_actor("a", crate::protos::module::ActorType::MANUAL_USER_ACTOR);
+
+        validator
+            .apply_parse_config(
+                0,
+                "AAB",
+                Arc::new(config.write_to_bytes().unwrap()),
+                &s,
+                &mut map_handler,
+                actor,
+            )
+            .unwrap();
+    }
+
+    #[tokio::test]
+    async fn module_aab_apply_partial_config() {
+        let mut validator = AABValidator::new();
+        let (s, mut r) = channel::<ModuleConfig>(10);
+        let mut config = RelayOutletConfig::new();
+        let manual = ManualConfig {
+            state: true,
+            ..Default::default()
+        };
+        config.set_manual(manual);
+        let mut map_handler: HashMap<String, CancellationToken> = HashMap::new();
+        let actor = new_actor("a", crate::protos::module::ActorType::MANUAL_USER_ACTOR);
+
+        let (c, _) = validator
+            .apply_parse_config(
+                0,
+                "AAB:p0",
+                Arc::new(config.write_to_bytes().unwrap()),
+                &s,
+                &mut map_handler,
+                actor,
+            )
+            .unwrap();
+
+        let c = c.as_any().downcast_ref::<WCModuleConfig>().unwrap();
+
+        assert_eq!(c.p0.as_ref().unwrap().get_manual().state, true);
+
+        let sended_config =
+            wait_async!(r.recv(), std::time::Duration::from_millis(100), None).unwrap();
+        assert_eq!(*sended_config.data.get(0).unwrap(), 1);
+        assert_eq!(*sended_config.data.get(1).unwrap(), 255);
     }
 }

@@ -1,7 +1,8 @@
 use regex::Regex;
-use std::sync::mpsc::Sender;
 use std::sync::Arc;
+use tokio::sync::mpsc::Sender;
 
+use super::controller::store::EnvControllerStore;
 use super::modules::get_module_validator;
 use super::state_manager::{MainboardConnectedModule, MainboardModuleStateManager};
 use crate::comboard::imple::channel::ComboardAddr;
@@ -9,6 +10,8 @@ use crate::comboard::imple::{
     channel::ComboardSenderMapReference, interface::ModuleStateChangeEvent,
 };
 use crate::mainboardstate::error::MainboardError;
+use crate::modulestate::actor::new_actor;
+use crate::socket::ss::{SenderPayload, SenderPayloadData};
 
 lazy_static::lazy_static! {
     static ref REGEX_MODULE_ID: Regex = Regex::new("[A-Z]{3}[A-Z0-9]{9}").unwrap();
@@ -20,7 +23,7 @@ pub fn send_module_state(
     state: bool,
     board: &String,
     board_addr: &String,
-    sender_socket: &Sender<(String, Box<dyn super::interface::ModuleValueParsable>)>,
+    sender_socket: &Sender<SenderPayload>,
 ) -> Result<(), MainboardError> {
     let mut send_state = crate::protos::module::ModuleData::new();
     send_state.id = String::from(id);
@@ -28,9 +31,9 @@ pub fn send_module_state(
     send_state.atIndex = port;
     send_state.board = board.clone();
     send_state.boardAddr = board_addr.clone();
-    sender_socket.send((
+    sender_socket.try_send((
         String::from(format!("/m/{}/state", id)),
-        Box::new(send_state),
+        SenderPayloadData::ProtobufMessage(Box::new(send_state)),
     ))?;
     Ok(())
 }
@@ -42,12 +45,13 @@ fn valid_module_id(module_id: &String) -> bool {
 #[inline]
 pub fn handle_module_state(
     manager: &mut MainboardModuleStateManager,
-    state: &mut ModuleStateChangeEvent,
+    state: &ModuleStateChangeEvent,
     sender_comboard_config: &ComboardSenderMapReference,
-    sender_socket: &Sender<(String, Box<dyn super::interface::ModuleValueParsable>)>,
+    sender_socket: &Sender<SenderPayload>,
     store: &super::store::ModuleStateStore,
     alarm_validator: &mut super::alarm::validator::AlarmFieldValidator,
     alarm_store: &super::alarm::store::ModuleAlarmStore,
+    env_controller: &mut EnvControllerStore,
 ) -> Result<(), MainboardError> {
     if !valid_module_id(&state.id) {
         if state.state == true {
@@ -112,14 +116,22 @@ pub fn handle_module_state(
                     imple: module_mut_ref.board.clone(),
                     addr: module_mut_ref.board_addr.clone(),
                 })?;
+                let actor = new_actor(
+                    "handle_state",
+                    crate::protos::module::ActorType::MANUAL_USER_ACTOR,
+                );
                 match module_mut_ref.validator.apply_parse_config(
                     state.port,
                     t,
                     bytes,
                     &sender_config,
                     &mut module_mut_ref.handler_map,
+                    actor,
                 ) {
-                    Ok((_config, config_comboard)) => sender_config.send(config_comboard).unwrap(),
+                    Ok((_config, config_comboard)) => sender_config
+                        .try_send(config_comboard)
+                        .map_err(|x| MainboardError::from_error(x.to_string()))
+                        .unwrap(),
                     // TODO: Send message to cloud saying we failed to apply config
                     Err(e) => log::error!("validation error to apply the config {}", e),
                 }
@@ -137,9 +149,19 @@ pub fn handle_module_state(
                 log::info!("loading {} alarms for {}", alarms.len(), state.id.as_str());
                 for _n in 0..alarms.len() {
                     if let Some((alarm, state)) = alarms.pop() {
-                        if let Err(err) = alarm_validator.register_field_alarm(alarm, state) {
+                        if let Err(err) =
+                            alarm_validator.register_field_alarm(alarm.clone(), state.clone())
+                        {
                             log::error!("failed to register alarm : {:?}", err);
                         }
+                        env_controller.on_alarm_created(
+                            &alarm.moduleId,
+                            &alarm.property,
+                            manager,
+                            alarm_store,
+                            state,
+                            true,
+                        )?;
                     } else {
                         log::error!("failed to get next alarm in list");
                     }
@@ -147,6 +169,8 @@ pub fn handle_module_state(
             }
             Err(err) => log::error!("failed to get alarms for modules : {:?}", err),
         }
+
+        env_controller.on_module_connected(&state.id, manager, alarm_store)?;
     }
     if state.state == false {
         log::debug!(
@@ -185,6 +209,7 @@ pub fn handle_module_state(
                     }
                 }
             }
+            env_controller.on_module_disconnected(&state.id, manager, alarm_store)?;
         } else {
             return Err(MainboardError::not_found("module", &state.id));
         }
@@ -205,8 +230,8 @@ mod tests {
     use super::*;
 
     use std::collections::HashMap;
-    use std::sync::mpsc::Receiver;
-    use std::sync::{mpsc::channel, Arc, Mutex};
+    use std::sync::{Arc, Mutex};
+    use tokio::sync::mpsc::{channel, Receiver};
 
     fn get_ctx() -> (
         MainboardModuleStateManager,
@@ -214,8 +239,8 @@ mod tests {
         ModuleAlarmStore,
         VirtualRelayStore,
         ComboardSenderMapReference,
-        Sender<(String, Box<dyn ModuleValueParsable>)>,
-        Receiver<(String, Box<dyn ModuleValueParsable>)>,
+        Sender<SenderPayload>,
+        Receiver<SenderPayload>,
         ModuleStateStore,
     ) {
         let conn_database = Arc::new(Mutex::new(crate::store::database::init(None)));
@@ -234,10 +259,7 @@ mod tests {
 
         let mut config_channel_manager = ComboardConfigChannelManager::new();
 
-        let (sender_socket, receiver_socket) = channel::<(
-            String,
-            Box<dyn crate::modulestate::interface::ModuleValueParsable>,
-        )>();
+        let (sender_socket, receiver_socket) = channel::<SenderPayload>(10);
 
         let module_state_store =
             crate::modulestate::store::ModuleStateStore::new(conn_database.clone());
