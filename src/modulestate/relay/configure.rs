@@ -233,8 +233,6 @@ macro_rules! configure_relay {
         )?;
 
         $self.$prop = protobuf::SingularPtrField::some(config);
-
-        $batch_relay.action_port.port += 2;
     }};
 }
 
@@ -243,6 +241,7 @@ macro_rules! configure_relays {
     ($self: ident, $running: expr, $actor: expr, $batch_relay: expr, $map_handler: expr, $clear_actor: expr, $($prop: ident),+) => {
         $(
             configure_relay!($self, $prop, $running, $actor, $batch_relay, $map_handler, $clear_actor);
+            $batch_relay.action_port.port += 1;
         )+
     };
 }
