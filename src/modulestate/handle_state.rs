@@ -108,9 +108,10 @@ pub fn handle_module_state(
         //
         let config = store.get_module_config(&state.id);
         if config.is_some() {
+            let (config, new) = config.unwrap();
             // TODO implement fonction to handle not byte but structure directly
             if let Some(module_mut_ref) = manager.connected_module.get_mut(state.id.as_str()) {
-                let bytes = Arc::new(config.unwrap().write_to_bytes().unwrap());
+                let bytes = Arc::new(config.write_to_bytes().unwrap());
 
                 let sender_config = sender_comboard_config.get_sender(ComboardAddr {
                     imple: module_mut_ref.board.clone(),
@@ -128,10 +129,19 @@ pub fn handle_module_state(
                     &mut module_mut_ref.handler_map,
                     actor,
                 ) {
-                    Ok((_config, config_comboard)) => sender_config
-                        .try_send(config_comboard)
-                        .map_err(|x| MainboardError::from_error(x.to_string()))
-                        .unwrap(),
+                    Ok((config, config_comboard)) => {
+                        if new {
+                            store.store_module_config(&(state.id.clone().into()), &config)?;
+                            sender_socket.try_send((
+                                format!("/m/{}/config_updated", state.id),
+                                SenderPayloadData::ProtobufMessage(config),
+                            ))?;
+                        }
+                        sender_config
+                            .try_send(config_comboard)
+                            .map_err(|x| MainboardError::from_error(x.to_string()))
+                            .unwrap();
+                    }
                     // TODO: Send message to cloud saying we failed to apply config
                     Err(e) => log::error!("validation error to apply the config {}", e),
                 }

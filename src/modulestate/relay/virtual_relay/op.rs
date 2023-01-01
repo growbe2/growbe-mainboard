@@ -173,14 +173,11 @@ pub fn apply_config_virtual_relay(
     _manager: &mut crate::modulestate::state_manager::MainboardModuleStateManager,
     actor: &Actor,
 ) -> Result<(), MainboardError> {
-    let mut mconfig = config.clone();
     match store_virtual_relay.virtual_relay_maps.get_mut(id) {
         Some(relay) => {
-            configure_relay(
-                true,
-                &mut mconfig,
-                false,
-                &config,
+            let mconfig = configure_relay(
+                Some(config),
+                Some(config),
                 relay,
                 &mut store_virtual_relay.cancellation_token_maps,
                 &actor,

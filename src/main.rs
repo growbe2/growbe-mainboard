@@ -56,7 +56,7 @@ async fn main() {
     let mut boards = comboard::get_comboard_client(receiver_virt);
 
     // Create the channel to send the data to the socket thread
-    let (sender_socket, receiver_socket) = channel::<crate::socket::ss::SenderPayload>(200);
+    let (sender_socket, receiver_socket) = channel::<crate::socket::ss::SenderPayload>(300);
 
     // Create sender copy to give to some starting task
     let sender_socket_hello = sender_socket.clone();
@@ -90,7 +90,7 @@ async fn main() {
         receiver_socket,
         sender_virt.clone(),
         sender_module.clone(),
-        &mainboardstate::config::CONFIG.mqtt,
+        mainboardstate::config::CONFIG.mqtt.clone(),
     );
 
     // Run the hello world task to start the application

@@ -117,3 +117,11 @@ impl From<OsString> for MainboardError {
         };
     }
 }
+
+impl From<rumqttc::ConnectionError> for MainboardError {
+    fn from(value: rumqttc::ConnectionError) -> Self {
+        return Self {
+            message: value.to_string(),
+        };
+    }
+}

@@ -40,6 +40,10 @@ macro_rules! set_property {
     ($this: ident, $property: ident, $data: ident, $($name: ident),+) => {
         $(
             if $property == stringify!($name) {
+                if let Some(d) = $this.$name.into_option() {
+                    $data.actor_owner_id = d.actor_owner_id.clone();
+                    $data.actor_owner_type = d.actor_owner_type;
+                }
                 $this.$name = SingularPtrField::from(Some($data.clone()));
             }
         )+

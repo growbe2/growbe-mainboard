@@ -110,11 +110,12 @@ fn handle_request_ownership(
                     "failed to get module config to get ownership".into(),
                 ));
             }
-            let config = config.unwrap();
+            let (config, _) = config.unwrap();
 
-            let config = module_ref
-                .validator
-                .edit_ownership(config, request, from_actor)?;
+            let config =
+                module_ref
+                    .validator
+                    .edit_ownership(config, request.clone(), from_actor)?;
 
             let data = Arc::new(config.write_to_bytes()?);
 

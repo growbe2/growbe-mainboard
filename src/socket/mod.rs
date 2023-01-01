@@ -507,12 +507,96 @@ async fn handle_incomming_message(
     return rets;
 }
 
+async fn mainloop_mqtt_connection(
+    id_client: &String,
+    config_mqtt: &mqtt::CloudMQTTConfig,
+    receiver_socket: &mut Receiver<SenderPayload>,
+    ctx: &TaskContext,
+) -> Result<(), MainboardError> {
+    let hearth_beath_rate = Duration::from_secs(5);
+
+    let mut config = MqttOptions::new(
+        id_client.clone(),
+        config_mqtt.url.as_str(),
+        config_mqtt.port,
+    );
+    config.set_keep_alive(Duration::from_secs(5));
+    let (client, mut eventloop) = AsyncClient::new(config, 100);
+
+    handle_subscription_topics(&client, &MQTT_HANDLES, &MAPPING_MODULES)
+        .await
+        .unwrap();
+
+    let mut last_message_at = Instant::now();
+
+    loop {
+        select! {
+            receive = receiver_socket.recv() => {
+                if receive.is_some() {
+                    let message = receive.unwrap();
+                    let (topic, payload) = match message.1 {
+                        SenderPayloadData::ProtobufMessage(msg) => (get_topic_prefix(message.0.as_str()),msg.write_to_bytes().unwrap()),
+                        SenderPayloadData::Buffer(data) => (message.0, data),
+                    };
+
+
+                    log::debug!("sender outgoing : {}", topic);
+
+                    client
+                        .publish(
+                            topic,
+                            QoS::ExactlyOnce,
+                            false,
+                        payload,
+                    )
+                    .await
+                    .unwrap();
+
+                    last_message_at = Instant::now();
+                }
+            },
+            result = eventloop.poll() => {
+                if let Ok(result) = result {
+                    match result {
+                        Event::Incoming(d) => {
+                            match d {
+                                Packet::Publish(message) => {
+                                    let data = Arc::new(message.payload.to_vec());
+                                    let messages = handle_incomming_message(&MQTT_HANDLES, &MAPPING_MODULES, &ctx,  message.topic, data).await;
+                                    for message in messages {
+                                        client
+                                            .publish(message.0, QoS::ExactlyOnce, false, message.1)
+                                            .await
+                                            .unwrap();
+                                    }
+                                },
+                                Packet::Connect(c) => {
+                                },
+                                _ => {}
+                            }
+                        },
+                        Event::Outgoing(_d) => {
+                        }
+                    }
+                    last_message_at = handle_hearthbeath(&client, last_message_at, hearth_beath_rate).await;
+                } else {
+                    client.try_disconnect().unwrap_or(());
+                    return Err(result.unwrap_err().into());
+                }
+            },
+            _ = tokio::time::sleep(hearth_beath_rate) => {
+                last_message_at = handle_hearthbeath(&client, last_message_at, hearth_beath_rate).await;
+            }
+        }
+    }
+}
+
 // task for the mqtt socket , to send payload out and can also get request in
 pub fn socket_task(
     mut receiver_socket: Receiver<SenderPayload>,
     sender_virt: Sender<Vec<VirtualScenarioItem>>,
     sender_module: Sender<ModuleMsg>,
-    config_mqtt: &'static mqtt::CloudMQTTConfig,
+    config_mqtt: mqtt::CloudMQTTConfig,
 ) -> tokio::task::JoinHandle<()> {
     let id_client = format!("pi-{}", growbe_shared::id::get());
 
@@ -522,76 +606,12 @@ pub fn socket_task(
     };
 
     return tokio::spawn(async move {
-        let hearth_beath_rate = Duration::from_secs(5);
-
-        let mut config = MqttOptions::new(
-            id_client.clone(),
-            config_mqtt.url.as_str(),
-            config_mqtt.port,
-        );
-        config.set_keep_alive(Duration::from_secs(5));
-        let (client, mut eventloop) = AsyncClient::new(config, 20);
-
-        handle_subscription_topics(&client, &MQTT_HANDLES, &MAPPING_MODULES)
-            .await
-            .unwrap();
-
-        let mut last_message_at = Instant::now();
-
         loop {
-            select! {
-                receive = receiver_socket.recv() => {
-                    if receive.is_some() {
-                        let message = receive.unwrap();
-                        let (topic, payload) = match message.1 {
-                            SenderPayloadData::ProtobufMessage(msg) => (get_topic_prefix(message.0.as_str()),msg.write_to_bytes().unwrap()),
-                            SenderPayloadData::Buffer(data) => (message.0, data),
-                        };
-
-                        client
-                            .publish(
-                                topic,
-                                QoS::ExactlyOnce,
-                                false,
-                            payload,
-                        )
-                        .await
-                        .unwrap();
-
-                        last_message_at = Instant::now();
-                    }
-                },
-                result = eventloop.poll() => {
-                    if let Ok(result) = result {
-                        match result {
-                            Event::Incoming(d) => {
-                                match d {
-                                    Packet::Publish(message) => {
-                                        let data = Arc::new(message.payload.to_vec());
-                                        let messages = handle_incomming_message(&MQTT_HANDLES, &MAPPING_MODULES, &ctx,  message.topic, data).await;
-                                        for message in messages {
-                                            client
-                                                .publish(message.0, QoS::ExactlyOnce, false, message.1)
-                                                .await
-                                                .unwrap();
-                                        }
-                                    },
-                                    Packet::Connect(c) => {
-                                    },
-                                    _ => {}
-                                }
-                            },
-                            Event::Outgoing(_d) => {
-                            }
-                        }
-                        last_message_at = handle_hearthbeath(&client, last_message_at, hearth_beath_rate).await;
-                    } else {
-                        println!("errrorororo {:?}", result.unwrap_err());
-                    }
-                },
-                _ = tokio::time::sleep(hearth_beath_rate) => {
-                    last_message_at = handle_hearthbeath(&client, last_message_at, hearth_beath_rate).await;
-                }
+            if let Err(err) =
+                mainloop_mqtt_connection(&id_client, &config_mqtt, &mut receiver_socket, &ctx).await
+            {
+                log::error!("error socket {:?}", err);
+                tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
             }
         }
     });

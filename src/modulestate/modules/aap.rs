@@ -6,11 +6,13 @@ use crate::modulestate::relay::get_outlet_data;
 use crate::modulestate::relay::physical_relay::ActionPortUnion;
 use crate::modulestate::relay::BatchRelay;
 use crate::protos::module::{Actor, RelayModuleConfig, RelayModuleData, RelayOutletConfig};
-use crate::set_property;
+use crate::{
+    authorize_relay, authorize_relays, change_ownership_relay, change_ownership_relays,
+    configure_relay, configure_relays, set_property,
+};
 use protobuf::Message;
 use protobuf::SingularPtrField;
 
-use crate::socket::ss::SenderPayload;
 pub struct AAPValidator {
     pub actors_property: std::collections::HashMap<String, Actor>,
     pub previous_config: RelayModuleConfig,
@@ -38,78 +40,21 @@ impl crate::modulestate::interface::ModuleValueValidator for AAPValidator {
         request: crate::protos::module::ModuleActorOwnershipRequest,
         actor: &crate::protos::module::Actor,
     ) -> Result<Box<dyn protobuf::Message>, crate::modulestate::interface::ModuleError> {
-        let mut config = config
-            .as_any()
-            .downcast_ref::<RelayModuleConfig>()
-            .unwrap()
-            .clone();
-
-        change_ownership_relay_property(
-            "p0",
-            &request.property,
-            config.mut_p0(),
-            self.previous_config.get_p0(),
-            &actor,
-        )?;
-        change_ownership_relay_property(
-            "p1",
-            &request.property,
-            config.mut_p1(),
-            self.previous_config.get_p1(),
-            &actor,
-        )?;
-        change_ownership_relay_property(
-            "p2",
-            &request.property,
-            config.mut_p2(),
-            self.previous_config.get_p2(),
-            &actor,
-        )?;
-
-        change_ownership_relay_property(
-            "p3",
-            &request.property,
-            config.mut_p3(),
-            self.previous_config.get_p3(),
-            &actor,
-        )?;
-
-        change_ownership_relay_property(
-            "p4",
-            &request.property,
-            config.mut_p4(),
-            self.previous_config.get_p4(),
-            &actor,
-        )?;
-
-        change_ownership_relay_property(
-            "p5",
-            &request.property,
-            config.mut_p5(),
-            self.previous_config.get_p5(),
-            &actor,
-        )?;
-
-        change_ownership_relay_property(
-            "p6",
-            &request.property,
-            config.mut_p6(),
-            self.previous_config.get_p6(),
-            &actor,
-        )?;
-
-        change_ownership_relay_property(
-            "p7",
-            &request.property,
-            config.mut_p7(),
-            self.previous_config.get_p7(),
-            &actor,
-        )?;
-
-        self.clear_actor = true;
-
-        let config = Box::new(config);
-        return Ok(config);
+        return change_ownership_relays!(
+            self,
+            config,
+            RelayModuleConfig,
+            self.previous_config,
+            actor,
+            request.property,
+            p0,
+            p2,
+            p3,
+            p4,
+            p5,
+            p6,
+            p7
+        );
     }
 
     fn convert_to_value(
@@ -175,10 +120,11 @@ impl crate::modulestate::interface::ModuleValueValidator for AAPValidator {
                 Box::new(RelayModuleConfig::new())
             } else {
                 let property = property.unwrap();
-                let relay_outlet = RelayOutletConfig::parse_from_bytes(&data).map_err(|_e| {
-                    crate::modulestate::interface::ModuleError::new()
-                        .message("failed to parse relay outlet config".into())
-                })?;
+                let mut relay_outlet =
+                    RelayOutletConfig::parse_from_bytes(&data).map_err(|_e| {
+                        crate::modulestate::interface::ModuleError::new()
+                            .message("failed to parse relay outlet config".into())
+                    })?;
 
                 let mut config = self.previous_config.clone();
                 set_property!(
@@ -207,158 +153,39 @@ impl crate::modulestate::interface::ModuleValueValidator for AAPValidator {
             auto_send: false,
             sender: sender_comboard_config.clone(),
         };
-        authorize_relay_change(
-            config.has_p0(),
-            config.get_p0(),
-            self.previous_config.has_p0(),
-            self.previous_config.get_p0(),
-            &actor,
-        )?;
-        authorize_relay_change(
-            config.has_p1(),
-            config.get_p1(),
-            self.previous_config.has_p1(),
-            self.previous_config.get_p1(),
-            &actor,
-        )?;
-        authorize_relay_change(
-            config.has_p2(),
-            config.get_p2(),
-            self.previous_config.has_p2(),
-            self.previous_config.get_p2(),
-            &actor,
-        )?;
-        authorize_relay_change(
-            config.has_p3(),
-            config.get_p3(),
-            self.previous_config.has_p3(),
-            self.previous_config.get_p3(),
-            &actor,
-        )?;
-        authorize_relay_change(
-            config.has_p4(),
-            config.get_p4(),
-            self.previous_config.has_p4(),
-            self.previous_config.get_p4(),
-            &actor,
-        )?;
-        authorize_relay_change(
-            config.has_p5(),
-            config.get_p5(),
-            self.previous_config.has_p5(),
-            self.previous_config.get_p5(),
-            &actor,
-        )?;
-        authorize_relay_change(
-            config.has_p6(),
-            config.get_p6(),
-            self.previous_config.has_p6(),
-            self.previous_config.get_p6(),
-            &actor,
-        )?;
-        authorize_relay_change(
-            config.has_p7(),
-            config.get_p7(),
-            self.previous_config.has_p7(),
-            self.previous_config.get_p7(),
-            &actor,
-        )?;
 
-        configure_relay(
-            config.has_p0(),
-            config.mut_p0(),
-            self.previous_config.has_p0(),
-            self.previous_config.get_p0(),
-            &mut batch_relay,
+        authorize_relays!(
+            config,
+            self.previous_config,
+            actor,
+            p0,
+            p1,
+            p2,
+            p3,
+            p4,
+            p5,
+            p6,
+            p7
+        );
+
+        configure_relays!(
+            config,
+            self.previous_config,
+            actor,
+            batch_relay,
             map_handler,
-            &actor,
             self.clear_actor,
-        )?;
+            p0,
+            p1,
+            p2,
+            p3,
+            p4,
+            p5,
+            p6,
+            p7
+        );
 
-        batch_relay.action_port.port = 1;
-        configure_relay(
-            config.has_p1(),
-            config.mut_p1(),
-            self.previous_config.has_p1(),
-            self.previous_config.get_p1(),
-            &mut batch_relay,
-            map_handler,
-            &actor,
-            self.clear_actor,
-        )?;
-
-        batch_relay.action_port.port = 2;
-        configure_relay(
-            config.has_p2(),
-            config.mut_p2(),
-            self.previous_config.has_p2(),
-            self.previous_config.get_p2(),
-            &mut batch_relay,
-            map_handler,
-            &actor,
-            self.clear_actor,
-        )?;
-
-        batch_relay.action_port.port = 3;
-        configure_relay(
-            config.has_p3(),
-            config.mut_p3(),
-            self.previous_config.has_p3(),
-            self.previous_config.get_p3(),
-            &mut batch_relay,
-            map_handler,
-            &actor,
-            self.clear_actor,
-        )?;
-
-        batch_relay.action_port.port = 4;
-        configure_relay(
-            config.has_p4(),
-            config.mut_p4(),
-            self.previous_config.has_p4(),
-            self.previous_config.get_p4(),
-            &mut batch_relay,
-            map_handler,
-            &actor,
-            self.clear_actor,
-        )?;
-
-        batch_relay.action_port.port = 5;
-        configure_relay(
-            config.has_p5(),
-            config.mut_p5(),
-            self.previous_config.has_p5(),
-            self.previous_config.get_p5(),
-            &mut batch_relay,
-            map_handler,
-            &actor,
-            self.clear_actor,
-        )?;
-
-        batch_relay.action_port.port = 6;
-        configure_relay(
-            config.has_p6(),
-            config.mut_p6(),
-            self.previous_config.has_p6(),
-            self.previous_config.get_p6(),
-            &mut batch_relay,
-            map_handler,
-            &actor,
-            self.clear_actor,
-        )?;
-
-        batch_relay.action_port.port = 7;
-        configure_relay(
-            config.has_p7(),
-            config.mut_p7(),
-            self.previous_config.has_p7(),
-            self.previous_config.get_p7(),
-            &mut batch_relay,
-            map_handler,
-            &actor,
-            self.clear_actor,
-        )?;
-
+        batch_relay.action_port.port -= 1;
         batch_relay.execute().unwrap();
 
         self.previous_config = *config.clone();

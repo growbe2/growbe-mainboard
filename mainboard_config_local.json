@@ -1,0 +1,36 @@
+{
+  "id": "",
+  "mqtt": {
+    "url": "localhost",
+    "port": 1883
+  },
+  "comboard": {
+    "imple": "",
+    "config": ""
+  },
+  "comboards": [
+    {
+      "imple": "virt",
+      "config": ""
+    }
+  ],
+  "server": {
+    "addr": "0.0.0.0",
+    "port": 3031
+  },
+  "logger": {
+    "target": "growbe_mainboard,growbe_shared",
+    "systemd": true
+  },
+  "update": {
+    "autoupdate": false,
+    "channel": "dev",
+    "reboot": false
+  },
+  "api": {
+    "url": "http://localhost:3000"
+  },
+  "proxy": {
+    "url": "ws://localhost:3008" 
+  }
+}
