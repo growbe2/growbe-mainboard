@@ -1,20 +1,17 @@
-use crate::modulestate::relay::BatchRelay;
-use crate::modulestate::relay::{
-    get_outlet_data, physical_relay::ActionPortUnion,
+use crate::modulestate::relay::configure::{
+    authorize_relay_change, change_ownership_relay_property, configure_relay,
 };
+use crate::modulestate::relay::BatchRelay;
+use crate::modulestate::relay::{get_outlet_data, physical_relay::ActionPortUnion};
 use crate::protos::module::{Actor, RelayOutletConfig, WCModuleConfig, WCModuleData};
 use protobuf::Message;
 use protobuf::SingularPtrField;
 use std::collections::HashMap;
-use crate::modulestate::relay::configure::{
-    authorize_relay_change, change_ownership_relay_property, configure_relay,
-};
 
 use crate::{
     authorize_relay, authorize_relays, change_ownership_relay, change_ownership_relays,
     configure_relay, configure_relays, set_property,
 };
-
 
 pub struct AABValidator {
     pub actors_property: HashMap<String, Actor>,

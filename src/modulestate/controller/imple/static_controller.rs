@@ -78,6 +78,7 @@ macro_rules! switch_alarms {
                 select! {
                     _ = $cancellation_token.cancelled() => {
                         $ctx.module_command_sender.send_reserve_actor($ctx.config.actors.to_vec(), $ctx.actor.clone(), false)?;
+                        send_event!($ctx, EnvironmentControllerState::SLEEPING, false);
                         return Ok(());
                     },
                 $(
