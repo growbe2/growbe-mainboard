@@ -1,6 +1,7 @@
 use protobuf::RepeatedField;
 use serde::{Deserialize, Serialize};
 
+use super::error::MainboardError;
 use super::update::{get_default_update_config, UpdateConfig};
 use crate::plateform::external::is_systemd;
 use crate::server::config::get_default_server_config;
@@ -11,6 +12,7 @@ use crate::protos::board::{
     MainboardConfig, UpdaterConfig,
 };
 use crate::socket::reverse_proxy_cmd::ReverseProxyConf;
+use crate::socket::ss::{SenderPayload, SenderSocket};
 
 impl crate::modulestate::interface::ModuleValue for crate::protos::board::MainboardConfig {}
 impl crate::modulestate::interface::ModuleValueParsable for crate::protos::board::MainboardConfig {}
@@ -78,7 +80,7 @@ pub fn get(config: &String) -> Result<MainboardProcessConfig, ()> {
     Ok(scenario)
 }
 
-pub fn rewrite_configuration(config: MainboardConfig) -> () {
+pub async fn rewrite_configuration(config: MainboardConfig) -> Result<(), MainboardError> {
     let config_path = growbe_shared::config::get_config_path();
 
     let config_json = MainboardProcessConfig {
@@ -87,10 +89,7 @@ pub fn rewrite_configuration(config: MainboardConfig) -> () {
             port: config.mqtt.get_ref().port as u16,
             url: config.mqtt.get_ref().url.clone(),
         },
-        comboard: crate::comboard::config::ComboardConfig {
-            config: config.comboard.get_ref().config.clone(),
-            imple: config.comboard.get_ref().imple.clone(),
-        },
+        comboard: crate::comboard::config::ComboardConfig::default(),
         comboards: config
             .comboards
             .iter()
@@ -116,12 +115,14 @@ pub fn rewrite_configuration(config: MainboardConfig) -> () {
         api: APIConfig {
             url: config.api.get_ref().url.clone(),
         },
-        proxy: get_default_reverse_config(),
+        proxy: ReverseProxyConf {
+            url: config.proxy.get_ref().url.clone(),
+        },
     };
 
     let d = serde_json::to_string_pretty(&config_json).unwrap();
 
-    std::fs::write(config_path, d).unwrap();
+    tokio::fs::write(config_path, d).await?;
 
     if is_systemd() {
         tokio::task::spawn(async move {
@@ -133,6 +134,8 @@ pub fn rewrite_configuration(config: MainboardConfig) -> () {
     } else {
         log::info!("configuration updated , restart the program to apply");
     }
+
+    return Ok(());
 }
 
 pub fn get_configuration_proto() -> MainboardConfig {
@@ -170,6 +173,9 @@ pub fn get_configuration_proto() -> MainboardConfig {
     let mut api = ApiConfig::new();
     api.url = CONFIG.api.url.clone();
 
+    let mut proxy = crate::protos::board::ReverseProxyConfig::new();
+    proxy.url = CONFIG.proxy.url.clone();
+
     config.set_id(CONFIG.id.clone());
     config.set_mqtt(mqtt);
     config.set_logger(logger);
@@ -178,6 +184,7 @@ pub fn get_configuration_proto() -> MainboardConfig {
     config.set_update(update);
     config.set_comboards(comboards);
     config.set_api(api);
+    config.set_proxy(proxy);
 
     return config;
 }

@@ -3210,6 +3210,165 @@ impl ::protobuf::reflect::ProtobufValue for ApiConfig {
 }
 
 #[derive(PartialEq,Clone,Default)]
+pub struct ReverseProxyConfig {
+    // message fields
+    pub url: ::std::string::String,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a ReverseProxyConfig {
+    fn default() -> &'a ReverseProxyConfig {
+        <ReverseProxyConfig as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl ReverseProxyConfig {
+    pub fn new() -> ReverseProxyConfig {
+        ::std::default::Default::default()
+    }
+
+    // string url = 1;
+
+
+    pub fn get_url(&self) -> &str {
+        &self.url
+    }
+    pub fn clear_url(&mut self) {
+        self.url.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_url(&mut self, v: ::std::string::String) {
+        self.url = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_url(&mut self) -> &mut ::std::string::String {
+        &mut self.url
+    }
+
+    // Take field
+    pub fn take_url(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.url, ::std::string::String::new())
+    }
+}
+
+impl ::protobuf::Message for ReverseProxyConfig {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.url)?;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if !self.url.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.url);
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if !self.url.is_empty() {
+            os.write_string(1, &self.url)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> ReverseProxyConfig {
+        ReverseProxyConfig::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "url",
+                |m: &ReverseProxyConfig| { &m.url },
+                |m: &mut ReverseProxyConfig| { &mut m.url },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<ReverseProxyConfig>(
+                "ReverseProxyConfig",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static ReverseProxyConfig {
+        static instance: ::protobuf::rt::LazyV2<ReverseProxyConfig> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(ReverseProxyConfig::new)
+    }
+}
+
+impl ::protobuf::Clear for ReverseProxyConfig {
+    fn clear(&mut self) {
+        self.url.clear();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for ReverseProxyConfig {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for ReverseProxyConfig {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
 pub struct MainboardConfig {
     // message fields
     pub id: ::std::string::String,
@@ -3220,6 +3379,7 @@ pub struct MainboardConfig {
     pub logger: ::protobuf::SingularPtrField<LoggerConfig>,
     pub update: ::protobuf::SingularPtrField<UpdaterConfig>,
     pub api: ::protobuf::SingularPtrField<ApiConfig>,
+    pub proxy: ::protobuf::SingularPtrField<ReverseProxyConfig>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -3484,6 +3644,39 @@ impl MainboardConfig {
     pub fn take_api(&mut self) -> ApiConfig {
         self.api.take().unwrap_or_else(|| ApiConfig::new())
     }
+
+    // .ReverseProxyConfig proxy = 9;
+
+
+    pub fn get_proxy(&self) -> &ReverseProxyConfig {
+        self.proxy.as_ref().unwrap_or_else(|| <ReverseProxyConfig as ::protobuf::Message>::default_instance())
+    }
+    pub fn clear_proxy(&mut self) {
+        self.proxy.clear();
+    }
+
+    pub fn has_proxy(&self) -> bool {
+        self.proxy.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_proxy(&mut self, v: ReverseProxyConfig) {
+        self.proxy = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_proxy(&mut self) -> &mut ReverseProxyConfig {
+        if self.proxy.is_none() {
+            self.proxy.set_default();
+        }
+        self.proxy.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_proxy(&mut self) -> ReverseProxyConfig {
+        self.proxy.take().unwrap_or_else(|| ReverseProxyConfig::new())
+    }
 }
 
 impl ::protobuf::Message for MainboardConfig {
@@ -3523,6 +3716,11 @@ impl ::protobuf::Message for MainboardConfig {
                 return false;
             }
         };
+        for v in &self.proxy {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
         true
     }
 
@@ -3553,6 +3751,9 @@ impl ::protobuf::Message for MainboardConfig {
                 },
                 8 => {
                     ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.api)?;
+                },
+                9 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.proxy)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -3597,6 +3798,10 @@ impl ::protobuf::Message for MainboardConfig {
             let len = v.compute_size();
             my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
         }
+        if let Some(ref v) = self.proxy.as_ref() {
+            let len = v.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -3638,6 +3843,11 @@ impl ::protobuf::Message for MainboardConfig {
         }
         if let Some(ref v) = self.api.as_ref() {
             os.write_tag(8, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        }
+        if let Some(ref v) = self.proxy.as_ref() {
+            os.write_tag(9, ::protobuf::wire_format::WireTypeLengthDelimited)?;
             os.write_raw_varint32(v.get_cached_size())?;
             v.write_to_with_cached_sizes(os)?;
         }
@@ -3719,6 +3929,11 @@ impl ::protobuf::Message for MainboardConfig {
                 |m: &MainboardConfig| { &m.api },
                 |m: &mut MainboardConfig| { &mut m.api },
             ));
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<ReverseProxyConfig>>(
+                "proxy",
+                |m: &MainboardConfig| { &m.proxy },
+                |m: &mut MainboardConfig| { &mut m.proxy },
+            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<MainboardConfig>(
                 "MainboardConfig",
                 fields,
@@ -3743,6 +3958,7 @@ impl ::protobuf::Clear for MainboardConfig {
         self.logger.clear();
         self.update.clear();
         self.api.clear();
+        self.proxy.clear();
         self.unknown_fields.clear();
     }
 }
@@ -3841,17 +4057,19 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x20\x01(\tR\x06target\"a\n\rUpdaterConfig\x12\x1e\n\nautoupdate\x18\x01\
     \x20\x01(\x08R\nautoupdate\x12\x18\n\x07channel\x18\x02\x20\x01(\tR\x07c\
     hannel\x12\x16\n\x06reboot\x18\x03\x20\x01(\x08R\x06reboot\"\x1d\n\tApiC\
-    onfig\x12\x10\n\x03url\x18\x01\x20\x01(\tR\x03url\"\xb6\x02\n\x0fMainboa\
-    rdConfig\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\x1f\n\x04mqtt\x18\
+    onfig\x12\x10\n\x03url\x18\x01\x20\x01(\tR\x03url\"&\n\x12ReverseProxyCo\
+    nfig\x12\x10\n\x03url\x18\x01\x20\x01(\tR\x03url\"\xe1\x02\n\x0fMainboar\
+    dConfig\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\x1f\n\x04mqtt\x18\
     \x02\x20\x01(\x0b2\x0b.MQTTConfigR\x04mqtt\x12+\n\x08comboard\x18\x03\
     \x20\x01(\x0b2\x0f.ComboardConfigR\x08comboard\x12-\n\tcomboards\x18\x07\
     \x20\x03(\x0b2\x0f.ComboardConfigR\tcomboards\x12)\n\x06server\x18\x04\
     \x20\x01(\x0b2\x11.HttpServerConfigR\x06server\x12%\n\x06logger\x18\x05\
     \x20\x01(\x0b2\r.LoggerConfigR\x06logger\x12&\n\x06update\x18\x06\x20\
     \x01(\x0b2\x0e.UpdaterConfigR\x06update\x12\x1c\n\x03api\x18\x08\x20\x01\
-    (\x0b2\n.ApiConfigR\x03api*/\n\x15CommandConnectionType\x12\x08\n\x04MQT\
-    T\x10\0\x12\x0c\n\x08WS_PROXY\x10\x01B+\n)ca.berlingoqc.growbe_android_m\
-    odule.protob\x06proto3\
+    (\x0b2\n.ApiConfigR\x03api\x12)\n\x05proxy\x18\t\x20\x01(\x0b2\x13.Rever\
+    seProxyConfigR\x05proxy*/\n\x15CommandConnectionType\x12\x08\n\x04MQTT\
+    \x10\0\x12\x0c\n\x08WS_PROXY\x10\x01B+\n)ca.berlingoqc.growbe_android_mo\
+    dule.protob\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

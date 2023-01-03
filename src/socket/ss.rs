@@ -32,6 +32,16 @@ impl SenderSocket {
             .try_send((topic, SenderPayloadData::ProtobufMessage(value)))?;
         Ok(())
     }
+    pub async fn send_async(
+        &self,
+        topic: String,
+        value: Box<dyn ModuleValueParsable>,
+    ) -> Result<(), MainboardError> {
+        self.sender_socket
+            .send((topic, SenderPayloadData::ProtobufMessage(value)))
+            .await?;
+        Ok(())
+    }
 }
 
 impl From<Sender<SenderPayload>> for SenderSocket {

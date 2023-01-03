@@ -38,7 +38,7 @@ pub async fn task_hello_world(
         .await?;
     sender
         .send((
-            String::from("/config"),
+            String::from("/config_process"),
             SenderPayloadData::ProtobufMessage(Box::new(config)),
         ))
         .await?;

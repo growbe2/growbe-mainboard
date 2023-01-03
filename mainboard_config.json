@@ -11,7 +11,7 @@
   "comboards": [
     {
       "imple": "virt",
-      "config": ""
+      "config": "lol"
     }
   ],
   "server": {
@@ -29,5 +29,8 @@
   },
   "api": {
     "url": "https://api.growbe.ca"
+  },
+  "proxy": {
+    "url": "wss://proxy.growbe.ca"
   }
 }

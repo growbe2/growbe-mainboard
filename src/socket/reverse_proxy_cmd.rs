@@ -51,7 +51,7 @@ async fn handle_proxy_loop(
                     let messages = handle_incomming_message(
                         &MQTT_HANDLES,
                         &MAPPING_MODULES,
-                        &ctx,
+                        ctx.clone(),
                         message.topic,
                         data,
                     )

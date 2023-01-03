@@ -111,8 +111,7 @@ impl super::interface::ComboardClient for VirtualComboardClient {
 
             loop {
                 tokio::select! {
-                    value = receiver_config_item.recv() => {
-                        let value = value.unwrap();
+                    Some(value) = receiver_config_item.recv() => {
                         for mut item in value {
                             if item.timeout > 0 {
                                 let sender_module = sender_module.clone();

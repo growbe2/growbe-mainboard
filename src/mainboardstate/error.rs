@@ -1,4 +1,4 @@
-use std::{ffi::OsString, fmt::format};
+use std::{convert::Infallible, ffi::OsString, fmt::format};
 
 use tokio::sync::mpsc::error::{SendError, TrySendError};
 
@@ -122,6 +122,14 @@ impl From<rumqttc::ConnectionError> for MainboardError {
     fn from(value: rumqttc::ConnectionError) -> Self {
         return Self {
             message: value.to_string(),
+        };
+    }
+}
+
+impl From<std::io::Error> for MainboardError {
+    fn from(residual: std::io::Error) -> Self {
+        return MainboardError {
+            message: residual.to_string(),
         };
     }
 }

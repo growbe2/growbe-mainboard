@@ -4,8 +4,10 @@ pub mod mqtt;
 pub mod reverse_proxy_cmd;
 pub mod ss;
 
+use futures_util::Future;
 use protobuf::Message;
 use rumqttc::{AsyncClient, Event, MqttOptions, Packet, QoS, SubscribeFilter};
+use std::pin::Pin;
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::select;
@@ -27,6 +29,17 @@ pub struct SocketMessagingError {
     pub status: u32,
     pub msg: String,
 }
+
+impl From<MainboardError> for SocketMessagingError {
+    fn from(err: MainboardError) -> Self {
+        Self {
+            status: 500,
+            msg: err.message,
+        }
+    }
+}
+
+type BoxedFuture<T = ()> = Pin<Box<dyn Future<Output = T> + Send>>;
 
 impl SocketMessagingError {
     pub fn new() -> Self {
@@ -61,10 +74,11 @@ pub struct MqttHandler {
     pub regex: &'static str,
     pub action_code: crate::protos::message::ActionCode,
     pub handler: fn(
-        topic_name: String,
-        data: Arc<Vec<u8>>,
-        ctx: &TaskContext,
-    ) -> Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError>,
+        String,
+        Arc<Vec<u8>>,
+        TaskContext,
+    )
+        -> BoxedFuture<Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError>>,
     pub not_prefix: bool,
 }
 
@@ -74,6 +88,7 @@ pub struct MqttModuleHanlder {
     pub action_code: ActionCode,
 }
 
+#[derive(Clone)]
 pub struct TaskContext {
     sender_virt: Sender<Vec<VirtualScenarioItem>>,
     sender_module: Sender<ModuleMsg>,
@@ -192,46 +207,52 @@ fn get_topic_prefix(subtopic: &str) -> String {
 fn on_set_rtc(
     _topic_name: String,
     _data: Arc<Vec<u8>>,
-    _ctx: &TaskContext,
-) -> Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError> {
-    //let payload = crate::protos::message::RTCTime::parse_from_bytes(&data).unwrap();
-    //crate::mainboardstate::rtc::set_rtc(payload);
-    Err(SocketMessagingError::new()
-        .status(400)
-        .message("operation not supported on device".to_string()))
+    _ctx: TaskContext,
+) -> BoxedFuture<Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError>> {
+    return Box::pin(async move {
+        Err(SocketMessagingError::new()
+            .status(400)
+            .message("operation not supported on device".to_string()))
+    });
 }
 
 fn on_update(
     _topic_name: String,
     data: Arc<Vec<u8>>,
-    _ctx: &TaskContext,
-) -> Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError> {
-    let payload = crate::protos::board::VersionRelease::parse_from_bytes(&data).unwrap();
-    let update_executed_result = crate::mainboardstate::update::handle_version_update(&payload);
-    if let Some(update_executed) = update_executed_result {
-        return Ok(Some((
-            format!("/growbe/{}/updated", growbe_shared::id::get()),
-            update_executed.write_to_bytes().unwrap(),
-            true,
-        )));
-    }
-    return Ok(None);
+    _ctx: TaskContext,
+) -> BoxedFuture<Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError>> {
+    return Box::pin(async move {
+        let payload = crate::protos::board::VersionRelease::parse_from_bytes(&data).unwrap();
+        let update_executed_result = crate::mainboardstate::update::handle_version_update(&payload);
+        if let Some(update_executed) = update_executed_result {
+            Ok(Some((
+                format!("/growbe/{}/update_executed", growbe_shared::id::get()),
+                update_executed.write_to_bytes().unwrap(),
+                true,
+            )))
+        } else {
+            Ok(None)
+        }
+    });
 }
 
 fn on_update_request(
     _topic_name: String,
     _data: Arc<Vec<u8>>,
-    _ctx: &TaskContext,
-) -> Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError> {
-    let update_executed_result = crate::mainboardstate::update::handle_version_update_request();
-    if let Some(update_executed) = update_executed_result {
-        return Ok(Some((
-            format!("/growbe/{}/updated", growbe_shared::id::get()),
-            update_executed.write_to_bytes().unwrap(),
-            true,
-        )));
-    }
-    return Ok(None);
+    _ctx: TaskContext,
+) -> BoxedFuture<Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError>> {
+    return Box::pin(async move {
+        let update_executed_result = crate::mainboardstate::update::handle_version_update_request();
+        if let Some(update_executed) = update_executed_result {
+            Ok(Some((
+                format!("/growbe/{}/update_executed", growbe_shared::id::get()),
+                update_executed.write_to_bytes().unwrap(),
+                true,
+            )))
+        } else {
+            Ok(None)
+        }
+    });
 }
 
 fn restart_task() {
@@ -246,11 +267,10 @@ fn restart_task() {
 fn on_restart(
     _topic_name: String,
     _data: Arc<Vec<u8>>,
-    _ctx: &TaskContext,
-) -> Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError> {
+    _ctx: TaskContext,
+) -> BoxedFuture<Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError>> {
     restart_task();
-    restart_task();
-    return Ok(None);
+    return Box::pin(async { Ok(None) });
 }
 
 fn reboot_task() {
@@ -265,80 +285,82 @@ fn reboot_task() {
 fn on_reboot(
     _topic_name: String,
     _data: Arc<Vec<u8>>,
-    _ctx: &TaskContext,
-) -> Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError> {
+    _ctx: TaskContext,
+) -> BoxedFuture<Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError>> {
     reboot_task();
-    reboot_task();
-    return Ok(None);
+    return Box::pin(async { Ok(None) });
 }
 
 fn on_helloworld(
     _topic_name: String,
     _data: Arc<Vec<u8>>,
-    _ctx: &TaskContext,
-) -> Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError> {
-    let hello_world = crate::mainboardstate::hello_world::get_hello_world();
-    return Ok(Some((
-        format!("/growbe/{}/hello", growbe_shared::id::get()),
-        hello_world.write_to_bytes().unwrap(),
-        true,
-    )));
+    _ctx: TaskContext,
+) -> BoxedFuture<Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError>> {
+    return Box::pin(async move {
+        let hello_world = crate::mainboardstate::hello_world::get_hello_world();
+        Ok(Some((
+            format!("/growbe/{}/hello", growbe_shared::id::get()),
+            hello_world.write_to_bytes().unwrap(),
+            true,
+        )))
+    });
 }
 
 fn on_localconnection(
     _topic_name: String,
     _data: Arc<Vec<u8>>,
-    _ctx: &TaskContext,
-) -> Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError> {
-    let local_connection = crate::mainboardstate::localconnection::get_local_connection();
-    return Ok(Some((
-        format!("/growbe/{}/localconnection", growbe_shared::id::get()),
-        local_connection.write_to_bytes().unwrap(),
-        true,
-    )));
+    _ctx: TaskContext,
+) -> BoxedFuture<Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError>> {
+    return Box::pin(async move {
+        let local_connection = crate::mainboardstate::localconnection::get_local_connection();
+        Ok(Some((
+            format!("/growbe/{}/localconnection", growbe_shared::id::get()),
+            local_connection.write_to_bytes().unwrap(),
+            true,
+        )))
+    });
 }
 
 fn on_setconfig(
     _topic_name: String,
     data: Arc<Vec<u8>>,
-    _ctx: &TaskContext,
-) -> Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError> {
-    match crate::protos::board::MainboardConfig::parse_from_bytes(&data) {
-        Ok(config) => {
-            rewrite_configuration(config);
-            return Ok(None);
+    _ctx: TaskContext,
+) -> BoxedFuture<Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError>> {
+    return Box::pin(async move {
+        match crate::protos::board::MainboardConfig::parse_from_bytes(&data) {
+            Ok(config) => {
+                rewrite_configuration(config).await?;
+                Ok(None)
+            }
+            Err(_) => Err(SocketMessagingError::new()),
         }
-        Err(_) => {
-            return Err(SocketMessagingError::new());
-        }
-    }
+    });
 }
 
 fn on_set_config_cloud(
     _topic_name: String,
-    data: Arc<Vec<u8>>,
-    _ctx: &TaskContext,
-) -> Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError> {
-    return Ok(None);
+    _data: Arc<Vec<u8>>,
+    _ctx: TaskContext,
+) -> BoxedFuture<Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError>> {
+    return Box::pin(async { Ok(None) });
 }
 
 fn on_virt_item(
     _topic_name: String,
     data: Arc<Vec<u8>>,
-    ctx: &TaskContext,
-) -> Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError> {
-    match VirtualScenarioItems::parse_from_bytes(&data) {
-        Ok(config) => {
-            ctx.sender_virt
-                .try_send(config.items.to_vec())
-                .map_err(|x| SocketMessagingError::new().message(x.to_string()))?;
+    ctx: TaskContext,
+) -> BoxedFuture<Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError>> {
+    return Box::pin(async move {
+        match VirtualScenarioItems::parse_from_bytes(&data) {
+            Ok(config) => {
+                ctx.sender_virt
+                    .try_send(config.items.to_vec())
+                    .map_err(|x| SocketMessagingError::new().message(x.to_string()))?;
+                Ok(None)
+            }
+            Err(err) => Err(SocketMessagingError::new()),
         }
-        Err(err) => {
-            return Err(SocketMessagingError::new());
-        }
-    }
-
-    return Ok(None);
+    });
 }
 
 async fn handle_subscription_topics(
@@ -419,7 +441,7 @@ async fn handle_incomming_message(
     handlers: &Vec<MqttHandler>,
     mapping_module: &Vec<MqttModuleHanlder>,
 
-    ctx: &TaskContext,
+    ctx: TaskContext,
 
     topic_name: String,
     payload: Arc<Vec<u8>>,
@@ -432,19 +454,21 @@ async fn handle_incomming_message(
     let mut rets = vec![];
 
     if let Some(item) = item_opt {
-        let handler_result = (item.handler)(String::from(topic_name.as_str()), payload, ctx);
+        let handler_result = (item.handler)(String::from(topic_name.as_str()), payload, ctx).await;
         action_respose.action = item.action_code;
-        if let Ok(result) = handler_result {
-            if let Some(ret) = result {
-                rets.push((ret.0, ret.1));
+        match handler_result {
+            Ok(result) => {
+                if let Some(ret) = result {
+                    rets.push((ret.0, ret.1));
+                }
+                action_respose.status = 0;
+                action_respose.set_action(item.action_code);
+                action_respose.msg = String::from("");
             }
-            action_respose.status = 0;
-            action_respose.set_action(item.action_code);
-            action_respose.msg = String::from("");
-        } else {
-            let err = handler_result.unwrap_err();
-            action_respose.status = err.status;
-            action_respose.msg = err.msg;
+            Err(err) => {
+                action_respose.status = err.status;
+                action_respose.msg = err.msg;
+            }
         }
     } else {
         let module_cmd_result = mapping_module.iter().find(|&x| {
@@ -511,7 +535,7 @@ async fn mainloop_mqtt_connection(
     id_client: &String,
     config_mqtt: &mqtt::CloudMQTTConfig,
     receiver_socket: &mut Receiver<SenderPayload>,
-    ctx: &TaskContext,
+    ctx: TaskContext,
 ) -> Result<(), MainboardError> {
     let hearth_beath_rate = Duration::from_secs(5);
 
@@ -561,8 +585,9 @@ async fn mainloop_mqtt_connection(
                         Event::Incoming(d) => {
                             match d {
                                 Packet::Publish(message) => {
+                                    log::debug!("sender incomming : {}", message.topic);
                                     let data = Arc::new(message.payload.to_vec());
-                                    let messages = handle_incomming_message(&MQTT_HANDLES, &MAPPING_MODULES, &ctx,  message.topic, data).await;
+                                    let messages = handle_incomming_message(&MQTT_HANDLES, &MAPPING_MODULES, ctx.clone(),  message.topic, data).await;
                                     for message in messages {
                                         client
                                             .publish(message.0, QoS::ExactlyOnce, false, message.1)
@@ -607,8 +632,13 @@ pub fn socket_task(
 
     return tokio::spawn(async move {
         loop {
-            if let Err(err) =
-                mainloop_mqtt_connection(&id_client, &config_mqtt, &mut receiver_socket, &ctx).await
+            if let Err(err) = mainloop_mqtt_connection(
+                &id_client,
+                &config_mqtt,
+                &mut receiver_socket,
+                ctx.clone(),
+            )
+            .await
             {
                 log::error!("error socket {:?}", err);
                 tokio::time::sleep(std::time::Duration::from_millis(1000)).await;

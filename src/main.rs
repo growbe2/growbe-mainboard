@@ -113,7 +113,7 @@ async fn main() {
     if let Err(err) =
         mainboardstate::localconnection::task_local_connection(sender_socket_localconnection).await
     {
-        log::error!("task_local_connection : {:?}", err)
+        log::error!("task_local_connection : {:?}", err);
     }
 
     #[cfg(feature = "http_server")]
@@ -137,16 +137,21 @@ async fn main() {
         match tokio::signal::ctrl_c().await {
             Ok(()) => {
                 println!("closing down");
-                sender_socket
+                if let Ok(_) = sender_socket
                     .send((
                         "/disconnecting".into(),
                         SenderPayloadData::ProtobufMessage(Box::new(
                             crate::protos::board::HelloWord::new(),
                         )),
                     ))
-                    .await;
-                tokio::time::sleep(std::time::Duration::from_millis(500)).await;
-                std::process::exit(0);
+                    .await
+                {
+                    tokio::time::sleep(std::time::Duration::from_millis(500)).await;
+
+                    std::process::exit(1);
+                } else {
+                    std::process::exit(1);
+                }
             }
             Err(err) => {
                 log::error!("unable to listen for shutdown signal {}", err);
