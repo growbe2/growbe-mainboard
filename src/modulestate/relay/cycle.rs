@@ -12,19 +12,22 @@ pub fn set_cycle_relay(
     let waiting_time = tokio::time::Duration::from_secs(cycle.waitingTime as u64);
     let running_time = tokio::time::Duration::from_secs(cycle.runningTime as u64);
 
+    let mut next_sleep_time = running_time.clone();
+
     let mut is_waiting = false;
 
     return tokio::spawn(async move {
         log::debug!(
             "starting cycling process for port {}, running time {:?} , waiting time {:?}",
             relay.id(),
-            waiting_time,
             running_time,
+            waiting_time,
         );
 
         loop {
             if is_waiting {
                 relay.set_state(0).unwrap();
+                next_sleep_time = waiting_time.clone();
                 log::debug!(
                     "waiting cycle on relay {} for {:?}",
                     relay.id(),
@@ -32,10 +35,11 @@ pub fn set_cycle_relay(
                 )
             } else {
                 relay.set_state(1).unwrap();
+                next_sleep_time = running_time.clone();
                 log::debug!(
                     "running cycle on relay {} for {:?}",
                     relay.id(),
-                    waiting_time
+                    running_time
                 )
             }
             select! {
@@ -43,7 +47,7 @@ pub fn set_cycle_relay(
                     log::debug!("cancellation of cycle");
                     return;
                 },
-                _ = tokio::time::sleep(waiting_time) => {
+                _ = tokio::time::sleep(next_sleep_time) => {
                     is_waiting = !is_waiting;
                 }
             }
