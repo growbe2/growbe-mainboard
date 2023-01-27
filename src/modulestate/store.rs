@@ -170,12 +170,14 @@ mod tests {
     }
 
     #[test]
-    fn store_module_config_not_existing() {
+    fn store_module_config_not_existing_create_new_one() {
         let store = get_store();
 
         let config_opt = store.get_module_config(&module_id());
 
-        assert_eq!(config_opt.is_none(), true);
+        let config = config_opt.unwrap();
+
+        assert_eq!(config.1, true);
     }
 
     #[test]
@@ -188,23 +190,6 @@ mod tests {
         store.get_module_config(&module_id()).unwrap();
 
         assert_eq!(nbr_entry(&store.conn, "module_config").unwrap(), 1);
-    }
-
-    #[test]
-    fn store_module_config_wrong_type() {
-        let store = get_store();
-
-        let mut hello_world = HelloWord::new();
-        hello_world.set_version("my version".to_string());
-
-        for module in get_modules() {
-            let hello_world: Box<dyn protobuf::Message> = Box::new(hello_world.clone());
-            store.store_module_config(&module, &hello_world).unwrap();
-
-            assert_eq!(store.get_module_config(&module).is_none(), true);
-
-            store.delete_module_config(&module).unwrap();
-        }
     }
 
     #[test]

@@ -378,7 +378,7 @@ mod tests {
         config.set_manual(manual);
         let mut map_handler: HashMap<String, CancellationToken> = HashMap::new();
 
-        let actor = new_actor("a", crate::protos::module::ActorType::MANUAL_USER_ACTOR);
+        let actor = new_actor("a", crate::protos::module::ActorType::ENV_CONTROLLER_ACTOR);
 
         let (c, _) = validator
             .apply_parse_config(
@@ -392,7 +392,7 @@ mod tests {
             .unwrap();
 
         // switch actor but dont send property is ok
-        let new_actor = new_actor("ab", crate::protos::module::ActorType::ENV_CONTROLLER_ACTOR);
+        let new_actor = new_actor("ab", crate::protos::module::ActorType::MANUAL_USER_ACTOR);
         let mut config = RelayOutletConfig::new();
         let manual = ManualConfig {
             state: false,
