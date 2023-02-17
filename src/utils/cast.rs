@@ -4,5 +4,3 @@ macro_rules! cast {
         $self.as_any().downcast_ref::<$type>().unwrap()
     };
 }
-
-

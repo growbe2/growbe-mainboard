@@ -12,7 +12,10 @@ fn f(i: &usize, x: &mut [u8], value: u8) {
     x[*i] = value;
 }
 
-pub fn get_outlet_data(value: u8, previous_value: &RelayOutletData) -> SingularPtrField<RelayOutletData> {
+pub fn get_outlet_data(
+    value: u8,
+    previous_value: &RelayOutletData,
+) -> SingularPtrField<RelayOutletData> {
     let mut data = RelayOutletData::new();
     if value == 0 {
         data.set_state(false);

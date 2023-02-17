@@ -8,7 +8,8 @@ use crate::{
     protos::module::{
         Actor, ActorType, AlarmConfig, CronItem, CycleConfig, ManualConfig, RelayOutletConfig,
         RelayOutletMode,
-    }, utils::time::get_timestamp,
+    },
+    utils::time::get_timestamp,
 };
 
 use super::Relay;

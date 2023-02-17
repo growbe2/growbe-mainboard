@@ -1,3 +1,4 @@
+use serde::Deserialize;
 use std::collections::HashMap;
 use tokio::sync::mpsc::{Receiver, Sender};
 use tokio::sync::Mutex;
@@ -8,7 +9,7 @@ use crate::comboard::imple::interface::{
 
 use crate::mainboardstate::error::MainboardError;
 use crate::modulestate::interface::ModuleMsg;
-use crate::protos::virt::VirtualScenarioItem;
+use crate::protos::virt::{VirtualScenarioItem, VirtualScenarioItems};
 
 pub fn create_virtual_comboard_cmd() -> (
     Sender<Vec<VirtualScenarioItem>>,
@@ -92,6 +93,31 @@ async fn handle_items(
     return None;
 }
 
+async fn process_item(
+    value: Vec<VirtualScenarioItem>,
+    sender_module: &Sender<ModuleMsg>,
+    config_board: &String,
+    mut map_module: &mut std::sync::Arc<Mutex<HashMap<i32, VirtualScenarioItem>>>,
+) -> () {
+    println!("Values {:?}", value);
+    for mut item in value {
+        if item.timeout > 0 {
+            let sender_module = sender_module.clone();
+            let config_board = config_board.clone();
+            let mut map_module = std::sync::Arc::clone(&map_module);
+
+            // to not spawn to many task i may need to group all item by
+            // timeout duration and schedule them together but this will
+            // be for another time
+            tokio::spawn(async move {
+                handle_items(&sender_module, &config_board, &mut item, &mut map_module).await;
+            });
+        } else {
+            handle_items(&sender_module, &config_board, &mut item, &mut map_module).await;
+        }
+    }
+}
+
 impl super::interface::ComboardClient for VirtualComboardClient {
     fn run(
         &mut self,
@@ -109,25 +135,29 @@ impl super::interface::ComboardClient for VirtualComboardClient {
             let mut map_module =
                 std::sync::Arc::new(Mutex::new(HashMap::<i32, VirtualScenarioItem>::new()));
 
+            if let Ok(file) = std::fs::read_to_string(config_board.to_string()) {
+                match serde_json::from_str::<VirtualScenarioItems>(&file) {
+                    Ok(payload) => {
+                        process_item(
+                            payload.items.to_vec(),
+                            &sender_module,
+                            &config_board,
+                            &mut map_module,
+                        )
+                        .await;
+                    }
+                    Err(err) => {
+                        log::error!("failed to parse {:?}", err);
+                    }
+                }
+            } else {
+                log::error!("failed to read {}", config_board.to_string());
+            }
+
             loop {
                 tokio::select! {
                     Some(value) = receiver_config_item.recv() => {
-                        for mut item in value {
-                            if item.timeout > 0 {
-                                let sender_module = sender_module.clone();
-                                let config_board = config_board.clone();
-                                let mut map_module = std::sync::Arc::clone(&map_module);
-
-                                // to not spawn to many task i may need to group all item by
-                                // timeout duration and schedule them together but this will
-                                // be for another time
-                                tokio::spawn(async move {
-                                    handle_items(&sender_module, &config_board, &mut item, &mut map_module).await;
-                                });
-                            } else {
-                                handle_items(&sender_module, &config_board, &mut item, &mut map_module).await;
-                            }
-                        }
+                        process_item(value, &sender_module, &config_board, &mut map_module).await;
                     },
                     module_config = receiver_config.recv() => {
                         let module_config = module_config.unwrap();

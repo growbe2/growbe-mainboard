@@ -24,12 +24,15 @@
 // const _PROTOBUF_VERSION_CHECK: () = ::protobuf::VERSION_2_25_2;
 
 #[derive(PartialEq,Clone,Default)]
+#[cfg_attr(feature = "with-serde", derive(::serde::Serialize, ::serde::Deserialize))]
 pub struct AlarmZoneValue {
     // message fields
     pub value: f32,
     pub offset: f32,
     // special fields
+    #[cfg_attr(feature = "with-serde", serde(skip))]
     pub unknown_fields: ::protobuf::UnknownFields,
+    #[cfg_attr(feature = "with-serde", serde(skip))]
     pub cached_size: ::protobuf::CachedSize,
 }
 
@@ -211,6 +214,7 @@ impl ::protobuf::reflect::ProtobufValue for AlarmZoneValue {
 }
 
 #[derive(PartialEq,Clone,Default)]
+#[cfg_attr(feature = "with-serde", derive(::serde::Serialize, ::serde::Deserialize))]
 pub struct FieldAlarm {
     // message fields
     pub moduleId: ::std::string::String,
@@ -221,7 +225,9 @@ pub struct FieldAlarm {
     pub veryHigh: ::protobuf::SingularPtrField<AlarmZoneValue>,
     pub sync: ::protobuf::SingularPtrField<super::sync::SyncInfo>,
     // special fields
+    #[cfg_attr(feature = "with-serde", serde(skip))]
     pub unknown_fields: ::protobuf::UnknownFields,
+    #[cfg_attr(feature = "with-serde", serde(skip))]
     pub cached_size: ::protobuf::CachedSize,
 }
 
@@ -697,6 +703,7 @@ impl ::protobuf::reflect::ProtobufValue for FieldAlarm {
 }
 
 #[derive(PartialEq,Clone,Default)]
+#[cfg_attr(feature = "with-serde", derive(::serde::Serialize, ::serde::Deserialize))]
 pub struct FieldAlarmEvent {
     // message fields
     pub moduleId: ::std::string::String,
@@ -707,7 +714,9 @@ pub struct FieldAlarmEvent {
     pub previousValue: f32,
     pub changedAt: u32,
     // special fields
+    #[cfg_attr(feature = "with-serde", serde(skip))]
     pub unknown_fields: ::protobuf::UnknownFields,
+    #[cfg_attr(feature = "with-serde", serde(skip))]
     pub cached_size: ::protobuf::CachedSize,
 }
 
@@ -1065,6 +1074,7 @@ impl ::protobuf::reflect::ProtobufValue for FieldAlarmEvent {
 }
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
+#[cfg_attr(feature = "with-serde", derive(::serde::Serialize, ::serde::Deserialize))]
 pub enum AlarmZone {
     UNKNOW = 0,
     MIDDLE = 1,

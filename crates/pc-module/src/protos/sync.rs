@@ -24,15 +24,12 @@
 // const _PROTOBUF_VERSION_CHECK: () = ::protobuf::VERSION_2_25_2;
 
 #[derive(PartialEq,Clone,Default)]
-#[cfg_attr(feature = "with-serde", derive(::serde::Serialize, ::serde::Deserialize))]
 pub struct SyncInfo {
     // message fields
     pub hash: ::std::string::String,
     pub updatedAt: u32,
     // special fields
-    #[cfg_attr(feature = "with-serde", serde(skip))]
     pub unknown_fields: ::protobuf::UnknownFields,
-    #[cfg_attr(feature = "with-serde", serde(skip))]
     pub cached_size: ::protobuf::CachedSize,
 }
 
@@ -221,14 +218,11 @@ impl ::protobuf::reflect::ProtobufValue for SyncInfo {
 }
 
 #[derive(PartialEq,Clone,Default)]
-#[cfg_attr(feature = "with-serde", derive(::serde::Serialize, ::serde::Deserialize))]
 pub struct GlobalSyncInformation {
     // message fields
     pub syncItems: ::std::collections::HashMap<::std::string::String, SyncInfo>,
     // special fields
-    #[cfg_attr(feature = "with-serde", serde(skip))]
     pub unknown_fields: ::protobuf::UnknownFields,
-    #[cfg_attr(feature = "with-serde", serde(skip))]
     pub cached_size: ::protobuf::CachedSize,
 }
 
@@ -378,16 +372,13 @@ impl ::protobuf::reflect::ProtobufValue for GlobalSyncInformation {
 }
 
 #[derive(PartialEq,Clone,Default)]
-#[cfg_attr(feature = "with-serde", derive(::serde::Serialize, ::serde::Deserialize))]
 pub struct OutOfSyncItem {
     // message fields
     pub ressource: ::std::string::String,
     pub mainboard: ::protobuf::SingularPtrField<SyncInfo>,
     pub cloud: ::protobuf::SingularPtrField<SyncInfo>,
     // special fields
-    #[cfg_attr(feature = "with-serde", serde(skip))]
     pub unknown_fields: ::protobuf::UnknownFields,
-    #[cfg_attr(feature = "with-serde", serde(skip))]
     pub cached_size: ::protobuf::CachedSize,
 }
 
@@ -654,14 +645,11 @@ impl ::protobuf::reflect::ProtobufValue for OutOfSyncItem {
 }
 
 #[derive(PartialEq,Clone,Default)]
-#[cfg_attr(feature = "with-serde", derive(::serde::Serialize, ::serde::Deserialize))]
 pub struct OutOfSyncResponse {
     // message fields
     pub unsyncItems: ::std::collections::HashMap<::std::string::String, OutOfSyncItem>,
     // special fields
-    #[cfg_attr(feature = "with-serde", serde(skip))]
     pub unknown_fields: ::protobuf::UnknownFields,
-    #[cfg_attr(feature = "with-serde", serde(skip))]
     pub cached_size: ::protobuf::CachedSize,
 }
 
@@ -811,12 +799,9 @@ impl ::protobuf::reflect::ProtobufValue for OutOfSyncResponse {
 }
 
 #[derive(PartialEq,Clone,Default)]
-#[cfg_attr(feature = "with-serde", derive(::serde::Serialize, ::serde::Deserialize))]
 pub struct OutOfSyncRequest {
     // special fields
-    #[cfg_attr(feature = "with-serde", serde(skip))]
     pub unknown_fields: ::protobuf::UnknownFields,
-    #[cfg_attr(feature = "with-serde", serde(skip))]
     pub cached_size: ::protobuf::CachedSize,
 }
 
@@ -930,14 +915,11 @@ impl ::protobuf::reflect::ProtobufValue for OutOfSyncRequest {
 }
 
 #[derive(PartialEq,Clone,Default)]
-#[cfg_attr(feature = "with-serde", derive(::serde::Serialize, ::serde::Deserialize))]
 pub struct SyncItem {
     // message fields
     pub ressource: ::std::string::String,
     // special fields
-    #[cfg_attr(feature = "with-serde", serde(skip))]
     pub unknown_fields: ::protobuf::UnknownFields,
-    #[cfg_attr(feature = "with-serde", serde(skip))]
     pub cached_size: ::protobuf::CachedSize,
 }
 
@@ -1092,14 +1074,11 @@ impl ::protobuf::reflect::ProtobufValue for SyncItem {
 }
 
 #[derive(PartialEq,Clone,Default)]
-#[cfg_attr(feature = "with-serde", derive(::serde::Serialize, ::serde::Deserialize))]
 pub struct SyncRequest {
     // message fields
     pub toSyncItems: ::std::collections::HashMap<::std::string::String, SyncItem>,
     // special fields
-    #[cfg_attr(feature = "with-serde", serde(skip))]
     pub unknown_fields: ::protobuf::UnknownFields,
-    #[cfg_attr(feature = "with-serde", serde(skip))]
     pub cached_size: ::protobuf::CachedSize,
 }
 

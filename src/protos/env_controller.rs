@@ -24,6 +24,7 @@
 // const _PROTOBUF_VERSION_CHECK: () = ::protobuf::VERSION_2_25_2;
 
 #[derive(PartialEq,Clone,Default)]
+#[cfg_attr(feature = "with-serde", derive(::serde::Serialize, ::serde::Deserialize))]
 pub struct MActor {
     // message fields
     pub name: ::std::string::String,
@@ -31,7 +32,9 @@ pub struct MActor {
     pub property: ::std::string::String,
     pub field_type: RessourceType,
     // special fields
+    #[cfg_attr(feature = "with-serde", serde(skip))]
     pub unknown_fields: ::protobuf::UnknownFields,
+    #[cfg_attr(feature = "with-serde", serde(skip))]
     pub cached_size: ::protobuf::CachedSize,
 }
 
@@ -298,6 +301,7 @@ impl ::protobuf::reflect::ProtobufValue for MActor {
 }
 
 #[derive(PartialEq,Clone,Default)]
+#[cfg_attr(feature = "with-serde", derive(::serde::Serialize, ::serde::Deserialize))]
 pub struct MObserver {
     // message fields
     pub name: ::std::string::String,
@@ -305,7 +309,9 @@ pub struct MObserver {
     pub property: ::std::string::String,
     pub field_type: RessourceType,
     // special fields
+    #[cfg_attr(feature = "with-serde", serde(skip))]
     pub unknown_fields: ::protobuf::UnknownFields,
+    #[cfg_attr(feature = "with-serde", serde(skip))]
     pub cached_size: ::protobuf::CachedSize,
 }
 
@@ -572,12 +578,15 @@ impl ::protobuf::reflect::ProtobufValue for MObserver {
 }
 
 #[derive(PartialEq,Clone,Default)]
+#[cfg_attr(feature = "with-serde", derive(::serde::Serialize, ::serde::Deserialize))]
 pub struct SCConditionActor {
     // message fields
     pub observer_id: ::std::string::String,
     pub actions: ::std::collections::HashMap<::std::string::String, SCObserverAction>,
     // special fields
+    #[cfg_attr(feature = "with-serde", serde(skip))]
     pub unknown_fields: ::protobuf::UnknownFields,
+    #[cfg_attr(feature = "with-serde", serde(skip))]
     pub cached_size: ::protobuf::CachedSize,
 }
 
@@ -768,11 +777,14 @@ impl ::protobuf::reflect::ProtobufValue for SCConditionActor {
 }
 
 #[derive(PartialEq,Clone,Default)]
+#[cfg_attr(feature = "with-serde", derive(::serde::Serialize, ::serde::Deserialize))]
 pub struct SCObserverAction {
     // message fields
     pub config: ::std::collections::HashMap<i32, super::module::RelayOutletConfig>,
     // special fields
+    #[cfg_attr(feature = "with-serde", serde(skip))]
     pub unknown_fields: ::protobuf::UnknownFields,
+    #[cfg_attr(feature = "with-serde", serde(skip))]
     pub cached_size: ::protobuf::CachedSize,
 }
 
@@ -922,11 +934,14 @@ impl ::protobuf::reflect::ProtobufValue for SCObserverAction {
 }
 
 #[derive(PartialEq,Clone,Default)]
+#[cfg_attr(feature = "with-serde", derive(::serde::Serialize, ::serde::Deserialize))]
 pub struct StaticControllerImplementation {
     // message fields
     pub conditions: ::protobuf::RepeatedField<SCConditionActor>,
     // special fields
+    #[cfg_attr(feature = "with-serde", serde(skip))]
     pub unknown_fields: ::protobuf::UnknownFields,
+    #[cfg_attr(feature = "with-serde", serde(skip))]
     pub cached_size: ::protobuf::CachedSize,
 }
 
@@ -1088,9 +1103,12 @@ impl ::protobuf::reflect::ProtobufValue for StaticControllerImplementation {
 }
 
 #[derive(PartialEq,Clone,Default)]
+#[cfg_attr(feature = "with-serde", derive(::serde::Serialize, ::serde::Deserialize))]
 pub struct ProgressiveControlerImplementation {
     // special fields
+    #[cfg_attr(feature = "with-serde", serde(skip))]
     pub unknown_fields: ::protobuf::UnknownFields,
+    #[cfg_attr(feature = "with-serde", serde(skip))]
     pub cached_size: ::protobuf::CachedSize,
 }
 
@@ -1204,6 +1222,7 @@ impl ::protobuf::reflect::ProtobufValue for ProgressiveControlerImplementation {
 }
 
 #[derive(PartialEq,Clone,Default)]
+#[cfg_attr(feature = "with-serde", derive(::serde::Serialize, ::serde::Deserialize))]
 pub struct EnvironmentControllerConfiguration {
     // message fields
     pub id: ::std::string::String,
@@ -1213,7 +1232,9 @@ pub struct EnvironmentControllerConfiguration {
     // message oneof groups
     pub implementation: ::std::option::Option<EnvironmentControllerConfiguration_oneof_implementation>,
     // special fields
+    #[cfg_attr(feature = "with-serde", serde(skip))]
     pub unknown_fields: ::protobuf::UnknownFields,
+    #[cfg_attr(feature = "with-serde", serde(skip))]
     pub cached_size: ::protobuf::CachedSize,
 }
 
@@ -1224,6 +1245,7 @@ impl<'a> ::std::default::Default for &'a EnvironmentControllerConfiguration {
 }
 
 #[derive(Clone,PartialEq,Debug)]
+#[cfg_attr(feature = "with-serde", derive(::serde::Serialize, ::serde::Deserialize))]
 pub enum EnvironmentControllerConfiguration_oneof_implementation {
     field_static(StaticControllerImplementation),
     progressive(ProgressiveControlerImplementation),
@@ -1684,6 +1706,7 @@ impl ::protobuf::reflect::ProtobufValue for EnvironmentControllerConfiguration {
 }
 
 #[derive(PartialEq,Clone,Default)]
+#[cfg_attr(feature = "with-serde", derive(::serde::Serialize, ::serde::Deserialize))]
 pub struct EnvironmentControllerEvent {
     // message fields
     pub id: ::std::string::String,
@@ -1692,7 +1715,9 @@ pub struct EnvironmentControllerEvent {
     pub message: ::std::string::String,
     pub at: u32,
     // special fields
+    #[cfg_attr(feature = "with-serde", serde(skip))]
     pub unknown_fields: ::protobuf::UnknownFields,
+    #[cfg_attr(feature = "with-serde", serde(skip))]
     pub cached_size: ::protobuf::CachedSize,
 }
 
@@ -1986,6 +2011,7 @@ impl ::protobuf::reflect::ProtobufValue for EnvironmentControllerEvent {
 }
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
+#[cfg_attr(feature = "with-serde", derive(::serde::Serialize, ::serde::Deserialize))]
 pub enum RessourceType {
     ACTOR_MODULE = 0,
     ACTOR_VIRTUAL = 1,
@@ -2036,6 +2062,7 @@ impl ::protobuf::reflect::ProtobufValue for RessourceType {
 }
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
+#[cfg_attr(feature = "with-serde", derive(::serde::Serialize, ::serde::Deserialize))]
 pub enum EnvironmentControllerState {
     WAITING_ALARM = 0,
     WAITING_VALUE = 1,

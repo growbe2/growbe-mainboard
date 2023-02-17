@@ -1,16 +1,20 @@
 {
-	"actions": [
+	"items": [
 		{
 			"event_type": "state",
-			"id": "AAB000000029",
+			"id": "AAP000000099",
 			"state": true,
-			"port": 3
+			"port": 3,
+            "buffer": [],
+            "timeout": 0
 		},
 		{
 			"event_type": "state",
-			"id": "AAS000000020",
+			"id": "AAA000000099",
 			"state": true,
-			"port": 4
+			"port": 4,
+            "buffer": [],
+            "timeout": 0
 		}
 	]
 }

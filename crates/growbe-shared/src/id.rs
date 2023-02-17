@@ -47,7 +47,6 @@ fn get_id() -> Result<String, ()> {
     }
 }
 
-
 fn fallback_id() -> Result<String, ()> {
     let id: String = machine_uid::get().unwrap();
     return Ok(id[..6].to_string());

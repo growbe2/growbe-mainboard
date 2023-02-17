@@ -257,11 +257,11 @@ mod tests {
     use tokio_util::sync::CancellationToken;
 
     use crate::{
+        cast,
         comboard::imple::channel::ModuleConfig,
         modulestate::{actor::new_actor, interface::ModuleValueValidator},
         protos::module::ManualConfig,
         wait_async,
-        cast,
     };
 
     use super::*;
@@ -289,13 +289,13 @@ mod tests {
                 &mut map_handler,
                 actor,
             )
-            .unwrap().0;
+            .unwrap()
+            .0;
 
         let new_config = cast!(new_config, WCModuleConfig);
 
         assert_ne!(new_config.get_p0().get_timestamp(), 0);
         assert_eq!(new_config.get_p1().get_timestamp(), 0);
-
     }
 
     #[tokio::test]
@@ -332,5 +332,4 @@ mod tests {
         assert_eq!(*sended_config.data.get(0).unwrap(), 1);
         assert_eq!(*sended_config.data.get(1).unwrap(), 255);
     }
-
 }

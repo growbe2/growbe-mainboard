@@ -1592,6 +1592,10 @@ name = "protobuf"
 version = "2.25.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "47c327e191621a2158159df97cdbc2e7074bb4e940275e35abf38eb3d2595754"
+dependencies = [
+ "serde",
+ "serde_derive",
+]
 
 [[package]]
 name = "protobuf-codegen"

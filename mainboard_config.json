@@ -11,7 +11,7 @@
   "comboards": [
     {
       "imple": "virt",
-      "config": "lol"
+      "config": "virtual-comboard.json"
     }
   ],
   "server": {

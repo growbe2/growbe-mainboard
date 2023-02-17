@@ -5,8 +5,12 @@ use std::path::Path;
 fn main() {
     let path_proto = Path::new("./proto/module.proto");
     if path_proto.exists() {
+        let mut customize = protoc_rust::Customize::default();
+        customize.serde_derive = Some(true);
+        customize.serde_derive_cfg = Some("".to_string());
         protoc_rust::Codegen::new()
             .out_dir("./src/protos")
+            .customize(customize)
             .inputs(&[
                 "proto/alarm.proto",
                 "proto/board.proto",

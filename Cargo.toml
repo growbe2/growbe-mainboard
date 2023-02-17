@@ -8,7 +8,7 @@ default = ["com_virt", "com_ws", "reverse_proxy_cmd"]
 gpio = ["rppal"]
 ws = ["tokio-tungstenite", "url", "futures-util"]
 com_ble = ["bluer", "btleplug", "futures", "uuid", "tokio-stream"]
-com_virt = []
+com_virt = ["with-serde"]
 com_ws = ["ws"]
 com_i2c = ["gpio", "cty"]
 http_server = ["warp"]
@@ -18,6 +18,8 @@ debug = ["growbe_shared/debug", "tokio/tracing"]
 
 pi = ["com_i2c"]
 pc = ["com_ws"]
+
+with-serde = [ "protobuf/with-serde" ]
 
 [workspace]
 members = [ "crates/*" ]
