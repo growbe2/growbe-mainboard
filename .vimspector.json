@@ -1,11 +1,20 @@
 {
   "configurations": {
-    "Rust - Test": {
+    "app": {
       "adapter": "CodeLLDB",
       "configuration": {
         "request": "launch",
         "program": "/home/wq/Project/growbe/growbe-mainboard/target/debug/growbe-mainboard",
-        "args": ["./mainboard_config_local.json"]
+        "args": [
+          "./mainboard_config_local.json"
+        ]
+      }
+    },
+    "test": {
+      "adapter": "CodeLLDB",
+      "configuration": {
+        "request": "launch",
+        "program": "/Users/William.Quintal/Project/growbe/growbe-mainboard/target/debug/deps/growbe_mainboard-db993efc953f572a"
       }
     }
   }
