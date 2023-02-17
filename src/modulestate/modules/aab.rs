@@ -16,6 +16,7 @@ use crate::{
 pub struct AABValidator {
     pub actors_property: HashMap<String, Actor>,
     pub previous_config: WCModuleConfig,
+    pub previous_value: WCModuleData,
     pub clear_actor: bool,
 }
 
@@ -25,6 +26,7 @@ impl AABValidator {
             clear_actor: false,
             actors_property: HashMap::new(),
             previous_config: WCModuleConfig::new(),
+            previous_value: WCModuleData::new(),
         };
     }
 }
@@ -66,19 +68,20 @@ impl crate::modulestate::interface::ModuleValueValidator for AABValidator {
         crate::modulestate::interface::ModuleError,
     > {
         let mut data = crate::protos::module::WCModuleData::new();
-        data.p0 = get_outlet_data(value_event.buffer[0]);
-        data.p1 = get_outlet_data(value_event.buffer[1]);
-        data.p2 = get_outlet_data(value_event.buffer[2]);
-        data.drain = get_outlet_data(value_event.buffer[3]);
-        data.pump0 = get_outlet_data(value_event.buffer[4]);
-        data.pump1 = get_outlet_data(value_event.buffer[5]);
-        data.pump2 = get_outlet_data(value_event.buffer[6]);
-        data.pump3 = get_outlet_data(value_event.buffer[7]);
+        data.p0 = get_outlet_data(value_event.buffer[0], self.previous_value.get_p0());
+        data.p1 = get_outlet_data(value_event.buffer[1], self.previous_value.get_p1());
+        data.p2 = get_outlet_data(value_event.buffer[2], self.previous_value.get_p2());
+        data.drain = get_outlet_data(value_event.buffer[3], self.previous_value.get_drain());
+        data.pump0 = get_outlet_data(value_event.buffer[4], self.previous_value.get_pump0());
+        data.pump1 = get_outlet_data(value_event.buffer[5], self.previous_value.get_pump1());
+        data.pump2 = get_outlet_data(value_event.buffer[6], self.previous_value.get_pump2());
+        data.pump3 = get_outlet_data(value_event.buffer[7], self.previous_value.get_pump3());
         data.timestamp = std::time::SystemTime::now()
             .duration_since(std::time::SystemTime::UNIX_EPOCH)
             .unwrap()
             .as_secs() as i32;
 
+        self.previous_value = data.clone();
         return Ok(Box::new(data));
     }
 
@@ -258,6 +261,7 @@ mod tests {
         modulestate::{actor::new_actor, interface::ModuleValueValidator},
         protos::module::ManualConfig,
         wait_async,
+        cast,
     };
 
     use super::*;
@@ -266,11 +270,17 @@ mod tests {
     fn module_aab_apply_full_config() {
         let mut validator = AABValidator::new();
         let (s, _r) = channel::<ModuleConfig>(10);
-        let config = WCModuleConfig::new();
+        let mut config = WCModuleConfig::new();
+        let mut p0 = RelayOutletConfig::new();
+        let mut manual = ManualConfig::new();
+        manual.state = true;
+        p0.set_manual(manual);
+        config.set_p0(p0);
+
         let mut map_handler: HashMap<String, CancellationToken> = HashMap::new();
         let actor = new_actor("a", crate::protos::module::ActorType::MANUAL_USER_ACTOR);
 
-        validator
+        let new_config = validator
             .apply_parse_config(
                 0,
                 "AAB",
@@ -279,7 +289,13 @@ mod tests {
                 &mut map_handler,
                 actor,
             )
-            .unwrap();
+            .unwrap().0;
+
+        let new_config = cast!(new_config, WCModuleConfig);
+
+        assert_ne!(new_config.get_p0().get_timestamp(), 0);
+        assert_eq!(new_config.get_p1().get_timestamp(), 0);
+
     }
 
     #[tokio::test]
@@ -306,13 +322,15 @@ mod tests {
             )
             .unwrap();
 
-        let c = c.as_any().downcast_ref::<WCModuleConfig>().unwrap();
+        let c = cast!(c, WCModuleConfig);
 
         assert_eq!(c.p0.as_ref().unwrap().get_manual().state, true);
+        assert_ne!(c.p0.as_ref().unwrap().get_timestamp(), 0);
 
         let sended_config =
             wait_async!(r.recv(), std::time::Duration::from_millis(100), None).unwrap();
         assert_eq!(*sended_config.data.get(0).unwrap(), 1);
         assert_eq!(*sended_config.data.get(1).unwrap(), 255);
     }
+
 }

@@ -824,6 +824,7 @@ dependencies = [
  "env_logger",
  "lazy_static",
  "log",
+ "machine-uid",
  "serde",
  "tracing",
  "tracing-journald",
@@ -1168,6 +1169,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "abb12e687cfb44aa40f41fc3978ef76448f9b6038cad6aef4259d3c095a2382e"
 dependencies = [
  "cfg-if",
+]
+
+[[package]]
+name = "machine-uid"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1f1595709b0a7386bcd56ba34d250d626e5503917d05d32cdccddcd68603e212"
+dependencies = [
+ "winreg 0.6.2",
 ]
 
 [[package]]
@@ -1746,7 +1756,7 @@ dependencies = [
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "web-sys",
- "winreg",
+ "winreg 0.7.0",
 ]
 
 [[package]]
@@ -2976,6 +2986,15 @@ name = "windows_x86_64_msvc"
 version = "0.42.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f40009d85759725a34da6d89a94e63d7bdc50a862acf0dbc7c8e488f1edcb6f5"
+
+[[package]]
+name = "winreg"
+version = "0.6.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b2986deb581c4fe11b621998a5e53361efe6b48a151178d0cd9eeffa4dc6acc9"
+dependencies = [
+ "winapi",
+]
 
 [[package]]
 name = "winreg"

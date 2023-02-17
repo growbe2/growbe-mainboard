@@ -11,6 +11,7 @@ fn main() {
                 "proto/alarm.proto",
                 "proto/board.proto",
                 "proto/message.proto",
+                "proto/sync.proto",
                 "proto/module.proto",
                 "proto/virt.proto",
                 "proto/env_controller.proto",

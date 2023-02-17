@@ -2247,6 +2247,7 @@ pub struct SOILModuleConfig {
     pub p5: ::protobuf::SingularPtrField<SOILProbeConfig>,
     pub p6: ::protobuf::SingularPtrField<SOILProbeConfig>,
     pub p7: ::protobuf::SingularPtrField<SOILProbeConfig>,
+    pub sync: ::protobuf::SingularPtrField<super::sync::SyncInfo>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -2526,6 +2527,39 @@ impl SOILModuleConfig {
     pub fn take_p7(&mut self) -> SOILProbeConfig {
         self.p7.take().unwrap_or_else(|| SOILProbeConfig::new())
     }
+
+    // .SyncInfo sync = 20;
+
+
+    pub fn get_sync(&self) -> &super::sync::SyncInfo {
+        self.sync.as_ref().unwrap_or_else(|| <super::sync::SyncInfo as ::protobuf::Message>::default_instance())
+    }
+    pub fn clear_sync(&mut self) {
+        self.sync.clear();
+    }
+
+    pub fn has_sync(&self) -> bool {
+        self.sync.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_sync(&mut self, v: super::sync::SyncInfo) {
+        self.sync = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_sync(&mut self) -> &mut super::sync::SyncInfo {
+        if self.sync.is_none() {
+            self.sync.set_default();
+        }
+        self.sync.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_sync(&mut self) -> super::sync::SyncInfo {
+        self.sync.take().unwrap_or_else(|| super::sync::SyncInfo::new())
+    }
 }
 
 impl ::protobuf::Message for SOILModuleConfig {
@@ -2570,6 +2604,11 @@ impl ::protobuf::Message for SOILModuleConfig {
                 return false;
             }
         };
+        for v in &self.sync {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
         true
     }
 
@@ -2600,6 +2639,9 @@ impl ::protobuf::Message for SOILModuleConfig {
                 },
                 8 => {
                     ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.p7)?;
+                },
+                20 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.sync)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -2645,6 +2687,10 @@ impl ::protobuf::Message for SOILModuleConfig {
             let len = v.compute_size();
             my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
         }
+        if let Some(ref v) = self.sync.as_ref() {
+            let len = v.compute_size();
+            my_size += 2 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -2688,6 +2734,11 @@ impl ::protobuf::Message for SOILModuleConfig {
         }
         if let Some(ref v) = self.p7.as_ref() {
             os.write_tag(8, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        }
+        if let Some(ref v) = self.sync.as_ref() {
+            os.write_tag(20, ::protobuf::wire_format::WireTypeLengthDelimited)?;
             os.write_raw_varint32(v.get_cached_size())?;
             v.write_to_with_cached_sizes(os)?;
         }
@@ -2769,6 +2820,11 @@ impl ::protobuf::Message for SOILModuleConfig {
                 |m: &SOILModuleConfig| { &m.p7 },
                 |m: &mut SOILModuleConfig| { &mut m.p7 },
             ));
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<super::sync::SyncInfo>>(
+                "sync",
+                |m: &SOILModuleConfig| { &m.sync },
+                |m: &mut SOILModuleConfig| { &mut m.sync },
+            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<SOILModuleConfig>(
                 "SOILModuleConfig",
                 fields,
@@ -2793,6 +2849,7 @@ impl ::protobuf::Clear for SOILModuleConfig {
         self.p5.clear();
         self.p6.clear();
         self.p7.clear();
+        self.sync.clear();
         self.unknown_fields.clear();
     }
 }
@@ -4581,6 +4638,7 @@ impl ::protobuf::reflect::ProtobufValue for ManualConfig {
 pub struct RelayOutletData {
     // message fields
     pub state: bool,
+    pub timestamp: i32,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -4611,6 +4669,21 @@ impl RelayOutletData {
     pub fn set_state(&mut self, v: bool) {
         self.state = v;
     }
+
+    // int32 timestamp = 10;
+
+
+    pub fn get_timestamp(&self) -> i32 {
+        self.timestamp
+    }
+    pub fn clear_timestamp(&mut self) {
+        self.timestamp = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_timestamp(&mut self, v: i32) {
+        self.timestamp = v;
+    }
 }
 
 impl ::protobuf::Message for RelayOutletData {
@@ -4629,6 +4702,13 @@ impl ::protobuf::Message for RelayOutletData {
                     let tmp = is.read_bool()?;
                     self.state = tmp;
                 },
+                10 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_int32()?;
+                    self.timestamp = tmp;
+                },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
                 },
@@ -4644,6 +4724,9 @@ impl ::protobuf::Message for RelayOutletData {
         if self.state != false {
             my_size += 2;
         }
+        if self.timestamp != 0 {
+            my_size += ::protobuf::rt::value_size(10, self.timestamp, ::protobuf::wire_format::WireTypeVarint);
+        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -4652,6 +4735,9 @@ impl ::protobuf::Message for RelayOutletData {
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
         if self.state != false {
             os.write_bool(1, self.state)?;
+        }
+        if self.timestamp != 0 {
+            os.write_int32(10, self.timestamp)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -4696,6 +4782,11 @@ impl ::protobuf::Message for RelayOutletData {
                 |m: &RelayOutletData| { &m.state },
                 |m: &mut RelayOutletData| { &mut m.state },
             ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt32>(
+                "timestamp",
+                |m: &RelayOutletData| { &m.timestamp },
+                |m: &mut RelayOutletData| { &mut m.timestamp },
+            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<RelayOutletData>(
                 "RelayOutletData",
                 fields,
@@ -4713,6 +4804,7 @@ impl ::protobuf::Message for RelayOutletData {
 impl ::protobuf::Clear for RelayOutletData {
     fn clear(&mut self) {
         self.state = false;
+        self.timestamp = 0;
         self.unknown_fields.clear();
     }
 }
@@ -4855,6 +4947,7 @@ pub struct RelayOutletConfig {
     pub cycle: ::protobuf::SingularPtrField<CycleConfig>,
     pub actor_owner_id: ::std::string::String,
     pub actor_owner_type: ActorType,
+    pub timestamp: i32,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -5058,6 +5151,21 @@ impl RelayOutletConfig {
     pub fn set_actor_owner_type(&mut self, v: ActorType) {
         self.actor_owner_type = v;
     }
+
+    // int32 timestamp = 10;
+
+
+    pub fn get_timestamp(&self) -> i32 {
+        self.timestamp
+    }
+    pub fn clear_timestamp(&mut self) {
+        self.timestamp = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_timestamp(&mut self, v: i32) {
+        self.timestamp = v;
+    }
 }
 
 impl ::protobuf::Message for RelayOutletConfig {
@@ -5110,6 +5218,13 @@ impl ::protobuf::Message for RelayOutletConfig {
                 7 => {
                     ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.actor_owner_type, 7, &mut self.unknown_fields)?
                 },
+                10 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_int32()?;
+                    self.timestamp = tmp;
+                },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
                 },
@@ -5147,6 +5262,9 @@ impl ::protobuf::Message for RelayOutletConfig {
         if self.actor_owner_type != ActorType::MANUAL_USER_ACTOR {
             my_size += ::protobuf::rt::enum_size(7, self.actor_owner_type);
         }
+        if self.timestamp != 0 {
+            my_size += ::protobuf::rt::value_size(10, self.timestamp, ::protobuf::wire_format::WireTypeVarint);
+        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -5181,6 +5299,9 @@ impl ::protobuf::Message for RelayOutletConfig {
         }
         if self.actor_owner_type != ActorType::MANUAL_USER_ACTOR {
             os.write_enum(7, ::protobuf::ProtobufEnum::value(&self.actor_owner_type))?;
+        }
+        if self.timestamp != 0 {
+            os.write_int32(10, self.timestamp)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -5255,6 +5376,11 @@ impl ::protobuf::Message for RelayOutletConfig {
                 |m: &RelayOutletConfig| { &m.actor_owner_type },
                 |m: &mut RelayOutletConfig| { &mut m.actor_owner_type },
             ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt32>(
+                "timestamp",
+                |m: &RelayOutletConfig| { &m.timestamp },
+                |m: &mut RelayOutletConfig| { &mut m.timestamp },
+            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<RelayOutletConfig>(
                 "RelayOutletConfig",
                 fields,
@@ -5278,6 +5404,7 @@ impl ::protobuf::Clear for RelayOutletConfig {
         self.cycle.clear();
         self.actor_owner_id.clear();
         self.actor_owner_type = ActorType::MANUAL_USER_ACTOR;
+        self.timestamp = 0;
         self.unknown_fields.clear();
     }
 }
@@ -6055,6 +6182,7 @@ pub struct VirtualRelay {
     pub relays: ::std::collections::HashMap<::std::string::String, VirtualRelayItem>,
     pub properties: ::std::collections::HashMap<::std::string::String, VirtualRelayProperty>,
     pub actor_owner_id: ::std::string::String,
+    pub sync: ::protobuf::SingularPtrField<super::sync::SyncInfo>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -6172,10 +6300,48 @@ impl VirtualRelay {
     pub fn take_actor_owner_id(&mut self) -> ::std::string::String {
         ::std::mem::replace(&mut self.actor_owner_id, ::std::string::String::new())
     }
+
+    // .SyncInfo sync = 20;
+
+
+    pub fn get_sync(&self) -> &super::sync::SyncInfo {
+        self.sync.as_ref().unwrap_or_else(|| <super::sync::SyncInfo as ::protobuf::Message>::default_instance())
+    }
+    pub fn clear_sync(&mut self) {
+        self.sync.clear();
+    }
+
+    pub fn has_sync(&self) -> bool {
+        self.sync.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_sync(&mut self, v: super::sync::SyncInfo) {
+        self.sync = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_sync(&mut self) -> &mut super::sync::SyncInfo {
+        if self.sync.is_none() {
+            self.sync.set_default();
+        }
+        self.sync.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_sync(&mut self) -> super::sync::SyncInfo {
+        self.sync.take().unwrap_or_else(|| super::sync::SyncInfo::new())
+    }
 }
 
 impl ::protobuf::Message for VirtualRelay {
     fn is_initialized(&self) -> bool {
+        for v in &self.sync {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
         true
     }
 
@@ -6194,6 +6360,9 @@ impl ::protobuf::Message for VirtualRelay {
                 },
                 6 => {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.actor_owner_id)?;
+                },
+                20 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.sync)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -6215,6 +6384,10 @@ impl ::protobuf::Message for VirtualRelay {
         if !self.actor_owner_id.is_empty() {
             my_size += ::protobuf::rt::string_size(6, &self.actor_owner_id);
         }
+        if let Some(ref v) = self.sync.as_ref() {
+            let len = v.compute_size();
+            my_size += 2 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -6228,6 +6401,11 @@ impl ::protobuf::Message for VirtualRelay {
         ::protobuf::rt::write_map_with_cached_sizes::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<VirtualRelayProperty>>(3, &self.properties, os)?;
         if !self.actor_owner_id.is_empty() {
             os.write_string(6, &self.actor_owner_id)?;
+        }
+        if let Some(ref v) = self.sync.as_ref() {
+            os.write_tag(20, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -6287,6 +6465,11 @@ impl ::protobuf::Message for VirtualRelay {
                 |m: &VirtualRelay| { &m.actor_owner_id },
                 |m: &mut VirtualRelay| { &mut m.actor_owner_id },
             ));
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<super::sync::SyncInfo>>(
+                "sync",
+                |m: &VirtualRelay| { &m.sync },
+                |m: &mut VirtualRelay| { &mut m.sync },
+            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<VirtualRelay>(
                 "VirtualRelay",
                 fields,
@@ -6307,6 +6490,7 @@ impl ::protobuf::Clear for VirtualRelay {
         self.relays.clear();
         self.properties.clear();
         self.actor_owner_id.clear();
+        self.sync.clear();
         self.unknown_fields.clear();
     }
 }
@@ -7611,6 +7795,7 @@ pub struct RelayModuleConfig {
     pub p6: ::protobuf::SingularPtrField<RelayOutletConfig>,
     pub p7: ::protobuf::SingularPtrField<RelayOutletConfig>,
     pub timestamp: i32,
+    pub sync: ::protobuf::SingularPtrField<super::sync::SyncInfo>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -7905,6 +8090,39 @@ impl RelayModuleConfig {
     pub fn set_timestamp(&mut self, v: i32) {
         self.timestamp = v;
     }
+
+    // .SyncInfo sync = 20;
+
+
+    pub fn get_sync(&self) -> &super::sync::SyncInfo {
+        self.sync.as_ref().unwrap_or_else(|| <super::sync::SyncInfo as ::protobuf::Message>::default_instance())
+    }
+    pub fn clear_sync(&mut self) {
+        self.sync.clear();
+    }
+
+    pub fn has_sync(&self) -> bool {
+        self.sync.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_sync(&mut self, v: super::sync::SyncInfo) {
+        self.sync = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_sync(&mut self) -> &mut super::sync::SyncInfo {
+        if self.sync.is_none() {
+            self.sync.set_default();
+        }
+        self.sync.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_sync(&mut self) -> super::sync::SyncInfo {
+        self.sync.take().unwrap_or_else(|| super::sync::SyncInfo::new())
+    }
 }
 
 impl ::protobuf::Message for RelayModuleConfig {
@@ -7949,6 +8167,11 @@ impl ::protobuf::Message for RelayModuleConfig {
                 return false;
             }
         };
+        for v in &self.sync {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
         true
     }
 
@@ -7986,6 +8209,9 @@ impl ::protobuf::Message for RelayModuleConfig {
                     }
                     let tmp = is.read_int32()?;
                     self.timestamp = tmp;
+                },
+                20 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.sync)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -8033,6 +8259,10 @@ impl ::protobuf::Message for RelayModuleConfig {
         }
         if self.timestamp != 0 {
             my_size += ::protobuf::rt::value_size(9, self.timestamp, ::protobuf::wire_format::WireTypeVarint);
+        }
+        if let Some(ref v) = self.sync.as_ref() {
+            let len = v.compute_size();
+            my_size += 2 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -8082,6 +8312,11 @@ impl ::protobuf::Message for RelayModuleConfig {
         }
         if self.timestamp != 0 {
             os.write_int32(9, self.timestamp)?;
+        }
+        if let Some(ref v) = self.sync.as_ref() {
+            os.write_tag(20, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -8166,6 +8401,11 @@ impl ::protobuf::Message for RelayModuleConfig {
                 |m: &RelayModuleConfig| { &m.timestamp },
                 |m: &mut RelayModuleConfig| { &mut m.timestamp },
             ));
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<super::sync::SyncInfo>>(
+                "sync",
+                |m: &RelayModuleConfig| { &m.sync },
+                |m: &mut RelayModuleConfig| { &mut m.sync },
+            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<RelayModuleConfig>(
                 "RelayModuleConfig",
                 fields,
@@ -8191,6 +8431,7 @@ impl ::protobuf::Clear for RelayModuleConfig {
         self.p6.clear();
         self.p7.clear();
         self.timestamp = 0;
+        self.sync.clear();
         self.unknown_fields.clear();
     }
 }
@@ -8883,6 +9124,7 @@ pub struct WCModuleConfig {
     pub pump1: ::protobuf::SingularPtrField<RelayOutletConfig>,
     pub pump2: ::protobuf::SingularPtrField<RelayOutletConfig>,
     pub pump3: ::protobuf::SingularPtrField<RelayOutletConfig>,
+    pub sync: ::protobuf::SingularPtrField<super::sync::SyncInfo>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -9162,6 +9404,39 @@ impl WCModuleConfig {
     pub fn take_pump3(&mut self) -> RelayOutletConfig {
         self.pump3.take().unwrap_or_else(|| RelayOutletConfig::new())
     }
+
+    // .SyncInfo sync = 20;
+
+
+    pub fn get_sync(&self) -> &super::sync::SyncInfo {
+        self.sync.as_ref().unwrap_or_else(|| <super::sync::SyncInfo as ::protobuf::Message>::default_instance())
+    }
+    pub fn clear_sync(&mut self) {
+        self.sync.clear();
+    }
+
+    pub fn has_sync(&self) -> bool {
+        self.sync.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_sync(&mut self, v: super::sync::SyncInfo) {
+        self.sync = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_sync(&mut self) -> &mut super::sync::SyncInfo {
+        if self.sync.is_none() {
+            self.sync.set_default();
+        }
+        self.sync.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_sync(&mut self) -> super::sync::SyncInfo {
+        self.sync.take().unwrap_or_else(|| super::sync::SyncInfo::new())
+    }
 }
 
 impl ::protobuf::Message for WCModuleConfig {
@@ -9206,6 +9481,11 @@ impl ::protobuf::Message for WCModuleConfig {
                 return false;
             }
         };
+        for v in &self.sync {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
         true
     }
 
@@ -9236,6 +9516,9 @@ impl ::protobuf::Message for WCModuleConfig {
                 },
                 8 => {
                     ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.pump3)?;
+                },
+                20 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.sync)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -9281,6 +9564,10 @@ impl ::protobuf::Message for WCModuleConfig {
             let len = v.compute_size();
             my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
         }
+        if let Some(ref v) = self.sync.as_ref() {
+            let len = v.compute_size();
+            my_size += 2 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -9324,6 +9611,11 @@ impl ::protobuf::Message for WCModuleConfig {
         }
         if let Some(ref v) = self.pump3.as_ref() {
             os.write_tag(8, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        }
+        if let Some(ref v) = self.sync.as_ref() {
+            os.write_tag(20, ::protobuf::wire_format::WireTypeLengthDelimited)?;
             os.write_raw_varint32(v.get_cached_size())?;
             v.write_to_with_cached_sizes(os)?;
         }
@@ -9405,6 +9697,11 @@ impl ::protobuf::Message for WCModuleConfig {
                 |m: &WCModuleConfig| { &m.pump3 },
                 |m: &mut WCModuleConfig| { &mut m.pump3 },
             ));
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<super::sync::SyncInfo>>(
+                "sync",
+                |m: &WCModuleConfig| { &m.sync },
+                |m: &mut WCModuleConfig| { &mut m.sync },
+            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<WCModuleConfig>(
                 "WCModuleConfig",
                 fields,
@@ -9429,6 +9726,7 @@ impl ::protobuf::Clear for WCModuleConfig {
         self.pump1.clear();
         self.pump2.clear();
         self.pump3.clear();
+        self.sync.clear();
         self.unknown_fields.clear();
     }
 }
@@ -9454,6 +9752,7 @@ pub struct PhonePositionData {
     pub altitude: f64,
     pub bearing: f32,
     pub speed: f32,
+    pub timestamp: i32,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -9559,6 +9858,21 @@ impl PhonePositionData {
     pub fn set_speed(&mut self, v: f32) {
         self.speed = v;
     }
+
+    // int32 timestamp = 10;
+
+
+    pub fn get_timestamp(&self) -> i32 {
+        self.timestamp
+    }
+    pub fn clear_timestamp(&mut self) {
+        self.timestamp = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_timestamp(&mut self, v: i32) {
+        self.timestamp = v;
+    }
 }
 
 impl ::protobuf::Message for PhonePositionData {
@@ -9612,6 +9926,13 @@ impl ::protobuf::Message for PhonePositionData {
                     let tmp = is.read_float()?;
                     self.speed = tmp;
                 },
+                10 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_int32()?;
+                    self.timestamp = tmp;
+                },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
                 },
@@ -9642,6 +9963,9 @@ impl ::protobuf::Message for PhonePositionData {
         if self.speed != 0. {
             my_size += 5;
         }
+        if self.timestamp != 0 {
+            my_size += ::protobuf::rt::value_size(10, self.timestamp, ::protobuf::wire_format::WireTypeVarint);
+        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -9665,6 +9989,9 @@ impl ::protobuf::Message for PhonePositionData {
         }
         if self.speed != 0. {
             os.write_float(7, self.speed)?;
+        }
+        if self.timestamp != 0 {
+            os.write_int32(10, self.timestamp)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -9734,6 +10061,11 @@ impl ::protobuf::Message for PhonePositionData {
                 |m: &PhonePositionData| { &m.speed },
                 |m: &mut PhonePositionData| { &mut m.speed },
             ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt32>(
+                "timestamp",
+                |m: &PhonePositionData| { &m.timestamp },
+                |m: &mut PhonePositionData| { &mut m.timestamp },
+            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<PhonePositionData>(
                 "PhonePositionData",
                 fields,
@@ -9756,6 +10088,7 @@ impl ::protobuf::Clear for PhonePositionData {
         self.altitude = 0.;
         self.bearing = 0.;
         self.speed = 0.;
+        self.timestamp = 0;
         self.unknown_fields.clear();
     }
 }
@@ -9894,6 +10227,7 @@ pub struct PhoneAccelerationData {
     pub gx: f32,
     pub gy: f32,
     pub gz: f32,
+    pub timestamp: i32,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -9954,6 +10288,21 @@ impl PhoneAccelerationData {
     pub fn set_gz(&mut self, v: f32) {
         self.gz = v;
     }
+
+    // int32 timestamp = 10;
+
+
+    pub fn get_timestamp(&self) -> i32 {
+        self.timestamp
+    }
+    pub fn clear_timestamp(&mut self) {
+        self.timestamp = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_timestamp(&mut self, v: i32) {
+        self.timestamp = v;
+    }
 }
 
 impl ::protobuf::Message for PhoneAccelerationData {
@@ -9986,6 +10335,13 @@ impl ::protobuf::Message for PhoneAccelerationData {
                     let tmp = is.read_float()?;
                     self.gz = tmp;
                 },
+                10 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_int32()?;
+                    self.timestamp = tmp;
+                },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
                 },
@@ -10007,6 +10363,9 @@ impl ::protobuf::Message for PhoneAccelerationData {
         if self.gz != 0. {
             my_size += 5;
         }
+        if self.timestamp != 0 {
+            my_size += ::protobuf::rt::value_size(10, self.timestamp, ::protobuf::wire_format::WireTypeVarint);
+        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -10021,6 +10380,9 @@ impl ::protobuf::Message for PhoneAccelerationData {
         }
         if self.gz != 0. {
             os.write_float(3, self.gz)?;
+        }
+        if self.timestamp != 0 {
+            os.write_int32(10, self.timestamp)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -10075,6 +10437,11 @@ impl ::protobuf::Message for PhoneAccelerationData {
                 |m: &PhoneAccelerationData| { &m.gz },
                 |m: &mut PhoneAccelerationData| { &mut m.gz },
             ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt32>(
+                "timestamp",
+                |m: &PhoneAccelerationData| { &m.timestamp },
+                |m: &mut PhoneAccelerationData| { &mut m.timestamp },
+            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<PhoneAccelerationData>(
                 "PhoneAccelerationData",
                 fields,
@@ -10094,6 +10461,7 @@ impl ::protobuf::Clear for PhoneAccelerationData {
         self.gx = 0.;
         self.gy = 0.;
         self.gz = 0.;
+        self.timestamp = 0;
         self.unknown_fields.clear();
     }
 }
@@ -10230,6 +10598,7 @@ impl ::protobuf::reflect::ProtobufValue for PhoneAccelerationConfig {
 pub struct PhoneAmbientLightData {
     // message fields
     pub si_lux: f32,
+    pub timestamp: i32,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -10260,6 +10629,21 @@ impl PhoneAmbientLightData {
     pub fn set_si_lux(&mut self, v: f32) {
         self.si_lux = v;
     }
+
+    // int32 timestamp = 10;
+
+
+    pub fn get_timestamp(&self) -> i32 {
+        self.timestamp
+    }
+    pub fn clear_timestamp(&mut self) {
+        self.timestamp = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_timestamp(&mut self, v: i32) {
+        self.timestamp = v;
+    }
 }
 
 impl ::protobuf::Message for PhoneAmbientLightData {
@@ -10278,6 +10662,13 @@ impl ::protobuf::Message for PhoneAmbientLightData {
                     let tmp = is.read_float()?;
                     self.si_lux = tmp;
                 },
+                10 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_int32()?;
+                    self.timestamp = tmp;
+                },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
                 },
@@ -10293,6 +10684,9 @@ impl ::protobuf::Message for PhoneAmbientLightData {
         if self.si_lux != 0. {
             my_size += 5;
         }
+        if self.timestamp != 0 {
+            my_size += ::protobuf::rt::value_size(10, self.timestamp, ::protobuf::wire_format::WireTypeVarint);
+        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -10301,6 +10695,9 @@ impl ::protobuf::Message for PhoneAmbientLightData {
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
         if self.si_lux != 0. {
             os.write_float(1, self.si_lux)?;
+        }
+        if self.timestamp != 0 {
+            os.write_int32(10, self.timestamp)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -10345,6 +10742,11 @@ impl ::protobuf::Message for PhoneAmbientLightData {
                 |m: &PhoneAmbientLightData| { &m.si_lux },
                 |m: &mut PhoneAmbientLightData| { &mut m.si_lux },
             ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt32>(
+                "timestamp",
+                |m: &PhoneAmbientLightData| { &m.timestamp },
+                |m: &mut PhoneAmbientLightData| { &mut m.timestamp },
+            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<PhoneAmbientLightData>(
                 "PhoneAmbientLightData",
                 fields,
@@ -10362,6 +10764,7 @@ impl ::protobuf::Message for PhoneAmbientLightData {
 impl ::protobuf::Clear for PhoneAmbientLightData {
     fn clear(&mut self) {
         self.si_lux = 0.;
+        self.timestamp = 0;
         self.unknown_fields.clear();
     }
 }
@@ -10498,6 +10901,7 @@ impl ::protobuf::reflect::ProtobufValue for PhoneAmbientLightConfig {
 pub struct PhonePressureData {
     // message fields
     pub hpa: f32,
+    pub timestamp: i32,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -10528,6 +10932,21 @@ impl PhonePressureData {
     pub fn set_hpa(&mut self, v: f32) {
         self.hpa = v;
     }
+
+    // int32 timestamp = 10;
+
+
+    pub fn get_timestamp(&self) -> i32 {
+        self.timestamp
+    }
+    pub fn clear_timestamp(&mut self) {
+        self.timestamp = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_timestamp(&mut self, v: i32) {
+        self.timestamp = v;
+    }
 }
 
 impl ::protobuf::Message for PhonePressureData {
@@ -10546,6 +10965,13 @@ impl ::protobuf::Message for PhonePressureData {
                     let tmp = is.read_float()?;
                     self.hpa = tmp;
                 },
+                10 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_int32()?;
+                    self.timestamp = tmp;
+                },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
                 },
@@ -10561,6 +10987,9 @@ impl ::protobuf::Message for PhonePressureData {
         if self.hpa != 0. {
             my_size += 5;
         }
+        if self.timestamp != 0 {
+            my_size += ::protobuf::rt::value_size(10, self.timestamp, ::protobuf::wire_format::WireTypeVarint);
+        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -10569,6 +10998,9 @@ impl ::protobuf::Message for PhonePressureData {
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
         if self.hpa != 0. {
             os.write_float(1, self.hpa)?;
+        }
+        if self.timestamp != 0 {
+            os.write_int32(10, self.timestamp)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -10613,6 +11045,11 @@ impl ::protobuf::Message for PhonePressureData {
                 |m: &PhonePressureData| { &m.hpa },
                 |m: &mut PhonePressureData| { &mut m.hpa },
             ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt32>(
+                "timestamp",
+                |m: &PhonePressureData| { &m.timestamp },
+                |m: &mut PhonePressureData| { &mut m.timestamp },
+            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<PhonePressureData>(
                 "PhonePressureData",
                 fields,
@@ -10630,6 +11067,7 @@ impl ::protobuf::Message for PhonePressureData {
 impl ::protobuf::Clear for PhonePressureData {
     fn clear(&mut self) {
         self.hpa = 0.;
+        self.timestamp = 0;
         self.unknown_fields.clear();
     }
 }
@@ -11629,6 +12067,7 @@ pub struct PhoneStreamingData {
     pub bitrate: f32,
     pub faces: ::protobuf::RepeatedField<CameraFace>,
     pub error: ::std::string::String,
+    pub timestamp: i32,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -11740,6 +12179,21 @@ impl PhoneStreamingData {
     pub fn take_error(&mut self) -> ::std::string::String {
         ::std::mem::replace(&mut self.error, ::std::string::String::new())
     }
+
+    // int32 timestamp = 10;
+
+
+    pub fn get_timestamp(&self) -> i32 {
+        self.timestamp
+    }
+    pub fn clear_timestamp(&mut self) {
+        self.timestamp = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_timestamp(&mut self, v: i32) {
+        self.timestamp = v;
+    }
 }
 
 impl ::protobuf::Message for PhoneStreamingData {
@@ -11779,6 +12233,13 @@ impl ::protobuf::Message for PhoneStreamingData {
                 5 => {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.error)?;
                 },
+                10 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_int32()?;
+                    self.timestamp = tmp;
+                },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
                 },
@@ -11807,6 +12268,9 @@ impl ::protobuf::Message for PhoneStreamingData {
         if !self.error.is_empty() {
             my_size += ::protobuf::rt::string_size(5, &self.error);
         }
+        if self.timestamp != 0 {
+            my_size += ::protobuf::rt::value_size(10, self.timestamp, ::protobuf::wire_format::WireTypeVarint);
+        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -11829,6 +12293,9 @@ impl ::protobuf::Message for PhoneStreamingData {
         };
         if !self.error.is_empty() {
             os.write_string(5, &self.error)?;
+        }
+        if self.timestamp != 0 {
+            os.write_int32(10, self.timestamp)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -11893,6 +12360,11 @@ impl ::protobuf::Message for PhoneStreamingData {
                 |m: &PhoneStreamingData| { &m.error },
                 |m: &mut PhoneStreamingData| { &mut m.error },
             ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt32>(
+                "timestamp",
+                |m: &PhoneStreamingData| { &m.timestamp },
+                |m: &mut PhoneStreamingData| { &mut m.timestamp },
+            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<PhoneStreamingData>(
                 "PhoneStreamingData",
                 fields,
@@ -11914,6 +12386,7 @@ impl ::protobuf::Clear for PhoneStreamingData {
         self.bitrate = 0.;
         self.faces.clear();
         self.error.clear();
+        self.timestamp = 0;
         self.unknown_fields.clear();
     }
 }
@@ -11943,6 +12416,7 @@ pub struct PhoneStreamingConfig {
     pub stabilization: bool,
     pub faceDetection: bool,
     pub zoom: i32,
+    pub sync: ::protobuf::SingularPtrField<super::sync::SyncInfo>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -12119,10 +12593,48 @@ impl PhoneStreamingConfig {
     pub fn set_zoom(&mut self, v: i32) {
         self.zoom = v;
     }
+
+    // .SyncInfo sync = 20;
+
+
+    pub fn get_sync(&self) -> &super::sync::SyncInfo {
+        self.sync.as_ref().unwrap_or_else(|| <super::sync::SyncInfo as ::protobuf::Message>::default_instance())
+    }
+    pub fn clear_sync(&mut self) {
+        self.sync.clear();
+    }
+
+    pub fn has_sync(&self) -> bool {
+        self.sync.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_sync(&mut self, v: super::sync::SyncInfo) {
+        self.sync = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_sync(&mut self) -> &mut super::sync::SyncInfo {
+        if self.sync.is_none() {
+            self.sync.set_default();
+        }
+        self.sync.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_sync(&mut self) -> super::sync::SyncInfo {
+        self.sync.take().unwrap_or_else(|| super::sync::SyncInfo::new())
+    }
 }
 
 impl ::protobuf::Message for PhoneStreamingConfig {
     fn is_initialized(&self) -> bool {
+        for v in &self.sync {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
         true
     }
 
@@ -12188,6 +12700,9 @@ impl ::protobuf::Message for PhoneStreamingConfig {
                     let tmp = is.read_int32()?;
                     self.zoom = tmp;
                 },
+                20 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.sync)?;
+                },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
                 },
@@ -12230,6 +12745,10 @@ impl ::protobuf::Message for PhoneStreamingConfig {
         if self.zoom != 0 {
             my_size += ::protobuf::rt::value_size(10, self.zoom, ::protobuf::wire_format::WireTypeVarint);
         }
+        if let Some(ref v) = self.sync.as_ref() {
+            let len = v.compute_size();
+            my_size += 2 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -12265,6 +12784,11 @@ impl ::protobuf::Message for PhoneStreamingConfig {
         }
         if self.zoom != 0 {
             os.write_int32(10, self.zoom)?;
+        }
+        if let Some(ref v) = self.sync.as_ref() {
+            os.write_tag(20, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -12354,6 +12878,11 @@ impl ::protobuf::Message for PhoneStreamingConfig {
                 |m: &PhoneStreamingConfig| { &m.zoom },
                 |m: &mut PhoneStreamingConfig| { &mut m.zoom },
             ));
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<super::sync::SyncInfo>>(
+                "sync",
+                |m: &PhoneStreamingConfig| { &m.sync },
+                |m: &mut PhoneStreamingConfig| { &mut m.sync },
+            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<PhoneStreamingConfig>(
                 "PhoneStreamingConfig",
                 fields,
@@ -12380,6 +12909,7 @@ impl ::protobuf::Clear for PhoneStreamingConfig {
         self.stabilization = false;
         self.faceDetection = false;
         self.zoom = 0;
+        self.sync.clear();
         self.unknown_fields.clear();
     }
 }
@@ -12664,6 +13194,7 @@ pub struct ComputerStreamingConfig {
     pub output: PhoneStreamingOutput,
     pub url: ::std::string::String,
     pub arguments: ::protobuf::RepeatedField<::std::string::String>,
+    pub sync: ::protobuf::SingularPtrField<super::sync::SyncInfo>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -12786,10 +13317,48 @@ impl ComputerStreamingConfig {
     pub fn take_arguments(&mut self) -> ::protobuf::RepeatedField<::std::string::String> {
         ::std::mem::replace(&mut self.arguments, ::protobuf::RepeatedField::new())
     }
+
+    // .SyncInfo sync = 20;
+
+
+    pub fn get_sync(&self) -> &super::sync::SyncInfo {
+        self.sync.as_ref().unwrap_or_else(|| <super::sync::SyncInfo as ::protobuf::Message>::default_instance())
+    }
+    pub fn clear_sync(&mut self) {
+        self.sync.clear();
+    }
+
+    pub fn has_sync(&self) -> bool {
+        self.sync.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_sync(&mut self, v: super::sync::SyncInfo) {
+        self.sync = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_sync(&mut self) -> &mut super::sync::SyncInfo {
+        if self.sync.is_none() {
+            self.sync.set_default();
+        }
+        self.sync.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_sync(&mut self) -> super::sync::SyncInfo {
+        self.sync.take().unwrap_or_else(|| super::sync::SyncInfo::new())
+    }
 }
 
 impl ::protobuf::Message for ComputerStreamingConfig {
     fn is_initialized(&self) -> bool {
+        for v in &self.sync {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
         true
     }
 
@@ -12815,6 +13384,9 @@ impl ::protobuf::Message for ComputerStreamingConfig {
                 },
                 5 => {
                     ::protobuf::rt::read_repeated_string_into(wire_type, is, &mut self.arguments)?;
+                },
+                20 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.sync)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -12843,6 +13415,10 @@ impl ::protobuf::Message for ComputerStreamingConfig {
         for value in &self.arguments {
             my_size += ::protobuf::rt::string_size(5, &value);
         };
+        if let Some(ref v) = self.sync.as_ref() {
+            let len = v.compute_size();
+            my_size += 2 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -12864,6 +13440,11 @@ impl ::protobuf::Message for ComputerStreamingConfig {
         for v in &self.arguments {
             os.write_string(5, &v)?;
         };
+        if let Some(ref v) = self.sync.as_ref() {
+            os.write_tag(20, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
     }
@@ -12927,6 +13508,11 @@ impl ::protobuf::Message for ComputerStreamingConfig {
                 |m: &ComputerStreamingConfig| { &m.arguments },
                 |m: &mut ComputerStreamingConfig| { &mut m.arguments },
             ));
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<super::sync::SyncInfo>>(
+                "sync",
+                |m: &ComputerStreamingConfig| { &m.sync },
+                |m: &mut ComputerStreamingConfig| { &mut m.sync },
+            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<ComputerStreamingConfig>(
                 "ComputerStreamingConfig",
                 fields,
@@ -12948,6 +13534,7 @@ impl ::protobuf::Clear for ComputerStreamingConfig {
         self.output = PhoneStreamingOutput::STREAM;
         self.url.clear();
         self.arguments.clear();
+        self.sync.clear();
         self.unknown_fields.clear();
     }
 }
@@ -14357,6 +14944,7 @@ pub struct ComputerStatsData {
     pub swap: ::protobuf::SingularPtrField<MemoryData>,
     pub memory: ::protobuf::SingularPtrField<MemoryData>,
     pub netifs: ::protobuf::RepeatedField<NetworkData>,
+    pub sync: ::protobuf::SingularPtrField<super::sync::SyncInfo>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -14544,6 +15132,39 @@ impl ComputerStatsData {
     pub fn take_netifs(&mut self) -> ::protobuf::RepeatedField<NetworkData> {
         ::std::mem::replace(&mut self.netifs, ::protobuf::RepeatedField::new())
     }
+
+    // .SyncInfo sync = 20;
+
+
+    pub fn get_sync(&self) -> &super::sync::SyncInfo {
+        self.sync.as_ref().unwrap_or_else(|| <super::sync::SyncInfo as ::protobuf::Message>::default_instance())
+    }
+    pub fn clear_sync(&mut self) {
+        self.sync.clear();
+    }
+
+    pub fn has_sync(&self) -> bool {
+        self.sync.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_sync(&mut self, v: super::sync::SyncInfo) {
+        self.sync = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_sync(&mut self) -> &mut super::sync::SyncInfo {
+        if self.sync.is_none() {
+            self.sync.set_default();
+        }
+        self.sync.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_sync(&mut self) -> super::sync::SyncInfo {
+        self.sync.take().unwrap_or_else(|| super::sync::SyncInfo::new())
+    }
 }
 
 impl ::protobuf::Message for ComputerStatsData {
@@ -14569,6 +15190,11 @@ impl ::protobuf::Message for ComputerStatsData {
             }
         };
         for v in &self.netifs {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        for v in &self.sync {
             if !v.is_initialized() {
                 return false;
             }
@@ -14601,6 +15227,9 @@ impl ::protobuf::Message for ComputerStatsData {
                 },
                 6 => {
                     ::protobuf::rt::read_repeated_message_into(wire_type, is, &mut self.netifs)?;
+                },
+                20 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.sync)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -14637,6 +15266,10 @@ impl ::protobuf::Message for ComputerStatsData {
             let len = value.compute_size();
             my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
         };
+        if let Some(ref v) = self.sync.as_ref() {
+            let len = v.compute_size();
+            my_size += 2 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -14671,6 +15304,11 @@ impl ::protobuf::Message for ComputerStatsData {
             os.write_raw_varint32(v.get_cached_size())?;
             v.write_to_with_cached_sizes(os)?;
         };
+        if let Some(ref v) = self.sync.as_ref() {
+            os.write_tag(20, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
     }
@@ -14739,6 +15377,11 @@ impl ::protobuf::Message for ComputerStatsData {
                 |m: &ComputerStatsData| { &m.netifs },
                 |m: &mut ComputerStatsData| { &mut m.netifs },
             ));
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<super::sync::SyncInfo>>(
+                "sync",
+                |m: &ComputerStatsData| { &m.sync },
+                |m: &mut ComputerStatsData| { &mut m.sync },
+            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<ComputerStatsData>(
                 "ComputerStatsData",
                 fields,
@@ -14761,6 +15404,7 @@ impl ::protobuf::Clear for ComputerStatsData {
         self.swap.clear();
         self.memory.clear();
         self.netifs.clear();
+        self.sync.clear();
         self.unknown_fields.clear();
     }
 }
@@ -14780,6 +15424,7 @@ impl ::protobuf::reflect::ProtobufValue for ComputerStatsData {
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
 pub enum ActorType {
     MANUAL_USER_ACTOR = 0,
+    SYSTEM_USER_ACTOR = 1,
     VIRTUAL_ACTOR = 3,
     ENV_CONTROLLER_ACTOR = 4,
 }
@@ -14792,6 +15437,7 @@ impl ::protobuf::ProtobufEnum for ActorType {
     fn from_i32(value: i32) -> ::std::option::Option<ActorType> {
         match value {
             0 => ::std::option::Option::Some(ActorType::MANUAL_USER_ACTOR),
+            1 => ::std::option::Option::Some(ActorType::SYSTEM_USER_ACTOR),
             3 => ::std::option::Option::Some(ActorType::VIRTUAL_ACTOR),
             4 => ::std::option::Option::Some(ActorType::ENV_CONTROLLER_ACTOR),
             _ => ::std::option::Option::None
@@ -14801,6 +15447,7 @@ impl ::protobuf::ProtobufEnum for ActorType {
     fn values() -> &'static [Self] {
         static values: &'static [ActorType] = &[
             ActorType::MANUAL_USER_ACTOR,
+            ActorType::SYSTEM_USER_ACTOR,
             ActorType::VIRTUAL_ACTOR,
             ActorType::ENV_CONTROLLER_ACTOR,
         ];
@@ -15264,192 +15911,204 @@ impl ::protobuf::reflect::ProtobufValue for PhoneStreamingOutput {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x0cmodule.proto\"K\n\x05Actor\x12\x1e\n\x04type\x18\x01\x20\x01(\x0e2\
-    \n.ActorTypeR\x04type\x12\x0e\n\x02id\x18\x02\x20\x01(\tR\x02id\x12\x12\
-    \n\x04name\x18\x03\x20\x01(\tR\x04name\"w\n\x0eActorOwnership\x12'\n\x04\
-    type\x18\x01\x20\x01(\x0e2\x13.ActorRessourceTypeR\x04type\x12\x20\n\x0b\
-    ressourceId\x18\x02\x20\x01(\tR\x0bressourceId\x12\x1a\n\x08property\x18\
-    \x03\x20\x01(\tR\x08property\"c\n\x12ActorWithOwnership\x12\x1c\n\x05act\
-    or\x18\x01\x20\x01(\x0b2\x06.ActorR\x05actor\x12/\n\nownerships\x18\x02\
-    \x20\x03(\x0b2\x0f.ActorOwnershipR\nownerships\"\xc0\x01\n\x1bModuleActo\
-    rOwnershipRequest\x12\x1c\n\x05actor\x18\x01\x20\x01(\x0b2\x06.ActorR\
-    \x05actor\x12F\n\x08property\x18\x02\x20\x03(\x0b2*.ModuleActorOwnership\
-    Request.PropertyEntryR\x08property\x1a;\n\rPropertyEntry\x12\x10\n\x03ke\
-    y\x18\x01\x20\x01(\tR\x03key\x12\x14\n\x05value\x18\x02\x20\x01(\x08R\
-    \x05value:\x028\x01\"\xd4\x01\n\nModuleData\x12\x0e\n\x02id\x18\x01\x20\
-    \x01(\tR\x02id\x12\x12\n\x04name\x18\x02\x20\x01(\tR\x04name\x12\x1c\n\t\
-    readCount\x18\x04\x20\x01(\x05R\treadCount\x12\"\n\x0cboardVersion\x18\
-    \x05\x20\x01(\tR\x0cboardVersion\x12\x12\n\x04plug\x18\x06\x20\x01(\x08R\
-    \x04plug\x12\x18\n\x07atIndex\x18\x07\x20\x01(\x05R\x07atIndex\x12\x14\n\
-    \x05board\x18\x08\x20\x01(\tR\x05board\x12\x1c\n\tboardAddr\x18\t\x20\
-    \x01(\tR\tboardAddr\"q\n\rTHLModuleData\x12\x1a\n\x08humidity\x18\x02\
-    \x20\x01(\x02R\x08humidity\x12&\n\x0eairTemperature\x18\x03\x20\x01(\x02\
-    R\x0eairTemperature\x12\x1c\n\ttimestamp\x18\t\x20\x01(\x05R\ttimestamp\
-    \"\xcc\x01\n\x0eSOILModuleData\x12\x0e\n\x02p0\x18\x01\x20\x01(\x05R\x02\
-    p0\x12\x0e\n\x02p1\x18\x02\x20\x01(\x05R\x02p1\x12\x0e\n\x02p2\x18\x03\
-    \x20\x01(\x05R\x02p2\x12\x0e\n\x02p3\x18\x04\x20\x01(\x05R\x02p3\x12\x0e\
-    \n\x02p4\x18\x05\x20\x01(\x05R\x02p4\x12\x0e\n\x02p5\x18\x06\x20\x01(\
-    \x05R\x02p5\x12\x0e\n\x02p6\x18\x07\x20\x01(\x05R\x02p6\x12\x0e\n\x02p7\
-    \x18\x08\x20\x01(\x05R\x02p7\x12\x1c\n\ttimestamp\x18\t\x20\x01(\x05R\tt\
-    imestamp\x12\x1c\n\tvaluetype\x18\n\x20\x01(\tR\tvaluetype\"7\n\x0fSOILP\
-    robeConfig\x12\x10\n\x03low\x18\x01\x20\x01(\x05R\x03low\x12\x12\n\x04hi\
-    gh\x18\x02\x20\x01(\x05R\x04high\"\xa2\x02\n\x10SOILModuleConfig\x12\x20\
-    \n\x02p0\x18\x01\x20\x01(\x0b2\x10.SOILProbeConfigR\x02p0\x12\x20\n\x02p\
-    1\x18\x02\x20\x01(\x0b2\x10.SOILProbeConfigR\x02p1\x12\x20\n\x02p2\x18\
-    \x03\x20\x01(\x0b2\x10.SOILProbeConfigR\x02p2\x12\x20\n\x02p3\x18\x04\
-    \x20\x01(\x0b2\x10.SOILProbeConfigR\x02p3\x12\x20\n\x02p4\x18\x05\x20\
-    \x01(\x0b2\x10.SOILProbeConfigR\x02p4\x12\x20\n\x02p5\x18\x06\x20\x01(\
-    \x0b2\x10.SOILProbeConfigR\x02p5\x12\x20\n\x02p6\x18\x07\x20\x01(\x0b2\
-    \x10.SOILProbeConfigR\x02p6\x12\x20\n\x02p7\x18\x08\x20\x01(\x0b2\x10.SO\
-    ILProbeConfigR\x02p7\"\x16\n\x14SOILCalibrationStart\"N\n\x13SOILCalibra\
-    tionStep\x127\n\x0erequested_step\x18\x01\x20\x01(\x0e2\x10.CalibrationS\
-    tepR\rrequestedStep\"\xf7\x01\n\x18SOILCalibrationStepEvent\x12$\n\x04st\
-    ep\x18\x01\x20\x01(\x0e2\x10.CalibrationStepR\x04step\x12.\n\x06status\
-    \x18\x02\x20\x01(\x0e2\x16.CalibrationStepStatusR\x06status\x12%\n\x04er\
-    ro\x18\x03\x20\x01(\x0e2\x11.CalibrationErrorR\x04erro\x12\x16\n\x06mess\
-    ag\x18\x04\x20\x01(\tR\x06messag\x12!\n\x03low\x18\x05\x20\x03(\x0b2\x0f\
-    .SOILModuleDataR\x03low\x12#\n\x04high\x18\x06\x20\x03(\x0b2\x0f.SOILMod\
-    uleDataR\x04high\"n\n\x0cWAModuleData\x12\x0e\n\x02PH\x18\x02\x20\x01(\
-    \x05R\x02PH\x12\x0e\n\x02EC\x18\x03\x20\x01(\x05R\x02EC\x12\x20\n\x0btem\
-    perature\x18\x04\x20\x01(\x05R\x0btemperature\x12\x1c\n\ttimestamp\x18\t\
-    \x20\x01(\x05R\ttimestamp\"\x82\x01\n\x08CronItem\x12\x16\n\x06minute\
-    \x18\x01\x20\x01(\x05R\x06minute\x12\x12\n\x04hour\x18\x02\x20\x01(\x05R\
-    \x04hour\x12\x1a\n\x08dayMonth\x18\x03\x20\x01(\x05R\x08dayMonth\x12\x14\
-    \n\x05month\x18\x04\x20\x01(\x05R\x05month\x12\x18\n\x07dayWeek\x18\x05\
-    \x20\x01(\x05R\x07dayWeek\"Q\n\x0bCycleConfig\x12\x20\n\x0bwaitingTime\
-    \x18\x01\x20\x01(\x05R\x0bwaitingTime\x12\x20\n\x0brunningTime\x18\x02\
-    \x20\x01(\x05R\x0brunningTime\"Q\n\x0bAlarmConfig\x12%\n\x08begining\x18\
-    \x01\x20\x01(\x0b2\t.CronItemR\x08begining\x12\x1b\n\x03end\x18\x02\x20\
-    \x01(\x0b2\t.CronItemR\x03end\"@\n\x0cManualConfig\x12\x14\n\x05state\
-    \x18\x01\x20\x01(\x08R\x05state\x12\x1a\n\x08duration\x18\x02\x20\x01(\
-    \x05R\x08duration\"'\n\x0fRelayOutletData\x12\x14\n\x05state\x18\x01\x20\
-    \x01(\x08R\x05state\"\x14\n\x12VirtualRelayConfig\"\xb3\x02\n\x11RelayOu\
-    tletConfig\x12$\n\x04mode\x18\x01\x20\x01(\x0e2\x10.RelayOutletModeR\x04\
-    mode\x12\"\n\x05alarm\x18\x02\x20\x01(\x0b2\x0c.AlarmConfigR\x05alarm\
-    \x12%\n\x06manual\x18\x03\x20\x01(\x0b2\r.ManualConfigR\x06manual\x12-\n\
-    \x07virtual\x18\x04\x20\x01(\x0b2\x13.VirtualRelayConfigR\x07virtual\x12\
-    \"\n\x05cycle\x18\x05\x20\x01(\x0b2\x0c.CycleConfigR\x05cycle\x12$\n\x0e\
-    actor_owner_id\x18\x06\x20\x01(\tR\x0cactorOwnerId\x124\n\x10actor_owner\
-    _type\x18\x07\x20\x01(\x0e2\n.ActorTypeR\x0eactorOwnerType\"v\n\x1aVirtu\
-    alRelayPropertyConfig\x12\x1a\n\x08property\x18\x01\x20\x01(\x05R\x08pro\
-    perty\x12\x1e\n\nfalseState\x18\x02\x20\x01(\x08R\nfalseState\x12\x1c\n\
-    \ttrueState\x18\x03\x20\x01(\x08R\ttrueState\"O\n\x10VirtualRelayItem\
-    \x12;\n\nproperties\x18\x01\x20\x03(\x0b2\x1b.VirtualRelayPropertyConfig\
-    R\nproperties\"Q\n\x17VirtualRelayPropetyItem\x12\x1a\n\x08moduleId\x18\
-    \x01\x20\x01(\tR\x08moduleId\x12\x1a\n\x08property\x18\x02\x20\x03(\x05R\
-    \x08property\"F\n\x14VirtualRelayProperty\x12.\n\x05items\x18\x01\x20\
-    \x03(\x0b2\x18.VirtualRelayPropetyItemR\x05items\"\xde\x02\n\x0cVirtualR\
-    elay\x12\x12\n\x04name\x18\x01\x20\x01(\tR\x04name\x121\n\x06relays\x18\
-    \x02\x20\x03(\x0b2\x19.VirtualRelay.RelaysEntryR\x06relays\x12=\n\nprope\
-    rties\x18\x03\x20\x03(\x0b2\x1d.VirtualRelay.PropertiesEntryR\npropertie\
-    s\x12$\n\x0eactor_owner_id\x18\x06\x20\x01(\tR\x0cactorOwnerId\x1aL\n\
-    \x0bRelaysEntry\x12\x10\n\x03key\x18\x01\x20\x01(\tR\x03key\x12'\n\x05va\
-    lue\x18\x02\x20\x01(\x0b2\x11.VirtualRelayItemR\x05value:\x028\x01\x1aT\
-    \n\x0fPropertiesEntry\x12\x10\n\x03key\x18\x01\x20\x01(\tR\x03key\x12+\n\
-    \x05value\x18\x02\x20\x01(\x0b2\x15.VirtualRelayPropertyR\x05value:\x028\
-    \x01\"6\n\rVirtualRelays\x12%\n\x06relays\x18\x01\x20\x03(\x0b2\r.Virtua\
-    lRelayR\x06relays\"V\n\x10VirtualRelayData\x12$\n\x04data\x18\x01\x20\
-    \x01(\x0b2\x10.RelayOutletDataR\x04data\x12\x1c\n\ttimestamp\x18\x02\x20\
-    \x01(\x05R\ttimestamp\"S\n\x11VirtualRelayState\x12\x0e\n\x02id\x18\x01\
-    \x20\x01(\tR\x02id\x12\x14\n\x05state\x18\x02\x20\x01(\x08R\x05state\x12\
-    \x18\n\x07message\x18\x03\x20\x01(\tR\x07message\"\xdd\x02\n\x0fRelayMod\
-    uleData\x12\x20\n\x02p0\x18\x01\x20\x01(\x0b2\x10.RelayOutletDataR\x02p0\
-    \x12\x20\n\x02p1\x18\x02\x20\x01(\x0b2\x10.RelayOutletDataR\x02p1\x12\
-    \x20\n\x02p2\x18\x03\x20\x01(\x0b2\x10.RelayOutletDataR\x02p2\x12\x20\n\
-    \x02p3\x18\x04\x20\x01(\x0b2\x10.RelayOutletDataR\x02p3\x12\x20\n\x02p4\
-    \x18\x05\x20\x01(\x0b2\x10.RelayOutletDataR\x02p4\x12\x20\n\x02p5\x18\
-    \x06\x20\x01(\x0b2\x10.RelayOutletDataR\x02p5\x12\x20\n\x02p6\x18\x07\
-    \x20\x01(\x0b2\x10.RelayOutletDataR\x02p6\x12\x20\n\x02p7\x18\x08\x20\
-    \x01(\x0b2\x10.RelayOutletDataR\x02p7\x12\x1c\n\ttimestamp\x18\t\x20\x01\
-    (\x05R\ttimestamp\x12\x1c\n\x05actor\x18\n\x20\x01(\x0b2\x06.ActorR\x05a\
-    ctor\"\xd1\x02\n\x11RelayModuleConfig\x12\"\n\x02p0\x18\x01\x20\x01(\x0b\
-    2\x12.RelayOutletConfigR\x02p0\x12\"\n\x02p1\x18\x02\x20\x01(\x0b2\x12.R\
-    elayOutletConfigR\x02p1\x12\"\n\x02p2\x18\x03\x20\x01(\x0b2\x12.RelayOut\
-    letConfigR\x02p2\x12\"\n\x02p3\x18\x04\x20\x01(\x0b2\x12.RelayOutletConf\
-    igR\x02p3\x12\"\n\x02p4\x18\x05\x20\x01(\x0b2\x12.RelayOutletConfigR\x02\
-    p4\x12\"\n\x02p5\x18\x06\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p5\x12\
-    \"\n\x02p6\x18\x07\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p6\x12\"\n\
-    \x02p7\x18\x08\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p7\x12\x1c\n\ttim\
-    estamp\x18\t\x20\x01(\x05R\ttimestamp\"\xf8\x02\n\x0cWCModuleData\x12\
-    \x20\n\x02p0\x18\x01\x20\x01(\x0b2\x10.RelayOutletDataR\x02p0\x12\x20\n\
-    \x02p1\x18\x02\x20\x01(\x0b2\x10.RelayOutletDataR\x02p1\x12\x20\n\x02p2\
-    \x18\x03\x20\x01(\x0b2\x10.RelayOutletDataR\x02p2\x12&\n\x05drain\x18\
-    \x04\x20\x01(\x0b2\x10.RelayOutletDataR\x05drain\x12&\n\x05pump0\x18\x05\
-    \x20\x01(\x0b2\x10.RelayOutletDataR\x05pump0\x12&\n\x05pump1\x18\x06\x20\
-    \x01(\x0b2\x10.RelayOutletDataR\x05pump1\x12&\n\x05pump2\x18\x07\x20\x01\
-    (\x0b2\x10.RelayOutletDataR\x05pump2\x12&\n\x05pump3\x18\x08\x20\x01(\
-    \x0b2\x10.RelayOutletDataR\x05pump3\x12\x1c\n\ttimestamp\x18\t\x20\x01(\
-    \x05R\ttimestamp\x12\x1c\n\x05actor\x18\n\x20\x01(\x0b2\x06.ActorR\x05ac\
-    tor\"\xce\x02\n\x0eWCModuleConfig\x12\"\n\x02p0\x18\x01\x20\x01(\x0b2\
-    \x12.RelayOutletConfigR\x02p0\x12\"\n\x02p1\x18\x02\x20\x01(\x0b2\x12.Re\
-    layOutletConfigR\x02p1\x12\"\n\x02p2\x18\x03\x20\x01(\x0b2\x12.RelayOutl\
-    etConfigR\x02p2\x12(\n\x05drain\x18\x04\x20\x01(\x0b2\x12.RelayOutletCon\
-    figR\x05drain\x12(\n\x05pump0\x18\x05\x20\x01(\x0b2\x12.RelayOutletConfi\
-    gR\x05pump0\x12(\n\x05pump1\x18\x06\x20\x01(\x0b2\x12.RelayOutletConfigR\
-    \x05pump1\x12(\n\x05pump2\x18\x07\x20\x01(\x0b2\x12.RelayOutletConfigR\
-    \x05pump2\x12(\n\x05pump3\x18\x08\x20\x01(\x0b2\x12.RelayOutletConfigR\
-    \x05pump3\"\x9f\x01\n\x11PhonePositionData\x12\x10\n\x03lat\x18\x01\x20\
-    \x01(\x02R\x03lat\x12\x10\n\x03log\x18\x02\x20\x01(\x02R\x03log\x12\x1a\
-    \n\x08accuracy\x18\x03\x20\x01(\x02R\x08accuracy\x12\x1a\n\x08altitude\
-    \x18\x04\x20\x01(\x01R\x08altitude\x12\x18\n\x07bearing\x18\x05\x20\x01(\
-    \x02R\x07bearing\x12\x14\n\x05speed\x18\x07\x20\x01(\x02R\x05speed\"\x15\
-    \n\x13PhonePositionConfig\"G\n\x15PhoneAccelerationData\x12\x0e\n\x02gx\
+    \n\x0cmodule.proto\x1a\nsync.proto\"K\n\x05Actor\x12\x1e\n\x04type\x18\
+    \x01\x20\x01(\x0e2\n.ActorTypeR\x04type\x12\x0e\n\x02id\x18\x02\x20\x01(\
+    \tR\x02id\x12\x12\n\x04name\x18\x03\x20\x01(\tR\x04name\"w\n\x0eActorOwn\
+    ership\x12'\n\x04type\x18\x01\x20\x01(\x0e2\x13.ActorRessourceTypeR\x04t\
+    ype\x12\x20\n\x0bressourceId\x18\x02\x20\x01(\tR\x0bressourceId\x12\x1a\
+    \n\x08property\x18\x03\x20\x01(\tR\x08property\"c\n\x12ActorWithOwnershi\
+    p\x12\x1c\n\x05actor\x18\x01\x20\x01(\x0b2\x06.ActorR\x05actor\x12/\n\no\
+    wnerships\x18\x02\x20\x03(\x0b2\x0f.ActorOwnershipR\nownerships\"\xc0\
+    \x01\n\x1bModuleActorOwnershipRequest\x12\x1c\n\x05actor\x18\x01\x20\x01\
+    (\x0b2\x06.ActorR\x05actor\x12F\n\x08property\x18\x02\x20\x03(\x0b2*.Mod\
+    uleActorOwnershipRequest.PropertyEntryR\x08property\x1a;\n\rPropertyEntr\
+    y\x12\x10\n\x03key\x18\x01\x20\x01(\tR\x03key\x12\x14\n\x05value\x18\x02\
+    \x20\x01(\x08R\x05value:\x028\x01\"\xd4\x01\n\nModuleData\x12\x0e\n\x02i\
+    d\x18\x01\x20\x01(\tR\x02id\x12\x12\n\x04name\x18\x02\x20\x01(\tR\x04nam\
+    e\x12\x1c\n\treadCount\x18\x04\x20\x01(\x05R\treadCount\x12\"\n\x0cboard\
+    Version\x18\x05\x20\x01(\tR\x0cboardVersion\x12\x12\n\x04plug\x18\x06\
+    \x20\x01(\x08R\x04plug\x12\x18\n\x07atIndex\x18\x07\x20\x01(\x05R\x07atI\
+    ndex\x12\x14\n\x05board\x18\x08\x20\x01(\tR\x05board\x12\x1c\n\tboardAdd\
+    r\x18\t\x20\x01(\tR\tboardAddr\"q\n\rTHLModuleData\x12\x1a\n\x08humidity\
+    \x18\x02\x20\x01(\x02R\x08humidity\x12&\n\x0eairTemperature\x18\x03\x20\
+    \x01(\x02R\x0eairTemperature\x12\x1c\n\ttimestamp\x18\t\x20\x01(\x05R\tt\
+    imestamp\"\xcc\x01\n\x0eSOILModuleData\x12\x0e\n\x02p0\x18\x01\x20\x01(\
+    \x05R\x02p0\x12\x0e\n\x02p1\x18\x02\x20\x01(\x05R\x02p1\x12\x0e\n\x02p2\
+    \x18\x03\x20\x01(\x05R\x02p2\x12\x0e\n\x02p3\x18\x04\x20\x01(\x05R\x02p3\
+    \x12\x0e\n\x02p4\x18\x05\x20\x01(\x05R\x02p4\x12\x0e\n\x02p5\x18\x06\x20\
+    \x01(\x05R\x02p5\x12\x0e\n\x02p6\x18\x07\x20\x01(\x05R\x02p6\x12\x0e\n\
+    \x02p7\x18\x08\x20\x01(\x05R\x02p7\x12\x1c\n\ttimestamp\x18\t\x20\x01(\
+    \x05R\ttimestamp\x12\x1c\n\tvaluetype\x18\n\x20\x01(\tR\tvaluetype\"7\n\
+    \x0fSOILProbeConfig\x12\x10\n\x03low\x18\x01\x20\x01(\x05R\x03low\x12\
+    \x12\n\x04high\x18\x02\x20\x01(\x05R\x04high\"\xc1\x02\n\x10SOILModuleCo\
+    nfig\x12\x20\n\x02p0\x18\x01\x20\x01(\x0b2\x10.SOILProbeConfigR\x02p0\
+    \x12\x20\n\x02p1\x18\x02\x20\x01(\x0b2\x10.SOILProbeConfigR\x02p1\x12\
+    \x20\n\x02p2\x18\x03\x20\x01(\x0b2\x10.SOILProbeConfigR\x02p2\x12\x20\n\
+    \x02p3\x18\x04\x20\x01(\x0b2\x10.SOILProbeConfigR\x02p3\x12\x20\n\x02p4\
+    \x18\x05\x20\x01(\x0b2\x10.SOILProbeConfigR\x02p4\x12\x20\n\x02p5\x18\
+    \x06\x20\x01(\x0b2\x10.SOILProbeConfigR\x02p5\x12\x20\n\x02p6\x18\x07\
+    \x20\x01(\x0b2\x10.SOILProbeConfigR\x02p6\x12\x20\n\x02p7\x18\x08\x20\
+    \x01(\x0b2\x10.SOILProbeConfigR\x02p7\x12\x1d\n\x04sync\x18\x14\x20\x01(\
+    \x0b2\t.SyncInfoR\x04sync\"\x16\n\x14SOILCalibrationStart\"N\n\x13SOILCa\
+    librationStep\x127\n\x0erequested_step\x18\x01\x20\x01(\x0e2\x10.Calibra\
+    tionStepR\rrequestedStep\"\xf7\x01\n\x18SOILCalibrationStepEvent\x12$\n\
+    \x04step\x18\x01\x20\x01(\x0e2\x10.CalibrationStepR\x04step\x12.\n\x06st\
+    atus\x18\x02\x20\x01(\x0e2\x16.CalibrationStepStatusR\x06status\x12%\n\
+    \x04erro\x18\x03\x20\x01(\x0e2\x11.CalibrationErrorR\x04erro\x12\x16\n\
+    \x06messag\x18\x04\x20\x01(\tR\x06messag\x12!\n\x03low\x18\x05\x20\x03(\
+    \x0b2\x0f.SOILModuleDataR\x03low\x12#\n\x04high\x18\x06\x20\x03(\x0b2\
+    \x0f.SOILModuleDataR\x04high\"n\n\x0cWAModuleData\x12\x0e\n\x02PH\x18\
+    \x02\x20\x01(\x05R\x02PH\x12\x0e\n\x02EC\x18\x03\x20\x01(\x05R\x02EC\x12\
+    \x20\n\x0btemperature\x18\x04\x20\x01(\x05R\x0btemperature\x12\x1c\n\tti\
+    mestamp\x18\t\x20\x01(\x05R\ttimestamp\"\x82\x01\n\x08CronItem\x12\x16\n\
+    \x06minute\x18\x01\x20\x01(\x05R\x06minute\x12\x12\n\x04hour\x18\x02\x20\
+    \x01(\x05R\x04hour\x12\x1a\n\x08dayMonth\x18\x03\x20\x01(\x05R\x08dayMon\
+    th\x12\x14\n\x05month\x18\x04\x20\x01(\x05R\x05month\x12\x18\n\x07dayWee\
+    k\x18\x05\x20\x01(\x05R\x07dayWeek\"Q\n\x0bCycleConfig\x12\x20\n\x0bwait\
+    ingTime\x18\x01\x20\x01(\x05R\x0bwaitingTime\x12\x20\n\x0brunningTime\
+    \x18\x02\x20\x01(\x05R\x0brunningTime\"Q\n\x0bAlarmConfig\x12%\n\x08begi\
+    ning\x18\x01\x20\x01(\x0b2\t.CronItemR\x08begining\x12\x1b\n\x03end\x18\
+    \x02\x20\x01(\x0b2\t.CronItemR\x03end\"@\n\x0cManualConfig\x12\x14\n\x05\
+    state\x18\x01\x20\x01(\x08R\x05state\x12\x1a\n\x08duration\x18\x02\x20\
+    \x01(\x05R\x08duration\"E\n\x0fRelayOutletData\x12\x14\n\x05state\x18\
+    \x01\x20\x01(\x08R\x05state\x12\x1c\n\ttimestamp\x18\n\x20\x01(\x05R\tti\
+    mestamp\"\x14\n\x12VirtualRelayConfig\"\xd1\x02\n\x11RelayOutletConfig\
+    \x12$\n\x04mode\x18\x01\x20\x01(\x0e2\x10.RelayOutletModeR\x04mode\x12\"\
+    \n\x05alarm\x18\x02\x20\x01(\x0b2\x0c.AlarmConfigR\x05alarm\x12%\n\x06ma\
+    nual\x18\x03\x20\x01(\x0b2\r.ManualConfigR\x06manual\x12-\n\x07virtual\
+    \x18\x04\x20\x01(\x0b2\x13.VirtualRelayConfigR\x07virtual\x12\"\n\x05cyc\
+    le\x18\x05\x20\x01(\x0b2\x0c.CycleConfigR\x05cycle\x12$\n\x0eactor_owner\
+    _id\x18\x06\x20\x01(\tR\x0cactorOwnerId\x124\n\x10actor_owner_type\x18\
+    \x07\x20\x01(\x0e2\n.ActorTypeR\x0eactorOwnerType\x12\x1c\n\ttimestamp\
+    \x18\n\x20\x01(\x05R\ttimestamp\"v\n\x1aVirtualRelayPropertyConfig\x12\
+    \x1a\n\x08property\x18\x01\x20\x01(\x05R\x08property\x12\x1e\n\nfalseSta\
+    te\x18\x02\x20\x01(\x08R\nfalseState\x12\x1c\n\ttrueState\x18\x03\x20\
+    \x01(\x08R\ttrueState\"O\n\x10VirtualRelayItem\x12;\n\nproperties\x18\
+    \x01\x20\x03(\x0b2\x1b.VirtualRelayPropertyConfigR\nproperties\"Q\n\x17V\
+    irtualRelayPropetyItem\x12\x1a\n\x08moduleId\x18\x01\x20\x01(\tR\x08modu\
+    leId\x12\x1a\n\x08property\x18\x02\x20\x03(\x05R\x08property\"F\n\x14Vir\
+    tualRelayProperty\x12.\n\x05items\x18\x01\x20\x03(\x0b2\x18.VirtualRelay\
+    PropetyItemR\x05items\"\xfd\x02\n\x0cVirtualRelay\x12\x12\n\x04name\x18\
+    \x01\x20\x01(\tR\x04name\x121\n\x06relays\x18\x02\x20\x03(\x0b2\x19.Virt\
+    ualRelay.RelaysEntryR\x06relays\x12=\n\nproperties\x18\x03\x20\x03(\x0b2\
+    \x1d.VirtualRelay.PropertiesEntryR\nproperties\x12$\n\x0eactor_owner_id\
+    \x18\x06\x20\x01(\tR\x0cactorOwnerId\x12\x1d\n\x04sync\x18\x14\x20\x01(\
+    \x0b2\t.SyncInfoR\x04sync\x1aL\n\x0bRelaysEntry\x12\x10\n\x03key\x18\x01\
+    \x20\x01(\tR\x03key\x12'\n\x05value\x18\x02\x20\x01(\x0b2\x11.VirtualRel\
+    ayItemR\x05value:\x028\x01\x1aT\n\x0fPropertiesEntry\x12\x10\n\x03key\
+    \x18\x01\x20\x01(\tR\x03key\x12+\n\x05value\x18\x02\x20\x01(\x0b2\x15.Vi\
+    rtualRelayPropertyR\x05value:\x028\x01\"6\n\rVirtualRelays\x12%\n\x06rel\
+    ays\x18\x01\x20\x03(\x0b2\r.VirtualRelayR\x06relays\"V\n\x10VirtualRelay\
+    Data\x12$\n\x04data\x18\x01\x20\x01(\x0b2\x10.RelayOutletDataR\x04data\
+    \x12\x1c\n\ttimestamp\x18\x02\x20\x01(\x05R\ttimestamp\"S\n\x11VirtualRe\
+    layState\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\x14\n\x05state\
+    \x18\x02\x20\x01(\x08R\x05state\x12\x18\n\x07message\x18\x03\x20\x01(\tR\
+    \x07message\"\xdd\x02\n\x0fRelayModuleData\x12\x20\n\x02p0\x18\x01\x20\
+    \x01(\x0b2\x10.RelayOutletDataR\x02p0\x12\x20\n\x02p1\x18\x02\x20\x01(\
+    \x0b2\x10.RelayOutletDataR\x02p1\x12\x20\n\x02p2\x18\x03\x20\x01(\x0b2\
+    \x10.RelayOutletDataR\x02p2\x12\x20\n\x02p3\x18\x04\x20\x01(\x0b2\x10.Re\
+    layOutletDataR\x02p3\x12\x20\n\x02p4\x18\x05\x20\x01(\x0b2\x10.RelayOutl\
+    etDataR\x02p4\x12\x20\n\x02p5\x18\x06\x20\x01(\x0b2\x10.RelayOutletDataR\
+    \x02p5\x12\x20\n\x02p6\x18\x07\x20\x01(\x0b2\x10.RelayOutletDataR\x02p6\
+    \x12\x20\n\x02p7\x18\x08\x20\x01(\x0b2\x10.RelayOutletDataR\x02p7\x12\
+    \x1c\n\ttimestamp\x18\t\x20\x01(\x05R\ttimestamp\x12\x1c\n\x05actor\x18\
+    \n\x20\x01(\x0b2\x06.ActorR\x05actor\"\xf0\x02\n\x11RelayModuleConfig\
+    \x12\"\n\x02p0\x18\x01\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p0\x12\"\
+    \n\x02p1\x18\x02\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p1\x12\"\n\x02p\
+    2\x18\x03\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p2\x12\"\n\x02p3\x18\
+    \x04\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p3\x12\"\n\x02p4\x18\x05\
+    \x20\x01(\x0b2\x12.RelayOutletConfigR\x02p4\x12\"\n\x02p5\x18\x06\x20\
+    \x01(\x0b2\x12.RelayOutletConfigR\x02p5\x12\"\n\x02p6\x18\x07\x20\x01(\
+    \x0b2\x12.RelayOutletConfigR\x02p6\x12\"\n\x02p7\x18\x08\x20\x01(\x0b2\
+    \x12.RelayOutletConfigR\x02p7\x12\x1c\n\ttimestamp\x18\t\x20\x01(\x05R\t\
+    timestamp\x12\x1d\n\x04sync\x18\x14\x20\x01(\x0b2\t.SyncInfoR\x04sync\"\
+    \xf8\x02\n\x0cWCModuleData\x12\x20\n\x02p0\x18\x01\x20\x01(\x0b2\x10.Rel\
+    ayOutletDataR\x02p0\x12\x20\n\x02p1\x18\x02\x20\x01(\x0b2\x10.RelayOutle\
+    tDataR\x02p1\x12\x20\n\x02p2\x18\x03\x20\x01(\x0b2\x10.RelayOutletDataR\
+    \x02p2\x12&\n\x05drain\x18\x04\x20\x01(\x0b2\x10.RelayOutletDataR\x05dra\
+    in\x12&\n\x05pump0\x18\x05\x20\x01(\x0b2\x10.RelayOutletDataR\x05pump0\
+    \x12&\n\x05pump1\x18\x06\x20\x01(\x0b2\x10.RelayOutletDataR\x05pump1\x12\
+    &\n\x05pump2\x18\x07\x20\x01(\x0b2\x10.RelayOutletDataR\x05pump2\x12&\n\
+    \x05pump3\x18\x08\x20\x01(\x0b2\x10.RelayOutletDataR\x05pump3\x12\x1c\n\
+    \ttimestamp\x18\t\x20\x01(\x05R\ttimestamp\x12\x1c\n\x05actor\x18\n\x20\
+    \x01(\x0b2\x06.ActorR\x05actor\"\xed\x02\n\x0eWCModuleConfig\x12\"\n\x02\
+    p0\x18\x01\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p0\x12\"\n\x02p1\x18\
+    \x02\x20\x01(\x0b2\x12.RelayOutletConfigR\x02p1\x12\"\n\x02p2\x18\x03\
+    \x20\x01(\x0b2\x12.RelayOutletConfigR\x02p2\x12(\n\x05drain\x18\x04\x20\
+    \x01(\x0b2\x12.RelayOutletConfigR\x05drain\x12(\n\x05pump0\x18\x05\x20\
+    \x01(\x0b2\x12.RelayOutletConfigR\x05pump0\x12(\n\x05pump1\x18\x06\x20\
+    \x01(\x0b2\x12.RelayOutletConfigR\x05pump1\x12(\n\x05pump2\x18\x07\x20\
+    \x01(\x0b2\x12.RelayOutletConfigR\x05pump2\x12(\n\x05pump3\x18\x08\x20\
+    \x01(\x0b2\x12.RelayOutletConfigR\x05pump3\x12\x1d\n\x04sync\x18\x14\x20\
+    \x01(\x0b2\t.SyncInfoR\x04sync\"\xbd\x01\n\x11PhonePositionData\x12\x10\
+    \n\x03lat\x18\x01\x20\x01(\x02R\x03lat\x12\x10\n\x03log\x18\x02\x20\x01(\
+    \x02R\x03log\x12\x1a\n\x08accuracy\x18\x03\x20\x01(\x02R\x08accuracy\x12\
+    \x1a\n\x08altitude\x18\x04\x20\x01(\x01R\x08altitude\x12\x18\n\x07bearin\
+    g\x18\x05\x20\x01(\x02R\x07bearing\x12\x14\n\x05speed\x18\x07\x20\x01(\
+    \x02R\x05speed\x12\x1c\n\ttimestamp\x18\n\x20\x01(\x05R\ttimestamp\"\x15\
+    \n\x13PhonePositionConfig\"e\n\x15PhoneAccelerationData\x12\x0e\n\x02gx\
     \x18\x01\x20\x01(\x02R\x02gx\x12\x0e\n\x02gy\x18\x02\x20\x01(\x02R\x02gy\
-    \x12\x0e\n\x02gz\x18\x03\x20\x01(\x02R\x02gz\"\x19\n\x17PhoneAcceleratio\
-    nConfig\".\n\x15PhoneAmbientLightData\x12\x15\n\x06si_lux\x18\x01\x20\
-    \x01(\x02R\x05siLux\"\x19\n\x17PhoneAmbientLightConfig\"%\n\x11PhonePres\
-    sureData\x12\x10\n\x03hpa\x18\x01\x20\x01(\x02R\x03hpa\"\x15\n\x13PhoneP\
-    ressureConfig\"#\n\x05Point\x12\x0c\n\x01x\x18\x01\x20\x01(\x05R\x01x\
-    \x12\x0c\n\x01y\x18\x02\x20\x01(\x05R\x01y\"Z\n\x04Rect\x12\x10\n\x03top\
-    \x18\x01\x20\x01(\x05R\x03top\x12\x14\n\x05right\x18\x02\x20\x01(\x05R\
-    \x05right\x12\x16\n\x06bottom\x18\x03\x20\x01(\x05R\x06bottom\x12\x12\n\
-    \x04left\x18\x04\x20\x01(\x05R\x04left\"\xb1\x01\n\nCameraFace\x12\x0e\n\
-    \x02id\x18\x01\x20\x01(\x05R\x02id\x12\x14\n\x05score\x18\x02\x20\x01(\
-    \x05R\x05score\x12\x19\n\x04rect\x18\x03\x20\x01(\x0b2\x05.RectR\x04rect\
-    \x12\x1c\n\x05mouth\x18\x04\x20\x01(\x0b2\x06.PointR\x05mouth\x12\x20\n\
-    \x07leftEye\x18\x05\x20\x01(\x0b2\x06.PointR\x07leftEye\x12\"\n\x08right\
-    Eye\x18\x06\x20\x01(\x0b2\x06.PointR\x08rightEye\"\xa8\x01\n\x12PhoneStr\
-    eamingData\x12-\n\x06status\x18\x01\x20\x01(\x0e2\x15.PhoneStreamingStat\
-    usR\x06status\x12\x10\n\x03fps\x18\x02\x20\x01(\x02R\x03fps\x12\x18\n\
-    \x07bitrate\x18\x03\x20\x01(\x02R\x07bitrate\x12!\n\x05faces\x18\x04\x20\
-    \x03(\x0b2\x0b.CameraFaceR\x05faces\x12\x14\n\x05error\x18\x05\x20\x01(\
-    \tR\x05error\"\xce\x02\n\x14PhoneStreamingConfig\x12\x1c\n\tactivated\
-    \x18\x01\x20\x01(\x08R\tactivated\x12-\n\x06output\x18\x02\x20\x01(\x0e2\
-    \x15.PhoneStreamingOutputR\x06output\x12\x10\n\x03url\x18\x03\x20\x01(\t\
-    R\x03url\x12-\n\x06camera\x18\x04\x20\x01(\x0e2\x15.PhoneStreamingCamera\
-    R\x06camera\x12\x14\n\x05light\x18\x05\x20\x01(\x08R\x05light\x12\x14\n\
-    \x05audio\x18\x06\x20\x01(\x08R\x05audio\x12\x1c\n\tautoFocus\x18\x07\
+    \x12\x0e\n\x02gz\x18\x03\x20\x01(\x02R\x02gz\x12\x1c\n\ttimestamp\x18\n\
+    \x20\x01(\x05R\ttimestamp\"\x19\n\x17PhoneAccelerationConfig\"L\n\x15Pho\
+    neAmbientLightData\x12\x15\n\x06si_lux\x18\x01\x20\x01(\x02R\x05siLux\
+    \x12\x1c\n\ttimestamp\x18\n\x20\x01(\x05R\ttimestamp\"\x19\n\x17PhoneAmb\
+    ientLightConfig\"C\n\x11PhonePressureData\x12\x10\n\x03hpa\x18\x01\x20\
+    \x01(\x02R\x03hpa\x12\x1c\n\ttimestamp\x18\n\x20\x01(\x05R\ttimestamp\"\
+    \x15\n\x13PhonePressureConfig\"#\n\x05Point\x12\x0c\n\x01x\x18\x01\x20\
+    \x01(\x05R\x01x\x12\x0c\n\x01y\x18\x02\x20\x01(\x05R\x01y\"Z\n\x04Rect\
+    \x12\x10\n\x03top\x18\x01\x20\x01(\x05R\x03top\x12\x14\n\x05right\x18\
+    \x02\x20\x01(\x05R\x05right\x12\x16\n\x06bottom\x18\x03\x20\x01(\x05R\
+    \x06bottom\x12\x12\n\x04left\x18\x04\x20\x01(\x05R\x04left\"\xb1\x01\n\n\
+    CameraFace\x12\x0e\n\x02id\x18\x01\x20\x01(\x05R\x02id\x12\x14\n\x05scor\
+    e\x18\x02\x20\x01(\x05R\x05score\x12\x19\n\x04rect\x18\x03\x20\x01(\x0b2\
+    \x05.RectR\x04rect\x12\x1c\n\x05mouth\x18\x04\x20\x01(\x0b2\x06.PointR\
+    \x05mouth\x12\x20\n\x07leftEye\x18\x05\x20\x01(\x0b2\x06.PointR\x07leftE\
+    ye\x12\"\n\x08rightEye\x18\x06\x20\x01(\x0b2\x06.PointR\x08rightEye\"\
+    \xc6\x01\n\x12PhoneStreamingData\x12-\n\x06status\x18\x01\x20\x01(\x0e2\
+    \x15.PhoneStreamingStatusR\x06status\x12\x10\n\x03fps\x18\x02\x20\x01(\
+    \x02R\x03fps\x12\x18\n\x07bitrate\x18\x03\x20\x01(\x02R\x07bitrate\x12!\
+    \n\x05faces\x18\x04\x20\x03(\x0b2\x0b.CameraFaceR\x05faces\x12\x14\n\x05\
+    error\x18\x05\x20\x01(\tR\x05error\x12\x1c\n\ttimestamp\x18\n\x20\x01(\
+    \x05R\ttimestamp\"\xed\x02\n\x14PhoneStreamingConfig\x12\x1c\n\tactivate\
+    d\x18\x01\x20\x01(\x08R\tactivated\x12-\n\x06output\x18\x02\x20\x01(\x0e\
+    2\x15.PhoneStreamingOutputR\x06output\x12\x10\n\x03url\x18\x03\x20\x01(\
+    \tR\x03url\x12-\n\x06camera\x18\x04\x20\x01(\x0e2\x15.PhoneStreamingCame\
+    raR\x06camera\x12\x14\n\x05light\x18\x05\x20\x01(\x08R\x05light\x12\x14\
+    \n\x05audio\x18\x06\x20\x01(\x08R\x05audio\x12\x1c\n\tautoFocus\x18\x07\
     \x20\x01(\x08R\tautoFocus\x12$\n\rstabilization\x18\x08\x20\x01(\x08R\rs\
     tabilization\x12$\n\rfaceDetection\x18\t\x20\x01(\x08R\rfaceDetection\
-    \x12\x12\n\x04zoom\x18\n\x20\x01(\x05R\x04zoom\"\x88\x01\n\x15ComputerSt\
-    reamingData\x12-\n\x06status\x18\x01\x20\x01(\x0e2\x15.PhoneStreamingSta\
-    tusR\x06status\x12\x10\n\x03fps\x18\x02\x20\x01(\x02R\x03fps\x12\x18\n\
-    \x07bitrate\x18\x03\x20\x01(\x02R\x07bitrate\x12\x14\n\x05error\x18\x04\
-    \x20\x01(\tR\x05error\"\xae\x01\n\x17ComputerStreamingConfig\x12\x1c\n\t\
-    activated\x18\x01\x20\x01(\x08R\tactivated\x12\x16\n\x06camera\x18\x02\
-    \x20\x01(\tR\x06camera\x12-\n\x06output\x18\x03\x20\x01(\x0e2\x15.PhoneS\
-    treamingOutputR\x06output\x12\x10\n\x03url\x18\x04\x20\x01(\tR\x03url\
-    \x12\x1c\n\targuments\x18\x05\x20\x03(\tR\targuments\"2\n\x16ComputerStr\
-    eamingState\x12\x18\n\x07cameras\x18\x01\x20\x03(\tR\x07cameras\"\x15\n\
-    \x13ComputerStatsConfig\"\x8f\x01\n\x07CpuData\x12\x12\n\x04user\x18\x01\
-    \x20\x01(\x02R\x04user\x12\x12\n\x04nice\x18\x02\x20\x01(\x02R\x04nice\
-    \x12\x16\n\x06system\x18\x03\x20\x01(\x02R\x06system\x12\x1c\n\tinterrup\
-    t\x18\x04\x20\x01(\x02R\tinterrupt\x12\x12\n\x04idle\x18\x05\x20\x01(\
-    \x02R\x04idle\x12\x12\n\x04temp\x18\x06\x20\x01(\x02R\x04temp\"M\n\x0bCp\
-    uLoadData\x12\x10\n\x03one\x18\x01\x20\x01(\x02R\x03one\x12\x12\n\x04fiv\
-    e\x18\x02\x20\x01(\x02R\x04five\x12\x18\n\x07fifteen\x18\x03\x20\x01(\
-    \x02R\x07fifteen\"R\n\nMemoryData\x12\x14\n\x05total\x18\x01\x20\x01(\
-    \x02R\x05total\x12\x12\n\x04free\x18\x02\x20\x01(\x02R\x04free\x12\x1a\n\
-    \x08platform\x18\x03\x20\x01(\x02R\x08platform\"!\n\tPowerData\x12\x14\n\
-    \x05power\x18\x01\x20\x01(\x02R\x05power\"C\n\x0bNetworkData\x12\x19\n\
-    \x08rx_bytes\x18\x01\x20\x01(\x02R\x07rxBytes\x12\x19\n\x08tx_bytes\x18\
-    \x02\x20\x01(\x02R\x07txBytes\"\xdb\x01\n\x11ComputerStatsData\x12\x16\n\
-    \x06uptime\x18\x01\x20\x01(\x02R\x06uptime\x12\x1a\n\x03cpu\x18\x02\x20\
-    \x01(\x0b2\x08.CpuDataR\x03cpu\x12&\n\x07loadavg\x18\x03\x20\x01(\x0b2\
-    \x0c.CpuLoadDataR\x07loadavg\x12\x1f\n\x04swap\x18\x04\x20\x01(\x0b2\x0b\
-    .MemoryDataR\x04swap\x12#\n\x06memory\x18\x05\x20\x01(\x0b2\x0b.MemoryDa\
-    taR\x06memory\x12$\n\x06netifs\x18\x06\x20\x03(\x0b2\x0c.NetworkDataR\
-    \x06netifs*O\n\tActorType\x12\x15\n\x11MANUAL_USER_ACTOR\x10\0\x12\x11\n\
+    \x12\x12\n\x04zoom\x18\n\x20\x01(\x05R\x04zoom\x12\x1d\n\x04sync\x18\x14\
+    \x20\x01(\x0b2\t.SyncInfoR\x04sync\"\x88\x01\n\x15ComputerStreamingData\
+    \x12-\n\x06status\x18\x01\x20\x01(\x0e2\x15.PhoneStreamingStatusR\x06sta\
+    tus\x12\x10\n\x03fps\x18\x02\x20\x01(\x02R\x03fps\x12\x18\n\x07bitrate\
+    \x18\x03\x20\x01(\x02R\x07bitrate\x12\x14\n\x05error\x18\x04\x20\x01(\tR\
+    \x05error\"\xcd\x01\n\x17ComputerStreamingConfig\x12\x1c\n\tactivated\
+    \x18\x01\x20\x01(\x08R\tactivated\x12\x16\n\x06camera\x18\x02\x20\x01(\t\
+    R\x06camera\x12-\n\x06output\x18\x03\x20\x01(\x0e2\x15.PhoneStreamingOut\
+    putR\x06output\x12\x10\n\x03url\x18\x04\x20\x01(\tR\x03url\x12\x1c\n\tar\
+    guments\x18\x05\x20\x03(\tR\targuments\x12\x1d\n\x04sync\x18\x14\x20\x01\
+    (\x0b2\t.SyncInfoR\x04sync\"2\n\x16ComputerStreamingState\x12\x18\n\x07c\
+    ameras\x18\x01\x20\x03(\tR\x07cameras\"\x15\n\x13ComputerStatsConfig\"\
+    \x8f\x01\n\x07CpuData\x12\x12\n\x04user\x18\x01\x20\x01(\x02R\x04user\
+    \x12\x12\n\x04nice\x18\x02\x20\x01(\x02R\x04nice\x12\x16\n\x06system\x18\
+    \x03\x20\x01(\x02R\x06system\x12\x1c\n\tinterrupt\x18\x04\x20\x01(\x02R\
+    \tinterrupt\x12\x12\n\x04idle\x18\x05\x20\x01(\x02R\x04idle\x12\x12\n\
+    \x04temp\x18\x06\x20\x01(\x02R\x04temp\"M\n\x0bCpuLoadData\x12\x10\n\x03\
+    one\x18\x01\x20\x01(\x02R\x03one\x12\x12\n\x04five\x18\x02\x20\x01(\x02R\
+    \x04five\x12\x18\n\x07fifteen\x18\x03\x20\x01(\x02R\x07fifteen\"R\n\nMem\
+    oryData\x12\x14\n\x05total\x18\x01\x20\x01(\x02R\x05total\x12\x12\n\x04f\
+    ree\x18\x02\x20\x01(\x02R\x04free\x12\x1a\n\x08platform\x18\x03\x20\x01(\
+    \x02R\x08platform\"!\n\tPowerData\x12\x14\n\x05power\x18\x01\x20\x01(\
+    \x02R\x05power\"C\n\x0bNetworkData\x12\x19\n\x08rx_bytes\x18\x01\x20\x01\
+    (\x02R\x07rxBytes\x12\x19\n\x08tx_bytes\x18\x02\x20\x01(\x02R\x07txBytes\
+    \"\xfa\x01\n\x11ComputerStatsData\x12\x16\n\x06uptime\x18\x01\x20\x01(\
+    \x02R\x06uptime\x12\x1a\n\x03cpu\x18\x02\x20\x01(\x0b2\x08.CpuDataR\x03c\
+    pu\x12&\n\x07loadavg\x18\x03\x20\x01(\x0b2\x0c.CpuLoadDataR\x07loadavg\
+    \x12\x1f\n\x04swap\x18\x04\x20\x01(\x0b2\x0b.MemoryDataR\x04swap\x12#\n\
+    \x06memory\x18\x05\x20\x01(\x0b2\x0b.MemoryDataR\x06memory\x12$\n\x06net\
+    ifs\x18\x06\x20\x03(\x0b2\x0c.NetworkDataR\x06netifs\x12\x1d\n\x04sync\
+    \x18\x14\x20\x01(\x0b2\t.SyncInfoR\x04sync*f\n\tActorType\x12\x15\n\x11M\
+    ANUAL_USER_ACTOR\x10\0\x12\x15\n\x11SYSTEM_USER_ACTOR\x10\x01\x12\x11\n\
     \rVIRTUAL_ACTOR\x10\x03\x12\x18\n\x14ENV_CONTROLLER_ACTOR\x10\x04*;\n\
     \x12ActorRessourceType\x12\x12\n\x0ePHYSICAL_RELAY\x10\0\x12\x11\n\rVIRT\
     UAL_RELAY\x10\x01*\x90\x01\n\x0fCalibrationStep\x12\x15\n\x11READY_CALIB\

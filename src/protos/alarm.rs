@@ -219,6 +219,7 @@ pub struct FieldAlarm {
     pub low: ::protobuf::SingularPtrField<AlarmZoneValue>,
     pub high: ::protobuf::SingularPtrField<AlarmZoneValue>,
     pub veryHigh: ::protobuf::SingularPtrField<AlarmZoneValue>,
+    pub sync: ::protobuf::SingularPtrField<super::sync::SyncInfo>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -418,6 +419,39 @@ impl FieldAlarm {
     pub fn take_veryHigh(&mut self) -> AlarmZoneValue {
         self.veryHigh.take().unwrap_or_else(|| AlarmZoneValue::new())
     }
+
+    // .SyncInfo sync = 20;
+
+
+    pub fn get_sync(&self) -> &super::sync::SyncInfo {
+        self.sync.as_ref().unwrap_or_else(|| <super::sync::SyncInfo as ::protobuf::Message>::default_instance())
+    }
+    pub fn clear_sync(&mut self) {
+        self.sync.clear();
+    }
+
+    pub fn has_sync(&self) -> bool {
+        self.sync.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_sync(&mut self, v: super::sync::SyncInfo) {
+        self.sync = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_sync(&mut self) -> &mut super::sync::SyncInfo {
+        if self.sync.is_none() {
+            self.sync.set_default();
+        }
+        self.sync.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_sync(&mut self) -> super::sync::SyncInfo {
+        self.sync.take().unwrap_or_else(|| super::sync::SyncInfo::new())
+    }
 }
 
 impl ::protobuf::Message for FieldAlarm {
@@ -438,6 +472,11 @@ impl ::protobuf::Message for FieldAlarm {
             }
         };
         for v in &self.veryHigh {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        for v in &self.sync {
             if !v.is_initialized() {
                 return false;
             }
@@ -466,6 +505,9 @@ impl ::protobuf::Message for FieldAlarm {
                 },
                 6 => {
                     ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.veryHigh)?;
+                },
+                20 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.sync)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -501,6 +543,10 @@ impl ::protobuf::Message for FieldAlarm {
             let len = v.compute_size();
             my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
         }
+        if let Some(ref v) = self.sync.as_ref() {
+            let len = v.compute_size();
+            my_size += 2 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -530,6 +576,11 @@ impl ::protobuf::Message for FieldAlarm {
         }
         if let Some(ref v) = self.veryHigh.as_ref() {
             os.write_tag(6, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        }
+        if let Some(ref v) = self.sync.as_ref() {
+            os.write_tag(20, ::protobuf::wire_format::WireTypeLengthDelimited)?;
             os.write_raw_varint32(v.get_cached_size())?;
             v.write_to_with_cached_sizes(os)?;
         }
@@ -601,6 +652,11 @@ impl ::protobuf::Message for FieldAlarm {
                 |m: &FieldAlarm| { &m.veryHigh },
                 |m: &mut FieldAlarm| { &mut m.veryHigh },
             ));
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<super::sync::SyncInfo>>(
+                "sync",
+                |m: &FieldAlarm| { &m.sync },
+                |m: &mut FieldAlarm| { &mut m.sync },
+            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<FieldAlarm>(
                 "FieldAlarm",
                 fields,
@@ -623,6 +679,7 @@ impl ::protobuf::Clear for FieldAlarm {
         self.low.clear();
         self.high.clear();
         self.veryHigh.clear();
+        self.sync.clear();
         self.unknown_fields.clear();
     }
 }
@@ -1070,14 +1127,15 @@ impl ::protobuf::reflect::ProtobufValue for AlarmZone {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x0balarm.proto\">\n\x0eAlarmZoneValue\x12\x14\n\x05value\x18\x01\x20\
-    \x01(\x02R\x05value\x12\x16\n\x06offset\x18\x02\x20\x01(\x02R\x06offset\
-    \"\xe4\x01\n\nFieldAlarm\x12\x1a\n\x08moduleId\x18\x01\x20\x01(\tR\x08mo\
-    duleId\x12\x1a\n\x08property\x18\x02\x20\x01(\tR\x08property\x12)\n\x07v\
-    eryLow\x18\x03\x20\x01(\x0b2\x0f.AlarmZoneValueR\x07veryLow\x12!\n\x03lo\
-    w\x18\x04\x20\x01(\x0b2\x0f.AlarmZoneValueR\x03low\x12#\n\x04high\x18\
-    \x05\x20\x01(\x0b2\x0f.AlarmZoneValueR\x04high\x12+\n\x08veryHigh\x18\
-    \x06\x20\x01(\x0b2\x0f.AlarmZoneValueR\x08veryHigh\"\x8f\x02\n\x0fFieldA\
+    \n\x0balarm.proto\x1a\nsync.proto\">\n\x0eAlarmZoneValue\x12\x14\n\x05va\
+    lue\x18\x01\x20\x01(\x02R\x05value\x12\x16\n\x06offset\x18\x02\x20\x01(\
+    \x02R\x06offset\"\x83\x02\n\nFieldAlarm\x12\x1a\n\x08moduleId\x18\x01\
+    \x20\x01(\tR\x08moduleId\x12\x1a\n\x08property\x18\x02\x20\x01(\tR\x08pr\
+    operty\x12)\n\x07veryLow\x18\x03\x20\x01(\x0b2\x0f.AlarmZoneValueR\x07ve\
+    ryLow\x12!\n\x03low\x18\x04\x20\x01(\x0b2\x0f.AlarmZoneValueR\x03low\x12\
+    #\n\x04high\x18\x05\x20\x01(\x0b2\x0f.AlarmZoneValueR\x04high\x12+\n\x08\
+    veryHigh\x18\x06\x20\x01(\x0b2\x0f.AlarmZoneValueR\x08veryHigh\x12\x1d\n\
+    \x04sync\x18\x14\x20\x01(\x0b2\t.SyncInfoR\x04sync\"\x8f\x02\n\x0fFieldA\
     larmEvent\x12\x1a\n\x08moduleId\x18\x01\x20\x01(\tR\x08moduleId\x12\x1a\
     \n\x08property\x18\x02\x20\x01(\tR\x08property\x12.\n\x0cpreviousZone\
     \x18\x03\x20\x01(\x0e2\n.AlarmZoneR\x0cpreviousZone\x12,\n\x0bcurrentZon\

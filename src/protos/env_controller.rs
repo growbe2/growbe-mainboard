@@ -1209,6 +1209,7 @@ pub struct EnvironmentControllerConfiguration {
     pub id: ::std::string::String,
     pub observers: ::protobuf::RepeatedField<MObserver>,
     pub actors: ::protobuf::RepeatedField<MActor>,
+    pub sync: ::protobuf::SingularPtrField<super::sync::SyncInfo>,
     // message oneof groups
     pub implementation: ::std::option::Option<EnvironmentControllerConfiguration_oneof_implementation>,
     // special fields
@@ -1406,6 +1407,39 @@ impl EnvironmentControllerConfiguration {
             ProgressiveControlerImplementation::new()
         }
     }
+
+    // .SyncInfo sync = 20;
+
+
+    pub fn get_sync(&self) -> &super::sync::SyncInfo {
+        self.sync.as_ref().unwrap_or_else(|| <super::sync::SyncInfo as ::protobuf::Message>::default_instance())
+    }
+    pub fn clear_sync(&mut self) {
+        self.sync.clear();
+    }
+
+    pub fn has_sync(&self) -> bool {
+        self.sync.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_sync(&mut self, v: super::sync::SyncInfo) {
+        self.sync = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_sync(&mut self) -> &mut super::sync::SyncInfo {
+        if self.sync.is_none() {
+            self.sync.set_default();
+        }
+        self.sync.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_sync(&mut self) -> super::sync::SyncInfo {
+        self.sync.take().unwrap_or_else(|| super::sync::SyncInfo::new())
+    }
 }
 
 impl ::protobuf::Message for EnvironmentControllerConfiguration {
@@ -1430,6 +1464,11 @@ impl ::protobuf::Message for EnvironmentControllerConfiguration {
                 return false;
             }
         }
+        for v in &self.sync {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
         true
     }
 
@@ -1458,6 +1497,9 @@ impl ::protobuf::Message for EnvironmentControllerConfiguration {
                     }
                     self.implementation = ::std::option::Option::Some(EnvironmentControllerConfiguration_oneof_implementation::progressive(is.read_message()?));
                 },
+                20 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.sync)?;
+                },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
                 },
@@ -1481,6 +1523,10 @@ impl ::protobuf::Message for EnvironmentControllerConfiguration {
             let len = value.compute_size();
             my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
         };
+        if let Some(ref v) = self.sync.as_ref() {
+            let len = v.compute_size();
+            my_size += 2 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        }
         if let ::std::option::Option::Some(ref v) = self.implementation {
             match v {
                 &EnvironmentControllerConfiguration_oneof_implementation::field_static(ref v) => {
@@ -1512,6 +1558,11 @@ impl ::protobuf::Message for EnvironmentControllerConfiguration {
             os.write_raw_varint32(v.get_cached_size())?;
             v.write_to_with_cached_sizes(os)?;
         };
+        if let Some(ref v) = self.sync.as_ref() {
+            os.write_tag(20, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        }
         if let ::std::option::Option::Some(ref v) = self.implementation {
             match v {
                 &EnvironmentControllerConfiguration_oneof_implementation::field_static(ref v) => {
@@ -1589,6 +1640,11 @@ impl ::protobuf::Message for EnvironmentControllerConfiguration {
                 EnvironmentControllerConfiguration::has_progressive,
                 EnvironmentControllerConfiguration::get_progressive,
             ));
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<super::sync::SyncInfo>>(
+                "sync",
+                |m: &EnvironmentControllerConfiguration| { &m.sync },
+                |m: &mut EnvironmentControllerConfiguration| { &mut m.sync },
+            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<EnvironmentControllerConfiguration>(
                 "EnvironmentControllerConfiguration",
                 fields,
@@ -1610,6 +1666,7 @@ impl ::protobuf::Clear for EnvironmentControllerConfiguration {
         self.actors.clear();
         self.implementation = ::std::option::Option::None;
         self.implementation = ::std::option::Option::None;
+        self.sync.clear();
         self.unknown_fields.clear();
     }
 }
@@ -1633,6 +1690,7 @@ pub struct EnvironmentControllerEvent {
     pub running: bool,
     pub state: EnvironmentControllerState,
     pub message: ::std::string::String,
+    pub at: u32,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -1730,6 +1788,21 @@ impl EnvironmentControllerEvent {
     pub fn take_message(&mut self) -> ::std::string::String {
         ::std::mem::replace(&mut self.message, ::std::string::String::new())
     }
+
+    // uint32 at = 20;
+
+
+    pub fn get_at(&self) -> u32 {
+        self.at
+    }
+    pub fn clear_at(&mut self) {
+        self.at = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_at(&mut self, v: u32) {
+        self.at = v;
+    }
 }
 
 impl ::protobuf::Message for EnvironmentControllerEvent {
@@ -1757,6 +1830,13 @@ impl ::protobuf::Message for EnvironmentControllerEvent {
                 4 => {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.message)?;
                 },
+                20 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_uint32()?;
+                    self.at = tmp;
+                },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
                 },
@@ -1781,6 +1861,9 @@ impl ::protobuf::Message for EnvironmentControllerEvent {
         if !self.message.is_empty() {
             my_size += ::protobuf::rt::string_size(4, &self.message);
         }
+        if self.at != 0 {
+            my_size += ::protobuf::rt::value_size(20, self.at, ::protobuf::wire_format::WireTypeVarint);
+        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -1798,6 +1881,9 @@ impl ::protobuf::Message for EnvironmentControllerEvent {
         }
         if !self.message.is_empty() {
             os.write_string(4, &self.message)?;
+        }
+        if self.at != 0 {
+            os.write_uint32(20, self.at)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -1857,6 +1943,11 @@ impl ::protobuf::Message for EnvironmentControllerEvent {
                 |m: &EnvironmentControllerEvent| { &m.message },
                 |m: &mut EnvironmentControllerEvent| { &mut m.message },
             ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint32>(
+                "at",
+                |m: &EnvironmentControllerEvent| { &m.at },
+                |m: &mut EnvironmentControllerEvent| { &mut m.at },
+            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<EnvironmentControllerEvent>(
                 "EnvironmentControllerEvent",
                 fields,
@@ -1877,6 +1968,7 @@ impl ::protobuf::Clear for EnvironmentControllerEvent {
         self.running = false;
         self.state = EnvironmentControllerState::WAITING_ALARM;
         self.message.clear();
+        self.at = 0;
         self.unknown_fields.clear();
     }
 }
@@ -2006,38 +2098,40 @@ impl ::protobuf::reflect::ProtobufValue for EnvironmentControllerState {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x14env_controller.proto\x1a\x0cmodule.proto\"l\n\x06MActor\x12\x12\n\
-    \x04name\x18\x01\x20\x01(\tR\x04name\x12\x0e\n\x02id\x18\x02\x20\x01(\tR\
-    \x02id\x12\x1a\n\x08property\x18\x03\x20\x01(\tR\x08property\x12\"\n\x04\
-    type\x18\x05\x20\x01(\x0e2\x0e.RessourceTypeR\x04type\"o\n\tMObserver\
-    \x12\x12\n\x04name\x18\x01\x20\x01(\tR\x04name\x12\x0e\n\x02id\x18\x02\
-    \x20\x01(\tR\x02id\x12\x1a\n\x08property\x18\x03\x20\x01(\tR\x08property\
-    \x12\"\n\x04type\x18\x04\x20\x01(\x0e2\x0e.RessourceTypeR\x04type\"\xbc\
-    \x01\n\x10SCConditionActor\x12\x1f\n\x0bobserver_id\x18\x01\x20\x01(\tR\
-    \nobserverId\x128\n\x07actions\x18\x03\x20\x03(\x0b2\x1e.SCConditionActo\
-    r.ActionsEntryR\x07actions\x1aM\n\x0cActionsEntry\x12\x10\n\x03key\x18\
-    \x01\x20\x01(\tR\x03key\x12'\n\x05value\x18\x02\x20\x01(\x0b2\x11.SCObse\
-    rverActionR\x05value:\x028\x01\"\x98\x01\n\x10SCObserverAction\x125\n\
-    \x06config\x18\x01\x20\x03(\x0b2\x1d.SCObserverAction.ConfigEntryR\x06co\
-    nfig\x1aM\n\x0bConfigEntry\x12\x10\n\x03key\x18\x01\x20\x01(\x05R\x03key\
-    \x12(\n\x05value\x18\x02\x20\x01(\x0b2\x12.RelayOutletConfigR\x05value:\
-    \x028\x01\"S\n\x1eStaticControllerImplementation\x121\n\nconditions\x18\
-    \x01\x20\x03(\x0b2\x11.SCConditionActorR\nconditions\"$\n\"ProgressiveCo\
-    ntrolerImplementation\"\x95\x02\n\"EnvironmentControllerConfiguration\
-    \x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12(\n\tobservers\x18\x02\x20\
-    \x03(\x0b2\n.MObserverR\tobservers\x12\x1f\n\x06actors\x18\x03\x20\x03(\
-    \x0b2\x07.MActorR\x06actors\x129\n\x06static\x18\n\x20\x01(\x0b2\x1f.Sta\
-    ticControllerImplementationH\0R\x06static\x12G\n\x0bprogressive\x18\x0f\
-    \x20\x01(\x0b2#.ProgressiveControlerImplementationH\0R\x0bprogressiveB\
-    \x10\n\x0eimplementation\"\x93\x01\n\x1aEnvironmentControllerEvent\x12\
+    \n\x14env_controller.proto\x1a\x0cmodule.proto\x1a\nsync.proto\"l\n\x06M\
+    Actor\x12\x12\n\x04name\x18\x01\x20\x01(\tR\x04name\x12\x0e\n\x02id\x18\
+    \x02\x20\x01(\tR\x02id\x12\x1a\n\x08property\x18\x03\x20\x01(\tR\x08prop\
+    erty\x12\"\n\x04type\x18\x05\x20\x01(\x0e2\x0e.RessourceTypeR\x04type\"o\
+    \n\tMObserver\x12\x12\n\x04name\x18\x01\x20\x01(\tR\x04name\x12\x0e\n\
+    \x02id\x18\x02\x20\x01(\tR\x02id\x12\x1a\n\x08property\x18\x03\x20\x01(\
+    \tR\x08property\x12\"\n\x04type\x18\x04\x20\x01(\x0e2\x0e.RessourceTypeR\
+    \x04type\"\xbc\x01\n\x10SCConditionActor\x12\x1f\n\x0bobserver_id\x18\
+    \x01\x20\x01(\tR\nobserverId\x128\n\x07actions\x18\x03\x20\x03(\x0b2\x1e\
+    .SCConditionActor.ActionsEntryR\x07actions\x1aM\n\x0cActionsEntry\x12\
+    \x10\n\x03key\x18\x01\x20\x01(\tR\x03key\x12'\n\x05value\x18\x02\x20\x01\
+    (\x0b2\x11.SCObserverActionR\x05value:\x028\x01\"\x98\x01\n\x10SCObserve\
+    rAction\x125\n\x06config\x18\x01\x20\x03(\x0b2\x1d.SCObserverAction.Conf\
+    igEntryR\x06config\x1aM\n\x0bConfigEntry\x12\x10\n\x03key\x18\x01\x20\
+    \x01(\x05R\x03key\x12(\n\x05value\x18\x02\x20\x01(\x0b2\x12.RelayOutletC\
+    onfigR\x05value:\x028\x01\"S\n\x1eStaticControllerImplementation\x121\n\
+    \nconditions\x18\x01\x20\x03(\x0b2\x11.SCConditionActorR\nconditions\"$\
+    \n\"ProgressiveControlerImplementation\"\xb4\x02\n\"EnvironmentControlle\
+    rConfiguration\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12(\n\tobserve\
+    rs\x18\x02\x20\x03(\x0b2\n.MObserverR\tobservers\x12\x1f\n\x06actors\x18\
+    \x03\x20\x03(\x0b2\x07.MActorR\x06actors\x129\n\x06static\x18\n\x20\x01(\
+    \x0b2\x1f.StaticControllerImplementationH\0R\x06static\x12G\n\x0bprogres\
+    sive\x18\x0f\x20\x01(\x0b2#.ProgressiveControlerImplementationH\0R\x0bpr\
+    ogressive\x12\x1d\n\x04sync\x18\x14\x20\x01(\x0b2\t.SyncInfoR\x04syncB\
+    \x10\n\x0eimplementation\"\xa3\x01\n\x1aEnvironmentControllerEvent\x12\
     \x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\x18\n\x07running\x18\x02\x20\
     \x01(\x08R\x07running\x121\n\x05state\x18\x03\x20\x01(\x0e2\x1b.Environm\
     entControllerStateR\x05state\x12\x18\n\x07message\x18\x04\x20\x01(\tR\
-    \x07message*4\n\rRessourceType\x12\x10\n\x0cACTOR_MODULE\x10\0\x12\x11\n\
-    \rACTOR_VIRTUAL\x10\x01*|\n\x1aEnvironmentControllerState\x12\x11\n\rWAI\
-    TING_ALARM\x10\0\x12\x11\n\rWAITING_VALUE\x10\x01\x12\x13\n\x0fCHANGING_\
-    CONFIG\x10\x02\x12\x0c\n\x08SLEEPING\x10\x03\x12\t\n\x05ENDED\x10\x04\
-    \x12\n\n\x06FAILED\x10\x05b\x06proto3\
+    \x07message\x12\x0e\n\x02at\x18\x14\x20\x01(\rR\x02at*4\n\rRessourceType\
+    \x12\x10\n\x0cACTOR_MODULE\x10\0\x12\x11\n\rACTOR_VIRTUAL\x10\x01*|\n\
+    \x1aEnvironmentControllerState\x12\x11\n\rWAITING_ALARM\x10\0\x12\x11\n\
+    \rWAITING_VALUE\x10\x01\x12\x13\n\x0fCHANGING_CONFIG\x10\x02\x12\x0c\n\
+    \x08SLEEPING\x10\x03\x12\t\n\x05ENDED\x10\x04\x12\n\n\x06FAILED\x10\x05b\
+    \x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

@@ -28,6 +28,7 @@ pub struct GrowbeMainboardConfig {
     // message fields
     pub hearthBeath: i32,
     pub preferedCommandConnection: CommandConnectionType,
+    pub sync: ::protobuf::SingularPtrField<super::sync::SyncInfo>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -73,10 +74,48 @@ impl GrowbeMainboardConfig {
     pub fn set_preferedCommandConnection(&mut self, v: CommandConnectionType) {
         self.preferedCommandConnection = v;
     }
+
+    // .SyncInfo sync = 20;
+
+
+    pub fn get_sync(&self) -> &super::sync::SyncInfo {
+        self.sync.as_ref().unwrap_or_else(|| <super::sync::SyncInfo as ::protobuf::Message>::default_instance())
+    }
+    pub fn clear_sync(&mut self) {
+        self.sync.clear();
+    }
+
+    pub fn has_sync(&self) -> bool {
+        self.sync.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_sync(&mut self, v: super::sync::SyncInfo) {
+        self.sync = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_sync(&mut self) -> &mut super::sync::SyncInfo {
+        if self.sync.is_none() {
+            self.sync.set_default();
+        }
+        self.sync.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_sync(&mut self) -> super::sync::SyncInfo {
+        self.sync.take().unwrap_or_else(|| super::sync::SyncInfo::new())
+    }
 }
 
 impl ::protobuf::Message for GrowbeMainboardConfig {
     fn is_initialized(&self) -> bool {
+        for v in &self.sync {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
         true
     }
 
@@ -93,6 +132,9 @@ impl ::protobuf::Message for GrowbeMainboardConfig {
                 },
                 2 => {
                     ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.preferedCommandConnection, 2, &mut self.unknown_fields)?
+                },
+                20 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.sync)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -112,6 +154,10 @@ impl ::protobuf::Message for GrowbeMainboardConfig {
         if self.preferedCommandConnection != CommandConnectionType::MQTT {
             my_size += ::protobuf::rt::enum_size(2, self.preferedCommandConnection);
         }
+        if let Some(ref v) = self.sync.as_ref() {
+            let len = v.compute_size();
+            my_size += 2 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -123,6 +169,11 @@ impl ::protobuf::Message for GrowbeMainboardConfig {
         }
         if self.preferedCommandConnection != CommandConnectionType::MQTT {
             os.write_enum(2, ::protobuf::ProtobufEnum::value(&self.preferedCommandConnection))?;
+        }
+        if let Some(ref v) = self.sync.as_ref() {
+            os.write_tag(20, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -172,6 +223,11 @@ impl ::protobuf::Message for GrowbeMainboardConfig {
                 |m: &GrowbeMainboardConfig| { &m.preferedCommandConnection },
                 |m: &mut GrowbeMainboardConfig| { &mut m.preferedCommandConnection },
             ));
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<super::sync::SyncInfo>>(
+                "sync",
+                |m: &GrowbeMainboardConfig| { &m.sync },
+                |m: &mut GrowbeMainboardConfig| { &mut m.sync },
+            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<GrowbeMainboardConfig>(
                 "GrowbeMainboardConfig",
                 fields,
@@ -190,6 +246,7 @@ impl ::protobuf::Clear for GrowbeMainboardConfig {
     fn clear(&mut self) {
         self.hearthBeath = 0;
         self.preferedCommandConnection = CommandConnectionType::MQTT;
+        self.sync.clear();
         self.unknown_fields.clear();
     }
 }
@@ -3380,6 +3437,7 @@ pub struct MainboardConfig {
     pub update: ::protobuf::SingularPtrField<UpdaterConfig>,
     pub api: ::protobuf::SingularPtrField<ApiConfig>,
     pub proxy: ::protobuf::SingularPtrField<ReverseProxyConfig>,
+    pub sync: ::protobuf::SingularPtrField<super::sync::SyncInfo>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -3677,6 +3735,39 @@ impl MainboardConfig {
     pub fn take_proxy(&mut self) -> ReverseProxyConfig {
         self.proxy.take().unwrap_or_else(|| ReverseProxyConfig::new())
     }
+
+    // .SyncInfo sync = 20;
+
+
+    pub fn get_sync(&self) -> &super::sync::SyncInfo {
+        self.sync.as_ref().unwrap_or_else(|| <super::sync::SyncInfo as ::protobuf::Message>::default_instance())
+    }
+    pub fn clear_sync(&mut self) {
+        self.sync.clear();
+    }
+
+    pub fn has_sync(&self) -> bool {
+        self.sync.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_sync(&mut self, v: super::sync::SyncInfo) {
+        self.sync = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_sync(&mut self) -> &mut super::sync::SyncInfo {
+        if self.sync.is_none() {
+            self.sync.set_default();
+        }
+        self.sync.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_sync(&mut self) -> super::sync::SyncInfo {
+        self.sync.take().unwrap_or_else(|| super::sync::SyncInfo::new())
+    }
 }
 
 impl ::protobuf::Message for MainboardConfig {
@@ -3721,6 +3812,11 @@ impl ::protobuf::Message for MainboardConfig {
                 return false;
             }
         };
+        for v in &self.sync {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
         true
     }
 
@@ -3754,6 +3850,9 @@ impl ::protobuf::Message for MainboardConfig {
                 },
                 9 => {
                     ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.proxy)?;
+                },
+                20 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.sync)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -3802,6 +3901,10 @@ impl ::protobuf::Message for MainboardConfig {
             let len = v.compute_size();
             my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
         }
+        if let Some(ref v) = self.sync.as_ref() {
+            let len = v.compute_size();
+            my_size += 2 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -3848,6 +3951,11 @@ impl ::protobuf::Message for MainboardConfig {
         }
         if let Some(ref v) = self.proxy.as_ref() {
             os.write_tag(9, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        }
+        if let Some(ref v) = self.sync.as_ref() {
+            os.write_tag(20, ::protobuf::wire_format::WireTypeLengthDelimited)?;
             os.write_raw_varint32(v.get_cached_size())?;
             v.write_to_with_cached_sizes(os)?;
         }
@@ -3934,6 +4042,11 @@ impl ::protobuf::Message for MainboardConfig {
                 |m: &MainboardConfig| { &m.proxy },
                 |m: &mut MainboardConfig| { &mut m.proxy },
             ));
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<super::sync::SyncInfo>>(
+                "sync",
+                |m: &MainboardConfig| { &m.sync },
+                |m: &mut MainboardConfig| { &mut m.sync },
+            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<MainboardConfig>(
                 "MainboardConfig",
                 fields,
@@ -3959,6 +4072,7 @@ impl ::protobuf::Clear for MainboardConfig {
         self.update.clear();
         self.api.clear();
         self.proxy.clear();
+        self.sync.clear();
         self.unknown_fields.clear();
     }
 }
@@ -4026,50 +4140,52 @@ impl ::protobuf::reflect::ProtobufValue for CommandConnectionType {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x0bboard.proto\"\x8f\x01\n\x15GrowbeMainboardConfig\x12\x20\n\x0bhear\
-    thBeath\x18\x01\x20\x01(\x05R\x0bhearthBeath\x12T\n\x19preferedCommandCo\
-    nnection\x18\x02\x20\x01(\x0e2\x16.CommandConnectionTypeR\x19preferedCom\
-    mandConnection\"\xbf\x01\n\x0fHostInformation\x12\x1a\n\x08hostname\x18\
-    \x01\x20\x01(\tR\x08hostname\x12\x16\n\x06kernel\x18\x02\x20\x01(\tR\x06\
-    kernel\x12$\n\rkernelVersion\x18\x03\x20\x01(\tR\rkernelVersion\x12\"\n\
-    \x0carchitecture\x18\x04\x20\x01(\tR\x0carchitecture\x12\x0e\n\x02os\x18\
-    \x05\x20\x01(\tR\x02os\x12\x1e\n\ndeviceType\x18\x06\x20\x01(\tR\ndevice\
-    Type\"\xab\x01\n\tHelloWord\x12\x18\n\x07version\x18\x01\x20\x01(\tR\x07\
-    version\x12\"\n\x0ccloudVersion\x18\x02\x20\x01(\tR\x0ccloudVersion\x12\
-    \x10\n\x03RTC\x18\x03\x20\x01(\tR\x03RTC\x12(\n\x06boards\x18\x04\x20\
-    \x03(\x0b2\x10.RunningComboardR\x06boards\x12$\n\x04host\x18\x05\x20\x01\
-    (\x0b2\x10.HostInformationR\x04host\"D\n\x0eVersionRelease\x12\x18\n\x07\
-    version\x18\x01\x20\x01(\tR\x07version\x12\x18\n\x07channel\x18\x02\x20\
-    \x01(\tR\x07channel\"G\n\rUpdateExecute\x12\x18\n\x07version\x18\x01\x20\
-    \x01(\tR\x07version\x12\x1c\n\trestarted\x18\x02\x20\x01(\x08R\trestarte\
-    d\"\x10\n\x0eRestartRequest\"_\n\x0fLocalConnection\x12\x12\n\x04ssid\
-    \x18\x01\x20\x01(\tR\x04ssid\x12\x20\n\x0bsignalLevel\x18\x02\x20\x01(\
-    \x05R\x0bsignalLevel\x12\x16\n\x06ipAddr\x18\x03\x20\x01(\tR\x06ipAddr\"\
-    2\n\nMQTTConfig\x12\x10\n\x03url\x18\x01\x20\x01(\tR\x03url\x12\x12\n\
-    \x04port\x18\x02\x20\x01(\x05R\x04port\">\n\x0eComboardConfig\x12\x16\n\
-    \x06config\x18\x01\x20\x01(\tR\x06config\x12\x14\n\x05imple\x18\x02\x20\
-    \x01(\tR\x05imple\";\n\x0fRunningComboard\x12\x14\n\x05imple\x18\x01\x20\
-    \x01(\tR\x05imple\x12\x12\n\x04addr\x18\x02\x20\x01(\tR\x04addr\"?\n\rGr\
-    owbeCommand\x12\x14\n\x05topic\x18\x01\x20\x01(\tR\x05topic\x12\x18\n\
-    \x07payload\x18\x02\x20\x01(\x0cR\x07payload\":\n\x10HttpServerConfig\
-    \x12\x12\n\x04addr\x18\x01\x20\x01(\tR\x04addr\x12\x12\n\x04port\x18\x02\
-    \x20\x01(\x05R\x04port\"&\n\x0cLoggerConfig\x12\x16\n\x06target\x18\x01\
-    \x20\x01(\tR\x06target\"a\n\rUpdaterConfig\x12\x1e\n\nautoupdate\x18\x01\
-    \x20\x01(\x08R\nautoupdate\x12\x18\n\x07channel\x18\x02\x20\x01(\tR\x07c\
-    hannel\x12\x16\n\x06reboot\x18\x03\x20\x01(\x08R\x06reboot\"\x1d\n\tApiC\
-    onfig\x12\x10\n\x03url\x18\x01\x20\x01(\tR\x03url\"&\n\x12ReverseProxyCo\
-    nfig\x12\x10\n\x03url\x18\x01\x20\x01(\tR\x03url\"\xe1\x02\n\x0fMainboar\
-    dConfig\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\x1f\n\x04mqtt\x18\
-    \x02\x20\x01(\x0b2\x0b.MQTTConfigR\x04mqtt\x12+\n\x08comboard\x18\x03\
-    \x20\x01(\x0b2\x0f.ComboardConfigR\x08comboard\x12-\n\tcomboards\x18\x07\
-    \x20\x03(\x0b2\x0f.ComboardConfigR\tcomboards\x12)\n\x06server\x18\x04\
-    \x20\x01(\x0b2\x11.HttpServerConfigR\x06server\x12%\n\x06logger\x18\x05\
-    \x20\x01(\x0b2\r.LoggerConfigR\x06logger\x12&\n\x06update\x18\x06\x20\
-    \x01(\x0b2\x0e.UpdaterConfigR\x06update\x12\x1c\n\x03api\x18\x08\x20\x01\
-    (\x0b2\n.ApiConfigR\x03api\x12)\n\x05proxy\x18\t\x20\x01(\x0b2\x13.Rever\
-    seProxyConfigR\x05proxy*/\n\x15CommandConnectionType\x12\x08\n\x04MQTT\
-    \x10\0\x12\x0c\n\x08WS_PROXY\x10\x01B+\n)ca.berlingoqc.growbe_android_mo\
-    dule.protob\x06proto3\
+    \n\x0bboard.proto\x1a\nsync.proto\"\xae\x01\n\x15GrowbeMainboardConfig\
+    \x12\x20\n\x0bhearthBeath\x18\x01\x20\x01(\x05R\x0bhearthBeath\x12T\n\
+    \x19preferedCommandConnection\x18\x02\x20\x01(\x0e2\x16.CommandConnectio\
+    nTypeR\x19preferedCommandConnection\x12\x1d\n\x04sync\x18\x14\x20\x01(\
+    \x0b2\t.SyncInfoR\x04sync\"\xbf\x01\n\x0fHostInformation\x12\x1a\n\x08ho\
+    stname\x18\x01\x20\x01(\tR\x08hostname\x12\x16\n\x06kernel\x18\x02\x20\
+    \x01(\tR\x06kernel\x12$\n\rkernelVersion\x18\x03\x20\x01(\tR\rkernelVers\
+    ion\x12\"\n\x0carchitecture\x18\x04\x20\x01(\tR\x0carchitecture\x12\x0e\
+    \n\x02os\x18\x05\x20\x01(\tR\x02os\x12\x1e\n\ndeviceType\x18\x06\x20\x01\
+    (\tR\ndeviceType\"\xab\x01\n\tHelloWord\x12\x18\n\x07version\x18\x01\x20\
+    \x01(\tR\x07version\x12\"\n\x0ccloudVersion\x18\x02\x20\x01(\tR\x0ccloud\
+    Version\x12\x10\n\x03RTC\x18\x03\x20\x01(\tR\x03RTC\x12(\n\x06boards\x18\
+    \x04\x20\x03(\x0b2\x10.RunningComboardR\x06boards\x12$\n\x04host\x18\x05\
+    \x20\x01(\x0b2\x10.HostInformationR\x04host\"D\n\x0eVersionRelease\x12\
+    \x18\n\x07version\x18\x01\x20\x01(\tR\x07version\x12\x18\n\x07channel\
+    \x18\x02\x20\x01(\tR\x07channel\"G\n\rUpdateExecute\x12\x18\n\x07version\
+    \x18\x01\x20\x01(\tR\x07version\x12\x1c\n\trestarted\x18\x02\x20\x01(\
+    \x08R\trestarted\"\x10\n\x0eRestartRequest\"_\n\x0fLocalConnection\x12\
+    \x12\n\x04ssid\x18\x01\x20\x01(\tR\x04ssid\x12\x20\n\x0bsignalLevel\x18\
+    \x02\x20\x01(\x05R\x0bsignalLevel\x12\x16\n\x06ipAddr\x18\x03\x20\x01(\t\
+    R\x06ipAddr\"2\n\nMQTTConfig\x12\x10\n\x03url\x18\x01\x20\x01(\tR\x03url\
+    \x12\x12\n\x04port\x18\x02\x20\x01(\x05R\x04port\">\n\x0eComboardConfig\
+    \x12\x16\n\x06config\x18\x01\x20\x01(\tR\x06config\x12\x14\n\x05imple\
+    \x18\x02\x20\x01(\tR\x05imple\";\n\x0fRunningComboard\x12\x14\n\x05imple\
+    \x18\x01\x20\x01(\tR\x05imple\x12\x12\n\x04addr\x18\x02\x20\x01(\tR\x04a\
+    ddr\"?\n\rGrowbeCommand\x12\x14\n\x05topic\x18\x01\x20\x01(\tR\x05topic\
+    \x12\x18\n\x07payload\x18\x02\x20\x01(\x0cR\x07payload\":\n\x10HttpServe\
+    rConfig\x12\x12\n\x04addr\x18\x01\x20\x01(\tR\x04addr\x12\x12\n\x04port\
+    \x18\x02\x20\x01(\x05R\x04port\"&\n\x0cLoggerConfig\x12\x16\n\x06target\
+    \x18\x01\x20\x01(\tR\x06target\"a\n\rUpdaterConfig\x12\x1e\n\nautoupdate\
+    \x18\x01\x20\x01(\x08R\nautoupdate\x12\x18\n\x07channel\x18\x02\x20\x01(\
+    \tR\x07channel\x12\x16\n\x06reboot\x18\x03\x20\x01(\x08R\x06reboot\"\x1d\
+    \n\tApiConfig\x12\x10\n\x03url\x18\x01\x20\x01(\tR\x03url\"&\n\x12Revers\
+    eProxyConfig\x12\x10\n\x03url\x18\x01\x20\x01(\tR\x03url\"\x80\x03\n\x0f\
+    MainboardConfig\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\x1f\n\x04m\
+    qtt\x18\x02\x20\x01(\x0b2\x0b.MQTTConfigR\x04mqtt\x12+\n\x08comboard\x18\
+    \x03\x20\x01(\x0b2\x0f.ComboardConfigR\x08comboard\x12-\n\tcomboards\x18\
+    \x07\x20\x03(\x0b2\x0f.ComboardConfigR\tcomboards\x12)\n\x06server\x18\
+    \x04\x20\x01(\x0b2\x11.HttpServerConfigR\x06server\x12%\n\x06logger\x18\
+    \x05\x20\x01(\x0b2\r.LoggerConfigR\x06logger\x12&\n\x06update\x18\x06\
+    \x20\x01(\x0b2\x0e.UpdaterConfigR\x06update\x12\x1c\n\x03api\x18\x08\x20\
+    \x01(\x0b2\n.ApiConfigR\x03api\x12)\n\x05proxy\x18\t\x20\x01(\x0b2\x13.R\
+    everseProxyConfigR\x05proxy\x12\x1d\n\x04sync\x18\x14\x20\x01(\x0b2\t.Sy\
+    ncInfoR\x04sync*/\n\x15CommandConnectionType\x12\x08\n\x04MQTT\x10\0\x12\
+    \x0c\n\x08WS_PROXY\x10\x01B+\n)ca.berlingoqc.growbe_android_module.proto\
+    b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

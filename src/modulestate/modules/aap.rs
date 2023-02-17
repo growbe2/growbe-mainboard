@@ -16,6 +16,7 @@ use protobuf::SingularPtrField;
 pub struct AAPValidator {
     pub actors_property: std::collections::HashMap<String, Actor>,
     pub previous_config: RelayModuleConfig,
+    pub previous_value: RelayModuleData,
     pub clear_actor: bool,
 }
 
@@ -25,6 +26,7 @@ impl AAPValidator {
             clear_actor: false,
             actors_property: std::collections::HashMap::new(),
             previous_config: RelayModuleConfig::new(),
+            previous_value: RelayModuleData::new(),
         };
     }
 }
@@ -66,18 +68,20 @@ impl crate::modulestate::interface::ModuleValueValidator for AAPValidator {
     > {
         if value_event.buffer.len() >= 8 {
             let mut data = crate::protos::module::RelayModuleData::new();
-            data.p0 = get_outlet_data(value_event.buffer[0]);
-            data.p1 = get_outlet_data(value_event.buffer[1]);
-            data.p2 = get_outlet_data(value_event.buffer[2]);
-            data.p3 = get_outlet_data(value_event.buffer[3]);
-            data.p4 = get_outlet_data(value_event.buffer[4]);
-            data.p5 = get_outlet_data(value_event.buffer[5]);
-            data.p6 = get_outlet_data(value_event.buffer[6]);
-            data.p7 = get_outlet_data(value_event.buffer[7]);
+            data.p0 = get_outlet_data(value_event.buffer[0], self.previous_value.get_p0());
+            data.p1 = get_outlet_data(value_event.buffer[1], self.previous_value.get_p1());
+            data.p2 = get_outlet_data(value_event.buffer[2], self.previous_value.get_p2());
+            data.p3 = get_outlet_data(value_event.buffer[3], self.previous_value.get_p3());
+            data.p4 = get_outlet_data(value_event.buffer[4], self.previous_value.get_p4());
+            data.p5 = get_outlet_data(value_event.buffer[5], self.previous_value.get_p5());
+            data.p6 = get_outlet_data(value_event.buffer[6], self.previous_value.get_p6());
+            data.p7 = get_outlet_data(value_event.buffer[7], self.previous_value.get_p7());
             data.timestamp = std::time::SystemTime::now()
                 .duration_since(std::time::SystemTime::UNIX_EPOCH)
                 .unwrap()
                 .as_secs() as i32;
+
+            self.previous_value = data.clone();
             return Ok(Box::new(data));
         } else {
             return Err(crate::modulestate::interface::ModuleError::new()

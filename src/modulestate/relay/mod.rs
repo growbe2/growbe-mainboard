@@ -5,19 +5,24 @@ pub mod duration;
 pub mod physical_relay;
 pub mod virtual_relay;
 
-use crate::protos::module::RelayOutletData;
+use crate::{protos::module::RelayOutletData, utils::time::get_timestamp};
 use protobuf::SingularPtrField;
 
 fn f(i: &usize, x: &mut [u8], value: u8) {
     x[*i] = value;
 }
 
-pub fn get_outlet_data(value: u8) -> SingularPtrField<RelayOutletData> {
+pub fn get_outlet_data(value: u8, previous_value: &RelayOutletData) -> SingularPtrField<RelayOutletData> {
     let mut data = RelayOutletData::new();
     if value == 0 {
         data.set_state(false);
     } else if value == 1 {
         data.set_state(true);
+    }
+    if data.get_state() != previous_value.get_state() {
+        data.set_timestamp(get_timestamp());
+    } else {
+        data.set_timestamp(previous_value.get_timestamp());
     }
     return SingularPtrField::some(data);
 }
@@ -44,6 +49,7 @@ macro_rules! set_property {
                     $data.actor_owner_id = d.actor_owner_id.clone();
                     $data.actor_owner_type = d.actor_owner_type;
                 }
+                $data.timestamp = crate::utils::time::get_timestamp();
                 $this.$name = SingularPtrField::from(Some($data.clone()));
             }
         )+

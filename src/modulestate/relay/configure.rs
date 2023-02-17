@@ -8,7 +8,7 @@ use crate::{
     protos::module::{
         Actor, ActorType, AlarmConfig, CronItem, CycleConfig, ManualConfig, RelayOutletConfig,
         RelayOutletMode,
-    },
+    }, utils::time::get_timestamp,
 };
 
 use super::Relay;
@@ -177,6 +177,8 @@ pub fn configure_relay(
                         );
                         map_handler.insert(id, token);
                     }
+
+                    config.timestamp = get_timestamp();
                 }
                 return Ok(config);
             }
@@ -185,6 +187,7 @@ pub fn configure_relay(
                 let aconfig = config.alarm.as_ref().unwrap();
                 super::alarm::set_alarm_relay(relay, aconfig, token.clone());
                 map_handler.insert(id, token);
+                config.timestamp = get_timestamp();
                 return Ok(config);
             }
             RelayOutletMode::CYCLE => {
@@ -192,6 +195,7 @@ pub fn configure_relay(
                 let rconfig = config.cycle.as_ref().unwrap();
                 super::cycle::set_cycle_relay(relay, rconfig, token.clone());
                 map_handler.insert(id, token);
+                config.timestamp = get_timestamp();
                 return Ok(config);
             }
             RelayOutletMode::VIRTUAL => {
