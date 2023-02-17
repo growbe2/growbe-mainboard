@@ -38,13 +38,19 @@ fn get_id() -> Result<String, ()> {
                 }
             }
             log::error!("cannot get first entry from network interface");
-            return Err(());
+            return fallback_id();
         }
         Err(err) => {
             log::error!("cannot list network interface to determined id: {}", err);
-            return Err(());
+            return fallback_id();
         }
     }
+}
+
+
+fn fallback_id() -> Result<String, ()> {
+    let id: String = machine_uid::get().unwrap();
+    return Ok(id[..6].to_string());
 }
 
 pub fn get() -> String {
