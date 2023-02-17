@@ -4,9 +4,9 @@
       "adapter": "CodeLLDB",
       "configuration": {
         "request": "launch",
-        "program": "/home/wq/Project/growbe/growbe-mainboard/target/debug/growbe-mainboard",
+        "program": "target/debug/growbe-mainboard",
         "args": [
-          "./mainboard_config_local.json"
+          "./mainboard_config.json"
         ]
       }
     },
