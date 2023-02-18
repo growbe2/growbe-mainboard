@@ -91,12 +91,23 @@ extern "C" {
 pub struct PIHatControl {}
 
 impl PIHatControl {
-    fn enable() -> Result<(), Box<dyn Error>> {
+    pub fn enable() -> Result<(), Box<dyn Error>> {
         let mut hat_pin = Gpio::new()?.get(23)?.into_output();
 
         hat_pin.set_high();
         hat_pin.set_high();
         log::info!("hat for board {}", hat_pin.is_set_high());
+
+        return Ok(());
+    }
+
+    pub fn disable() -> Result<(), Box<dyn Error>> {
+        let mut hat_pin = Gpio::new()?.get(23)?.into_output();
+
+        hat_pin.set_low();
+        hat_pin.set_low();
+
+        log::info!("hat for board {}", hat_pin.is_set_low());
 
         return Ok(());
     }
@@ -188,7 +199,19 @@ impl super::interface::ComboardClient for I2CLinuxComboardClient {
         }
 
         return tokio::task::spawn(async move {
-            println!("starting i2c task");
+            match PIHatControl::disable() {
+                Ok(_) => {},
+                Err(_) => {}
+            }
+
+            tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
+
+            match PIHatControl::enable() {
+                Ok(_) => PIHatControl::enable_led_hat(),
+                Err(_) => {}
+            }
+
+
             unsafe {
                 register_callback_comboard(
                     callback_state_changed,
