@@ -118,9 +118,9 @@ impl PIHatControl {
 
             let mut b = false;
 
-            let mut hat_pin = Gpio::new().unwrap().get(23).unwrap().into_output();
-            hat_pin.set_high();
-            log::info!("hat for led {}", hat_pin.is_set_high());
+            //let mut hat_pin = Gpio::new().unwrap().get(23).unwrap().into_output();
+            //hat_pin.set_high();
+            //log::info!("hat for led {}", hat_pin.is_set_high());
 
             loop {
                 select! {
@@ -200,7 +200,7 @@ impl super::interface::ComboardClient for I2CLinuxComboardClient {
 
         return tokio::task::spawn(async move {
             match PIHatControl::disable() {
-                Ok(_) => {},
+                Ok(_) => {}
                 Err(_) => {}
             }
 
@@ -210,7 +210,6 @@ impl super::interface::ComboardClient for I2CLinuxComboardClient {
                 Ok(_) => PIHatControl::enable_led_hat(),
                 Err(_) => {}
             }
-
 
             unsafe {
                 register_callback_comboard(

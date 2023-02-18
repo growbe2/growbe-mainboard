@@ -4,7 +4,7 @@ version = "0.2.0"
 edition = "2021"
 
 [features]
-default = ["com_virt", "com_ws", "com_i2c", "reverse_proxy_cmd"]
+default = ["com_virt", "com_ws", "reverse_proxy_cmd"]
 gpio = ["rppal"]
 ws = ["tokio-tungstenite", "url", "futures-util"]
 com_ble = ["bluer", "btleplug", "futures", "uuid", "tokio-stream"]
@@ -65,6 +65,7 @@ tracing = { version = "*", optional = true }
 tracing-subscriber = { version = "*", optional = true }
 tracing-journald = { version = "*", optional = true }
 console-subscriber = { version = "0.1.5", optional = true }
+
 
 [target.'cfg(any(target_os = "macos", target_os = "windows"))'.dependencies]
 btleplug = { version = "*", features = ["serde"], optional = true }

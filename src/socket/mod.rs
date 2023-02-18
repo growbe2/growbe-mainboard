@@ -106,6 +106,13 @@ impl From<(&str, bool, ActionCode)> for MqttModuleHanlder {
 lazy_static::lazy_static! {
     pub static ref MQTT_HANDLES: Vec<MqttHandler> = vec![
         MqttHandler {
+            subscription: "/restartComboard".to_string(),
+            regex: "restartComboard",
+            action_code: crate::protos::message::ActionCode::SYNC_REQUEST,
+            handler: on_restart_comboard,
+            not_prefix: false,
+        },
+        MqttHandler {
             subscription: String::from("/board/setTime"),
             regex: "setTime",
             action_code: crate::protos::message::ActionCode::RTC_SET,
@@ -213,6 +220,22 @@ fn on_set_rtc(
         Err(SocketMessagingError::new()
             .status(400)
             .message("operation not supported on device".to_string()))
+    });
+}
+
+fn on_restart_comboard(
+    _topic_name: String,
+    _data: Arc<Vec<u8>>,
+    _ctx: TaskContext,
+) -> BoxedFuture<Result<Option<(String, Vec<u8>, bool)>, SocketMessagingError>> {
+    return Box::pin(async move {
+        #[cfg(feature = "com_i2c")]
+        {
+            crate::comboard::imple::i2c_linux::PIHatControl::disable();
+            tokio::time::sleep(std::time::Duration::from_millis(100)).await;
+            crate::comboard::imple::i2c_linux::PIHatControl::enable();
+        }
+        return Ok(None);
     });
 }
 
