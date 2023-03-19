@@ -199,6 +199,7 @@ impl super::interface::ComboardClient for I2CLinuxComboardClient {
         }
 
         return tokio::task::spawn(async move {
+            /*
             match PIHatControl::disable() {
                 Ok(_) => {}
                 Err(_) => {}
@@ -210,6 +211,7 @@ impl super::interface::ComboardClient for I2CLinuxComboardClient {
                 Ok(_) => PIHatControl::enable_led_hat(),
                 Err(_) => {}
             }
+            */
 
             unsafe {
                 register_callback_comboard(
