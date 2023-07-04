@@ -30,6 +30,7 @@ pub fn handle_module_value<'a>(
             value,
         )) {
             log::error!("failed to send module data : {:?}", err);
+            std::process::exit(35);
         }
     };
 
